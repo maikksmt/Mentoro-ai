@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-23 09:49+0100\n"
+"POT-Creation-Date: 2025-11-23 11:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,40 +26,42 @@ msgstr ""
 msgid "Language support"
 msgstr ""
 
-#: catalog/admin.py:18
-msgid "Comma-separated language codes, e.g. de,en,fr"
+#: catalog/admin.py:19
+msgid ""
+"Comma-separated language codes, e.g. de,en,fr,es,it,pt,nl,pl,tr,jp,cn - all "
+"other languages needs full name"
 msgstr ""
 
-#: catalog/admin.py:63
+#: catalog/admin.py:64
 msgid "Features"
 msgstr ""
 
-#: catalog/admin.py:66
+#: catalog/admin.py:67
 msgid "One feature per line (stored as a list per language)."
 msgstr ""
 
-#: catalog/admin.py:163
-msgid "Existing tags"
-msgstr ""
-
-#: catalog/admin.py:179
+#: catalog/admin.py:173
 msgid "Content"
 msgstr ""
 
-#: catalog/admin.py:188
+#: catalog/admin.py:182
 msgid "Classification"
 msgstr ""
 
-#: catalog/admin.py:199
+#: catalog/admin.py:193
 msgid "Pricing & Highlight"
 msgstr ""
 
-#: catalog/admin.py:210 compare/admin.py:33 guides/admin.py:59
+#: catalog/admin.py:204 compare/admin.py:33 guides/admin.py:59
 #: prompts/admin.py:51 usecases/admin.py:51
 msgid "Meta"
 msgstr ""
 
-#: catalog/models.py:16 catalog/models.py:61 compare/models.py:20
+#: catalog/admin.py:219
+msgid "Existing tags"
+msgstr ""
+
+#: catalog/models.py:16 catalog/models.py:65 compare/models.py:20
 #: glossary/models.py:11 guides/models.py:21 prompts/models.py:24
 #: usecases/models.py:24
 msgid "Slug"
@@ -73,63 +75,63 @@ msgstr ""
 msgid "Categories"
 msgstr ""
 
-#: catalog/models.py:30
+#: catalog/models.py:34
 msgid "Completely free"
 msgstr ""
 
-#: catalog/models.py:31
+#: catalog/models.py:35
 msgid "Freemium (free basic, paid pro)"
 msgstr ""
 
-#: catalog/models.py:32
+#: catalog/models.py:36
 msgid "Subscription (monthly/yearly)"
 msgstr ""
 
-#: catalog/models.py:33
+#: catalog/models.py:37
 msgid "Pay-as-you-go / usage-based"
 msgstr ""
 
-#: catalog/models.py:34
+#: catalog/models.py:38
 msgid "One-time license / lifetime deal"
 msgstr ""
 
-#: catalog/models.py:35
+#: catalog/models.py:39
 msgid "Open-source / self-hosted"
 msgstr ""
 
-#: catalog/models.py:36
+#: catalog/models.py:40
 msgid "Contact sales / custom pricing"
 msgstr ""
 
-#: catalog/models.py:37
+#: catalog/models.py:41
 msgid "Other / mixed model"
 msgstr ""
 
-#: catalog/models.py:94
+#: catalog/models.py:98
 msgid "Pricing tier"
 msgstr ""
 
-#: catalog/models.py:95
+#: catalog/models.py:99
 msgid "Pricing tiers"
 msgstr ""
 
-#: catalog/models.py:103
+#: catalog/models.py:107
 msgid "Flat"
 msgstr ""
 
-#: catalog/models.py:104
+#: catalog/models.py:108
 msgid "% of sales"
 msgstr ""
 
-#: catalog/models.py:105
+#: catalog/models.py:109
 msgid "Recurring"
 msgstr ""
 
-#: catalog/models.py:120
+#: catalog/models.py:124
 msgid "Affiliate-Program"
 msgstr ""
 
-#: catalog/models.py:121
+#: catalog/models.py:125
 msgid "Affiliate-Programs"
 msgstr ""
 
@@ -1247,7 +1249,7 @@ msgstr ""
 msgid "Filter by tag"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:93 templates/catalog/tool_detail.html:158
+#: templates/catalog/tool_detail.html:93 templates/catalog/tool_detail.html:176
 #: templates/catalog/tool_list.html:92
 msgid "Pricing"
 msgstr ""
@@ -1268,28 +1270,64 @@ msgstr ""
 msgid "English"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:148
+#: templates/catalog/tool_detail.html:137 templates/catalog/tool_list.html:119
+msgid "French"
+msgstr ""
+
+#: templates/catalog/tool_detail.html:139 templates/catalog/tool_list.html:121
+msgid "Spanish"
+msgstr ""
+
+#: templates/catalog/tool_detail.html:141 templates/catalog/tool_list.html:123
+msgid "Italian"
+msgstr ""
+
+#: templates/catalog/tool_detail.html:143 templates/catalog/tool_list.html:125
+msgid "Portuguese"
+msgstr ""
+
+#: templates/catalog/tool_detail.html:145 templates/catalog/tool_list.html:127
+msgid "Dutch"
+msgstr ""
+
+#: templates/catalog/tool_detail.html:147 templates/catalog/tool_list.html:129
+msgid "Polish"
+msgstr ""
+
+#: templates/catalog/tool_detail.html:149 templates/catalog/tool_list.html:131
+msgid "Turkish"
+msgstr ""
+
+#: templates/catalog/tool_detail.html:151 templates/catalog/tool_list.html:133
+msgid "Japanese"
+msgstr ""
+
+#: templates/catalog/tool_detail.html:153 templates/catalog/tool_list.html:135
+msgid "Chinese"
+msgstr ""
+
+#: templates/catalog/tool_detail.html:166
 msgid "What this tool can do"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:161
-#: templates/catalog/tool_detail.html:165
+#: templates/catalog/tool_detail.html:179
+#: templates/catalog/tool_detail.html:183
 msgid "Pricing last checked on"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:182
+#: templates/catalog/tool_detail.html:200
 msgid "month"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:193
+#: templates/catalog/tool_detail.html:211
 msgid "year"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:198
+#: templates/catalog/tool_detail.html:216
 msgid "On request"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:246
+#: templates/catalog/tool_detail.html:264
 msgid "Similar tools"
 msgstr ""
 
@@ -1325,24 +1363,20 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
-#: templates/catalog/tool_list.html:119
-msgid "French"
-msgstr ""
-
-#: templates/catalog/tool_list.html:143
+#: templates/catalog/tool_list.html:159
 msgid "Featured"
 msgstr ""
 
-#: templates/catalog/tool_list.html:152
+#: templates/catalog/tool_list.html:168
 msgid "Website"
 msgstr ""
 
-#: templates/catalog/tool_list.html:157 templates/compare/index.html:50
+#: templates/catalog/tool_list.html:173 templates/compare/index.html:50
 #: templates/content/home.html:72
 msgid "Details"
 msgstr ""
 
-#: templates/catalog/tool_list.html:165
+#: templates/catalog/tool_list.html:181
 msgid "No tools found."
 msgstr ""
 
