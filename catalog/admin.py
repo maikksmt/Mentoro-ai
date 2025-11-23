@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib import admin
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, get_language
 from parler.admin import TranslatableTabularInline
 from parler.forms import TranslatableModelForm
 from taggit.models import Tag
@@ -31,7 +31,6 @@ class ToolAdminForm(TranslatableModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # bestehende Sprachen in das Textfeld schreiben
         if self.instance and self.instance.pk and self.instance.language_support:
             self.fields["language_support_input"].initial = ", ".join(
                 self.instance.language_support
@@ -39,7 +38,6 @@ class ToolAdminForm(TranslatableModelForm):
         if "tags" in self.fields:
             w = self.fields["tags"].widget
             style = w.attrs.get("style", "")
-            # Höhe + Breite anpassen – Taggit nutzt ein <input>, die Höhe kommt über CSS
             w.attrs["style"] = (style + "; min-width:50rem;").strip("; ")
 
     def clean_language_support_input(self):
@@ -219,7 +217,6 @@ class ToolAdmin(TranslatableTinyMCEMixin):
     existing_tags_display.short_description = _("Existing tags")
 
     def get_prepopulated_fields(self, request, obj=None):
-        # Slug pro Sprache aus name
         return {"slug": ("name",)}
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
