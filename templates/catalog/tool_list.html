@@ -11,8 +11,8 @@
     {% if tag %}
         <div class="mb-3 flex items-center gap-3">
             {% trans "Filtered by tag" %}:
-            <span class="badge badge-primary badge-lg">
-             #{{ tag }}
+            <span class="badge badge-info badge-lg">
+             #&nbsp;{{ tag }}
         </span>
             <a href="{% url 'catalog:list' %}"
                class="btn btn-xs text-base-content/80">
@@ -117,6 +117,22 @@
                                                 {% trans "English" %}
                                             {% elif lang == "fr" %}
                                                 {% trans "French" %}
+                                            {% elif lang == "es" %}
+                                                {% trans "Spanish" %}
+                                            {% elif lang == "it" %}
+                                                {% trans "Italian" %}
+                                            {% elif lang == "pt" %}
+                                                {% trans "Portuguese" %}
+                                            {% elif lang == "nl" %}
+                                                {% trans "Dutch" %}
+                                            {% elif lang == "pl" %}
+                                                {% trans "Polish" %}
+                                            {% elif lang == "tr" %}
+                                                {% trans "Turkish" %}
+                                            {% elif lang == "jp" %}
+                                                {% trans "Japanese" %}
+                                            {% elif lang == "cn" %}
+                                                {% trans "Chinese" %}
                                             {% else %}
                                                 {{ lang }}
                                             {% endif %}

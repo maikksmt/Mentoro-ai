@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-23 09:49+0100\n"
-"PO-Revision-Date: 2025-11-23 09:50+0100\n"
+"POT-Creation-Date: 2025-11-23 11:48+0100\n"
+"PO-Revision-Date: 2025-11-23 11:50+0100\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -27,40 +27,44 @@ msgstr "Ihr Profil wurde aktualisiert."
 msgid "Language support"
 msgstr "Sprachunterstützung"
 
-#: catalog/admin.py:18
-msgid "Comma-separated language codes, e.g. de,en,fr"
-msgstr "Komma-getrennte Sprachcodes, z.B. de,en,fr"
+#: catalog/admin.py:19
+msgid ""
+"Comma-separated language codes, e.g. de,en,fr,es,it,pt,nl,pl,tr,jp,cn - all "
+"other languages needs full name"
+msgstr ""
+"Kommagetrennte Sprachcodes, z.B. de,en,fr,es,it,pt,nl,pl,tr,jp,cn - alle "
+"anderen Sprachen benötigen den vollständigen Namen"
 
-#: catalog/admin.py:63
+#: catalog/admin.py:64
 msgid "Features"
 msgstr "Merkmale"
 
-#: catalog/admin.py:66
+#: catalog/admin.py:67
 msgid "One feature per line (stored as a list per language)."
 msgstr "Ein Feature pro Zeile (gespeichert als Liste pro Sprache)."
 
-#: catalog/admin.py:163
-msgid "Existing tags"
-msgstr "Vorhandene Schlagwörter"
-
-#: catalog/admin.py:179
+#: catalog/admin.py:173
 msgid "Content"
 msgstr "Inhalt"
 
-#: catalog/admin.py:188
+#: catalog/admin.py:182
 msgid "Classification"
 msgstr "Klassifizierung"
 
-#: catalog/admin.py:199
+#: catalog/admin.py:193
 msgid "Pricing & Highlight"
 msgstr "Preisgestaltung & Highlight"
 
-#: catalog/admin.py:210 compare/admin.py:33 guides/admin.py:59
+#: catalog/admin.py:204 compare/admin.py:33 guides/admin.py:59
 #: prompts/admin.py:51 usecases/admin.py:51
 msgid "Meta"
 msgstr "Meta"
 
-#: catalog/models.py:16 catalog/models.py:61 compare/models.py:20
+#: catalog/admin.py:219
+msgid "Existing tags"
+msgstr "Vorhandene Schlagwörter"
+
+#: catalog/models.py:16 catalog/models.py:65 compare/models.py:20
 #: glossary/models.py:11 guides/models.py:21 prompts/models.py:24
 #: usecases/models.py:24
 msgid "Slug"
@@ -74,63 +78,63 @@ msgstr "Kategorie"
 msgid "Categories"
 msgstr "Kategorien"
 
-#: catalog/models.py:30
+#: catalog/models.py:34
 msgid "Completely free"
 msgstr "Komplett kostenlos"
 
-#: catalog/models.py:31
+#: catalog/models.py:35
 msgid "Freemium (free basic, paid pro)"
 msgstr "Freemium (kostenlose Basis, bezahlte Pro)"
 
-#: catalog/models.py:32
+#: catalog/models.py:36
 msgid "Subscription (monthly/yearly)"
 msgstr "Abonnement (monatlich/jährlich)"
 
-#: catalog/models.py:33
+#: catalog/models.py:37
 msgid "Pay-as-you-go / usage-based"
 msgstr "Pay-as-you-go / nutzungsbasiert"
 
-#: catalog/models.py:34
+#: catalog/models.py:38
 msgid "One-time license / lifetime deal"
 msgstr "Einmalige Lizenz / lebenslanger Vertrag"
 
-#: catalog/models.py:35
+#: catalog/models.py:39
 msgid "Open-source / self-hosted"
 msgstr "Open-Source / selbst gehostet"
 
-#: catalog/models.py:36
+#: catalog/models.py:40
 msgid "Contact sales / custom pricing"
 msgstr "Vertrieb kontaktieren / individuelle Preisgestaltung"
 
-#: catalog/models.py:37
+#: catalog/models.py:41
 msgid "Other / mixed model"
 msgstr "Anderes / gemischtes Modell"
 
-#: catalog/models.py:94
+#: catalog/models.py:98
 msgid "Pricing tier"
 msgstr "Preismodell"
 
-#: catalog/models.py:95
+#: catalog/models.py:99
 msgid "Pricing tiers"
-msgstr "Preismodell"
+msgstr "Preismodelle"
 
-#: catalog/models.py:103
+#: catalog/models.py:107
 msgid "Flat"
 msgstr "Pauschal"
 
-#: catalog/models.py:104
+#: catalog/models.py:108
 msgid "% of sales"
 msgstr "% vom Umsatz"
 
-#: catalog/models.py:105
+#: catalog/models.py:109
 msgid "Recurring"
 msgstr "Wiederkehrend"
 
-#: catalog/models.py:120
+#: catalog/models.py:124
 msgid "Affiliate-Program"
 msgstr "Affiliate-Programm"
 
-#: catalog/models.py:121
+#: catalog/models.py:125
 msgid "Affiliate-Programs"
 msgstr "Affiliate-Programme"
 
@@ -1304,9 +1308,9 @@ msgid "Filter by tag"
 msgstr "Nach Schlagwort filtern"
 
 #: templates/catalog/tool_detail.html:93
-#: templates/catalog/tool_detail.html:158 templates/catalog/tool_list.html:92
+#: templates/catalog/tool_detail.html:176 templates/catalog/tool_list.html:92
 msgid "Pricing"
-msgstr "Preise"
+msgstr "Preismodell"
 
 #: templates/catalog/tool_detail.html:98 templates/catalog/tool_list.html:96
 msgid "Free Tier"
@@ -1324,28 +1328,65 @@ msgstr "Deutsch"
 msgid "English"
 msgstr "Englisch"
 
-#: templates/catalog/tool_detail.html:148
+#: templates/catalog/tool_detail.html:137 templates/catalog/tool_list.html:119
+msgid "French"
+msgstr "Französisch"
+
+#: templates/catalog/tool_detail.html:139 templates/catalog/tool_list.html:121
+msgid "Spanish"
+msgstr "Spanisch"
+
+#: templates/catalog/tool_detail.html:141 templates/catalog/tool_list.html:123
+msgid "Italian"
+msgstr "Italienisch"
+
+#: templates/catalog/tool_detail.html:143 templates/catalog/tool_list.html:125
+msgid "Portuguese"
+msgstr "Portugiesisch"
+
+#: templates/catalog/tool_detail.html:145 templates/catalog/tool_list.html:127
+msgid "Dutch"
+msgstr "Niederländisch"
+
+#: templates/catalog/tool_detail.html:147 templates/catalog/tool_list.html:129
+#| msgid "Publish"
+msgid "Polish"
+msgstr "Polnisch"
+
+#: templates/catalog/tool_detail.html:149 templates/catalog/tool_list.html:131
+msgid "Turkish"
+msgstr "Türkisch"
+
+#: templates/catalog/tool_detail.html:151 templates/catalog/tool_list.html:133
+msgid "Japanese"
+msgstr "Japanisch"
+
+#: templates/catalog/tool_detail.html:153 templates/catalog/tool_list.html:135
+msgid "Chinese"
+msgstr "Chinesisch"
+
+#: templates/catalog/tool_detail.html:166
 msgid "What this tool can do"
 msgstr "Was dieses Tool kann"
 
-#: templates/catalog/tool_detail.html:161
-#: templates/catalog/tool_detail.html:165
+#: templates/catalog/tool_detail.html:179
+#: templates/catalog/tool_detail.html:183
 msgid "Pricing last checked on"
 msgstr "Preise zuletzt geprüft am"
 
-#: templates/catalog/tool_detail.html:182
+#: templates/catalog/tool_detail.html:200
 msgid "month"
 msgstr "Monat"
 
-#: templates/catalog/tool_detail.html:193
+#: templates/catalog/tool_detail.html:211
 msgid "year"
 msgstr "Jahr"
 
-#: templates/catalog/tool_detail.html:198
+#: templates/catalog/tool_detail.html:216
 msgid "On request"
 msgstr "Auf Anfrage"
 
-#: templates/catalog/tool_detail.html:246
+#: templates/catalog/tool_detail.html:264
 msgid "Similar tools"
 msgstr "Ähnliche Tools"
 
@@ -1381,24 +1422,20 @@ msgstr "Filter zurücksetzen"
 msgid "Reset"
 msgstr "Zurücksetzen"
 
-#: templates/catalog/tool_list.html:119
-msgid "French"
-msgstr "Französisch"
-
-#: templates/catalog/tool_list.html:143
+#: templates/catalog/tool_list.html:159
 msgid "Featured"
 msgstr "Empfohlen"
 
-#: templates/catalog/tool_list.html:152
+#: templates/catalog/tool_list.html:168
 msgid "Website"
 msgstr "Webseite"
 
-#: templates/catalog/tool_list.html:157 templates/compare/index.html:50
+#: templates/catalog/tool_list.html:173 templates/compare/index.html:50
 #: templates/content/home.html:72
 msgid "Details"
 msgstr "Details"
 
-#: templates/catalog/tool_list.html:165
+#: templates/catalog/tool_list.html:181
 msgid "No tools found."
 msgstr "Keine Tools gefunden."
 
@@ -3369,6 +3406,9 @@ msgstr "Anwendungsfälle · MentoroAI"
 #: usecases/views.py:56
 msgid "Discover how people used ai in real usecases"
 msgstr "Entdecke, wie Menschen KI in realen Fällen verwendet haben."
+
+#~ msgid "Comma-separated language codes, e.g. de,en,fr"
+#~ msgstr "Komma-getrennte Sprachcodes, z.B. de,en,fr"
 
 #~ msgid "Scheduled publishing and unpublishing."
 #~ msgstr "Geplante Veröffentlichung und De-Veröffentlichung."

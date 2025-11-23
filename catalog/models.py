@@ -23,7 +23,11 @@ class Category(TranslatableModel):
         verbose_name_plural = _("Categories")
 
     def __str__(self):
-        return self.safe_translation_getter("name", any_language=True) or f"Category #{self.pk}"
+        return (
+                self.safe_translation_getter("name")
+                or self.safe_translation_getter("name", any_language=True)
+                or f"Category {self.pk}"
+        )
 
 
 PRICING_MODEL_CHOICES = [
