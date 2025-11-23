@@ -15,7 +15,8 @@ class ToolAdminForm(TranslatableModelForm):
     language_support_input = forms.CharField(
         label=_("Language support"),
         required=False,
-        help_text=_("Comma-separated language codes, e.g. de,en,fr"),
+        help_text=_(
+            "Comma-separated language codes, e.g. de,en,fr,es,it,pt,nl,pl,tr,jp,cn - all other languages needs full name"),
         widget=forms.Textarea(
             attrs={
                 "rows": 2,
@@ -211,7 +212,6 @@ class ToolAdmin(TranslatableTinyMCEMixin):
         ),
     )
 
-    # Übersicht aller existierenden Tags (nur Anzeige)
     def existing_tags_display(self, obj=None):
         names = Tag.objects.order_by("name").values_list("name", flat=True)
         return ", ".join(names)
