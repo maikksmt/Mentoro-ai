@@ -27,8 +27,8 @@
             </h2>
             <div class="flex flex-wrap gap-2">
                 {% for tag_name in all_tags %}
-                    <a href="?tag=
-                            {{ tag_name }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if free %}&free=1{% endif %}"
+                    <a href="?tag={{ tag_name }}{% if q %}&q={{ q|urlencode }}{% endif %}
+{% if free %}&free=1{% endif %}"
                        class="badge badge-outline badge-sm {% if tag_name == tag %}badge-info{% else %}hover:bg-base-200{% endif %}">
                         #{{ tag_name }}
                     </a>
@@ -37,6 +37,10 @@
         </section>
     {% endif %}
     <form method="get" class="py-2 md:py-4 grid gap-3 grid-cols-3 md:grid-cols-4 justify-items">
+        {% if tag %}
+            <input type="hidden" name="tag" value="{{ tag }}">
+        {% endif %}
+
         <label class="input">
             {% heroicon_solid "magnifying-glass" class="opacity-70" %}
             <input type="search" name="q" value="{{ q|default_if_none:'' }}" placeholder="{% trans 'Search tools …' %}"
@@ -93,7 +97,8 @@
                                 </dt>
                                 <dd class="flex flex-wrap gap-1">
                                     {% for tag in t.tags.all %}
-                                        <a href="?tag={{ tag.name }}"
+                                        <a href="?tag={{ tag.name }}{% if q %}&q={{ q|urlencode }}{% endif %}
+{% if free %}&free=1{% endif %}"
                                            class="badge badge-ghost badge-sm hover:bg-base-300 transition"
                                            aria-label="{% trans 'Filter by tag' %} #{{ tag.name }}">
                                             #{{ tag.name }}

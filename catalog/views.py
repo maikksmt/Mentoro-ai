@@ -17,11 +17,15 @@ class ToolListView(ListView, SeoMixin):
     context_object_name = "object_list"
     paginate_by = 20
 
+    def _get_tag_param(self) -> str:
+        raw = self.request.GET.get("tag")
+        return raw.strip() if raw else ""
+
     def get_queryset(self):
         q = self.request.GET.get("q") or ""
         lang = get_language()
         free = self.request.GET.get("free") or ""
-        tag = self.request.GET.get("tag") or ""
+        tag = self._get_tag_param()
 
         qs = (
             Tool.objects.all().language(lang)
@@ -57,7 +61,7 @@ class ToolListView(ListView, SeoMixin):
         ctx = super().get_context_data(**kwargs)
         q = self.request.GET.get("q") or ""
         free = self.request.GET.get("free") == "1"
-        tag = self.request.GET.get("tag") or ""
+        tag = self._get_tag_param()
 
         canonical = absolute_url(self.request.path)
         alts = localized_alternates(self.request, "catalog:list")
@@ -75,16 +79,14 @@ class ToolListView(ListView, SeoMixin):
                 "inLanguage": get_language(),
             },
         )
-        lang = get_language()
-        all_tags = (
-            Tool.objects.all()
-            .language(lang)
-            .filter(published_at__isnull=False, published_at__lte=timezone.now())
-            .values_list("tags__name", flat=True)
+        base_qs = self.get_queryset()
+
+        tag_values = (
+            base_qs.values_list("tags__name", flat=True)
             .exclude(tags__name__isnull=True)
             .distinct()
-            .order_by("tags__name")
         )
+        all_tags = sorted({(name or "").strip() for name in tag_values if name})
 
         ctx.update(
             {
