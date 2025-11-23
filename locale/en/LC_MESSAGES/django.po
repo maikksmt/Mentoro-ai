@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-23 11:48+0100\n"
+"POT-Creation-Date: 2025-11-23 13:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,32 +32,32 @@ msgid ""
 "other languages needs full name"
 msgstr ""
 
-#: catalog/admin.py:64
+#: catalog/admin.py:62
 msgid "Features"
 msgstr ""
 
-#: catalog/admin.py:67
+#: catalog/admin.py:65
 msgid "One feature per line (stored as a list per language)."
 msgstr ""
 
-#: catalog/admin.py:173
+#: catalog/admin.py:171
 msgid "Content"
 msgstr ""
 
-#: catalog/admin.py:182
+#: catalog/admin.py:180
 msgid "Classification"
 msgstr ""
 
-#: catalog/admin.py:193
+#: catalog/admin.py:191
 msgid "Pricing & Highlight"
 msgstr ""
 
-#: catalog/admin.py:204 compare/admin.py:33 guides/admin.py:59
+#: catalog/admin.py:202 compare/admin.py:33 guides/admin.py:59
 #: prompts/admin.py:51 usecases/admin.py:51
 msgid "Meta"
 msgstr ""
 
-#: catalog/admin.py:219
+#: catalog/admin.py:217
 msgid "Existing tags"
 msgstr ""
 
@@ -143,25 +143,25 @@ msgstr ""
 msgid "Filter, compare and discover AI tools."
 msgstr ""
 
-#: catalog/views.py:85 catalog/views.py:158 catalog/views.py:201
-#: catalog/views.py:237
+#: catalog/views.py:96 catalog/views.py:169 catalog/views.py:212
+#: catalog/views.py:248
 msgid "Catalog"
 msgstr ""
 
-#: catalog/views.py:86 catalog/views.py:159 catalog/views.py:203
-#: catalog/views.py:238 templates/catalog/tool_list.html:6
+#: catalog/views.py:97 catalog/views.py:170 catalog/views.py:214
+#: catalog/views.py:249 templates/catalog/tool_list.html:6
 msgid "All tools"
 msgstr ""
 
-#: catalog/views.py:198
+#: catalog/views.py:209
 msgid "AI tools at a glance"
 msgstr ""
 
-#: catalog/views.py:199
+#: catalog/views.py:210
 msgid "All AI tools at a glance – filterable and sortable."
 msgstr ""
 
-#: catalog/views.py:229
+#: catalog/views.py:240
 msgid "Overview of features, prices and alternatives"
 msgstr ""
 
@@ -1241,68 +1241,68 @@ msgstr ""
 msgid "Featured tool"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:76 templates/catalog/tool_list.html:76
+#: templates/catalog/tool_detail.html:76 templates/catalog/tool_list.html:92
 msgid "Tags"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:82 templates/catalog/tool_list.html:82
+#: templates/catalog/tool_detail.html:82 templates/catalog/tool_list.html:98
 msgid "Filter by tag"
 msgstr ""
 
 #: templates/catalog/tool_detail.html:93 templates/catalog/tool_detail.html:176
-#: templates/catalog/tool_list.html:92
+#: templates/catalog/tool_list.html:108
 msgid "Pricing"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:98 templates/catalog/tool_list.html:96
+#: templates/catalog/tool_detail.html:98 templates/catalog/tool_list.html:112
 msgid "Free Tier"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:127 templates/catalog/tool_list.html:109
+#: templates/catalog/tool_detail.html:127 templates/catalog/tool_list.html:125
 msgid "Languages"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:133 templates/catalog/tool_list.html:115
+#: templates/catalog/tool_detail.html:133 templates/catalog/tool_list.html:131
 msgid "German"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:135 templates/catalog/tool_list.html:117
+#: templates/catalog/tool_detail.html:135 templates/catalog/tool_list.html:133
 msgid "English"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:137 templates/catalog/tool_list.html:119
+#: templates/catalog/tool_detail.html:137 templates/catalog/tool_list.html:135
 msgid "French"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:139 templates/catalog/tool_list.html:121
+#: templates/catalog/tool_detail.html:139 templates/catalog/tool_list.html:137
 msgid "Spanish"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:141 templates/catalog/tool_list.html:123
+#: templates/catalog/tool_detail.html:141 templates/catalog/tool_list.html:139
 msgid "Italian"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:143 templates/catalog/tool_list.html:125
+#: templates/catalog/tool_detail.html:143 templates/catalog/tool_list.html:141
 msgid "Portuguese"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:145 templates/catalog/tool_list.html:127
+#: templates/catalog/tool_detail.html:145 templates/catalog/tool_list.html:143
 msgid "Dutch"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:147 templates/catalog/tool_list.html:129
+#: templates/catalog/tool_detail.html:147 templates/catalog/tool_list.html:145
 msgid "Polish"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:149 templates/catalog/tool_list.html:131
+#: templates/catalog/tool_detail.html:149 templates/catalog/tool_list.html:147
 msgid "Turkish"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:151 templates/catalog/tool_list.html:133
+#: templates/catalog/tool_detail.html:151 templates/catalog/tool_list.html:149
 msgid "Japanese"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:153 templates/catalog/tool_list.html:135
+#: templates/catalog/tool_detail.html:153 templates/catalog/tool_list.html:151
 msgid "Chinese"
 msgstr ""
 
@@ -1344,39 +1344,43 @@ msgid "Clear filter"
 msgstr ""
 
 #: templates/catalog/tool_list.html:26
+msgid "Browse by tag"
+msgstr ""
+
+#: templates/catalog/tool_list.html:42
 msgid "Search tools …"
 msgstr ""
 
-#: templates/catalog/tool_list.html:32
+#: templates/catalog/tool_list.html:48
 msgid "Only with Free-Tier"
 msgstr ""
 
-#: templates/catalog/tool_list.html:35 templates/compare/index.html:24
+#: templates/catalog/tool_list.html:51 templates/compare/index.html:24
 msgid "Filter"
 msgstr ""
 
-#: templates/catalog/tool_list.html:38
+#: templates/catalog/tool_list.html:54
 msgid "Reset filters"
 msgstr ""
 
-#: templates/catalog/tool_list.html:38 templates/compare/index.html:25
+#: templates/catalog/tool_list.html:54 templates/compare/index.html:25
 msgid "Reset"
 msgstr ""
 
-#: templates/catalog/tool_list.html:159
+#: templates/catalog/tool_list.html:175
 msgid "Featured"
 msgstr ""
 
-#: templates/catalog/tool_list.html:168
+#: templates/catalog/tool_list.html:184
 msgid "Website"
 msgstr ""
 
-#: templates/catalog/tool_list.html:173 templates/compare/index.html:50
+#: templates/catalog/tool_list.html:189 templates/compare/index.html:50
 #: templates/content/home.html:72
 msgid "Details"
 msgstr ""
 
-#: templates/catalog/tool_list.html:181
+#: templates/catalog/tool_list.html:197
 msgid "No tools found."
 msgstr ""
 
