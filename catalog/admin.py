@@ -155,13 +155,6 @@ class ToolAdmin(TranslatableTinyMCEMixin):
 
     inlines = [PricingInline, AffiliateInline]
 
-    # Übersicht aller existierenden Tags (nur Anzeige)
-    def existing_tags_display(self, obj=None):
-        names = Tag.objects.order_by("name").values_list("name", flat=True)
-        return ", ".join(names)
-
-    existing_tags_display.short_description = _("Existing tags")
-
     fieldsets = (
         (
             None,
@@ -218,9 +211,22 @@ class ToolAdmin(TranslatableTinyMCEMixin):
         ),
     )
 
+    # Übersicht aller existierenden Tags (nur Anzeige)
+    def existing_tags_display(self, obj=None):
+        names = Tag.objects.order_by("name").values_list("name", flat=True)
+        return ", ".join(names)
+
+    existing_tags_display.short_description = _("Existing tags")
+
     def get_prepopulated_fields(self, request, obj=None):
         # Slug pro Sprache aus name
         return {"slug": ("name",)}
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "categories":
+            lang = request.GET.get("language") or get_language()
+            kwargs["queryset"] = Category.objects.language(lang)
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
 @admin.register(Category)

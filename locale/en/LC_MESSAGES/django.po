@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-23 09:49+0100\n"
+"POT-Creation-Date: 2025-11-23 11:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,28 +38,28 @@ msgstr ""
 msgid "One feature per line (stored as a list per language)."
 msgstr ""
 
-#: catalog/admin.py:163
-msgid "Existing tags"
-msgstr ""
-
-#: catalog/admin.py:179
+#: catalog/admin.py:172
 msgid "Content"
 msgstr ""
 
-#: catalog/admin.py:188
+#: catalog/admin.py:181
 msgid "Classification"
 msgstr ""
 
-#: catalog/admin.py:199
+#: catalog/admin.py:192
 msgid "Pricing & Highlight"
 msgstr ""
 
-#: catalog/admin.py:210 compare/admin.py:33 guides/admin.py:59
+#: catalog/admin.py:203 compare/admin.py:33 guides/admin.py:59
 #: prompts/admin.py:51 usecases/admin.py:51
 msgid "Meta"
 msgstr ""
 
-#: catalog/models.py:16 catalog/models.py:61 compare/models.py:20
+#: catalog/admin.py:219
+msgid "Existing tags"
+msgstr ""
+
+#: catalog/models.py:16 catalog/models.py:65 compare/models.py:20
 #: glossary/models.py:11 guides/models.py:21 prompts/models.py:24
 #: usecases/models.py:24
 msgid "Slug"
@@ -73,63 +73,63 @@ msgstr ""
 msgid "Categories"
 msgstr ""
 
-#: catalog/models.py:30
+#: catalog/models.py:34
 msgid "Completely free"
 msgstr ""
 
-#: catalog/models.py:31
+#: catalog/models.py:35
 msgid "Freemium (free basic, paid pro)"
 msgstr ""
 
-#: catalog/models.py:32
+#: catalog/models.py:36
 msgid "Subscription (monthly/yearly)"
 msgstr ""
 
-#: catalog/models.py:33
+#: catalog/models.py:37
 msgid "Pay-as-you-go / usage-based"
 msgstr ""
 
-#: catalog/models.py:34
+#: catalog/models.py:38
 msgid "One-time license / lifetime deal"
 msgstr ""
 
-#: catalog/models.py:35
+#: catalog/models.py:39
 msgid "Open-source / self-hosted"
 msgstr ""
 
-#: catalog/models.py:36
+#: catalog/models.py:40
 msgid "Contact sales / custom pricing"
 msgstr ""
 
-#: catalog/models.py:37
+#: catalog/models.py:41
 msgid "Other / mixed model"
 msgstr ""
 
-#: catalog/models.py:94
+#: catalog/models.py:98
 msgid "Pricing tier"
 msgstr ""
 
-#: catalog/models.py:95
+#: catalog/models.py:99
 msgid "Pricing tiers"
 msgstr ""
 
-#: catalog/models.py:103
+#: catalog/models.py:107
 msgid "Flat"
 msgstr ""
 
-#: catalog/models.py:104
+#: catalog/models.py:108
 msgid "% of sales"
 msgstr ""
 
-#: catalog/models.py:105
+#: catalog/models.py:109
 msgid "Recurring"
 msgstr ""
 
-#: catalog/models.py:120
+#: catalog/models.py:124
 msgid "Affiliate-Program"
 msgstr ""
 
-#: catalog/models.py:121
+#: catalog/models.py:125
 msgid "Affiliate-Programs"
 msgstr ""
 
