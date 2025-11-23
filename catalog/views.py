@@ -75,12 +75,23 @@ class ToolListView(ListView, SeoMixin):
                 "inLanguage": get_language(),
             },
         )
+        lang = get_language()
+        all_tags = (
+            Tool.objects.all()
+            .language(lang)
+            .filter(published_at__isnull=False, published_at__lte=timezone.now())
+            .values_list("tags__name", flat=True)
+            .exclude(tags__name__isnull=True)
+            .distinct()
+            .order_by("tags__name")
+        )
 
         ctx.update(
             {
                 "q": q,
                 "free": free,
                 "tag": tag,
+                "all_tags": all_tags,
                 "crumbs": [
                     (_("Catalog"), reverse("catalog:list")),
                     (_("All tools"), self.request.path),
