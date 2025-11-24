@@ -24,7 +24,8 @@ class Prompt(EditorialMixin, TranslatableModel, EditorialWorkflowMixin):
         slug=models.SlugField(_("Slug"), max_length=220, unique=True),
         public_slug=models.SlugField(_("Public slug"), max_length=220, unique=True, null=True, blank=True),
     )
-    tools = models.ManyToManyField(Tool, related_name="prompts", blank=True)
+    tools = models.ManyToManyField(Tool, related_name="prompts", blank=True,
+                                   help_text=_("Select the AI tool for which this prompt has been optimized."), )
     tags = TaggableManager(blank=True)
 
     class Meta:

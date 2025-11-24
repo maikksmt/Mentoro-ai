@@ -3,7 +3,6 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _, get_language
 from parler.admin import TranslatableTabularInline
 from parler.forms import TranslatableModelForm
-from taggit.models import Tag
 
 from core.admin import TranslatableTinyMCEMixin
 from .models import Category, Tool, PricingTier, AffiliateProgram
@@ -35,10 +34,6 @@ class ToolAdminForm(TranslatableModelForm):
             self.fields["language_support_input"].initial = ", ".join(
                 self.instance.language_support
             )
-        if "tags" in self.fields:
-            w = self.fields["tags"].widget
-            style = w.attrs.get("style", "")
-            w.attrs["style"] = (style + "; min-width:50rem;").strip("; ")
 
     def clean_language_support_input(self):
         raw = self.cleaned_data.get("language_support_input", "")
@@ -147,9 +142,8 @@ class ToolAdmin(TranslatableTinyMCEMixin):
         "vendor",
         "translations__short_description",
         "translations__long_description",
-        "tags__name",
     )
-    readonly_fields = ("created_at", "updated_at", "existing_tags_display")
+    readonly_fields = ("created_at", "updated_at")
     autocomplete_fields = ("categories",)
 
     inlines = [PricingInline, AffiliateInline]
@@ -181,9 +175,7 @@ class ToolAdmin(TranslatableTinyMCEMixin):
             {
                 "fields": (
                     "categories",
-                    "tags",
                     "language_support_input",
-                    "existing_tags_display",
                 )
             },
         ),
@@ -209,12 +201,6 @@ class ToolAdmin(TranslatableTinyMCEMixin):
             },
         ),
     )
-
-    def existing_tags_display(self, obj=None):
-        names = Tag.objects.order_by("name").values_list("name", flat=True)
-        return ", ".join(names)
-
-    existing_tags_display.short_description = _("Existing tags")
 
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("name",)}

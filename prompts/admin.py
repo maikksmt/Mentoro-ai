@@ -59,6 +59,7 @@ class PromptAdmin(TranslatableTinyMCEMixin):
                 "reviewed_at",
                 "reviewed_by",
                 "last_published_revision_id",
+                "tools",
             ),
         }),
         (_("Routing"), {

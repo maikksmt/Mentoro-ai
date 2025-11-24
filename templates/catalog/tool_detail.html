@@ -70,23 +70,21 @@
             {% endif %}
             <section class="mb-6 mt-3">
                 <dl class="space-y-2 text-xs">
-                    {% if object.tags.all %}
+                    {% if object.categories.all %}
                         <div class="flex flex-wrap items-center gap-2">
                             <dt class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/60">
-                                {% trans "Tags" %}
+                                {% trans "Categories" %}
                             </dt>
                             <dd class="flex flex-wrap gap-1">
-                                {% for tag in object.tags.all %}
-                                    <a href="{% url 'catalog:list' %}?tag={{ tag.name }}"
-                                       class="badge badge-ghost badge-sm hover:bg-base-200 transition"
-                                       aria-label="{% trans 'Filter by tag' %} #{{ tag.name }}">
-                                        #{{ tag.name }}
+                                {% for c in object.categories.all %}
+                                    <a href="{% url 'catalog:list' %}?category={{ c.slug }}"
+                                       class="badge badge-tool">
+                                        {{ c.name }}
                                     </a>
                                 {% endfor %}
                             </dd>
                         </div>
                     {% endif %}
-
                     {% if object.free_tier or object.pricing_model %}
                         <div class="flex flex-wrap items-center gap-2">
                             <dt class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/60">
@@ -103,21 +101,6 @@
                                         {{ object.get_pricing_model_display }}
                                     </span>
                                 {% endif %}
-                            </dd>
-                        </div>
-                    {% endif %}
-
-                    {% if object.categories.all %}
-                        <div class="flex flex-wrap items-center gap-2">
-                            <dt class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/60">
-                                {% trans "Categories" %}
-                            </dt>
-                            <dd class="flex flex-wrap gap-1">
-                                {% for c in object.categories.all %}
-                                    <span class="badge badge-tool badge-sm">
-                                        {{ c.name }}
-                                    </span>
-                                {% endfor %}
                             </dd>
                         </div>
                     {% endif %}

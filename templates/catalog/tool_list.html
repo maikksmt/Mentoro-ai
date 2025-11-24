@@ -8,57 +8,69 @@
             {% trans "Quickly find the right AI tools for your tasks." %}
         </p>
     </header>
-    {% if tag %}
-        <div class="mb-3 flex items-center gap-3">
-            {% trans "Filtered by tag" %}:
-            <span class="badge badge-info badge-lg">
-             #&nbsp;{{ tag }}
-        </span>
-            <a href="{% url 'catalog:list' %}"
-               class="btn btn-xs text-base-content/80">
-                {% trans "Clear filter" %}
+    {% if categories %}
+        <div class="mb-4 flex flex-wrap gap-2">
+            <a href="?{% if q %}q={{ q|urlencode }}{% endif %}{% if free %}{% if q %}&{% endif %}free=1{% endif %}"
+               class="badge {% if not category %}badge-primary{% else %}badge-ghost{% endif %}">
+                {% trans "All categories" %}
             </a>
+            {% for cat in categories %}
+                <a href="?category={{ cat.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if free %}&free=1{% endif %}"
+                   class="badge {% if category == cat.slug %}badge-primary {% else %} badge-tool {% endif %}">
+                    {{ cat.name }}
+                </a>
+            {% endfor %}
         </div>
     {% endif %}
-    {% if all_tags %}
-        <section class="mb-4">
-            <h2 class="text-xs font-semibold uppercase tracking-wide text-base-content/70 mb-2">
-                {% trans "Browse by tag" %}
-            </h2>
-            <div class="flex flex-wrap gap-2">
-                {% for tag_name in all_tags %}
-                    <a href="?tag={{ tag_name }}{% if q %}&q={{ q|urlencode }}{% endif %}
-{% if free %}&free=1{% endif %}"
-                       class="badge badge-outline badge-sm {% if tag_name == tag %}badge-info{% else %}hover:bg-base-200{% endif %}">
-                        #{{ tag_name }}
-                    </a>
-                {% endfor %}
-            </div>
-        </section>
-    {% endif %}
-    <form method="get" class="py-2 md:py-4 grid gap-3 grid-cols-3 md:grid-cols-4 justify-items">
-        {% if tag %}
-            <input type="hidden" name="tag" value="{{ tag }}">
+    <form method="get"
+          class="py-2 md:py-4 flex flex-wrap items-center gap-3 md:gap-4">
+
+        {# aktuell gewählte Kategorie behalten, auch wenn nur nach q/free gefiltert wird #}
+        {% if category %}
+            <input type="hidden" name="category" value="{{ category }}">
         {% endif %}
 
-        <label class="input">
-            {% heroicon_solid "magnifying-glass" class="opacity-70" %}
-            <input type="search" name="q" value="{{ q|default_if_none:'' }}" placeholder="{% trans 'Search tools …' %}"
-                   class="grow"/>
-        </label>
+        {# Suche: nimmt so viel Platz wie möglich ein #}
+        <div class="flex-1 min-w-[220px]">
+            <label class="input w-full">
+                {% heroicon_solid "magnifying-glass" class="opacity-70" %}
+                <input type="search"
+                       name="q"
+                       value="{{ q|default_if_none:'' }}"
+                       placeholder="{% trans 'Search tools …' %}"
+                       class="grow"/>
+            </label>
+        </div>
 
-        <label class="col-span-2 md:col-span-1 label cursor-pointer justify-start gap-3">
-            <input type="checkbox" class="checkbox" name="free" value="1" {% if free %}checked{% endif %}/>
+        {# Only Free-Tier: kompakt, Klickfläche = Checkbox + Text #}
+        <label class="inline-flex items-center gap-2 cursor-pointer text-sm">
+            <input type="checkbox"
+                   class="checkbox checkbox-sm"
+                   name="free"
+                   value="1"
+                   {% if free %}checked{% endif %}/>
             <span class="label-text">{% trans "Only with Free-Tier" %}</span>
         </label>
-        <div class="col-span-1 md:col-span-4 flex gap-2 justify-start items-center">
-            <button class="btn btn-primary " aria-label="Filter">{% trans "Filter" %}</button>
-            {% if q or free or tag %}
-                <a href="." class="btn btn-sm" role="button" aria-pressed="false"
-                   aria-label="{% trans "Reset filters" %}">{% trans "Reset" %}</a>
+
+        {# Buttons rechts, brechen bei wenig Platz um #}
+        <div class="flex items-center gap-2 ml-auto">
+            <button class="btn btn-primary btn-sm md:btn-md"
+                    aria-label="{% trans 'Filter' %}">
+                {% trans "Filter" %}
+            </button>
+
+            {% if q or free or category %}
+                <a href="."
+                   class="btn btn-ghost btn-sm md:btn-md"
+                   role="button"
+                   aria-pressed="false"
+                   aria-label="{% trans "Reset filters" %}">
+                    {% trans "Reset" %}
+                </a>
             {% endif %}
         </div>
     </form>
+
 
     <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         {% for t in object_list %}
@@ -90,18 +102,17 @@
                         </div>
                     </header>
                     <dl class="space-y-2 text-xs">
-                        {% if t.tags.all %}
+                        {% if t.categories.all %}
                             <div class="flex flex-wrap items-center gap-2">
                                 <dt class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/70">
-                                    {% trans "Tags" %}
+                                    {% trans "Categories" %}
                                 </dt>
                                 <dd class="flex flex-wrap gap-1">
-                                    {% for tag in t.tags.all %}
-                                        <a href="?tag={{ tag.name }}{% if q %}&q={{ q|urlencode }}{% endif %}
-{% if free %}&free=1{% endif %}"
-                                           class="badge badge-ghost badge-sm hover:bg-base-300 transition"
-                                           aria-label="{% trans 'Filter by tag' %} #{{ tag.name }}">
-                                            #{{ tag.name }}
+                                    {% for c in t.categories.all %}
+                                        <a href="?category=
+                                                {{ c.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if free %}&free=1{% endif %}"
+                                           class="badge badge-sm {% if c.slug == category %}badge-primary {% else %}badge-tool {% endif %}">
+                                            {{ c.name }}
                                         </a>
                                     {% endfor %}
                                 </dd>
@@ -124,6 +135,7 @@
                                 </dd>
                             </div>
                         {% endif %}
+
                         {% if t.language_support %}
                             <div class="flex flex-wrap items-center gap-2">
                                 <dt class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/70">
