@@ -50,7 +50,7 @@ class GuideListViewTests(TestCase):
         resp = self._list()
         self.assertEqual(resp.status_code, 200)
         self.assertIn("paginator", resp.context)
-        self.assertEqual(resp.context["paginator"].per_page, 20)
+        self.assertEqual(resp.context["paginator"].per_page, 15)
 
     def test_detail_i18n_and_canonical(self):
         resp = self._detail(self.pub.slug)
