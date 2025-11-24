@@ -11,7 +11,7 @@ from .models import Guide, GuideSection, GuideItem
 
 
 class GuideListView(ListView, SeoMixin):
-    paginate_by = 20
+    paginate_by = 15
     template_name = "guides/guide_list.html"
     context_object_name = "object_list"
 
