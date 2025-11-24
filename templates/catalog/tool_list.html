@@ -109,11 +109,12 @@
                                 </dt>
                                 <dd class="flex flex-wrap gap-1">
                                     {% for c in t.categories.all %}
-                                        <a href="?category=
-                                                {{ c.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if free %}&free=1{% endif %}"
+                                        <!-- @formatter:off -->
+                                        <a href="?category={{ c.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if free %}&free=1{% endif %}"
                                            class="badge badge-sm {% if c.slug == category %}badge-primary {% else %}badge-tool {% endif %}">
                                             {{ c.name }}
                                         </a>
+                                        <!-- @formatter:on -->
                                     {% endfor %}
                                 </dd>
                             </div>
