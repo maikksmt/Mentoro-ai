@@ -1,6 +1,4 @@
-from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, get_language
@@ -8,7 +6,7 @@ from django.views.generic import ListView, DetailView
 
 from core.seo.utils import absolute_url, localized_alternates
 from core.views import SeoMixin
-from .models import Tool
+from .models import Tool, Category
 
 
 class ToolListView(ListView, SeoMixin):
@@ -17,15 +15,11 @@ class ToolListView(ListView, SeoMixin):
     context_object_name = "object_list"
     paginate_by = 20
 
-    def _get_tag_param(self) -> str:
-        raw = self.request.GET.get("tag")
-        return raw.strip() if raw else ""
-
     def get_queryset(self):
         q = self.request.GET.get("q") or ""
         lang = get_language()
         free = self.request.GET.get("free") or ""
-        tag = self._get_tag_param()
+        category_slug = self.request.GET.get("category") or ""
 
         qs = (
             Tool.objects.all().language(lang)
@@ -43,8 +37,8 @@ class ToolListView(ListView, SeoMixin):
         if free == "1" and hasattr(Tool, "free_tier"):
             qs = qs.filter(free_tier=True)
 
-        if tag:
-            qs = qs.filter(tags__name__iexact=tag)
+        if category_slug:
+            qs = qs.filter(categories__translations__slug=category_slug)
 
         qs = qs.distinct()
 
@@ -61,7 +55,14 @@ class ToolListView(ListView, SeoMixin):
         ctx = super().get_context_data(**kwargs)
         q = self.request.GET.get("q") or ""
         free = self.request.GET.get("free") == "1"
-        tag = self._get_tag_param()
+        category_slug = self.request.GET.get("category") or ""
+        lang = get_language()
+
+        categories = (
+            Category.objects
+            .translated(lang)
+            .order_by("translations__name")
+        )
 
         canonical = absolute_url(self.request.path)
         alts = localized_alternates(self.request, "catalog:list")
@@ -79,21 +80,13 @@ class ToolListView(ListView, SeoMixin):
                 "inLanguage": get_language(),
             },
         )
-        base_qs = self.get_queryset()
-
-        tag_values = (
-            base_qs.values_list("tags__name", flat=True)
-            .exclude(tags__name__isnull=True)
-            .distinct()
-        )
-        all_tags = sorted({(name or "").strip() for name in tag_values if name})
 
         ctx.update(
             {
                 "q": q,
                 "free": free,
-                "tag": tag,
-                "all_tags": all_tags,
+                "category": category_slug,
+                "categories": categories,
                 "crumbs": [
                     (_("Catalog"), reverse("catalog:list")),
                     (_("All tools"), self.request.path),
@@ -175,81 +168,3 @@ class ToolDetailView(DetailView, SeoMixin):
             }
         )
         return ctx
-
-
-# TODO: remove old unused function based views
-def tool_list(request):
-    lang = get_language()
-    q = request.GET.get("q") or ""
-    free = request.GET.get("free") or ""
-    qs = (
-        Tool.objects.all().language(lang)
-        .prefetch_related("categories", "translations", "categories__translations")
-        .filter(published_at__isnull=False, published_at__lte=timezone.now())
-    )
-
-    if q:
-        qs = qs.filter(
-            Q(translations__slug__icontains=q) |
-            Q(translations__name__icontains=q) |
-            Q(translations__short_description__icontains=q) |
-            Q(translations__long_description__icontains=q)
-        )
-
-    if free == "1":
-        qs = qs.filter(free_tier=True)
-
-    qs = qs.order_by("-is_featured", "translations__name")
-    paginator = Paginator(qs, 12)
-    page_obj = paginator.get_page(request.GET.get("page"))
-
-    context = {
-        "page_obj": page_obj,
-        "object_list": page_obj.object_list,
-        "q": q or "",
-        "free": free == "1",
-        "seo_title": _("AI tools at a glance"),
-        "seo_description": _("All AI tools at a glance – filterable and sortable."),
-        "crumbs": [
-            (_("Catalog"),
-             reverse("catalog:list") if "catalog:list" in request.resolver_match.namespaces else "/",),
-            (_("All tools"), request.path),
-        ],
-    }
-    return render(request, "catalog/tool_list.html", context)
-
-
-def tool_detail(request, slug):
-    lang = get_language() or "en"
-    qs = (Tool.objects.language(lang)
-          .prefetch_related("translations", "categories", "categories__translations", "pricing", "affiliates", )
-          .filter(published_at__isnull=False, published_at__lte=timezone.now()))
-    obj = get_object_or_404(qs, translations__slug=slug)
-
-    related_tools = (
-        Tool.objects
-        .language(lang)
-        .filter(
-            published_at__isnull=False,
-            published_at__lte=timezone.now(),
-            categories__in=obj.categories.all(),
-        )
-        .exclude(pk=obj.pk)
-        .distinct()
-        .order_by("-is_featured", "translations__name")[:6]
-    )
-
-    title = obj.short_description or _("Overview of features, prices and alternatives")
-
-    context = {
-        "object": obj,
-        "related_tools": related_tools,
-        "seo_title": title,
-        "seo_description": title,
-        "crumbs": [
-            (_("Catalog"), reverse("catalog:list")),
-            (_("All tools"), reverse("catalog:list")),
-            (obj.safe_translation_getter("name", any_language=True), request.path),
-        ],
-    }
-    return render(request, "catalog/tool_detail.html", context)
