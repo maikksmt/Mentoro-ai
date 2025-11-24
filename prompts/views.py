@@ -34,7 +34,7 @@ class PromptListView(ListView, SeoMixin):
     model = Prompt
     template_name = "prompts/prompt_list.html"
     context_object_name = "object_list"
-    paginate_by = 20
+    paginate_by = 15
 
     def get_queryset(self) -> QuerySet[Prompt]:
         qs = (

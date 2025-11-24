@@ -51,7 +51,7 @@ class TestPublicViews(TestCase):
         self.assertNotIn("Draft UC", html)
 
     def test_pagination(self):
-        for i in range(25):
+        for i in range(31):
             uc = UseCase.objects.create(
                 slug=f"uc-{i}",
                 status=EditorialWorkflowMixin.STATUS_PUBLISHED,

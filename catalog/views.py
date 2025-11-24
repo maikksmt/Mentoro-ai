@@ -13,7 +13,7 @@ class ToolListView(ListView, SeoMixin):
     model = Tool
     template_name = "catalog/tool_list.html"
     context_object_name = "object_list"
-    paginate_by = 20
+    paginate_by = 15
 
     def get_queryset(self):
         q = self.request.GET.get("q") or ""

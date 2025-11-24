@@ -31,7 +31,7 @@ def _resolve_by_slug(qs: QuerySet[UseCase], slug: str) -> Optional[UseCase]:
 
 
 class UseCaseListView(ListView, SeoMixin):
-    paginate_by = 12
+    paginate_by = 15
     template_name = "usecases/list.html"
     context_object_name = "object_list"
 
