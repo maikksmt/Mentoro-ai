@@ -9,28 +9,37 @@
         </p>
     </header>
     {% if categories %}
-        <div class="mb-4 flex flex-wrap gap-2">
-            <a href="?{% if q %}q={{ q|urlencode }}{% endif %}{% if free %}{% if q %}&{% endif %}free=1{% endif %}"
-               class="badge {% if not category %}badge-primary{% else %}badge-ghost{% endif %}">
-                {% trans "All categories" %}
-            </a>
-            {% for cat in categories %}
-                <a href="?category={{ cat.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if free %}&free=1{% endif %}"
-                   class="badge {% if category == cat.slug %}badge-primary {% else %} badge-tool {% endif %}">
-                    {{ cat.name }}
+        <details class="collapse collapse-arrow bg-base-100 border-base-300 border">
+            <summary class="collapse-title font-semibold">{% trans "Filter: " %}
+                <span class="badge badge-primary">
+                    {% if not active_cat %}
+                        {% trans "All categories" %}
+                    {% else %}
+                        {{ active_cat.name }}
+                    {% endif %}
+                </span>
+            </summary>
+            <div class="collapse-content flex flex-wrap gap-2">
+                <a href="?{% if q %}q={{ q|urlencode }}{% endif %}{% if free %}{% if q %}&{% endif %}free=1{% endif %}"
+                   class="badge badge-primary {% if category %}badge-outline{% endif %}">
+                    {% trans "All categories" %}
                 </a>
-            {% endfor %}
-        </div>
+                {% for cat in categories %}
+                    <a href="?category={{ cat.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if free %}&free=1{% endif %}"
+                       class="badge {% if active_cat.slug == cat.slug %}badge-primary {% else %} badge-tool {% endif %}">
+                        {{ cat.name }}
+                    </a>
+                {% endfor %}
+            </div>
+        </details>
+       
     {% endif %}
     <form method="get"
           class="py-2 md:py-4 flex flex-wrap items-center gap-3 md:gap-4">
 
-        {# aktuell gewählte Kategorie behalten, auch wenn nur nach q/free gefiltert wird #}
         {% if category %}
             <input type="hidden" name="category" value="{{ category }}">
         {% endif %}
-
-        {# Suche: nimmt so viel Platz wie möglich ein #}
         <div class="flex-1 min-w-[220px]">
             <label class="input w-full">
                 {% heroicon_solid "magnifying-glass" class="opacity-70" %}
@@ -41,8 +50,6 @@
                        class="grow"/>
             </label>
         </div>
-
-        {# Only Free-Tier: kompakt, Klickfläche = Checkbox + Text #}
         <label class="inline-flex items-center gap-2 cursor-pointer text-sm">
             <input type="checkbox"
                    class="checkbox checkbox-sm"
@@ -51,14 +58,11 @@
                    {% if free %}checked{% endif %}/>
             <span class="label-text">{% trans "Only with Free-Tier" %}</span>
         </label>
-
-        {# Buttons rechts, brechen bei wenig Platz um #}
         <div class="flex items-center gap-2 ml-auto">
             <button class="btn btn-primary btn-sm md:btn-md"
-                    aria-label="{% trans 'Filter' %}">
-                {% trans "Filter" %}
+                    aria-label="{% trans 'Search' %}">
+                {% trans "Search" %}
             </button>
-
             {% if q or free or category %}
                 <a href="."
                    class="btn btn-ghost btn-sm md:btn-md"
@@ -70,18 +74,21 @@
             {% endif %}
         </div>
     </form>
-
-
     <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         {% for t in object_list %}
             <article class="card bg-base-100 shadow-sm hover:shadow-lg transition border border-base-200 flex flex-col">
                 <div class="card-body gap-4 flex flex-col h-full">
                     <header class="flex items-start justify-between gap-3">
                         <div>
-                            <h2 class="card-title text-base">
+                            <h2 class="card-title">
                                 <a href="{% url 'catalog:detail' slug=t.slug %}" class="link link-hover">
                                     {{ t.name }}
                                 </a>
+                                {% if t.is_featured %}
+                                    <span class="badge badge-secondary badge-soft badge-sm">
+                                        {% trans "Featured" %}
+                                    </span>
+                                {% endif %}
                             </h2>
                             {% if t.short_description %}
                                 <p class="mt-1 text-sm text-base-content/80 line-clamp-2">
@@ -101,50 +108,44 @@
                             </div>
                         </div>
                     </header>
-                    <dl class="space-y-2 text-xs">
+                    <div class="space-y-2 text-xs">
                         {% if t.categories.all %}
-                            <div class="flex flex-wrap items-center gap-2">
-                                <dt class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/70">
-                                    {% trans "Categories" %}
-                                </dt>
-                                <dd class="flex flex-wrap gap-1">
-                                    {% for c in t.categories.all %}
-                                        <!-- @formatter:off -->
-                                        <a href="?category={{ c.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if free %}&free=1{% endif %}"
-                                           class="badge badge-sm {% if c.slug == category %}badge-primary {% else %}badge-tool {% endif %}">
-                                            {{ c.name }}
-                                        </a>
-                                        <!-- @formatter:on -->
-                                    {% endfor %}
-                                </dd>
+                            <div class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/70">
+                                {% trans "Categories" %}
+                            </div>
+                            <div class="flex flex-wrap gap-1">
+                                {% for c in t.categories.all %}
+                                    <!-- @formatter:off -->
+                                    <a href="?category={{ c.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if free %}&free=1{% endif %}"
+                                       class="badge badge-sm {% if c.slug == active_cat.slug %}badge-primary {% else %}badge-tool {% endif %}">
+                                        {{ c.name }}
+                                    </a>
+                                    <!-- @formatter:on -->
+                                {% endfor %}
                             </div>
                         {% endif %}
                         {% if t.free_tier or t.pricing_model %}
-                            <div class="flex flex-wrap items-center gap-2">
-                                <dt class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/70">
-                                    {% trans "Pricing" %}
-                                </dt>
-                                <dd class="flex flex-wrap gap-1 items-center">
-                                    {% if t.free_tier %}
-                                        <span class="badge badge-success badge-sm">{% trans "Free Tier" %}</span>
-                                    {% endif %}
-                                    {% if t.pricing_model %}
-                                        <span class="badge badge-outline badge-sm">
+                            <div class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/70">
+                                {% trans "Pricing" %}
+                            </div>
+                            <div class="flex flex-wrap gap-1 items-center">
+                                {% if t.free_tier %}
+                                    <span class="badge badge-success badge-sm badge-outline">{% trans "Free Tier" %}</span>
+                                {% endif %}
+                                {% if t.pricing_model %}
+                                    <span class="badge badge-sm">
                                             {{ t.get_pricing_model_display }}
                                         </span>
-                                    {% endif %}
-                                </dd>
+                                {% endif %}
                             </div>
                         {% endif %}
-
                         {% if t.language_support %}
-                            <div class="flex flex-wrap items-center gap-2">
-                                <dt class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/70">
-                                    {% trans "Languages" %}
-                                </dt>
-                                <dd class="flex flex-wrap gap-1">
-                                    {% for lang in t.language_support|slice:":3" %}
-                                        <span class="badge badge-outline badge-sm">
+                            <div class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/70">
+                                {% trans "Languages" %}
+                            </div>
+                            <div class="flex flex-wrap gap-1">
+                                {% for lang in t.language_support|slice:":3" %}
+                                    <span class="badge badge-sm">
                                             {% if lang == "de" %}
                                                 {% trans "German" %}
                                             {% elif lang == "en" %}
@@ -171,27 +172,23 @@
                                                 {{ lang }}
                                             {% endif %}
                                         </span>
-                                    {% endfor %}
-                                    {% if t.language_support|length > 3 %}
-                                        <span class="badge badge-ghost badge-sm">
+                                {% endfor %}
+                                {% if t.language_support|length > 3 %}
+                                    <span class="badge badge-ghost badge-sm">
                                             +{{ t.language_support|length|add:"-3" }}
                                         </span>
-                                    {% endif %}
-                                </dd>
+                                {% endif %}
                             </div>
                         {% endif %}
-                    </dl>
+                    </div>
 
                     <footer class="mt-auto flex items-center justify-between gap-2">
                         {% if t.rating %}
-                            <div class="flex items-center gap-1 text-xs text-base-content/70">
+                            <div class="flex items-center gap-1 text-xs text-base-content/80">
                                 <span>⭐</span>
                                 <span>{{ t.rating|floatformat:1 }}/5</span>
                             </div>
-                        {% elif t.is_featured %}
-                            <span class="badge badge-primary badge-outline badge-sm">
-                                {% trans "Featured" %}
-                            </span>
+
                         {% else %}
                             <span></span>
                         {% endif %}
@@ -199,11 +196,12 @@
                         <div class="flex gap-2 items-center">
                             {% if t.website %}
                                 <a href="{{ t.website }}" target="_blank" rel="nofollow noopener"
-                                   class="btn btn-sm btn-ghost">{% trans "Website" %}
+                                   class="btn btn-sm btn-neutral btn-outline text-base-content/80">
+                                    {% trans "Website" %}{% heroicon_micro "arrow-top-right-on-square" %}
                                 </a>
                             {% endif %}
                             <a href="{% url 'catalog:detail' slug=t.slug %}"
-                               class="btn btn-sm btn-primary">
+                               class="btn btn-primary">
                                 {% trans "Details" %}
                             </a>
                         </div>
