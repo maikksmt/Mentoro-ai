@@ -204,3 +204,6 @@ msgstr ""
 #: templates/partials/_guideitem_card.html:17
 msgid "Link"
 msgstr ""
+#: templates/catalog/tool_list.html:13
+msgid "Categories"
+msgstr ""

@@ -63,6 +63,7 @@ class ToolListView(ListView, SeoMixin):
             .translated(lang)
             .order_by("translations__name")
         )
+        active_cat = categories.filter(Q(translations__slug=category_slug)).first()
 
         canonical = absolute_url(self.request.path)
         alts = localized_alternates(self.request, "catalog:list")
@@ -86,6 +87,7 @@ class ToolListView(ListView, SeoMixin):
                 "q": q,
                 "free": free,
                 "category": category_slug,
+                "active_cat": active_cat,
                 "categories": categories,
                 "crumbs": [
                     (_("Catalog"), reverse("catalog:list")),
