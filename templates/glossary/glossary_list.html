@@ -4,18 +4,20 @@
     <div class="max-w-2xl mx-auto">
         <header class="mb-6 card-header-glossary">
             <h1 class="text-3xl font-bold">{% trans "AI Glossary" %}</h1>
+            <p class="text-base-content/70 mt-2">
+                {% trans "Explanations of terms from the broad field of AI" %}
+            </p>
         </header>
 
         <!-- Search input with HTMX Autocomplete -->
-        <div class=" ">
-            <label class="input">
-                {% heroicon_solid "magnifying-glass" class="opacity-70" %}
-                <input type="search" name="q" value="{{ q }}" placeholder="{% trans "Search term..." %}" class="grow"
-                       hx-get="{% url 'glossary:autocomplete' %}" hx-trigger="keyup changed delay:250ms, input"
-                       hx-target="#live-results" hx-swap="innerHTML"/>
-            </label>
-            <div id="live-results" class="mt-2"></div>
-        </div>
+        <label class="input w-full">
+            {% heroicon_solid "magnifying-glass" class="opacity-70" %}
+            <input type="search" name="q" value="{{ q }}" placeholder="{% trans "Search term..." %}" class="grow"
+                   hx-get="{% url 'glossary:autocomplete' %}" hx-trigger="keyup changed delay:250ms, input"
+                   hx-target="#live-results" hx-swap="innerHTML"/>
+        </label>
+        <div id="live-results" class="mt-2"></div>
+
 
         <!-- A–Z Navigation -->
         <div class="flex flex-wrap gap-2">

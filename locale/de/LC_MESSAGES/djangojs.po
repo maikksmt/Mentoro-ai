@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-27 23:53+0100\n"
-"PO-Revision-Date: 2025-11-23 07:40+0100\n"
+"PO-Revision-Date: 2025-11-25 18:53+0100\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: de\n"
@@ -269,3 +269,7 @@ msgstr "Vergleich"
 #: templates/partials/_guideitem_card.html:17
 msgid "Link"
 msgstr "Link"
+
+#: templates/catalog/tool_list.html:13
+msgid "Categories"
+msgstr "Kategorien"
