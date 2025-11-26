@@ -15,7 +15,7 @@ class ToolAdminForm(TranslatableModelForm):
         label=_("Language support"),
         required=False,
         help_text=_(
-            "Comma-separated language codes, e.g. de,en,fr,es,it,pt,nl,pl,tr,jp,cn - all other languages needs full name"),
+            'Comma-separated language codes (ISO-639-1), e.g. en,es,de,fr,pt,it,nl,jp,ko,cn,hi,ar,tr,ru - all other languages needs full name, use "+" for more'),
         widget=forms.Textarea(
             attrs={
                 "rows": 2,
