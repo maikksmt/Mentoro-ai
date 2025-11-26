@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 Disallow: /admin
-Sitemap: {{ SITE_URL }}/sitemap.xml
+Sitemap: {{ SITE_URL }}/de/sitemap.xml
+Sitemap: {{ SITE_URL }}/en/sitemap.xml
