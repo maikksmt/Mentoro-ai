@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-26 17:34+0100\n"
-"PO-Revision-Date: 2025-11-26 17:36+0100\n"
+"POT-Creation-Date: 2025-11-26 18:49+0100\n"
+"PO-Revision-Date: 2025-11-26 18:51+0100\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -28,9 +28,6 @@ msgid "Language support"
 msgstr "Sprachunterstützung"
 
 #: catalog/admin.py:18
-#| msgid ""
-#| "Comma-separated language codes, e.g. de,en,fr,es,it,pt,nl,pl,tr,jp,cn - all "
-#| "other languages needs full name"
 msgid ""
 "Comma-separated language codes (ISO-639-1), e.g. "
 "en,es,de,fr,pt,it,nl,jp,ko,cn,hi,ar,tr,ru - all other languages needs full "
@@ -75,7 +72,7 @@ msgstr "Slug"
 msgid "Category"
 msgstr "Kategorie"
 
-#: catalog/models.py:23 templates/catalog/tool_detail.html:76
+#: catalog/models.py:23 templates/catalog/tool_detail.html:77
 #: templates/catalog/tool_list.html:114
 msgid "Categories"
 msgstr "Kategorien"
@@ -1288,113 +1285,114 @@ msgstr "Urheberrecht"
 msgid "Vendor"
 msgstr "Anbieter"
 
-#: templates/catalog/tool_detail.html:34
-msgid "Visit website"
-msgstr "Website besuchen"
+#: templates/catalog/tool_detail.html:41
+#| msgid "Visit website"
+msgid "Vendor website"
+msgstr "Webseite des Anbieters"
 
-#: templates/catalog/tool_detail.html:44
+#: templates/catalog/tool_detail.html:51
 msgid "Featured tool"
 msgstr "Empfohlenes Tool"
 
-#: templates/catalog/tool_detail.html:91
-#: templates/catalog/tool_detail.html:169 templates/catalog/tool_list.html:129
+#: templates/catalog/tool_detail.html:92
+#: templates/catalog/tool_detail.html:170 templates/catalog/tool_list.html:129
 msgid "Pricing"
 msgstr "Preismodell"
 
-#: templates/catalog/tool_detail.html:96 templates/catalog/tool_list.html:133
+#: templates/catalog/tool_detail.html:97 templates/catalog/tool_list.html:133
 msgid "Free Tier"
 msgstr "Kostenloser Tarif"
 
-#: templates/catalog/tool_detail.html:110 templates/catalog/tool_list.html:144
+#: templates/catalog/tool_detail.html:111 templates/catalog/tool_list.html:144
 msgid "Languages"
 msgstr "Sprachen"
 
-#: templates/catalog/tool_detail.html:116 templates/catalog/tool_list.html:150
+#: templates/catalog/tool_detail.html:117 templates/catalog/tool_list.html:150
 msgid "German"
 msgstr "Deutsch"
 
-#: templates/catalog/tool_detail.html:118 templates/catalog/tool_list.html:152
+#: templates/catalog/tool_detail.html:119 templates/catalog/tool_list.html:152
 msgid "English"
 msgstr "Englisch"
 
-#: templates/catalog/tool_detail.html:120 templates/catalog/tool_list.html:154
+#: templates/catalog/tool_detail.html:121 templates/catalog/tool_list.html:154
 msgid "French"
 msgstr "Französisch"
 
-#: templates/catalog/tool_detail.html:122 templates/catalog/tool_list.html:156
+#: templates/catalog/tool_detail.html:123 templates/catalog/tool_list.html:156
 msgid "Spanish"
 msgstr "Spanisch"
 
-#: templates/catalog/tool_detail.html:124 templates/catalog/tool_list.html:158
+#: templates/catalog/tool_detail.html:125 templates/catalog/tool_list.html:158
 msgid "Italian"
 msgstr "Italienisch"
 
-#: templates/catalog/tool_detail.html:126 templates/catalog/tool_list.html:160
+#: templates/catalog/tool_detail.html:127 templates/catalog/tool_list.html:160
 msgid "Portuguese"
 msgstr "Portugiesisch"
 
-#: templates/catalog/tool_detail.html:128 templates/catalog/tool_list.html:162
+#: templates/catalog/tool_detail.html:129 templates/catalog/tool_list.html:162
 msgid "Dutch"
 msgstr "Niederländisch"
 
-#: templates/catalog/tool_detail.html:130 templates/catalog/tool_list.html:164
+#: templates/catalog/tool_detail.html:131 templates/catalog/tool_list.html:164
 msgid "Japanese"
 msgstr "Japanisch"
 
-#: templates/catalog/tool_detail.html:132 templates/catalog/tool_list.html:166
+#: templates/catalog/tool_detail.html:133 templates/catalog/tool_list.html:166
 msgid "Korean"
 msgstr "Koreanisch"
 
-#: templates/catalog/tool_detail.html:134 templates/catalog/tool_list.html:168
+#: templates/catalog/tool_detail.html:135 templates/catalog/tool_list.html:168
 msgid "Hindi"
 msgstr "Hindi"
 
-#: templates/catalog/tool_detail.html:136 templates/catalog/tool_list.html:170
+#: templates/catalog/tool_detail.html:137 templates/catalog/tool_list.html:170
 msgid "Arabian"
 msgstr "Arabisch"
 
-#: templates/catalog/tool_detail.html:138 templates/catalog/tool_list.html:172
+#: templates/catalog/tool_detail.html:139 templates/catalog/tool_list.html:172
 msgid "Turkish"
 msgstr "Türkisch"
 
-#: templates/catalog/tool_detail.html:140 templates/catalog/tool_list.html:174
+#: templates/catalog/tool_detail.html:141 templates/catalog/tool_list.html:174
 msgid "Polish"
 msgstr "Polnisch"
 
-#: templates/catalog/tool_detail.html:142 templates/catalog/tool_list.html:176
+#: templates/catalog/tool_detail.html:143 templates/catalog/tool_list.html:176
 msgid "Russian"
 msgstr "Russisch"
 
-#: templates/catalog/tool_detail.html:144 templates/catalog/tool_list.html:178
+#: templates/catalog/tool_detail.html:145 templates/catalog/tool_list.html:178
 msgid "Chinese"
 msgstr "Chinesisch"
 
-#: templates/catalog/tool_detail.html:146 templates/catalog/tool_list.html:180
+#: templates/catalog/tool_detail.html:147 templates/catalog/tool_list.html:180
 msgid "More"
 msgstr "Weitere"
 
-#: templates/catalog/tool_detail.html:159
+#: templates/catalog/tool_detail.html:160
 msgid "What this tool can do"
 msgstr "Was dieses Tool kann"
 
-#: templates/catalog/tool_detail.html:172
-#: templates/catalog/tool_detail.html:176
+#: templates/catalog/tool_detail.html:173
+#: templates/catalog/tool_detail.html:177
 msgid "Pricing last checked on"
 msgstr "Preise zuletzt geprüft am"
 
-#: templates/catalog/tool_detail.html:193
+#: templates/catalog/tool_detail.html:194
 msgid "month"
 msgstr "Monat"
 
-#: templates/catalog/tool_detail.html:204
+#: templates/catalog/tool_detail.html:205
 msgid "year"
 msgstr "Jahr"
 
-#: templates/catalog/tool_detail.html:209
+#: templates/catalog/tool_detail.html:210
 msgid "On request"
 msgstr "Auf Anfrage"
 
-#: templates/catalog/tool_detail.html:257
+#: templates/catalog/tool_detail.html:258
 msgid "Similar tools"
 msgstr "Ähnliche Tools"
 
@@ -1403,7 +1401,6 @@ msgid "Quickly find the right AI tools for your tasks."
 msgstr "Finden Sie schnell die richtigen KI-Tools für Ihre Aufgaben."
 
 #: templates/catalog/tool_list.html:13
-#| msgid "Filter"
 msgid "Filter: "
 msgstr "Filter:"
 
@@ -1432,16 +1429,16 @@ msgstr "Zurücksetzen"
 msgid "Featured"
 msgstr "Empfohlen"
 
-#: templates/catalog/tool_list.html:210
+#: templates/catalog/tool_list.html:209
 msgid "Website"
 msgstr "Webseite"
 
-#: templates/catalog/tool_list.html:215 templates/compare/index.html:50
+#: templates/catalog/tool_list.html:214 templates/compare/index.html:50
 #: templates/content/home.html:72
 msgid "Details"
 msgstr "Details"
 
-#: templates/catalog/tool_list.html:223
+#: templates/catalog/tool_list.html:222
 msgid "No tools found."
 msgstr "Keine Tools gefunden."
 
@@ -1921,7 +1918,7 @@ msgstr "Screenshots oder Beispiel-Workflows"
 
 #: templates/content/what-to-find.html:215
 msgid "Links to the official website or app"
-msgstr "Links zur offiziellen Website oder App"
+msgstr "Links zur offiziellen Webseite oder App"
 
 #: templates/content/what-to-find.html:216
 msgid "Comparative overview with similar tools"
@@ -2095,7 +2092,7 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"Cookies sind kleine Textdateien, die auf deinem Gerät gespeichert werden, wenn du eine Website besuchst. Sie ermöglichen technische Funktionen oder Komfortoptionen (z. B. Sprachauswahl)."
+"Cookies sind kleine Textdateien, die auf deinem Gerät gespeichert werden, wenn du eine Webseite besuchst. Sie ermöglichen technische Funktionen oder Komfortoptionen (z. B. Sprachauswahl)."
 
 #: templates/legal/cookie_policy.html:19
 msgid "Cookies we use"
@@ -2103,7 +2100,7 @@ msgstr "Verwendete Cookies"
 
 #: templates/legal/cookie_policy.html:21
 msgid "This website uses the following types of cookies:"
-msgstr "Diese Website verwendet die folgenden Arten von Cookies:"
+msgstr "Diese Webseite verwendet die folgenden Arten von Cookies:"
 
 #: templates/legal/cookie_policy.html:23
 msgid "Technically necessary cookies"
@@ -2138,7 +2135,7 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"Diese Website nutzt die Einwilligungsmanagement-Plattform Cookiebot von Usercentrics.\n"
+"Diese Webseite nutzt die Einwilligungsmanagement-Plattform Cookiebot von Usercentrics.\n"
 "Cookiebot speichert Cookies, um Ihren Einwilligungsstatus zu dokumentieren und zu verwalten.\n"
 "Diese Cookies sind technisch notwendig, um die gesetzlichen Einwilligungsvorschriften einzuhalten."
 
@@ -2211,7 +2208,7 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"Alle auf dieser Website veröffentlichten Inhalte (Texte, Bilder, Code, Layouts) sind urheberrechtlich geschützt. Beiträge Dritter sind entsprechend gekennzeichnet."
+"Alle auf dieser Webseite veröffentlichten Inhalte (Texte, Bilder, Code, Layouts) sind urheberrechtlich geschützt. Beiträge Dritter sind entsprechend gekennzeichnet."
 
 #: templates/legal/copyright.html:19
 msgid "2. Open-source license"
@@ -2327,7 +2324,7 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"Beim Besuch dieser Website werden automatisch Informationen erfasst, die Ihr Browser sendet (z. B. IP-Adresse, Datum und Uhrzeit, aufgerufene Seiten, verwendeter Browser). Diese Daten sind technisch erforderlich, um die Website korrekt anzuzeigen und die Systemsicherheit zu gewährleisten."
+"Beim Besuch dieser Webseite werden automatisch Informationen erfasst, die Ihr Browser sendet (z. B. IP-Adresse, Datum und Uhrzeit, aufgerufene Seiten, verwendeter Browser). Diese Daten sind technisch erforderlich, um die Webseite korrekt anzuzeigen und die Systemsicherheit zu gewährleisten."
 
 #: templates/legal/privacy_policy.html:32
 msgid "3. Contact"
@@ -2372,7 +2369,7 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"Diese Website verwendet Cookies, um die technische Funktionalität zu gewährleisten und, nach Ihrer ausdrücklichen Einwilligung, das Nutzungsverhalten zu analysieren. Die Speicherung und Auswertung nicht notwendiger Cookies erfolgt nur mit Ihrer vorherigen Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO. Die Einwilligung wird über die Consent-Management-Plattform Cookiebot von Usercentrics verwaltet."
+"Diese Webseite verwendet Cookies, um die technische Funktionalität zu gewährleisten und, nach Ihrer ausdrücklichen Einwilligung, das Nutzungsverhalten zu analysieren. Die Speicherung und Auswertung nicht notwendiger Cookies erfolgt nur mit Ihrer vorherigen Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO. Die Einwilligung wird über die Consent-Management-Plattform Cookiebot von Usercentrics verwaltet."
 
 #: templates/legal/privacy_policy.html:61
 msgid "6. Consent management (Cookiebot)"
@@ -2403,7 +2400,7 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"Wenn Sie der Kategorie „Statistik“ zugestimmt haben, verwenden wir Google Analytics 4 zur Analyse der Website-Nutzung.\n"
+"Wenn Sie der Kategorie „Statistik“ zugestimmt haben, verwenden wir Google Analytics 4 zur Analyse der Webseite-Nutzung.\n"
 "Google Analytics 4 nutzt pseudonymisierte Kennungen und speichert keine vollständigen IP-Adressen.\n"
 "Der Google Consent Mode v2 stellt sicher, dass ohne Ihre Einwilligung keine Analyse-Cookies gesetzt werden."
 
@@ -2446,7 +2443,7 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"Auf dieser Website können Sie sich mit Ihrem Google-Konto anmelden oder ein Konto erstellen („Google-Anmeldung“).\n"
+"Auf dieser Webseite können Sie sich mit Ihrem Google-Konto anmelden oder ein Konto erstellen („Google-Anmeldung“).\n"
 "Anbieter dieses Dienstes ist Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland."
 
 #: templates/legal/privacy_policy.html:101
@@ -2655,7 +2652,7 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"Die Inhalte dieser Website dienen ausschließlich Informationszwecken. Eine kommerzielle Nutzung ohne Zustimmung des Betreibers ist nicht gestattet."
+"Die Inhalte dieser Webseite dienen ausschließlich Informationszwecken. Eine kommerzielle Nutzung ohne Zustimmung des Betreibers ist nicht gestattet."
 
 #: templates/legal/terms_of_use.html:25
 msgid "3. User accounts"
@@ -2832,7 +2829,7 @@ msgid ""
 "our website."
 msgstr ""
 "Du wirst unseren Newsletter nicht mehr erhalten. Du kannst dich jederzeit "
-"auf unserer Website erneut anmelden."
+"auf unserer Webseite erneut anmelden."
 
 #: templates/ops/seo_check.html:20
 msgid "SEO Smoke Test"

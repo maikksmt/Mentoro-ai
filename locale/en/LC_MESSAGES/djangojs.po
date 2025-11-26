@@ -207,3 +207,6 @@ msgstr ""
 #: templates/catalog/tool_list.html:13
 msgid "Categories"
 msgstr ""
+#: templates/catalog/tool_detail.html:37
+msgid "Visit Vendor website for actual prices in your region"
+msgstr ""

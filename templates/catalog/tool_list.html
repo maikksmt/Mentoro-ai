@@ -191,7 +191,6 @@
                             </div>
                         {% endif %}
                     </div>
-
                     <footer class="mt-auto flex items-center justify-between gap-2">
                         {% if t.rating %}
                             <div class="flex items-center gap-1 text-xs text-base-content/80">
@@ -207,7 +206,7 @@
                             {% if t.website %}
                                 <a href="{{ t.website }}" target="_blank" rel="nofollow noopener"
                                    class="btn btn-sm btn-outline">
-                                    {% trans "Website" %}{% heroicon_micro "arrow-top-right-on-square" %}
+                                    {% trans "Website" %}{% heroicon_micro "arrow-up-right" %}
                                 </a>
                             {% endif %}
                             <a href="{% url 'catalog:detail' slug=t.slug %}"
