@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect
 from django.urls import resolve, Resolver404, reverse
 from django.utils import translation
 from django.utils.translation import check_for_language
+from django.views.decorators.cache import cache_control
 from django.views.decorators.http import require_POST
 
 
@@ -40,6 +41,7 @@ def _attach_language_cookie(response, lang_code: str):
 
 
 @require_POST
+@cache_control(max_age=86400)
 def set_language_smart(request):
     """
     Sprachwechsel mit intelligentem Redirect:
@@ -54,32 +56,23 @@ def set_language_smart(request):
     lang_code = (request.POST.get("language") or "").split("-", 1)[0]
 
     if not (lang_code and check_for_language(lang_code)):
-        # Ungültiger Code -> normaler Redirect
         return HttpResponseRedirect(next_url)
 
-    # Sprache für diese Request/Session aktivieren & persistieren
     _persist_language(request, lang_code)
 
-    # Zielpfad aus 'next' auflösen
     path = urlparse(next_url).path
     try:
         match = resolve(path)
     except Resolver404:
-        # Nicht auflösbar -> normal zurück
         resp = HttpResponseRedirect(next_url)
         _attach_language_cookie(resp, lang_code)
         return resp
 
-    # Nur bei Glossary-Detail aktiv eingreifen
     if match.app_name == "glossary" and match.url_name == "detail":
         slug = match.kwargs.get("slug")
-
         from glossary.models import GlossaryTerm
-
-        # (1) gleicher Slug in Zielsprache?
         target = GlossaryTerm.objects.filter(language=lang_code, slug=slug).first()
 
-        # (2) via translation_group mappen, falls nötig
         if not target:
             current = (
                 GlossaryTerm.objects
@@ -93,20 +86,17 @@ def set_language_smart(request):
                     language=lang_code,
                 ).first()
 
-        # Redirect bauen
         if target:
             with translation.override(lang_code):
                 resp = HttpResponseRedirect(target.get_absolute_url())
                 _attach_language_cookie(resp, lang_code)
                 return resp
 
-        # (3) Fallback: Liste in Zielsprache
         with translation.override(lang_code):
             resp = HttpResponseRedirect(reverse("glossary:list"))
             _attach_language_cookie(resp, lang_code)
             return resp
 
-    # Alle anderen Seiten: normal weiter
     resp = HttpResponseRedirect(next_url)
     _attach_language_cookie(resp, lang_code)
     return resp
