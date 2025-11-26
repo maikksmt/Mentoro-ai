@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _, get_language
 from django.views.generic import ListView, DetailView, View
@@ -67,6 +68,13 @@ class GlossaryDetailView(DetailView, SeoMixin):
     def get_queryset(self):
         lang = get_language() or "en"
         return GlossaryTerm.objects.filter(language=lang)
+
+    def get_object(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+
+        slug = self.kwargs.get(self.slug_url_kwarg)
+        return get_object_or_404(queryset, slug=slug)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

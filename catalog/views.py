@@ -1,4 +1,5 @@
 from django.db.models import Q
+from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, get_language
@@ -125,8 +126,11 @@ class ToolDetailView(DetailView, SeoMixin):
             .distinct()
             .first()
         )
-        if obj:
-            return obj
+
+        if obj is None:
+            raise Http404(_("Tool does not exist"))
+
+        return obj
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
