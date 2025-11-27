@@ -4,7 +4,12 @@ from core.seo.types import SeoMeta, AltHref
 
 class SeoMixin:
     def build_seo(self, request, *, title, description, canonical, og_image=None, alternates=None, json_ld=None):
-        alts = [AltHref(**a) for a in (alternates or [])]
+        alts: list[AltHref] = []
+        for a in (alternates or []):
+            if isinstance(a, AltHref):
+                alts.append(a)
+            else:
+                alts.append(AltHref(**a))
         return SeoMeta(
             title=title, description=description, canonical=canonical,
             og_image=og_image, alternates=alts, json_ld=json_ld

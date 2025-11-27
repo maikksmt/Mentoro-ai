@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-26 18:49+0100\n"
+"POT-Creation-Date: 2025-11-27 17:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -137,20 +137,28 @@ msgstr ""
 msgid "Tools · MentoroAI"
 msgstr ""
 
-#: catalog/views.py:74
-msgid "Filter, compare and discover AI tools."
+#: catalog/views.py:75
+msgid ""
+"Discover AI tools for work, creativity, and automation. Filter by "
+"categories, features, and languages to quickly find the tool that fits your "
+"needs."
 msgstr ""
 
-#: catalog/views.py:94 catalog/views.py:170
+#: catalog/views.py:95 catalog/views.py:171
 msgid "Catalog"
 msgstr ""
 
-#: catalog/views.py:95 catalog/views.py:171 templates/catalog/tool_list.html:6
+#: catalog/views.py:96 catalog/views.py:172 templates/catalog/tool_list.html:6
 msgid "All tools"
 msgstr ""
 
-#: catalog/views.py:131
+#: catalog/views.py:132
 msgid "Tool does not exist"
+msgstr ""
+
+#: catalog/views.py:149
+msgid ""
+"This AI tool offers features and use cases that are briefly explained below. "
 msgstr ""
 
 #: compare/admin.py:36 guides/admin.py:76 prompts/admin.py:65
@@ -211,9 +219,9 @@ msgstr ""
 msgid "Comparison"
 msgstr ""
 
-#: compare/models.py:32 compare/views.py:73 compare/views.py:188
-#: compare/views.py:226 compare/views.py:257 compare/views.py:260
-#: templates/base.html:85 templates/base.html:109
+#: compare/models.py:32 compare/views.py:74 compare/views.py:189
+#: compare/views.py:227 compare/views.py:258 compare/views.py:261
+#: templates/base.html:84 templates/base.html:108
 #: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
 msgid "Comparisons"
@@ -227,17 +235,23 @@ msgstr ""
 msgid "Comparisons · MentoroAI"
 msgstr ""
 
-#: compare/views.py:60 compare/views.py:223
+#: compare/views.py:61
+msgid ""
+"Compare AI tools by features, pricing, languages, and use cases to quickly "
+"find the best option for your requirements and workflow."
+msgstr ""
+
+#: compare/views.py:222
+msgid "Tool comparisons"
+msgstr ""
+
+#: compare/views.py:224
 msgid ""
 "Comparisons of AI tools based on criteria such as price, functionality, and "
 "quality."
 msgstr ""
 
-#: compare/views.py:221
-msgid "Tool comparisons"
-msgstr ""
-
-#: compare/views.py:258
+#: compare/views.py:259
 msgid "Discover side-by-side tool comparisons."
 msgstr ""
 
@@ -286,8 +300,10 @@ msgstr ""
 msgid "AI tools, guides & usecases for beginners and professionals · MentoroAI"
 msgstr ""
 
-#: content/views/home.py:48 templates/content/home.html:12
-msgid "Understand AI tools and use them effectively"
+#: content/views/home.py:49
+msgid ""
+"MentoroAI provides curated AI guides, prompts, tool comparisons, and clear "
+"glossary definitions to help you navigate modern AI workflows efficiently."
 msgstr ""
 
 #: core/admin.py:102
@@ -296,6 +312,13 @@ msgstr ""
 
 #: core/admin.py:107
 msgid "Mark as Draft"
+msgstr ""
+
+#: core/seo/context.py:13
+msgid ""
+"MentoroAI provides curated AI guides, prompts, tool overviews, comparisons, "
+"and a clear glossary to help you work productively with modern AI "
+"technologies."
 msgstr ""
 
 #: glossary/models.py:10
@@ -326,8 +349,16 @@ msgstr ""
 msgid "Glossary · MentoroAI"
 msgstr ""
 
-#: glossary/views.py:44
-msgid "AI Glossary – Terms explained simply"
+#: glossary/views.py:45
+msgid ""
+"AI glossary with clear, concise explanations of key terms across machine "
+"learning, LLMs, models, training methods, and modern AI workflows."
+msgstr ""
+
+#: glossary/views.py:92
+msgid ""
+"This glossary entry conveys the core idea and relevance of this concept "
+"within modern AI systems. "
 msgstr ""
 
 #: guides/admin.py:200
@@ -392,8 +423,8 @@ msgstr ""
 msgid "Guide"
 msgstr ""
 
-#: guides/models.py:29 guides/views.py:49 guides/views.py:113
-#: templates/base.html:73 templates/base.html:97 templates/content/home.html:96
+#: guides/models.py:29 guides/views.py:50 guides/views.py:114
+#: templates/base.html:72 templates/base.html:96 templates/content/home.html:96
 #: templates/content/what-to-find.html:32 templates/guides/guide_list.html:7
 #: templates/partials/_entry_cards.html:19
 msgid "Guides"
@@ -435,8 +466,11 @@ msgstr ""
 msgid "Guides · MentoroAI"
 msgstr ""
 
-#: guides/views.py:38
-msgid "Discover AI guides with step-by-step instructions."
+#: guides/views.py:39
+msgid ""
+"Explore detailed, practical AI guides covering fundamentals, tools, "
+"workflows, and best practices. Ideal for beginners and experienced "
+"professionals."
 msgstr ""
 
 #: newsletter/forms.py:7 newsletter/forms.py:23
@@ -447,7 +481,7 @@ msgstr ""
 msgid "Reason (optional)"
 msgstr ""
 
-#: newsletter/views.py:20 templates/base.html:192
+#: newsletter/views.py:20 templates/base.html:191
 msgid "Newsletter"
 msgstr ""
 
@@ -546,16 +580,16 @@ msgstr ""
 msgid "Select the AI tool for which this prompt has been optimized."
 msgstr ""
 
-#: prompts/models.py:32 prompts/views.py:130
+#: prompts/models.py:32 prompts/views.py:131
 #: templates/partials/_guideitem_card.html:9
 #: templates/partials/_teaser_card.html:9
 #: templates/prompts/prompt_detail.html:22
 msgid "Prompt"
 msgstr ""
 
-#: prompts/models.py:33 prompts/views.py:68 prompts/views.py:129
-#: templates/base.html:76 templates/base.html:100
-#: templates/content/home.html:97 templates/content/what-to-find.html:33
+#: prompts/models.py:33 prompts/views.py:69 prompts/views.py:130
+#: templates/base.html:75 templates/base.html:99 templates/content/home.html:97
+#: templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
 msgid "Prompts"
 msgstr ""
@@ -564,8 +598,10 @@ msgstr ""
 msgid "Prompts · MentoroAI"
 msgstr ""
 
-#: prompts/views.py:56
-msgid "Curated AI prompts with review/publish workflow."
+#: prompts/views.py:57
+msgid ""
+"Browse curated AI prompts for ChatGPT, Claude, and other models, optimized "
+"for productivity, creativity, and consistently clear results."
 msgstr ""
 
 #: templates/account/3rdparty.html:5
@@ -1152,73 +1188,73 @@ msgstr ""
 msgid "No differences in this language."
 msgstr ""
 
-#: templates/base.html:65
+#: templates/base.html:64
 msgid "Mobile menu"
 msgstr ""
 
-#: templates/base.html:70 templates/base.html:94
+#: templates/base.html:69 templates/base.html:93
 #: templates/content/what-to-find.html:31
 #: templates/partials/_entry_cards.html:11
 msgid "Glossary"
 msgstr ""
 
-#: templates/base.html:79 templates/base.html:103
+#: templates/base.html:78 templates/base.html:102
 #: templates/partials/_entry_cards.html:35
 msgid "Use cases"
 msgstr ""
 
-#: templates/base.html:82 templates/base.html:106
+#: templates/base.html:81 templates/base.html:105
 #: templates/content/what-to-find.html:35
 #: templates/partials/_entry_cards.html:43
 msgid "Tools"
 msgstr ""
 
-#: templates/base.html:115 templates/catalog/tool_list.html:63
+#: templates/base.html:114 templates/catalog/tool_list.html:63
 #: templates/catalog/tool_list.html:64
 msgid "Search"
 msgstr ""
 
-#: templates/base.html:124
+#: templates/base.html:123
 msgid "Toggle theme"
 msgstr ""
 
-#: templates/base.html:140
+#: templates/base.html:139
 msgid "Language select"
 msgstr ""
 
-#: templates/base.html:167
+#: templates/base.html:166
 msgid "Dashboard"
 msgstr ""
 
-#: templates/base.html:170
+#: templates/base.html:169
 msgid "Admin Panel"
 msgstr ""
 
-#: templates/base.html:172 templates/partials/editorial_nav.html:9
+#: templates/base.html:171 templates/partials/editorial_nav.html:9
 msgid "Drafts"
 msgstr ""
 
-#: templates/base.html:175 templates/partials/editorial_nav.html:13
+#: templates/base.html:174 templates/partials/editorial_nav.html:13
 msgid "Reviews"
 msgstr ""
 
-#: templates/base.html:194 templates/partials/_entry_cards.html:5
+#: templates/base.html:193 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
 msgstr ""
 
-#: templates/base.html:195
+#: templates/base.html:194
 msgid "Legal notice"
 msgstr ""
 
-#: templates/base.html:196
+#: templates/base.html:195
 msgid "Privacy policy"
 msgstr ""
 
-#: templates/base.html:198 templates/legal/terms_of_use.html:10
+#: templates/base.html:197 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr ""
 
-#: templates/base.html:199
+#: templates/base.html:198
 msgid "Copyright"
 msgstr ""
 
@@ -1515,6 +1551,10 @@ msgstr ""
 msgid "Einreichen"
 msgstr ""
 
+#: templates/content/home.html:12
+msgid "Understand AI tools and use them effectively"
+msgstr ""
+
 #: templates/content/home.html:15
 msgid ""
 " Find the right tools, compare real alternatives, and follow practical "
@@ -1548,7 +1588,7 @@ msgid "Current content"
 msgstr ""
 
 #: templates/content/home.html:98 templates/usecases/list.html:8
-#: usecases/models.py:35 usecases/views.py:67 usecases/views.py:126
+#: usecases/models.py:35 usecases/views.py:68 usecases/views.py:127
 msgid "Usecases"
 msgstr ""
 
@@ -2822,7 +2862,7 @@ msgstr ""
 
 #: templates/partials/_guideitem_card.html:11
 #: templates/partials/_teaser_card.html:11 usecases/models.py:34
-#: usecases/views.py:127
+#: usecases/views.py:128
 msgid "Usecase"
 msgstr ""
 
@@ -3227,6 +3267,8 @@ msgstr ""
 msgid "Usecases · MentoroAI"
 msgstr ""
 
-#: usecases/views.py:56
-msgid "Discover how people used ai in real usecases"
+#: usecases/views.py:57
+msgid ""
+"Explore practical AI use cases for everyday tasks, professional work, and "
+"creative projects with examples, tips, and matching tools."
 msgstr ""

@@ -57,7 +57,8 @@ class ComparisonListView(ListView, SeoMixin):
         ctx["seo"] = self.build_seo(
             self.request,
             title=_("Comparisons · MentoroAI"),
-            description=_("Comparisons of AI tools based on criteria such as price, functionality, and quality."),
+            description=_(
+                "Compare AI tools by features, pricing, languages, and use cases to quickly find the best option for your requirements and workflow."),
             canonical=canonical,
             alternates=alts,
             json_ld={

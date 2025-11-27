@@ -53,7 +53,8 @@ class PromptListView(ListView, SeoMixin):
         ctx["seo"] = self.build_seo(
             self.request,
             title=_("Prompts · MentoroAI"),
-            description=_("Curated AI prompts with review/publish workflow."),
+            description=_(
+                "Browse curated AI prompts for ChatGPT, Claude, and other models, optimized for productivity, creativity, and consistently clear results."),
             canonical=canonical,
             alternates=alts,
             json_ld={

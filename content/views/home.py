@@ -45,7 +45,8 @@ class HomePageView(TemplateView, SeoMixin):
         ctx["seo"] = self.build_seo(
             self.request,
             title=_("AI tools, guides & usecases for beginners and professionals · MentoroAI"),
-            description=_("Understand AI tools and use them effectively"),
+            description=_(
+                "MentoroAI provides curated AI guides, prompts, tool comparisons, and clear glossary definitions to help you navigate modern AI workflows efficiently."),
             canonical=canonical,
             alternates=alts,
             json_ld={
