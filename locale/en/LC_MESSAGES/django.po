@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-27 17:31+0100\n"
+"POT-Creation-Date: 2025-11-27 19:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -139,16 +139,15 @@ msgstr ""
 
 #: catalog/views.py:75
 msgid ""
-"Discover AI tools for work, creativity, and automation. Filter by "
-"categories, features, and languages to quickly find the tool that fits your "
-"needs."
+"Overview of modern AI tools across all categories, with features, use cases, "
+"language support, and filters to quickly find the right solution."
 msgstr ""
 
-#: catalog/views.py:95 catalog/views.py:171
+#: catalog/views.py:95 catalog/views.py:180
 msgid "Catalog"
 msgstr ""
 
-#: catalog/views.py:96 catalog/views.py:172 templates/catalog/tool_list.html:6
+#: catalog/views.py:96 catalog/views.py:181 templates/catalog/tool_list.html:6
 msgid "All tools"
 msgstr ""
 
@@ -156,7 +155,13 @@ msgstr ""
 msgid "Tool does not exist"
 msgstr ""
 
-#: catalog/views.py:149
+#: catalog/views.py:141
+msgid ""
+"This AI tool enhances modern workflows and helps streamline key tasks across "
+"various use cases. "
+msgstr ""
+
+#: catalog/views.py:158
 msgid ""
 "This AI tool offers features and use cases that are briefly explained below. "
 msgstr ""
@@ -237,8 +242,8 @@ msgstr ""
 
 #: compare/views.py:61
 msgid ""
-"Compare AI tools by features, pricing, languages, and use cases to quickly "
-"find the best option for your requirements and workflow."
+"Compare AI tools by features, pricing, performance, and use cases to "
+"identify the best option for your needs across different workflows."
 msgstr ""
 
 #: compare/views.py:222
@@ -345,17 +350,17 @@ msgstr ""
 msgid "Glossary terms"
 msgstr ""
 
-#: glossary/views.py:43
+#: glossary/views.py:46
 msgid "Glossary · MentoroAI"
 msgstr ""
 
-#: glossary/views.py:45
+#: glossary/views.py:48
 msgid ""
 "AI glossary with clear, concise explanations of key terms across machine "
-"learning, LLMs, models, training methods, and modern AI workflows."
+"learning, LLMs, model behavior, training methods, and modern workflows."
 msgstr ""
 
-#: glossary/views.py:92
+#: glossary/views.py:120
 msgid ""
 "This glossary entry conveys the core idea and relevance of this concept "
 "within modern AI systems. "
@@ -468,9 +473,8 @@ msgstr ""
 
 #: guides/views.py:39
 msgid ""
-"Explore detailed, practical AI guides covering fundamentals, tools, "
-"workflows, and best practices. Ideal for beginners and experienced "
-"professionals."
+"Structured AI guides with step-by-step instructions, foundational knowledge, "
+"and practical workflows for efficient, real-world usage."
 msgstr ""
 
 #: newsletter/forms.py:7 newsletter/forms.py:23
@@ -487,8 +491,8 @@ msgstr ""
 
 #: newsletter/views.py:23
 msgid ""
-"Subscribe to the MentoroAI newsletter: updates on tools, comparisons, and "
-"guides."
+"Compact updates on AI trends, tools, and developments delivered via email "
+"for beginners, professionals, and anyone staying informed."
 msgstr ""
 
 #: newsletter/views.py:37
@@ -600,8 +604,8 @@ msgstr ""
 
 #: prompts/views.py:57
 msgid ""
-"Browse curated AI prompts for ChatGPT, Claude, and other models, optimized "
-"for productivity, creativity, and consistently clear results."
+"Collection of tested prompt templates for ChatGPT and other AI models, "
+"organized by categories and use cases for fast, practical usage."
 msgstr ""
 
 #: templates/account/3rdparty.html:5
@@ -3269,6 +3273,6 @@ msgstr ""
 
 #: usecases/views.py:57
 msgid ""
-"Explore practical AI use cases for everyday tasks, professional work, and "
-"creative projects with examples, tips, and matching tools."
+"Practical AI use cases with clear examples, benefits, and step-by-step "
+"guidance for business tasks, research, and creative applications."
 msgstr ""

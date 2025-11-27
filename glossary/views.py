@@ -1,10 +1,13 @@
+from django.conf import settings
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
-from django.utils.translation import gettext as _, get_language
+from django.urls import reverse
+from django.utils.translation import gettext as _, get_language, override
 from django.views.generic import ListView, DetailView, View
 
+from core.seo.types import AltHref
 from core.seo.utils import absolute_url, localized_alternates
 from core.views import SeoMixin
 from .models import GlossaryTerm
@@ -42,7 +45,7 @@ class GlossaryListView(ListView, SeoMixin):
             self.request,
             title=_("Glossary · MentoroAI"),
             description=_(
-                "AI glossary with clear, concise explanations of key terms across machine learning, LLMs, models, training methods, and modern AI workflows."),
+                "AI glossary with clear, concise explanations of key terms across machine learning, LLMs, model behavior, training methods, and modern workflows."),
             canonical=canonical,
             alternates=alts,
             json_ld={
@@ -84,7 +87,32 @@ class GlossaryDetailView(DetailView, SeoMixin):
         desc = (obj.short_definition or obj.long_definition or obj.term)[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)
-        alts = localized_alternates(self.request, "glossary:detail", {"slug": obj.slug})
+        # --- Geschwister (andere Sprachen) holen ---
+        term = obj
+        siblings = (
+            GlossaryTerm.objects
+            .filter(translation_group=term.translation_group)
+            .exclude(pk=term.pk)
+            .only("language", "slug")
+        )
+
+        # Map: language-code -> slug
+        lang_to_slug = {term.language: term.slug}
+        for s in siblings:
+            lang_to_slug[s.language] = s.slug
+
+        # --- hreflang-Alternates nur für existierende Sprachen ---
+        alts: list[AltHref] = []
+        for code, lang_name in settings.LANGUAGES:
+            slug = lang_to_slug.get(code)
+            if not slug:
+                continue
+            with override(code):
+                path = reverse("glossary:detail", kwargs={"slug": slug})
+                alts.append(AltHref(lang=code, url=absolute_url(path)))
+
+        # x-default: aktuelle URL oder bevorzugte Standardsprache
+        alts.append(AltHref(lang="x-default", url=canonical))
         json_ld = {
             "@context": "https://schema.org",
             "@type": "Article",
