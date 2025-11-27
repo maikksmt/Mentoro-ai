@@ -1,7 +1,10 @@
 {% load i18n seo_extras %}
 
 {# Titel #}
-<title>{% if seo and seo.title %}{{ seo.title }}{% else %}{{ SITE_NAME|default:"MentoroAI" }}{% endif %}</title>
+{% block seo_title %}
+    <title>{% if seo and seo.title %}{{ seo.title }}{% else %}{{ SITE_NAME|default:"MentoroAI" }}{% endif %}</title>
+{% endblock %}
+
 
 {# Canonical #}
 {% if seo.canonical %}

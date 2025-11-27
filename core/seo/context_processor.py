@@ -8,4 +8,6 @@ def context_processor(request):
         "seo": defaults(request),
         "SITE_NAME": getattr(settings, "SITE_NAME", "MentoroAI"),
         "SITE_URL": getattr(settings, "SITE_URL", "").rstrip("/"),
+        "ENABLE_GA": getattr(settings, "ENABLE_GA", False),
+        "GA_MEASUREMENT_ID": getattr(settings, "GA_MEASUREMENT_ID", ""),
     }
