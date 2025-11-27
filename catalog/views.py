@@ -71,7 +71,8 @@ class ToolListView(ListView, SeoMixin):
         ctx["seo"] = self.build_seo(
             self.request,
             title=_("Tools · MentoroAI"),
-            description=_("Filter, compare and discover AI tools."),
+            description=_(
+                "Discover AI tools for work, creativity, and automation. Filter by categories, features, and languages to quickly find the tool that fits your needs."),
             canonical=canonical,
             alternates=alts,
             json_ld={
@@ -145,7 +146,7 @@ class ToolDetailView(DetailView, SeoMixin):
             "@context": "https://schema.org",
             "@type": "Article",
             "headline": obj.name,
-            "description": desc,
+            "description": _("This AI tool offers features and use cases that are briefly explained below. ") + desc,
             "inLanguage": get_language(),
             "mainEntityOfPage": canonical,
             "url": canonical,

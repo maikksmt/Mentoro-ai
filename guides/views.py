@@ -35,7 +35,8 @@ class GuideListView(ListView, SeoMixin):
         ctx["seo"] = self.build_seo(
             self.request,
             title=_("Guides · MentoroAI"),
-            description=_("Discover AI guides with step-by-step instructions."),
+            description=_(
+                "Explore detailed, practical AI guides covering fundamentals, tools, workflows, and best practices. Ideal for beginners and experienced professionals."),
             canonical=canonical,
             alternates=alts,
             json_ld={
@@ -78,7 +79,7 @@ class GuideDetailView(DetailView, SeoMixin):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         obj: Guide = ctx["object"]
-        title = f"{obj.title} · MentoroAI"
+        title = f"{obj.title}"
         desc = (obj.intro or obj.body or obj.title)[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)

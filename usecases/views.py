@@ -53,7 +53,8 @@ class UseCaseListView(ListView, SeoMixin):
         ctx["seo"] = self.build_seo(
             self.request,
             title=_("Usecases · MentoroAI"),
-            description=_("Discover how people used ai in real usecases"),
+            description=_(
+                "Explore practical AI use cases for everyday tasks, professional work, and creative projects with examples, tips, and matching tools."),
             canonical=canonical,
             alternates=alts,
             json_ld={
@@ -89,7 +90,7 @@ class UseCaseDetailView(DetailView, SeoMixin):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         ctx = super().get_context_data(**kwargs)
         obj: UseCase = ctx["object"]
-        title = f"{obj.title} · MentoroAI"
+        title = f"{obj.title}"
         desc = (obj.intro or obj.body or obj.title)[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)

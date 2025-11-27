@@ -41,7 +41,8 @@ class GlossaryListView(ListView, SeoMixin):
         ctx["seo"] = self.build_seo(
             self.request,
             title=_("Glossary · MentoroAI"),
-            description=_("AI Glossary – Terms explained simply"),
+            description=_(
+                "AI glossary with clear, concise explanations of key terms across machine learning, LLMs, models, training methods, and modern AI workflows."),
             canonical=canonical,
             alternates=alts,
             json_ld={
@@ -88,7 +89,7 @@ class GlossaryDetailView(DetailView, SeoMixin):
             "@context": "https://schema.org",
             "@type": "Article",
             "headline": obj.term,
-            "description": desc,
+            "description": _("This glossary entry conveys the core idea and relevance of this concept within modern AI systems. ") + desc,
             "inLanguage": get_language(),
             "mainEntityOfPage": canonical,
             "url": canonical,

@@ -1,4 +1,4 @@
-# core/sitemaps.py (Pfad an dein Projekt anpassen)
+# core/sitemaps.py
 
 from django.contrib.sitemaps import Sitemap
 from django.utils import timezone
@@ -11,7 +11,7 @@ from guides.models import Guide
 from prompts.models import Prompt
 from usecases.models import UseCase
 
-DEFAULT_LANG = "de"
+DEFAULT_LANG = "en"
 
 
 class BasePublishableSitemap(Sitemap):
@@ -20,11 +20,9 @@ class BasePublishableSitemap(Sitemap):
 
     def lastmod(self, obj):
         for field in (
-                "last_published_at",
                 "updated_at",
-                "modified",
-                "created",
                 "created_at",
+                "published_at",
         ):
             value = getattr(obj, field, None)
             if value:
@@ -32,31 +30,28 @@ class BasePublishableSitemap(Sitemap):
         return timezone.now()
 
     def location(self, obj):
-        return obj.get_absolute_url()
+        lang = get_language() or DEFAULT_LANG
+        return obj.get_absolute_url(language=lang)
 
 
 class GuideSitemap(BasePublishableSitemap):
     def items(self):
-        manager = getattr(Guide, "published", None)
-        return (manager or Guide.objects).all()
+        return Guide.objects.published()
 
 
 class PromptSitemap(BasePublishableSitemap):
     def items(self):
-        manager = getattr(Prompt, "published", None)
-        return (manager or Prompt.objects).all()
+        return Prompt.objects.published()
 
 
 class UseCaseSitemap(BasePublishableSitemap):
     def items(self):
-        manager = getattr(UseCase, "published", None)
-        return (manager or UseCase.objects).all()
+        return UseCase.objects.published()
 
 
 class ComparisonSitemap(BasePublishableSitemap):
     def items(self):
-        manager = getattr(Comparison, "published", None)
-        return (manager or Comparison.objects).all()
+        return Comparison.objects.published()
 
 
 class ToolSitemap(BasePublishableSitemap):
@@ -73,7 +68,6 @@ class GlossaryIndexSitemap(Sitemap):
     priority = 0.6
 
     def items(self):
-        # Dummy-Item, URL wird nur aus Sprache gebaut
         return ["index"]
 
     def location(self, item):
@@ -81,7 +75,7 @@ class GlossaryIndexSitemap(Sitemap):
         return f"/{lang}/glossary/"
 
 
-class GlossaryTermSitemap(BasePublishableSitemap):
+class GlossaryTermSitemap(Sitemap):
     priority = 0.7
 
     def items(self):
@@ -89,6 +83,20 @@ class GlossaryTermSitemap(BasePublishableSitemap):
         manager = getattr(GlossaryTerm, "published", None)
         qs = (manager or GlossaryTerm.objects).filter(language=lang)
         return qs
+
+    def lastmod(self, obj):
+        for field in (
+                "updated_at",
+                "created_at",
+                "published_at",
+        ):
+            value = getattr(obj, field, None)
+            if value:
+                return value
+        return timezone.now()
+
+    def location(self, obj):
+        return obj.get_absolute_url()
 
 
 class LegalSitemap(Sitemap):
