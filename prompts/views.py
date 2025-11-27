@@ -54,7 +54,7 @@ class PromptListView(ListView, SeoMixin):
             self.request,
             title=_("Prompts · MentoroAI"),
             description=_(
-                "Browse curated AI prompts for ChatGPT, Claude, and other models, optimized for productivity, creativity, and consistently clear results."),
+                "Collection of tested prompt templates for ChatGPT and other AI models, organized by categories and use cases for fast, practical usage."),
             canonical=canonical,
             alternates=alts,
             json_ld={

@@ -36,7 +36,7 @@ class GuideListView(ListView, SeoMixin):
             self.request,
             title=_("Guides · MentoroAI"),
             description=_(
-                "Explore detailed, practical AI guides covering fundamentals, tools, workflows, and best practices. Ideal for beginners and experienced professionals."),
+                "Structured AI guides with step-by-step instructions, foundational knowledge, and practical workflows for efficient, real-world usage."),
             canonical=canonical,
             alternates=alts,
             json_ld={

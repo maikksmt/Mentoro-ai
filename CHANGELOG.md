@@ -8,9 +8,11 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+#### (New changes are placed here as the beta phase progresses.)
+
 ### Added
 
-#### (New changes are placed here as the beta phase progresses.)
+- fix and optimize SEO
 
 ---
 

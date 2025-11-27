@@ -12,7 +12,7 @@ class ContentSitemapsTests(TestCase):
         xml = resp.content.decode()
         expected = [
             "/",
-            "/en/legal/legal/",
+            "/en/legal/legal-notice/",
             "/en/legal/privacy/",
             "/en/legal/cookies/",
             "/en/legal/terms/",
