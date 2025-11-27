@@ -58,7 +58,7 @@ class ComparisonListView(ListView, SeoMixin):
             self.request,
             title=_("Comparisons · MentoroAI"),
             description=_(
-                "Compare AI tools by features, pricing, languages, and use cases to quickly find the best option for your requirements and workflow."),
+                "Compare AI tools by features, pricing, performance, and use cases to identify the best option for your needs across different workflows."),
             canonical=canonical,
             alternates=alts,
             json_ld={

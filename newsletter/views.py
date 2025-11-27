@@ -20,7 +20,7 @@ class SubscribeView(FormView):
         context.setdefault("seo_title", _("Newsletter"))
         context.setdefault(
             "seo_description",
-            _("Subscribe to the MentoroAI newsletter: updates on tools, comparisons, and guides."),
+            _("Compact updates on AI trends, tools, and developments delivered via email for beginners, professionals, and anyone staying informed."),
         )
         return context
 

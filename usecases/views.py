@@ -54,7 +54,7 @@ class UseCaseListView(ListView, SeoMixin):
             self.request,
             title=_("Usecases · MentoroAI"),
             description=_(
-                "Explore practical AI use cases for everyday tasks, professional work, and creative projects with examples, tips, and matching tools."),
+                "Practical AI use cases with clear examples, benefits, and step-by-step guidance for business tasks, research, and creative applications."),
             canonical=canonical,
             alternates=alts,
             json_ld={

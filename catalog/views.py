@@ -72,7 +72,7 @@ class ToolListView(ListView, SeoMixin):
             self.request,
             title=_("Tools · MentoroAI"),
             description=_(
-                "Discover AI tools for work, creativity, and automation. Filter by categories, features, and languages to quickly find the tool that fits your needs."),
+                "Overview of modern AI tools across all categories, with features, use cases, language support, and filters to quickly find the right solution."),
             canonical=canonical,
             alternates=alts,
             json_ld={
@@ -138,7 +138,16 @@ class ToolDetailView(DetailView, SeoMixin):
         obj: Tool = ctx["object"]
 
         title = f"{obj.name} · MentoroAI"
-        desc = (obj.short_description or obj.long_description or obj.name)[:155]
+        outro = _("This AI tool enhances modern workflows and helps streamline key tasks across various use cases. ")
+
+        if obj.short_description:
+            desc_raw = obj.short_description + outro
+        elif obj.name:
+            desc_raw = obj.name + outro
+        else:
+            desc_raw = obj.long_description or outro
+
+        desc = desc_raw[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)
         alts = localized_alternates(self.request, "catalog:detail", {"slug": obj.slug})

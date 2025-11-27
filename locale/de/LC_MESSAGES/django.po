@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-27 17:31+0100\n"
-"PO-Revision-Date: 2025-11-27 17:35+0100\n"
+"POT-Creation-Date: 2025-11-27 19:27+0100\n"
+"PO-Revision-Date: 2025-11-27 19:27+0100\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -143,19 +143,17 @@ msgstr "Tools · MentoroAI"
 
 #: catalog/views.py:75
 msgid ""
-"Discover AI tools for work, creativity, and automation. Filter by "
-"categories, features, and languages to quickly find the tool that fits your "
-"needs."
+"Overview of modern AI tools across all categories, with features, use cases,"
+" language support, and filters to quickly find the right solution."
 msgstr ""
-"Entdecken Sie KI-Tools für Arbeit, Kreativität und Automatisierung. Filtern "
-"Sie nach Kategorien, Funktionen und Sprachen, um schnell das Tool zu finden,"
-" das Ihren Anforderungen entspricht."
+"Übersicht moderner KI-Tools aus allen Bereichen. Mit Funktionen, "
+"Anwendungsbeispielen, Sprachsupport und einfachen Filtermöglichkeiten."
 
-#: catalog/views.py:95 catalog/views.py:171
+#: catalog/views.py:95 catalog/views.py:180
 msgid "Catalog"
 msgstr "Katalog"
 
-#: catalog/views.py:96 catalog/views.py:172 templates/catalog/tool_list.html:6
+#: catalog/views.py:96 catalog/views.py:181 templates/catalog/tool_list.html:6
 msgid "All tools"
 msgstr "Alle Tools"
 
@@ -163,7 +161,15 @@ msgstr "Alle Tools"
 msgid "Tool does not exist"
 msgstr "Tool existiert nicht"
 
-#: catalog/views.py:149
+#: catalog/views.py:141
+msgid ""
+"This AI tool enhances modern workflows and helps streamline key tasks across"
+" various use cases. "
+msgstr ""
+"Dieses KI-Tool verbessert moderne Arbeitsabläufe und hilft dabei, wichtige "
+"Aufgaben zu optimieren."
+
+#: catalog/views.py:158
 msgid ""
 "This AI tool offers features and use cases that are briefly explained below."
 " "
@@ -250,12 +256,11 @@ msgstr "Vergleiche · MentoroAI"
 
 #: compare/views.py:61
 msgid ""
-"Compare AI tools by features, pricing, languages, and use cases to quickly "
-"find the best option for your requirements and workflow."
+"Compare AI tools by features, pricing, performance, and use cases to "
+"identify the best option for your needs across different workflows."
 msgstr ""
-"Vergleichen Sie KI-Tools nach Funktionen, Preisen, Sprachen und "
-"Anwendungsfällen, um schnell die beste Option für Ihre Anforderungen und "
-"Ihren Arbeitsablauf zu finden."
+"Vergleiche KI-Tools direkt nach Funktionen, Kosten, Qualität und "
+"Einsatzbereichen, um die beste Lösung für deine Anforderungen zu finden."
 
 #: compare/views.py:222
 msgid "Tool comparisons"
@@ -371,20 +376,19 @@ msgstr "Glossarbegriff"
 msgid "Glossary terms"
 msgstr "Glossarbegriffe"
 
-#: glossary/views.py:43
+#: glossary/views.py:46
 msgid "Glossary · MentoroAI"
 msgstr "Glossar · MentoroAI"
 
-#: glossary/views.py:45
+#: glossary/views.py:48
 msgid ""
 "AI glossary with clear, concise explanations of key terms across machine "
-"learning, LLMs, models, training methods, and modern AI workflows."
+"learning, LLMs, model behavior, training methods, and modern workflows."
 msgstr ""
-"KI-Glossar mit klaren, prägnanten Erklärungen von Schlüsselbegriffen für "
-"maschinelles Lernen, LLMs, Modelle, Trainingsmethoden und moderne KI-"
-"Workflows."
+"KI-Glossar mit klaren, kompakten Erklärungen zentraler Begriffe aus Machine "
+"Learning, LLMs und modernen KI-Workflows."
 
-#: glossary/views.py:92
+#: glossary/views.py:120
 msgid ""
 "This glossary entry conveys the core idea and relevance of this concept "
 "within modern AI systems. "
@@ -500,13 +504,11 @@ msgstr "Leitfäden · MentoroAI"
 
 #: guides/views.py:39
 msgid ""
-"Explore detailed, practical AI guides covering fundamentals, tools, "
-"workflows, and best practices. Ideal for beginners and experienced "
-"professionals."
+"Structured AI guides with step-by-step instructions, foundational knowledge,"
+" and practical workflows for efficient, real-world usage."
 msgstr ""
-"Entdecken Sie detaillierte, praktische KI-Anleitungen, die Grundlagen, "
-"Tools, Arbeitsabläufe und Best Practices abdecken. Ideal für Anfänger und "
-"erfahrene Profis."
+"Strukturierte KI-Guides mit Schritt-für-Schritt-Anleitungen, "
+"Grundlagenwissen und praxisnahen Tipps für effiziente Workflows."
 
 #: newsletter/forms.py:7 newsletter/forms.py:23
 msgid "email"
@@ -522,11 +524,11 @@ msgstr "Newsletter"
 
 #: newsletter/views.py:23
 msgid ""
-"Subscribe to the MentoroAI newsletter: updates on tools, comparisons, and "
-"guides."
+"Compact updates on AI trends, tools, and developments delivered via email "
+"for beginners, professionals, and anyone staying informed."
 msgstr ""
-"Abonniere den MentoroAI Newsletter: Updates zu Tools, Vergleichen und "
-"Leitfäden."
+"Aktuelle KI-Updates, Trends und Tool-Neuheiten kompakt per E-Mail – für "
+"Einsteiger, Experten und alle, die am Ball bleiben wollen."
 
 #: newsletter/views.py:37
 msgid "Please check your inbox to confirm your subscription."
@@ -639,12 +641,11 @@ msgstr "Prompts · MentoroAI"
 
 #: prompts/views.py:57
 msgid ""
-"Browse curated AI prompts for ChatGPT, Claude, and other models, optimized "
-"for productivity, creativity, and consistently clear results."
+"Collection of tested prompt templates for ChatGPT and other AI models, "
+"organized by categories and use cases for fast, practical usage."
 msgstr ""
-"Durchsuchen Sie kuratierte KI-Prompts für ChatGPT, Claude und andere "
-"Modelle, die für Produktivität, Kreativität und durchweg klare Ergebnisse "
-"optimiert sind."
+"Sammlung getesteter Prompt-Vorlagen für ChatGPT und andere KI-Modelle – nach"
+" Kategorien, Anwendungsfällen und Zielen filterbar."
 
 #: templates/account/3rdparty.html:5
 msgid "Third-party authentication"
@@ -3481,12 +3482,52 @@ msgstr "Anwendungsfälle · MentoroAI"
 
 #: usecases/views.py:57
 msgid ""
-"Explore practical AI use cases for everyday tasks, professional work, and "
-"creative projects with examples, tips, and matching tools."
+"Practical AI use cases with clear examples, benefits, and step-by-step "
+"guidance for business tasks, research, and creative applications."
 msgstr ""
-"Entdecken Sie praktische KI-Anwendungsfälle für alltägliche Aufgaben, "
-"professionelle Arbeit und kreative Projekte mit Beispielen, Tipps und "
-"passenden Tools."
+"Praktische KI-Use-Cases mit verständlichen Beispielen, Vorteilen und "
+"Vorgehensweisen für Business, Recherche und kreative Anwendungen."
+
+#~ msgid ""
+#~ "Discover AI tools for work, creativity, and automation. Filter by "
+#~ "categories, features, and languages to quickly find the tool that fits your "
+#~ "needs."
+#~ msgstr ""
+#~ "Entdecken Sie KI-Tools für Arbeit, Kreativität und Automatisierung. Filtern "
+#~ "Sie nach Kategorien, Funktionen und Sprachen, um schnell das Tool zu finden,"
+#~ " das Ihren Anforderungen entspricht."
+
+#~ msgid ""
+#~ "Explore detailed, practical AI guides covering fundamentals, tools, "
+#~ "workflows, and best practices. Ideal for beginners and experienced "
+#~ "professionals."
+#~ msgstr ""
+#~ "Entdecken Sie detaillierte, praktische KI-Anleitungen, die Grundlagen, "
+#~ "Tools, Arbeitsabläufe und Best Practices abdecken. Ideal für Anfänger und "
+#~ "erfahrene Profis."
+
+#~ msgid ""
+#~ "Subscribe to the MentoroAI newsletter: updates on tools, comparisons, and "
+#~ "guides."
+#~ msgstr ""
+#~ "Abonniere den MentoroAI Newsletter: Updates zu Tools, Vergleichen und "
+#~ "Leitfäden."
+
+#~ msgid ""
+#~ "Browse curated AI prompts for ChatGPT, Claude, and other models, optimized "
+#~ "for productivity, creativity, and consistently clear results."
+#~ msgstr ""
+#~ "Durchsuchen Sie kuratierte KI-Prompts für ChatGPT, Claude und andere "
+#~ "Modelle, die für Produktivität, Kreativität und durchweg klare Ergebnisse "
+#~ "optimiert sind."
+
+#~ msgid ""
+#~ "Explore practical AI use cases for everyday tasks, professional work, and "
+#~ "creative projects with examples, tips, and matching tools."
+#~ msgstr ""
+#~ "Entdecken Sie praktische KI-Anwendungsfälle für alltägliche Aufgaben, "
+#~ "professionelle Arbeit und kreative Projekte mit Beispielen, Tipps und "
+#~ "passenden Tools."
 
 #~ msgid "Filter, compare and discover AI tools."
 #~ msgstr "KI-Tools filtern, vergleichen und entdecken."

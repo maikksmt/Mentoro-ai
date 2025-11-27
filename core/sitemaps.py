@@ -105,7 +105,7 @@ class LegalSitemap(Sitemap):
 
     def items(self):
         # Suffixe relativ zu /<lang>/legal/
-        return ["legal", "privacy", "cookies", "terms", "copyright"]
+        return ["legal-notice", "privacy", "cookies", "terms", "copyright"]
 
     def location(self, item):
         lang = get_language() or DEFAULT_LANG
