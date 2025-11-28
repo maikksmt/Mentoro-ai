@@ -49,7 +49,7 @@ class PromptListView(ListView, SeoMixin):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         ctx = super().get_context_data(**kwargs)
         canonical = absolute_url(self.request.path)
-        alts = localized_alternates(self.request, "guides:list")
+        alts = localized_alternates(self.request, "prompts:list")
         ctx["seo"] = self.build_seo(
             self.request,
             title=_("Prompts · MentoroAI"),

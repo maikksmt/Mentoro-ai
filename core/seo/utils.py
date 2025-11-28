@@ -5,7 +5,7 @@ from django.conf import settings
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.html import strip_tags
-from django.utils.translation import override, get_language
+from django.utils.translation import override
 
 from .types import AltHref
 
@@ -32,7 +32,7 @@ def localized_alternates(
     """
     alts: list[AltHref] = []
 
-    for code, _ in settings.LANGUAGES:
+    for code, lang_name in settings.LANGUAGES:
         url: str | None = None
 
         if obj is not None and hasattr(obj, "get_absolute_url"):
@@ -51,19 +51,12 @@ def localized_alternates(
 
         alts.append(AltHref(lang=code, url=absolute_url(url)))
 
-    current_lang = getattr(request, "LANGUAGE_CODE", None) or get_language()
-    current_alt = next((a for a in alts if a.lang == current_lang), None)
-
-    if not current_alt:
-        default_lang = getattr(settings, "LANGUAGE_CODE", None)
-        current_alt = next((a for a in alts if a.lang == default_lang), None)
-
-    if not current_alt and alts:
-        current_alt = alts[0]
-
-    if current_alt:
-        alts.append(AltHref(lang="x-default", url=current_alt.url))
+    default_lang = getattr(settings, "LANGUAGE_CODE", None)
+    xdefault_alt = next((a for a in alts if a.lang == default_lang), None)
+    if xdefault_alt:
+        alts.append(AltHref(lang="x-default", url=xdefault_alt.url))
     else:
+        # absolute Notfall-Variante
         alts.append(AltHref(lang="x-default", url=absolute_url(request.path)))
 
     return alts
