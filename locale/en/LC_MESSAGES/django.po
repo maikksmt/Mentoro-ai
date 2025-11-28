@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-27 19:27+0100\n"
+"POT-Creation-Date: 2025-11-28 19:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,78 +58,78 @@ msgstr ""
 msgid "Meta"
 msgstr ""
 
-#: catalog/models.py:16 catalog/models.py:65 compare/models.py:20
+#: catalog/models.py:15 catalog/models.py:45 compare/models.py:20
 #: glossary/models.py:11 guides/models.py:21 prompts/models.py:24
 #: usecases/models.py:24
 msgid "Slug"
 msgstr ""
 
-#: catalog/models.py:22 glossary/models.py:16
+#: catalog/models.py:21 glossary/models.py:16
 msgid "Category"
 msgstr ""
 
-#: catalog/models.py:23 templates/catalog/tool_detail.html:77
+#: catalog/models.py:22 templates/catalog/tool_detail.html:77
 #: templates/catalog/tool_list.html:114
 msgid "Categories"
 msgstr ""
 
-#: catalog/models.py:34
+#: catalog/models.py:33
 msgid "Completely free"
 msgstr ""
 
-#: catalog/models.py:35
+#: catalog/models.py:34
 msgid "Freemium (free basic, paid pro)"
 msgstr ""
 
-#: catalog/models.py:36
+#: catalog/models.py:35
 msgid "Subscription (monthly/yearly)"
 msgstr ""
 
-#: catalog/models.py:37
+#: catalog/models.py:36
 msgid "Pay-as-you-go / usage-based"
 msgstr ""
 
-#: catalog/models.py:38
+#: catalog/models.py:37
 msgid "One-time license / lifetime deal"
 msgstr ""
 
-#: catalog/models.py:39
+#: catalog/models.py:38
 msgid "Open-source / self-hosted"
 msgstr ""
 
-#: catalog/models.py:40
+#: catalog/models.py:39
 msgid "Contact sales / custom pricing"
 msgstr ""
 
-#: catalog/models.py:41
+#: catalog/models.py:40
 msgid "Other / mixed model"
 msgstr ""
 
-#: catalog/models.py:98
+#: catalog/models.py:96
 msgid "Pricing tier"
 msgstr ""
 
-#: catalog/models.py:99
+#: catalog/models.py:97
 msgid "Pricing tiers"
 msgstr ""
 
-#: catalog/models.py:107
+#: catalog/models.py:105
 msgid "Flat"
 msgstr ""
 
-#: catalog/models.py:108
+#: catalog/models.py:106
 msgid "% of sales"
 msgstr ""
 
-#: catalog/models.py:109
+#: catalog/models.py:107
 msgid "Recurring"
 msgstr ""
 
-#: catalog/models.py:124
+#: catalog/models.py:122
 msgid "Affiliate-Program"
 msgstr ""
 
-#: catalog/models.py:125
+#: catalog/models.py:123
 msgid "Affiliate-Programs"
 msgstr ""
 
@@ -224,8 +224,8 @@ msgstr ""
 msgid "Comparison"
 msgstr ""
 
-#: compare/models.py:32 compare/views.py:74 compare/views.py:189
-#: compare/views.py:227 compare/views.py:258 compare/views.py:261
+#: compare/models.py:32 compare/views.py:74 compare/views.py:194
+#: compare/views.py:232 compare/views.py:263 compare/views.py:266
 #: templates/base.html:84 templates/base.html:108
 #: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
@@ -246,17 +246,17 @@ msgid ""
 "identify the best option for your needs across different workflows."
 msgstr ""
 
-#: compare/views.py:222
+#: compare/views.py:227
 msgid "Tool comparisons"
 msgstr ""
 
-#: compare/views.py:224
+#: compare/views.py:229
 msgid ""
 "Comparisons of AI tools based on criteria such as price, functionality, and "
 "quality."
 msgstr ""
 
-#: compare/views.py:259
+#: compare/views.py:264
 msgid "Discover side-by-side tool comparisons."
 msgstr ""
 
@@ -302,7 +302,7 @@ msgid "You are now registered as an author. Good luck with your writing!"
 msgstr ""
 
 #: content/views/home.py:47
-msgid "AI tools, guides & usecases for beginners and professionals · MentoroAI"
+msgid "AI tools, guides & usecases for beginners and professionals"
 msgstr ""
 
 #: content/views/home.py:49
@@ -360,7 +360,11 @@ msgid ""
 "learning, LLMs, model behavior, training methods, and modern workflows."
 msgstr ""
 
-#: glossary/views.py:120
+#: glossary/views.py:87
+msgid " An entry from the MentoroAI glossary on important basic AI terms."
+msgstr ""
+
+#: glossary/views.py:126
 msgid ""
 "This glossary entry conveys the core idea and relevance of this concept "
 "within modern AI systems. "
@@ -428,7 +432,7 @@ msgstr ""
 msgid "Guide"
 msgstr ""
 
-#: guides/models.py:29 guides/views.py:50 guides/views.py:114
+#: guides/models.py:29 guides/views.py:50 guides/views.py:119
 #: templates/base.html:72 templates/base.html:96 templates/content/home.html:96
 #: templates/content/what-to-find.html:32 templates/guides/guide_list.html:7
 #: templates/partials/_entry_cards.html:19
@@ -584,14 +588,14 @@ msgstr ""
 msgid "Select the AI tool for which this prompt has been optimized."
 msgstr ""
 
-#: prompts/models.py:32 prompts/views.py:131
+#: prompts/models.py:32 prompts/views.py:137
 #: templates/partials/_guideitem_card.html:9
 #: templates/partials/_teaser_card.html:9
 #: templates/prompts/prompt_detail.html:22
 msgid "Prompt"
 msgstr ""
 
-#: prompts/models.py:33 prompts/views.py:69 prompts/views.py:130
+#: prompts/models.py:33 prompts/views.py:69 prompts/views.py:136
 #: templates/base.html:75 templates/base.html:99 templates/content/home.html:97
 #: templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
@@ -1592,7 +1596,7 @@ msgid "Current content"
 msgstr ""
 
 #: templates/content/home.html:98 templates/usecases/list.html:8
-#: usecases/models.py:35 usecases/views.py:68 usecases/views.py:127
+#: usecases/models.py:35 usecases/views.py:68 usecases/views.py:132
 msgid "Usecases"
 msgstr ""
 
@@ -2866,7 +2870,7 @@ msgstr ""
 
 #: templates/partials/_guideitem_card.html:11
 #: templates/partials/_teaser_card.html:11 usecases/models.py:34
-#: usecases/views.py:128
+#: usecases/views.py:133
 msgid "Usecase"
 msgstr ""
 

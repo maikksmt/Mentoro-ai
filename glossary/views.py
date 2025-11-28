@@ -8,7 +8,7 @@ from django.utils.translation import gettext as _, get_language, override
 from django.views.generic import ListView, DetailView, View
 
 from core.seo.types import AltHref
-from core.seo.utils import absolute_url, localized_alternates
+from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
 from core.views import SeoMixin
 from .models import GlossaryTerm
 
@@ -84,7 +84,13 @@ class GlossaryDetailView(DetailView, SeoMixin):
         ctx = super().get_context_data(**kwargs)
         obj: GlossaryTerm = ctx["term"]
         title = f"{obj.term} · MentoroAI"
-        desc = (obj.short_definition or obj.long_definition or obj.term)[:155]
+        suffix = _(" An entry from the MentoroAI glossary on important basic AI terms.")
+
+        if obj.long_definition:
+            desc_source = obj.long_definition
+        else:
+            desc_source = f"{obj.term}{suffix}"
+        desc = seo_text(desc_source)[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)
         # --- Geschwister (andere Sprachen) holen ---
@@ -130,7 +136,7 @@ class GlossaryDetailView(DetailView, SeoMixin):
             title=title,
             description=desc,
             canonical=canonical,
-            og_image=og_img,
+            og_image=get_og_image(og_img),
             alternates=alts,
             json_ld=json_ld,
         )

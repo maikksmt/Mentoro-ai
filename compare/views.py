@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _, get_language
 from django.views.generic import ListView, DetailView
 
 from catalog.models import Category
-from core.seo.utils import absolute_url, localized_alternates
+from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
 from core.views import SeoMixin
 from .models import Comparison
 
@@ -152,11 +152,16 @@ class ComparisonDetailView(DetailView, SeoMixin):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         obj: Comparison = ctx["object"]
-        title = f"{obj.title} · MentoroAI"
-        desc = (obj.intro or obj.title)[:155]
+        title = f"{obj.title}"
+        desc_source = obj.intro or obj.title
+        desc = seo_text(desc_source)[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)
-        alts = localized_alternates(self.request, "compare:detail", {"slug": obj.slug})
+        alts = localized_alternates(
+            self.request,
+            url_name="compare:detail",  # optional, Fallback
+            obj=obj,
+        )
         json_ld = {
             "@context": "https://schema.org",
             "@type": "Article",
@@ -174,7 +179,7 @@ class ComparisonDetailView(DetailView, SeoMixin):
             title=title,
             description=desc,
             canonical=canonical,
-            og_image=og_img,
+            og_image=get_og_image(og_img),
             alternates=alts,
             json_ld=json_ld,
         )
