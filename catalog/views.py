@@ -123,7 +123,7 @@ class ToolDetailView(DetailView, SeoMixin):
         obj = (
             Tool.objects
             .language(lang)
-            .filter(Q(translations__slug=slug))
+            .filter(slug=slug)
             .distinct()
             .first()
         )
