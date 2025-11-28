@@ -2,11 +2,10 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import get_language
+from django.utils.translation import get_language, override
 from django.utils.translation import gettext_lazy as _
 from parler.managers import TranslatableManager
 from parler.models import TranslatableModel, TranslatedFields
-from parler.utils.context import switch_language
 from taggit.managers import TaggableManager
 
 
@@ -43,6 +42,7 @@ PRICING_MODEL_CHOICES = [
 
 
 class Tool(TranslatableModel):
+    slug = models.SlugField(_("Slug"), max_length=220, unique=True)
     vendor = models.CharField(max_length=150, blank=True)
     website = models.URLField(blank=True)
     logo = models.ImageField(upload_to="logos/", blank=True, null=True)
@@ -62,7 +62,6 @@ class Tool(TranslatableModel):
     tags = TaggableManager(blank=True)
     translations = TranslatedFields(
         name=models.CharField(max_length=250),
-        slug=models.SlugField(_("Slug"), max_length=220, unique=True),
         short_description=models.TextField(blank=True),
         long_description=models.TextField(blank=True),
     )
@@ -79,9 +78,8 @@ class Tool(TranslatableModel):
 
     def get_absolute_url(self, language: str | None = None):
         lang = language or get_language()
-        with switch_language(self, lang):
-            slug = self.safe_translation_getter("slug")
-        return reverse("catalog:detail", kwargs={"slug": slug})
+        with override(lang):
+            return reverse("catalog:detail", kwargs={"slug": self.slug})
 
 
 class PricingTier(TranslatableModel):
