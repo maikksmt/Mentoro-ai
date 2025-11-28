@@ -93,7 +93,6 @@ class GlossaryDetailView(DetailView, SeoMixin):
         desc = seo_text(desc_source)[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)
-        # --- Geschwister (andere Sprachen) holen ---
         term = obj
         siblings = (
             GlossaryTerm.objects
@@ -102,12 +101,10 @@ class GlossaryDetailView(DetailView, SeoMixin):
             .only("language", "slug")
         )
 
-        # Map: language-code -> slug
         lang_to_slug = {term.language: term.slug}
         for s in siblings:
             lang_to_slug[s.language] = s.slug
 
-        # --- hreflang-Alternates nur für existierende Sprachen ---
         alts: list[AltHref] = []
         for code, lang_name in settings.LANGUAGES:
             slug = lang_to_slug.get(code)
@@ -117,8 +114,13 @@ class GlossaryDetailView(DetailView, SeoMixin):
                 path = reverse("glossary:detail", kwargs={"slug": slug})
                 alts.append(AltHref(lang=code, url=absolute_url(path)))
 
-        # x-default: aktuelle URL oder bevorzugte Standardsprache
-        alts.append(AltHref(lang="x-default", url=canonical))
+        default_lang = getattr(settings, "LANGUAGE_CODE", None)
+        xdefault_alt = next((a for a in alts if a.lang == default_lang), None)
+        if xdefault_alt:
+            alts.append(AltHref(lang="x-default", url=xdefault_alt.url))
+        else:
+            # absolute Notfall-Variante
+            alts.append(AltHref(lang="x-default", url=canonical))
         json_ld = {
             "@context": "https://schema.org",
             "@type": "Article",
