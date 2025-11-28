@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _, get_language
 from django.views.generic import TemplateView
 
 from catalog.models import Tool
-from core.seo.utils import absolute_url, localized_alternates
+from core.seo.utils import absolute_url, localized_alternates, get_og_image
 from core.services import (
     get_latest_items,
     related_guides,
@@ -41,14 +41,15 @@ class HomePageView(TemplateView, SeoMixin):
         lang = (get_language() or "en")[:2]
         ctx = super().get_context_data(**kwargs)
         canonical = absolute_url(self.request.path)
-        alts = localized_alternates(self.request, "guides:list")
+        alts = localized_alternates(self.request, "content:home")
         ctx["seo"] = self.build_seo(
             self.request,
-            title=_("AI tools, guides & usecases for beginners and professionals · MentoroAI"),
+            title=_("AI tools, guides & usecases for beginners and professionals"),
             description=_(
                 "MentoroAI provides curated AI guides, prompts, tool comparisons, and clear glossary definitions to help you navigate modern AI workflows efficiently."),
             canonical=canonical,
             alternates=alts,
+            og_image=get_og_image(),
             json_ld={
                 "@context": "https://schema.org",
                 "@type": "CollectionPage",
