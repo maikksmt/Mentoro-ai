@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _, get_language
 from django.views.generic import DetailView, ListView
 
-from core.seo.utils import absolute_url, localized_alternates
+from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
 from core.services import to_teaser_item, related_prompts
 from core.views import SeoMixin
 from .models import Prompt
@@ -92,11 +92,17 @@ class PromptDetailView(DetailView, SeoMixin):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         ctx = super().get_context_data(**kwargs)
         obj: Prompt = ctx["object"]
-        title = f"{obj.title} · MentoroAI"
-        desc = (obj.intro or obj.body or obj.title)[:155]
+        title = f"{obj.title}"
+        desc_source = obj.intro or obj.body or obj.title
+        desc = seo_text(desc_source)[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)
-        alts = localized_alternates(self.request, "prompts:detail", {"slug": obj.slug})
+
+        alts = localized_alternates(
+            self.request,
+            url_name="prompts:detail",  # optional, Fallback
+            obj=obj,
+        )
         json_ld = {
             "@context": "https://schema.org",
             "@type": "Article",
@@ -114,7 +120,7 @@ class PromptDetailView(DetailView, SeoMixin):
             title=title,
             description=desc,
             canonical=canonical,
-            og_image=og_img,
+            og_image=get_og_image(og_img),
             alternates=alts,
             json_ld=json_ld,
         )

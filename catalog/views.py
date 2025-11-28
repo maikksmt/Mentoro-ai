@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _, get_language
 from django.views.generic import ListView, DetailView
 
-from core.seo.utils import absolute_url, localized_alternates
+from core.seo.utils import absolute_url, localized_alternates, get_og_image
 from core.views import SeoMixin
 from .models import Tool, Category
 
@@ -168,7 +168,7 @@ class ToolDetailView(DetailView, SeoMixin):
             title=title,
             description=desc,
             canonical=canonical,
-            og_image=og_img,
+            og_image=get_og_image(og_img),
             alternates=alts,
             json_ld=json_ld,
         )

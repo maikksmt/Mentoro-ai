@@ -26,7 +26,9 @@
 <meta property="og:description" content="{{ seo.description }}">
 <meta property="og:url" content="{{ seo.canonical }}">
 {% if seo.og_image %}
-    <meta property="og:image" content="{{ seo.og_image }}">{% endif %}
+    <meta property="og:image" content="{{ seo.og_image }}">
+    <meta property="og:image:alt" content="{{ title }}">
+{% endif %}
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ seo.title }}">
