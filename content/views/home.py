@@ -46,7 +46,7 @@ class HomePageView(TemplateView, SeoMixin):
             self.request,
             title=_("AI tools, guides & usecases for beginners and professionals"),
             description=_(
-                "MentoroAI provides curated AI guides, prompts, tool comparisons, and clear glossary definitions to help you navigate modern AI workflows efficiently."),
+                "MentoroAI offers AI tutorials, prompts, tool comparisons, and a glossary to help you navigate the modern AI world."),
             canonical=canonical,
             alternates=alts,
             og_image=get_og_image(),
