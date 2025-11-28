@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-28 20:30+0100\n"
+"POT-Creation-Date: 2025-11-29 00:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -226,7 +226,7 @@ msgstr ""
 
 #: compare/models.py:32 compare/views.py:74 compare/views.py:194
 #: compare/views.py:232 compare/views.py:263 compare/views.py:266
-#: templates/base.html:84 templates/base.html:108
+#: templates/base.html:87 templates/base.html:111
 #: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
 msgid "Comparisons"
@@ -364,7 +364,7 @@ msgstr ""
 msgid " An entry from the MentoroAI glossary on important basic AI terms."
 msgstr ""
 
-#: glossary/views.py:126
+#: glossary/views.py:128
 msgid ""
 "This glossary entry conveys the core idea and relevance of this concept "
 "within modern AI systems. "
@@ -433,7 +433,7 @@ msgid "Guide"
 msgstr ""
 
 #: guides/models.py:29 guides/views.py:50 guides/views.py:119
-#: templates/base.html:72 templates/base.html:96 templates/content/home.html:96
+#: templates/base.html:75 templates/base.html:99 templates/content/home.html:96
 #: templates/content/what-to-find.html:32 templates/guides/guide_list.html:7
 #: templates/partials/_entry_cards.html:19
 msgid "Guides"
@@ -489,7 +489,7 @@ msgstr ""
 msgid "Reason (optional)"
 msgstr ""
 
-#: newsletter/views.py:20 templates/base.html:191
+#: newsletter/views.py:20 templates/base.html:194
 msgid "Newsletter"
 msgstr ""
 
@@ -596,8 +596,8 @@ msgid "Prompt"
 msgstr ""
 
 #: prompts/models.py:33 prompts/views.py:69 prompts/views.py:136
-#: templates/base.html:75 templates/base.html:99 templates/content/home.html:97
-#: templates/content/what-to-find.html:33
+#: templates/base.html:78 templates/base.html:102
+#: templates/content/home.html:97 templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
 msgid "Prompts"
 msgstr ""
@@ -1196,73 +1196,73 @@ msgstr ""
 msgid "No differences in this language."
 msgstr ""
 
-#: templates/base.html:64
+#: templates/base.html:67
 msgid "Mobile menu"
 msgstr ""
 
-#: templates/base.html:69 templates/base.html:93
+#: templates/base.html:72 templates/base.html:96
 #: templates/content/what-to-find.html:31
 #: templates/partials/_entry_cards.html:11
 msgid "Glossary"
 msgstr ""
 
-#: templates/base.html:78 templates/base.html:102
+#: templates/base.html:81 templates/base.html:105
 #: templates/partials/_entry_cards.html:35
 msgid "Use cases"
 msgstr ""
 
-#: templates/base.html:81 templates/base.html:105
+#: templates/base.html:84 templates/base.html:108
 #: templates/content/what-to-find.html:35
 #: templates/partials/_entry_cards.html:43
 msgid "Tools"
 msgstr ""
 
-#: templates/base.html:114 templates/catalog/tool_list.html:63
+#: templates/base.html:117 templates/catalog/tool_list.html:63
 #: templates/catalog/tool_list.html:64
 msgid "Search"
 msgstr ""
 
-#: templates/base.html:123
+#: templates/base.html:126
 msgid "Toggle theme"
 msgstr ""
 
-#: templates/base.html:139
+#: templates/base.html:142
 msgid "Language select"
 msgstr ""
 
-#: templates/base.html:166
+#: templates/base.html:169
 msgid "Dashboard"
 msgstr ""
 
-#: templates/base.html:169
+#: templates/base.html:172
 msgid "Admin Panel"
 msgstr ""
 
-#: templates/base.html:171 templates/partials/editorial_nav.html:9
+#: templates/base.html:174 templates/partials/editorial_nav.html:9
 msgid "Drafts"
 msgstr ""
 
-#: templates/base.html:174 templates/partials/editorial_nav.html:13
+#: templates/base.html:177 templates/partials/editorial_nav.html:13
 msgid "Reviews"
 msgstr ""
 
-#: templates/base.html:193 templates/partials/_entry_cards.html:5
+#: templates/base.html:196 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
 msgstr ""
 
-#: templates/base.html:194
+#: templates/base.html:197
 msgid "Legal notice"
 msgstr ""
 
-#: templates/base.html:195
+#: templates/base.html:198
 msgid "Privacy policy"
 msgstr ""
 
-#: templates/base.html:197 templates/legal/terms_of_use.html:10
+#: templates/base.html:200 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr ""
 
-#: templates/base.html:198
+#: templates/base.html:201
 msgid "Copyright"
 msgstr ""
 
