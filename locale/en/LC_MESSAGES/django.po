@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-29 00:02+0100\n"
+"POT-Creation-Date: 2025-11-29 03:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -226,7 +226,7 @@ msgstr ""
 
 #: compare/models.py:32 compare/views.py:74 compare/views.py:194
 #: compare/views.py:232 compare/views.py:263 compare/views.py:266
-#: templates/base.html:87 templates/base.html:111
+#: templates/base.html:91 templates/base.html:115
 #: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
 msgid "Comparisons"
@@ -433,9 +433,9 @@ msgid "Guide"
 msgstr ""
 
 #: guides/models.py:29 guides/views.py:50 guides/views.py:119
-#: templates/base.html:75 templates/base.html:99 templates/content/home.html:96
-#: templates/content/what-to-find.html:32 templates/guides/guide_list.html:7
-#: templates/partials/_entry_cards.html:19
+#: templates/base.html:79 templates/base.html:103
+#: templates/content/home.html:96 templates/content/what-to-find.html:32
+#: templates/guides/guide_list.html:7 templates/partials/_entry_cards.html:19
 msgid "Guides"
 msgstr ""
 
@@ -489,7 +489,7 @@ msgstr ""
 msgid "Reason (optional)"
 msgstr ""
 
-#: newsletter/views.py:20 templates/base.html:194
+#: newsletter/views.py:20 templates/base.html:198
 msgid "Newsletter"
 msgstr ""
 
@@ -596,7 +596,7 @@ msgid "Prompt"
 msgstr ""
 
 #: prompts/models.py:33 prompts/views.py:69 prompts/views.py:136
-#: templates/base.html:78 templates/base.html:102
+#: templates/base.html:82 templates/base.html:106
 #: templates/content/home.html:97 templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
 msgid "Prompts"
@@ -1196,73 +1196,77 @@ msgstr ""
 msgid "No differences in this language."
 msgstr ""
 
-#: templates/base.html:67
+#: templates/base.html:71
 msgid "Mobile menu"
 msgstr ""
 
-#: templates/base.html:72 templates/base.html:96
+#: templates/base.html:76 templates/base.html:100
 #: templates/content/what-to-find.html:31
 #: templates/partials/_entry_cards.html:11
 msgid "Glossary"
 msgstr ""
 
-#: templates/base.html:81 templates/base.html:105
+#: templates/base.html:85 templates/base.html:109
 #: templates/partials/_entry_cards.html:35
 msgid "Use cases"
 msgstr ""
 
-#: templates/base.html:84 templates/base.html:108
+#: templates/base.html:88 templates/base.html:112
 #: templates/content/what-to-find.html:35
 #: templates/partials/_entry_cards.html:43
 msgid "Tools"
 msgstr ""
 
-#: templates/base.html:117 templates/catalog/tool_list.html:63
+#: templates/base.html:121 templates/catalog/tool_list.html:63
 #: templates/catalog/tool_list.html:64
 msgid "Search"
 msgstr ""
 
-#: templates/base.html:126
+#: templates/base.html:130
 msgid "Toggle theme"
 msgstr ""
 
-#: templates/base.html:142
+#: templates/base.html:146
 msgid "Language select"
 msgstr ""
 
-#: templates/base.html:169
+#: templates/base.html:173
 msgid "Dashboard"
 msgstr ""
 
-#: templates/base.html:172
+#: templates/base.html:176
 msgid "Admin Panel"
 msgstr ""
 
-#: templates/base.html:174 templates/partials/editorial_nav.html:9
+#: templates/base.html:178 templates/partials/editorial_nav.html:9
 msgid "Drafts"
 msgstr ""
 
-#: templates/base.html:177 templates/partials/editorial_nav.html:13
+#: templates/base.html:181 templates/partials/editorial_nav.html:13
 msgid "Reviews"
 msgstr ""
 
-#: templates/base.html:196 templates/partials/_entry_cards.html:5
+#: templates/base.html:200 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
 msgstr ""
 
-#: templates/base.html:197
+#: templates/base.html:201
 msgid "Legal notice"
 msgstr ""
 
-#: templates/base.html:198
+#: templates/base.html:202
 msgid "Privacy policy"
 msgstr ""
 
-#: templates/base.html:200 templates/legal/terms_of_use.html:10
+#: templates/base.html:205
+msgid "Cookie-Settings"
+msgstr ""
+
+#: templates/base.html:207 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr ""
 
-#: templates/base.html:201
+#: templates/base.html:208
 msgid "Copyright"
 msgstr ""
 
@@ -2046,96 +2050,104 @@ msgid ""
 "                Cookies are small text files stored on your device when you "
 "visit a website.\n"
 "                They provide technical functionality or convenience features "
-"(e.g., language selection).\n"
+"(e.g., language or theme selection).\n"
 "            "
 msgstr ""
 
-#: templates/legal/cookie_policy.html:19
+#: templates/legal/cookie_policy.html:20
 msgid "Cookies we use"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:21
+#: templates/legal/cookie_policy.html:22
 msgid "This website uses the following types of cookies:"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:23
+#: templates/legal/cookie_policy.html:25
 msgid "Technically necessary cookies"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:25
+#: templates/legal/cookie_policy.html:27
 msgid "security cookie for form submissions"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:26
+#: templates/legal/cookie_policy.html:28
 msgid "stores the current session ID"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:27
+#: templates/legal/cookie_policy.html:30
+msgid "ensures correct navigation history when using dynamic page loads (HTMX)"
+msgstr ""
+
+#: templates/legal/cookie_policy.html:34
+msgid "Preference cookies"
+msgstr ""
+
+#: templates/legal/cookie_policy.html:36
 msgid "remembers your selected theme (light/dark)"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:28
+#: templates/legal/cookie_policy.html:37
 msgid "remembers your selected language"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:31
-msgid "Consent management (Cookiebot)"
+#: templates/legal/cookie_policy.html:41
+msgid "Consent management (Klaro)"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:33
+#: templates/legal/cookie_policy.html:43
 msgid ""
 "\n"
-"                This website uses the consent management platform Cookiebot "
-"by Usercentrics.\n"
-"                Cookiebot stores cookies to document and manage your consent "
-"status.\n"
-"                These cookies are technically necessary to comply with legal "
-"consent requirements.\n"
+"                This website uses the open-source consent management tool "
+"Klaro to obtain and manage cookie consent.\n"
+"                Klaro stores a technically necessary cookie in order to "
+"remember which cookie categories you have\n"
+"                agreed to or rejected. We operate Klaro on our own servers; "
+"no data is transmitted to the provider of\n"
+"                the software.\n"
 "            "
 msgstr ""
 
-#: templates/legal/cookie_policy.html:40
-msgid "stores your consent state (necessary)"
+#: templates/legal/cookie_policy.html:51
+msgid "stores your consent choices per cookie category (necessary)"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:41
-msgid "remembers category choices"
-msgstr ""
-
-#: templates/legal/cookie_policy.html:44
+#: templates/legal/cookie_policy.html:55
 msgid "Statistics cookies (Google Analytics 4)"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:46
+#: templates/legal/cookie_policy.html:57
 msgid ""
 "\n"
 "                Google Analytics 4 is only activated after explicit consent "
 "(“Statistics” category).\n"
-"                Before consent, no Analytics cookies are set due to Google "
-"Consent Mode v2.\n"
+"                Before consent, no Analytics cookies are set because Google "
+"Consent Mode v2 is configured with a\n"
+"                default of “denied” and is only switched to “granted” after "
+"your consent via Klaro.\n"
 "            "
 msgstr ""
 
-#: templates/legal/cookie_policy.html:53
+#: templates/legal/cookie_policy.html:65
 msgid "used to distinguish users (expires after 2 years)"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:54
+#: templates/legal/cookie_policy.html:66
 msgid "used to maintain session state (expires after 1 year)"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:57
+#: templates/legal/cookie_policy.html:69
 msgid "Cookie control"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:59
+#: templates/legal/cookie_policy.html:71
 msgid ""
 "\n"
 "                You can change or withdraw your consent at any time by "
-"opening the Cookiebot settings via the link\n"
-"                “Change your consent” at the bottom of the page.\n"
-"                Browser-based blocking or deleting of cookies is also "
-"possible.\n"
+"opening the cookie settings via the\n"
+"                “Cookie settings” link in the footer of this website. This "
+"link re-opens the Klaro settings dialog.\n"
+"                You can also block or delete cookies via your browser "
+"settings.\n"
 "            "
 msgstr ""
 
@@ -2308,33 +2320,44 @@ msgid ""
 "and, after your explicit consent, to analyze\n"
 "                usage behaviour. The storage and evaluation of non-essential "
 "cookies only takes place with your prior\n"
-"                consent in accordance with Art. 6(1)(a) GDPR. Consent is "
-"managed through the consent management platform\n"
-"                Cookiebot by Usercentrics.\n"
+"                consent in accordance with Art. 6(1)(a) GDPR. Technically "
+"necessary cookies are processed on the basis\n"
+"                of our legitimate interest in the secure and stable "
+"operation of the website (Art. 6(1)(f) GDPR).\n"
+"                Consent and cookie preferences are managed using the open-"
+"source consent management tool Klaro, which we\n"
+"                operate on our own servers.\n"
 "            "
-msgstr ""
-
-#: templates/legal/privacy_policy.html:61
-msgid "6. Consent management (Cookiebot)"
 msgstr ""
 
 #: templates/legal/privacy_policy.html:63
+msgid "6. Consent management (Klaro)"
+msgstr ""
+
+#: templates/legal/privacy_policy.html:65
 msgid ""
 "\n"
-"                We use the consent management platform Cookiebot by "
-"Usercentrics to obtain and manage legally required\n"
-"                cookie consent. Cookiebot stores cookies that document your "
-"consent status and block all non-essential\n"
-"                cookies until you consent. The processing is based on our "
-"legal obligation under Art. 6(1)(c) GDPR.\n"
+"                We use the consent management tool Klaro to obtain and "
+"manage legally required cookie consent. Klaro\n"
+"                stores a technically necessary cookie (“klaro”) that "
+"documents your consent status per cookie category\n"
+"                and ensures that non-essential cookies (e.g. for statistics) "
+"are only set after you have agreed to\n"
+"                them. The processing is based on our legal obligation to "
+"document consent (Art. 6(1)(c) GDPR) and on\n"
+"                our legitimate interest in transparent and legally compliant "
+"consent management (Art. 6(1)(f) GDPR).\n"
+"                Klaro is open-source software; we run it on our own "
+"infrastructure, so no personal data is transmitted\n"
+"                to the software provider.\n"
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:71
+#: templates/legal/privacy_policy.html:77
 msgid "7. Google Analytics 4"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:73
+#: templates/legal/privacy_policy.html:79
 msgid ""
 "\n"
 "                If you give your consent to the “Statistics” category, we "
@@ -2343,27 +2366,29 @@ msgid ""
 "                Google Analytics 4 works with pseudonymized identifiers and "
 "does not store full IP addresses.\n"
 "                Google Consent Mode v2 ensures that no Analytics cookies are "
-"set before consent is given.\n"
+"set before consent is given. Consent is\n"
+"                collected and transmitted to Google via Klaro and the "
+"configured Consent Mode settings.\n"
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:81
-#: templates/legal/privacy_policy.html:114
-#: templates/legal/privacy_policy.html:162
+#: templates/legal/privacy_policy.html:88
+#: templates/legal/privacy_policy.html:121
+#: templates/legal/privacy_policy.html:169
 msgid "Legal basis"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:81
+#: templates/legal/privacy_policy.html:88
 msgid "Your consent under Art. 6(1)(a) GDPR."
 msgstr ""
 
-#: templates/legal/privacy_policy.html:84
-#: templates/legal/privacy_policy.html:128
-#: templates/legal/privacy_policy.html:176
+#: templates/legal/privacy_policy.html:91
+#: templates/legal/privacy_policy.html:135
+#: templates/legal/privacy_policy.html:183
 msgid "Data transfer"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:85
+#: templates/legal/privacy_policy.html:92
 msgid ""
 "\n"
 "                Data may be transferred to Google LLC in the United States. "
@@ -2373,11 +2398,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:93
+#: templates/legal/privacy_policy.html:100
 msgid "8. Google Sign-In (Social Login)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:95
+#: templates/legal/privacy_policy.html:102
 msgid ""
 "\n"
 "                On this website you can log in or create an account using "
@@ -2387,12 +2412,12 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:101
-#: templates/legal/privacy_policy.html:148
+#: templates/legal/privacy_policy.html:108
+#: templates/legal/privacy_policy.html:155
 msgid "Data processed"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:102
+#: templates/legal/privacy_policy.html:109
 msgid ""
 "\n"
 "                We receive from Google your name, email address and a unique "
@@ -2402,13 +2427,13 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:108
-#: templates/legal/privacy_policy.html:156
+#: templates/legal/privacy_policy.html:115
+#: templates/legal/privacy_policy.html:163
 msgid "Purpose"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:109
-#: templates/legal/privacy_policy.html:157
+#: templates/legal/privacy_policy.html:116
+#: templates/legal/privacy_policy.html:164
 msgid ""
 "\n"
 "                Providing a convenient and secure login option and managing "
@@ -2416,20 +2441,20 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:115
-#: templates/legal/privacy_policy.html:163
+#: templates/legal/privacy_policy.html:122
+#: templates/legal/privacy_policy.html:170
 msgid ""
 "\n"
 "                Your consent according to Art. 6(1)(a) GDPR.\n"
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:120
-#: templates/legal/privacy_policy.html:168
+#: templates/legal/privacy_policy.html:127
+#: templates/legal/privacy_policy.html:175
 msgid "Data storage and deletion"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:121
+#: templates/legal/privacy_policy.html:128
 msgid ""
 "\n"
 "                We store the data received from Google as long as your user "
@@ -2440,23 +2465,23 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:129
+#: templates/legal/privacy_policy.html:136
 msgid ""
 "\n"
 "                Data may be transferred to Google LLC (USA).\n"
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:134
-#: templates/legal/privacy_policy.html:183
+#: templates/legal/privacy_policy.html:141
+#: templates/legal/privacy_policy.html:190
 msgid "Further information"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:139
+#: templates/legal/privacy_policy.html:146
 msgid "9. GitHub Sign-In (Social Login)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:141
+#: templates/legal/privacy_policy.html:148
 msgid ""
 "\n"
 "                You can also log in or create an account using your GitHub "
@@ -2467,7 +2492,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:149
+#: templates/legal/privacy_policy.html:156
 msgid ""
 "\n"
 "                We receive from GitHub your username, email address and a "
@@ -2478,7 +2503,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:169
+#: templates/legal/privacy_policy.html:176
 msgid ""
 "\n"
 "                We store the data received from GitHub as long as your "
@@ -2489,7 +2514,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:177
+#: templates/legal/privacy_policy.html:184
 msgid ""
 "\n"
 "                GitHub Inc. is located in the United States. Data may "
@@ -2498,39 +2523,39 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:188
+#: templates/legal/privacy_policy.html:195
 msgid "10. Your rights"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:190
+#: templates/legal/privacy_policy.html:197
 msgid "Access to your stored data"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:191
+#: templates/legal/privacy_policy.html:198
 msgid "Rectification of inaccurate data"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:192
+#: templates/legal/privacy_policy.html:199
 msgid "Erasure ('right to be forgotten')"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:193
+#: templates/legal/privacy_policy.html:200
 msgid "Restriction of processing"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:194
+#: templates/legal/privacy_policy.html:201
 msgid "Data portability"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:195
+#: templates/legal/privacy_policy.html:202
 msgid "Objection to processing"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:199
+#: templates/legal/privacy_policy.html:206
 msgid "11. Data security"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:201
+#: templates/legal/privacy_policy.html:208
 msgid ""
 "\n"
 "                We use technical and organizational measures to protect your "
@@ -2540,11 +2565,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:208
+#: templates/legal/privacy_policy.html:215
 msgid "12. Changes to this Privacy Policy"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:210
+#: templates/legal/privacy_policy.html:217
 msgid ""
 "\n"
 "                We reserve the right to update this Privacy Policy to "

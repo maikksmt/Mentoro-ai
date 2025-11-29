@@ -13,39 +13,51 @@
         <p>
             {% blocktrans %}
                 Cookies are small text files stored on your device when you visit a website.
-                They provide technical functionality or convenience features (e.g., language selection).
+                They provide technical functionality or convenience features (e.g., language or theme selection).
             {% endblocktrans %}
         </p>
+
         <h2>{% trans "Cookies we use" %}</h2>
 
         <p>{% trans "This website uses the following types of cookies:" %}</p>
 
+        {# 1. Technically necessary #}
         <h3>1. {% trans "Technically necessary cookies" %}</h3>
         <ul>
             <li><strong>csrftoken</strong> — {% trans "security cookie for form submissions" %}</li>
             <li><strong>sessionid</strong> — {% trans "stores the current session ID" %}</li>
+            <li><strong>htmx-current-path-for-history</strong>
+                — {% trans "ensures correct navigation history when using dynamic page loads (HTMX)" %}</li>
+        </ul>
+
+        {# 2. Preferences #}
+        <h3>2. {% trans "Preference cookies" %}</h3>
+        <ul>
             <li><strong>preferred_theme</strong> — {% trans "remembers your selected theme (light/dark)" %}</li>
             <li><strong>django_language</strong> — {% trans "remembers your selected language" %}</li>
         </ul>
 
-        <h3>2. {% trans "Consent management (Cookiebot)" %}</h3>
+        {# 3. Consent Management (Klaro) #}
+        <h3>3. {% trans "Consent management (Klaro)" %}</h3>
         <p>
             {% blocktrans %}
-                This website uses the consent management platform Cookiebot by Usercentrics.
-                Cookiebot stores cookies to document and manage your consent status.
-                These cookies are technically necessary to comply with legal consent requirements.
+                This website uses the open-source consent management tool Klaro to obtain and manage cookie consent.
+                Klaro stores a technically necessary cookie in order to remember which cookie categories you have
+                agreed to or rejected. We operate Klaro on our own servers; no data is transmitted to the provider of
+                the software.
             {% endblocktrans %}
         </p>
         <ul>
-            <li><strong>CookieConsent</strong> — {% trans "stores your consent state (necessary)" %}</li>
-            <li><strong>CookieConsentBulkSetting-* </strong> — {% trans "remembers category choices" %}</li>
+            <li><strong>klaro</strong> — {% trans "stores your consent choices per cookie category (necessary)" %}</li>
         </ul>
 
-        <h3>3. {% trans "Statistics cookies (Google Analytics 4)" %}</h3>
+        {# 4. Statistics / GA4 #}
+        <h3>4. {% trans "Statistics cookies (Google Analytics 4)" %}</h3>
         <p>
             {% blocktrans %}
                 Google Analytics 4 is only activated after explicit consent (“Statistics” category).
-                Before consent, no Analytics cookies are set due to Google Consent Mode v2.
+                Before consent, no Analytics cookies are set because Google Consent Mode v2 is configured with a
+                default of “denied” and is only switched to “granted” after your consent via Klaro.
             {% endblocktrans %}
         </p>
 
@@ -57,9 +69,9 @@
         <h2>{% trans "Cookie control" %}</h2>
         <p>
             {% blocktrans %}
-                You can change or withdraw your consent at any time by opening the Cookiebot settings via the link
-                “Change your consent” at the bottom of the page.
-                Browser-based blocking or deleting of cookies is also possible.
+                You can change or withdraw your consent at any time by opening the cookie settings via the
+                “Cookie settings” link in the footer of this website. This link re-opens the Klaro settings dialog.
+                You can also block or delete cookies via your browser settings.
             {% endblocktrans %}
         </p>
 

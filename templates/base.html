@@ -22,14 +22,14 @@
             crossorigin="anonymous" defer></script>
     {% block extra_head %}{% endblock %}
     {% if not debug %}
-        <script id="Cookiebot"
-                src="https://consent.cookiebot.com/uc.js"
-                data-cbid="9c77a67f-5158-4c03-bad5-725d6ae4ab7e"
-                data-blockingmode="auto"
-                type="text/javascript"
-                async>
-        </script>
-        <!-- Google tag (gtag.js) Consent Mode defaults (before loading any Google scripts) -->
+        {#        <script id="Cookiebot"#}
+        {#                src="https://consent.cookiebot.com/uc.js"#}
+        {#                data-cbid="9c77a67f-5158-4c03-bad5-725d6ae4ab7e"#}
+        {#                data-blockingmode="auto"#}
+        {#                type="text/javascript"#}
+        {#                async>#}
+        {#        </script>#}
+        <!-- Google Consent Mode v2 Defaults (before loading any Google scripts) -->
         <script>
             window.dataLayer = window.dataLayer || [];
 
@@ -56,6 +56,10 @@
                 'anonymize_ip': true
             });
         </script>
+        {# --- Klaro Config & Script --- #}
+        <script defer type="text/javascript" src="{% static 'klaro/config.js' %}"></script>
+        <script defer type="text/javascript"
+                src="https://cdn.kiprotect.com/klaro/v0.7.22/klaro.js"></script>
     {% endif %}
 </head>
 <body class="flex flex-col min-h-screen justify-between bg-base-100 text-base-content">
@@ -197,6 +201,9 @@
             <a href="{% url 'legal:legal-notice' %}" class="link link-hover p-1 lg:p-2">{% trans "Legal notice" %}</a>
             <a href="{% url 'legal:privacy' %}" class="link link-hover p-1 lg:p-2">{% trans "Privacy policy" %}</a>
             <a href="{% url 'legal:cookies' %}" class="link link-hover p-1 lg:p-2">Cookies</a>
+            <a href="#" class="link link-hover p-1 lg:p-2" onclick="klaro.show(); return false;">
+                {% trans "Cookie-Settings" %}
+            </a>
             <a href="{% url 'legal:terms-of-use' %}" class="link link-hover p-1 lg:p-2">{% trans "Terms of Use" %}</a>
             <a href="{% url 'legal:copyright' %}" class="link link-hover p-1 lg:p-2">{% trans "Copyright" %}</a>
             <a href="https://github.com/maikksmt/mentoro-ai" target="_blank" rel="noopener"
