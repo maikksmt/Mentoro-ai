@@ -198,9 +198,7 @@
             <a href="{% url 'legal:legal-notice' %}" class="link link-hover p-1 lg:p-2">{% trans "Legal notice" %}</a>
             <a href="{% url 'legal:privacy' %}" class="link link-hover p-1 lg:p-2">{% trans "Privacy policy" %}</a>
             <a href="{% url 'legal:cookies' %}" class="link link-hover p-1 lg:p-2">Cookies</a>
-            <a href="#" class="link link-hover p-1 lg:p-2" onclick="klaro.show(); return false;">
-                {% trans "Cookie-Settings" %}
-            </a>
+            {#            <a href="#" class="link link-hover p-1 lg:p-2" onclick="klaro.show(); return false;">{% trans "Cookie-Settings" %}</a>#}
             <a href="{% url 'legal:terms-of-use' %}" class="link link-hover p-1 lg:p-2">{% trans "Terms of Use" %}</a>
             <a href="{% url 'legal:copyright' %}" class="link link-hover p-1 lg:p-2">{% trans "Copyright" %}</a>
             <a href="https://github.com/maikksmt/mentoro-ai" target="_blank" rel="noopener"

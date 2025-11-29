@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-29 03:04+0100\n"
-"PO-Revision-Date: 2025-11-29 03:10+0100\n"
+"POT-Creation-Date: 2025-11-29 20:51+0100\n"
+"PO-Revision-Date: 2025-11-29 20:55+0100\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -238,7 +238,7 @@ msgstr "Vergleich"
 
 #: compare/models.py:32 compare/views.py:74 compare/views.py:194
 #: compare/views.py:232 compare/views.py:263 compare/views.py:266
-#: templates/base.html:91 templates/base.html:115
+#: templates/base.html:88 templates/base.html:112
 #: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
 msgid "Comparisons"
@@ -460,7 +460,7 @@ msgid "Guide"
 msgstr "Leitfaden"
 
 #: guides/models.py:29 guides/views.py:50 guides/views.py:119
-#: templates/base.html:79 templates/base.html:103
+#: templates/base.html:76 templates/base.html:100
 #: templates/content/home.html:96 templates/content/what-to-find.html:32
 #: templates/guides/guide_list.html:7 templates/partials/_entry_cards.html:19
 msgid "Guides"
@@ -519,7 +519,7 @@ msgstr "E-Mail"
 msgid "Reason (optional)"
 msgstr "Grund (optional)"
 
-#: newsletter/views.py:20 templates/base.html:198
+#: newsletter/views.py:20 templates/base.html:195
 msgid "Newsletter"
 msgstr "Newsletter"
 
@@ -629,7 +629,7 @@ msgid "Prompt"
 msgstr "Prompt"
 
 #: prompts/models.py:33 prompts/views.py:69 prompts/views.py:136
-#: templates/base.html:82 templates/base.html:106
+#: templates/base.html:79 templates/base.html:103
 #: templates/content/home.html:97 templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27
 #: templates/prompts/prompt_list.html:6
@@ -1275,77 +1275,73 @@ msgstr "Entwurf vs. Live"
 msgid "No differences in this language."
 msgstr "Keine Unterschiede in dieser Sprache."
 
-#: templates/base.html:71
+#: templates/base.html:68
 msgid "Mobile menu"
 msgstr "Mobiles Menü"
 
-#: templates/base.html:76 templates/base.html:100
+#: templates/base.html:73 templates/base.html:97
 #: templates/content/what-to-find.html:31
 #: templates/partials/_entry_cards.html:11
 msgid "Glossary"
 msgstr "Glossar"
 
-#: templates/base.html:85 templates/base.html:109
+#: templates/base.html:82 templates/base.html:106
 #: templates/partials/_entry_cards.html:35
 msgid "Use cases"
 msgstr "Anwendungsfälle"
 
-#: templates/base.html:88 templates/base.html:112
+#: templates/base.html:85 templates/base.html:109
 #: templates/content/what-to-find.html:35
 #: templates/partials/_entry_cards.html:43
 msgid "Tools"
 msgstr "Tools"
 
-#: templates/base.html:121 templates/catalog/tool_list.html:63
+#: templates/base.html:118 templates/catalog/tool_list.html:63
 #: templates/catalog/tool_list.html:64
 msgid "Search"
 msgstr "Suche"
 
-#: templates/base.html:130
+#: templates/base.html:127
 msgid "Toggle theme"
 msgstr "Farbschema wechseln"
 
-#: templates/base.html:146
+#: templates/base.html:143
 msgid "Language select"
 msgstr "Sprachauswahl"
 
-#: templates/base.html:173
+#: templates/base.html:170
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: templates/base.html:176
+#: templates/base.html:173
 msgid "Admin Panel"
 msgstr "Admin-Panel"
 
-#: templates/base.html:178 templates/partials/editorial_nav.html:9
+#: templates/base.html:175 templates/partials/editorial_nav.html:9
 msgid "Drafts"
 msgstr "Entwürfe"
 
-#: templates/base.html:181 templates/partials/editorial_nav.html:13
+#: templates/base.html:178 templates/partials/editorial_nav.html:13
 msgid "Reviews"
 msgstr "Überprüfungen"
 
-#: templates/base.html:200 templates/partials/_entry_cards.html:5
+#: templates/base.html:197 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
 msgstr "Was kann ich auf MentoroAI finden?"
 
-#: templates/base.html:201
+#: templates/base.html:198
 msgid "Legal notice"
 msgstr "Impressum"
 
-#: templates/base.html:202
+#: templates/base.html:199
 msgid "Privacy policy"
 msgstr "Datenschutzerklärung"
 
-#: templates/base.html:205
-msgid "Cookie-Settings"
-msgstr "Cookie-Einstellungen"
-
-#: templates/base.html:207 templates/legal/terms_of_use.html:10
+#: templates/base.html:202 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr "Nutzungsbedingungen"
 
-#: templates/base.html:208
+#: templates/base.html:203
 msgid "Copyright"
 msgstr "Urheberrecht"
 
@@ -2159,134 +2155,126 @@ msgstr "Was sind Cookies?"
 #| msgid ""
 #| "\n"
 #| "                Cookies are small text files stored on your device when you visit a website.\n"
-#| "                They provide technical functionality or convenience features (e.g., language selection).\n"
+#| "                They provide technical functionality or convenience features (e.g., language or theme selection).\n"
 #| "            "
 msgid ""
 "\n"
 "                Cookies are small text files stored on your device when you visit a website.\n"
-"                They provide technical functionality or convenience features (e.g., language or theme selection).\n"
+"                They provide technical functionality or convenience features (e.g., language selection).\n"
 "            "
 msgstr ""
 "\n"
 "Cookies sind kleine Textdateien, die beim Besuch einer Website auf Ihrem Gerät gespeichert werden.\n"
-"Sie bieten technische Funktionen oder Komfortfunktionen (z. B. Sprach- oder Themenauswahl)."
+"Sie bieten technische Funktionen oder Komfortfunktionen (z. B. Sprachauswahl)."
 
-#: templates/legal/cookie_policy.html:20
+#: templates/legal/cookie_policy.html:19
 msgid "Cookies we use"
 msgstr "Verwendete Cookies"
 
-#: templates/legal/cookie_policy.html:22
+#: templates/legal/cookie_policy.html:21
 msgid "This website uses the following types of cookies:"
 msgstr "Diese Webseite verwendet die folgenden Arten von Cookies:"
 
-#: templates/legal/cookie_policy.html:25
+#: templates/legal/cookie_policy.html:23
 msgid "Technically necessary cookies"
 msgstr "Technisch notwendige Cookies"
 
-#: templates/legal/cookie_policy.html:27
+#: templates/legal/cookie_policy.html:25
 msgid "security cookie for form submissions"
 msgstr "Sicherheits-Cookie für Formularübermittlungen"
 
-#: templates/legal/cookie_policy.html:28
+#: templates/legal/cookie_policy.html:26
 msgid "stores the current session ID"
 msgstr "Speichert die aktuelle Sitzungs-ID"
 
-#: templates/legal/cookie_policy.html:30
-msgid ""
-"ensures correct navigation history when using dynamic page loads (HTMX)"
-msgstr ""
-"Stellt den korrekten Browserverlauf bei Verwendung von dynamischen Laden von"
-" Seiten (HTMX) sicher"
-
-#: templates/legal/cookie_policy.html:34
-msgid "Preference cookies"
-msgstr "Präferenz-Cookies"
-
-#: templates/legal/cookie_policy.html:36
+#: templates/legal/cookie_policy.html:27
 msgid "remembers your selected theme (light/dark)"
 msgstr "Merkt sich dein ausgewähltes Farbschema (hell/dunkel)"
 
-#: templates/legal/cookie_policy.html:37
+#: templates/legal/cookie_policy.html:28
 msgid "remembers your selected language"
 msgstr "Merkt sich deine ausgewählte Sprache"
 
-#: templates/legal/cookie_policy.html:41
-#| msgid "Consent management (Cookiebot)"
-msgid "Consent management (Klaro)"
-msgstr "Einwilligungsmanagement (Klaro)"
+#: templates/legal/cookie_policy.html:31
+#| msgid "Consent management (Klaro)"
+msgid "Consent management (Cookiebot)"
+msgstr "Einwilligungsmanagement (Cookiebot)"
 
-#: templates/legal/cookie_policy.html:43
+#: templates/legal/cookie_policy.html:33
 msgid ""
 "\n"
-"                This website uses the open-source consent management tool Klaro to obtain and manage cookie consent.\n"
-"                Klaro stores a technically necessary cookie in order to remember which cookie categories you have\n"
-"                agreed to or rejected. We operate Klaro on our own servers; no data is transmitted to the provider of\n"
-"                the software.\n"
+"                This website uses the consent management platform Cookiebot by Usercentrics.\n"
+"                Cookiebot stores cookies to document and manage your consent status.\n"
+"                These cookies are technically necessary to comply with legal consent requirements.\n"
 "            "
 msgstr ""
 "\n"
-"Diese Website verwendet das Open-Source-Tool Klaro zur Einholung und Verwaltung der Cookie-Einwilligung.\n"
-"Klaro speichert ein technisch notwendiges Cookie, um zu merken, welchen Cookie-Kategorien Sie zugestimmt oder welche Sie abgelehnt haben.\n"
-"Wir betreiben Klaro auf unseren eigenen Servern; es werden keine Daten an den Anbieter der Software übertragen."
+"Diese Webseite nutzt die Einwilligungsmanagement-Plattform Cookiebot von Usercentrics.\n"
+"Cookiebot speichert Cookies, um Ihren Einwilligungsstatus zu dokumentieren und zu verwalten.\n"
+"Diese Cookies sind technisch notwendig, um die gesetzlichen Einwilligungsvorschriften einzuhalten."
 
-#: templates/legal/cookie_policy.html:51
-#| msgid "stores your consent state (necessary)"
-msgid "stores your consent choices per cookie category (necessary)"
-msgstr "Speichert Ihre Einwilligungsstatus pro Cookie-Kategorie (notwendig)"
+#: templates/legal/cookie_policy.html:40
+#| msgid "stores your consent choices per cookie category (necessary)"
+msgid "stores your consent state (necessary)"
+msgstr "Speichert Ihren Einwilligungsstatus (notwendig)"
 
-#: templates/legal/cookie_policy.html:55
+#: templates/legal/cookie_policy.html:41
+msgid "remembers category choices"
+msgstr "Merkt sich Kategorieauswahl"
+
+#: templates/legal/cookie_policy.html:44
 msgid "Statistics cookies (Google Analytics 4)"
 msgstr "Statistik-Cookies (Google Analytics 4)"
 
-#: templates/legal/cookie_policy.html:57
+#: templates/legal/cookie_policy.html:46
 #| msgid ""
 #| "\n"
 #| "                Google Analytics 4 is only activated after explicit consent (“Statistics” category).\n"
-#| "                Before consent, no Analytics cookies are set due to Google Consent Mode v2.\n"
+#| "                Before consent, no Analytics cookies are set because Google Consent Mode v2 is configured with a\n"
+#| "                default of “denied” and is only switched to “granted” after your consent via Klaro.\n"
 #| "            "
 msgid ""
 "\n"
 "                Google Analytics 4 is only activated after explicit consent (“Statistics” category).\n"
-"                Before consent, no Analytics cookies are set because Google Consent Mode v2 is configured with a\n"
-"                default of “denied” and is only switched to “granted” after your consent via Klaro.\n"
+"                Before consent, no Analytics cookies are set due to Google Consent Mode v2.\n"
 "            "
 msgstr ""
 "\n"
 "Google Analytics 4 wird nur nach ausdrücklicher Zustimmung aktiviert (Kategorie „Statistiken“).\n"
-"Vor der Zustimmung werden keine Analytics-Cookies gesetzt, da der Google Consent Mode v2 standardmäßig auf „abgelehnt“ konfiguriert ist und erst nach Ihrer Zustimmung über Klaro auf „gewährt“ umgestellt wird."
+"Vor der Zustimmung werden aufgrund des Google Consent Mode v2 keine Analytics-Cookies gesetzt."
 
-#: templates/legal/cookie_policy.html:65
+#: templates/legal/cookie_policy.html:53
 msgid "used to distinguish users (expires after 2 years)"
 msgstr "Wird verwendet, um Benutzer zu unterscheiden (läuft nach 2 Jahren ab)"
 
-#: templates/legal/cookie_policy.html:66
+#: templates/legal/cookie_policy.html:54
 msgid "used to maintain session state (expires after 1 year)"
 msgstr ""
 "Wird verwendet, um den Sitzungsstatus aufrechtzuerhalten (läuft nach 1 Jahr "
 "ab)"
 
-#: templates/legal/cookie_policy.html:69
+#: templates/legal/cookie_policy.html:57
 msgid "Cookie control"
 msgstr "Cookie-Steuerung"
 
-#: templates/legal/cookie_policy.html:71
+#: templates/legal/cookie_policy.html:59
 #| msgid ""
 #| "\n"
-#| "                You can change or withdraw your consent at any time by opening the Cookiebot settings via the link\n"
-#| "                “Change your consent” at the bottom of the page.\n"
-#| "                Browser-based blocking or deleting of cookies is also possible.\n"
+#| "                You can change or withdraw your consent at any time by opening the cookie settings via the\n"
+#| "                “Cookie settings” link in the footer of this website. This link re-opens the Klaro settings dialog.\n"
+#| "                You can also block or delete cookies via your browser settings.\n"
 #| "            "
 msgid ""
 "\n"
-"                You can change or withdraw your consent at any time by opening the cookie settings via the\n"
-"                “Cookie settings” link in the footer of this website. This link re-opens the Klaro settings dialog.\n"
-"                You can also block or delete cookies via your browser settings.\n"
+"                You can change or withdraw your consent at any time by opening the Cookiebot settings via the link\n"
+"                “Change your consent” at the bottom of the page.\n"
+"                Browser-based blocking or deleting of cookies is also possible.\n"
 "            "
 msgstr ""
 "\n"
-"Sie können Ihre Einwilligung jederzeit ändern oder widerrufen, indem Sie die Cookie-Einstellungen über den Link\n"
-"„Cookie-Einstellungen“ in der Fußzeile dieser Website öffnen. Dieser Link öffnet erneut den Klaro-Einstellungsdialog.\n"
-"Sie können Cookies auch über Ihre Browsereinstellungen blockieren oder löschen."
+"Sie können Ihre Einwilligung jederzeit ändern oder widerrufen, indem Sie die Cookiebot-Einstellungen über den Link\n"
+"„Ändern Sie Ihre Einwilligung“ unten auf der Seite öffnen.\n"
+"Das Blockieren oder Löschen von Cookies über den Browser ist ebenfalls möglich."
 
 #: templates/legal/copyright.html:5
 msgid "Copyright & Licenses – MentoroAI"
@@ -2464,8 +2452,10 @@ msgstr "5. Cookies und Tracking-Technologien"
 #| "\n"
 #| "                This website uses cookies to ensure technical functionality and, after your explicit consent, to analyze\n"
 #| "                usage behaviour. The storage and evaluation of non-essential cookies only takes place with your prior\n"
-#| "                consent in accordance with Art. 6(1)(a) GDPR. Consent is managed through the consent management platform\n"
-#| "                Cookiebot by Usercentrics.\n"
+#| "                consent in accordance with Art. 6(1)(a) GDPR. Technically necessary cookies are processed on the basis\n"
+#| "                of our legitimate interest in the secure and stable operation of the website (Art. 6(1)(f) GDPR).\n"
+#| "                Consent and cookie preferences are managed using the open-source consent management tool Klaro, which we\n"
+#| "                operate on our own servers.\n"
 #| "            "
 msgid ""
 "\n"
@@ -2473,102 +2463,93 @@ msgid ""
 "                usage behaviour. The storage and evaluation of non-essential cookies only takes place with your prior\n"
 "                consent in accordance with Art. 6(1)(a) GDPR. Technically necessary cookies are processed on the basis\n"
 "                of our legitimate interest in the secure and stable operation of the website (Art. 6(1)(f) GDPR).\n"
-"                Consent and cookie preferences are managed using the open-source consent management tool Klaro, which we\n"
-"                operate on our own servers.\n"
+"                Consent is managed through the consent management platform Cookiebot by Usercentrics.\n"
 "            "
 msgstr ""
 "\n"
 "Diese Website verwendet Cookies, um die technische Funktionalität sicherzustellen und nach Ihrer ausdrücklichen Zustimmung das\n"
-"Nutzungsverhalten zu analysieren. Die Speicherung und Auswertung nicht zwingend notwendiger Cookies erfolgt nur mit Ihrer vorherigen\n"
-"Zustimmung gemäß Art. 6 Abs. 1 lit. a DSGVO. Technisch notwendige Cookies werden auf Grundlage\n"
+"Nutzungsverhalten zu analysieren. Die Speicherung und Auswertung nicht unbedingt erforderlicher Cookies erfolgt nur mit Ihrer vorherigen\n"
+"Zustimmung gemäß Art. 6 Abs. 1 lit. a DSGVO. Technisch erforderliche Cookies werden auf Grundlage\n"
 "unseres berechtigten Interesses an einem sicheren und stabilen Betrieb der Website verarbeitet (Art. 6 Abs. 1 lit. f DSGVO).\n"
-"Die Verwaltung der Einwilligungen und Cookie-Einstellungen erfolgt über das Open-Source-Tool Klaro, das wir\n"
-"auf unseren eigenen Servern betreiben."
+"Die Einwilligung wird über die Einwilligungsmanagement-Plattform Cookiebot von Usercentrics verwaltet."
+
+#: templates/legal/privacy_policy.html:61
+#| msgid "6. Consent management (Klaro)"
+msgid "6. Consent management (Cookiebot)"
+msgstr "6. Einwilligungsverwaltung (Cookiebot)"
 
 #: templates/legal/privacy_policy.html:63
-#| msgid "6. Consent management (Cookiebot)"
-msgid "6. Consent management (Klaro)"
-msgstr "6. Einwilligungsverwaltung (Klaro)"
-
-#: templates/legal/privacy_policy.html:65
 msgid ""
 "\n"
-"                We use the consent management tool Klaro to obtain and manage legally required cookie consent. Klaro\n"
-"                stores a technically necessary cookie (“klaro”) that documents your consent status per cookie category\n"
-"                and ensures that non-essential cookies (e.g. for statistics) are only set after you have agreed to\n"
-"                them. The processing is based on our legal obligation to document consent (Art. 6(1)(c) GDPR) and on\n"
-"                our legitimate interest in transparent and legally compliant consent management (Art. 6(1)(f) GDPR).\n"
-"                Klaro is open-source software; we run it on our own infrastructure, so no personal data is transmitted\n"
-"                to the software provider.\n"
+"                We use the consent management platform Cookiebot by Usercentrics to obtain and manage legally required\n"
+"                cookie consent. Cookiebot stores cookies that document your consent status and block all non-essential\n"
+"                cookies until you consent. The processing is based on our legal obligation under Art. 6(1)(c) GDPR.\n"
 "            "
 msgstr ""
 "\n"
-"Wir verwenden das Einwilligungsmanagement-Tool Klaro, um die gesetzlich erforderliche Cookie-Einwilligung einzuholen und zu verwalten. Klaro speichert ein technisch notwendiges Cookie („klaro“), das Ihren Einwilligungsstatus pro Cookie-Kategorie dokumentiert\n"
-"und sicherstellt, dass nicht erforderliche Cookies (z. B. für Statistiken) erst gesetzt werden, nachdem Sie diesen zugestimmt haben\n"
-". Die Verarbeitung basiert auf unserer gesetzlichen Verpflichtung zur Dokumentation der Einwilligung (Art. 6 Abs. 1 lit. c DSGVO) und auf\n"
-"unserem berechtigten Interesse an einer transparenten und rechtskonformen Einwilligungsverwaltung (Art. 6 Abs. 1 lit. f DSGVO).\n"
-"Klaro ist eine Open-Source-Software, die wir auf unserer eigenen Infrastruktur betreiben, sodass keine personenbezogenen Daten\n"
-"an den Softwareanbieter übermittelt werden."
+"Wir nutzen die Consent-Management-Plattform Cookiebot von Usercentrics, um die rechtlich erforderliche Cookie-Einwilligung einzuholen und zu verwalten. Cookiebot speichert Cookies, die Ihren Einwilligungsstatus dokumentieren und alle nicht notwendigen Cookies blockieren, bis Sie Ihre Einwilligung erteilen. Die Verarbeitung erfolgt auf Grundlage unserer rechtlichen Verpflichtung gemäß Art. 6 Abs. 1 lit. c DSGVO."
 
-#: templates/legal/privacy_policy.html:77
+#: templates/legal/privacy_policy.html:71
 msgid "7. Google Analytics 4"
 msgstr "7. Google Analytics 4"
 
-#: templates/legal/privacy_policy.html:79
+#: templates/legal/privacy_policy.html:73
 #| msgid ""
 #| "\n"
 #| "                If you give your consent to the “Statistics” category, we use Google Analytics 4 to analyze website\n"
 #| "                usage.\n"
 #| "                Google Analytics 4 works with pseudonymized identifiers and does not store full IP addresses.\n"
-#| "                Google Consent Mode v2 ensures that no Analytics cookies are set before consent is given.\n"
+#| "                Google Consent Mode v2 ensures that no Analytics cookies are set before consent is given. Consent is\n"
+#| "                collected and transmitted to Google via Klaro and the configured Consent Mode settings.\n"
 #| "            "
 msgid ""
 "\n"
-"                If you give your consent to the “Statistics” category, we use Google Analytics 4 to analyze website\n"
-"                usage.\n"
+"                If you give your consent to the “Statistics” category, we use Google Analytics 4 to analyze website usage.\n"
 "                Google Analytics 4 works with pseudonymized identifiers and does not store full IP addresses.\n"
-"                Google Consent Mode v2 ensures that no Analytics cookies are set before consent is given. Consent is\n"
-"                collected and transmitted to Google via Klaro and the configured Consent Mode settings.\n"
+"                Google Consent Mode v2 ensures that no Analytics cookies are set before consent is given.\n"
 "            "
 msgstr ""
 "\n"
-"Wenn Sie Ihre Einwilligung zur Kategorie „Statistiken“ geben, verwenden wir Google Analytics 4 zur Analyse der Website-Nutzung.\n"
+"Wenn Sie Ihre Zustimmung zur Kategorie „Statistiken“ geben, verwenden wir Google Analytics 4 zur Analyse der Website-Nutzung.\n"
 "Google Analytics 4 arbeitet mit pseudonymisierten Identifikatoren und speichert keine vollständigen IP-Adressen.\n"
-"Der Google Consent Mode v2 stellt sicher, dass vor der Einwilligung keine Analytics-Cookies gesetzt werden. Die Einwilligung wird\n"
-"über Klaro und die konfigurierten Einstellungen des Consent Mode erfasst und an Google übermittelt."
+"Der Google Consent Mode v2 stellt sicher, dass vor der Erteilung der Zustimmung keine Analytics-Cookies gesetzt werden."
 
-#: templates/legal/privacy_policy.html:88
-#: templates/legal/privacy_policy.html:121
-#: templates/legal/privacy_policy.html:169
+#: templates/legal/privacy_policy.html:80
+#: templates/legal/privacy_policy.html:111
+#: templates/legal/privacy_policy.html:157
 msgid "Legal basis"
 msgstr "Rechtsgrundlage"
 
-#: templates/legal/privacy_policy.html:88
+#: templates/legal/privacy_policy.html:80
 msgid "Your consent under Art. 6(1)(a) GDPR."
 msgstr "Ihre Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO."
 
-#: templates/legal/privacy_policy.html:91
-#: templates/legal/privacy_policy.html:135
-#: templates/legal/privacy_policy.html:183
+#: templates/legal/privacy_policy.html:83
+#: templates/legal/privacy_policy.html:125
+#: templates/legal/privacy_policy.html:170
 msgid "Data transfer"
 msgstr "Datenübermittlung"
 
-#: templates/legal/privacy_policy.html:92
+#: templates/legal/privacy_policy.html:84
+#| msgid ""
+#| "\n"
+#| "                Data may be transferred to Google LLC in the United States. Google participates in the EU–US Data\n"
+#| "                Privacy\n"
+#| "                Framework.\n"
+#| "            "
 msgid ""
 "\n"
-"                Data may be transferred to Google LLC in the United States. Google participates in the EU–US Data\n"
-"                Privacy\n"
-"                Framework.\n"
+"                Data may be transferred to Google LLC in the United States. Google participates in the EU–US Data Privacy Framework.\n"
 "            "
 msgstr ""
 "\n"
-"Daten können an Google LLC in den USA übermittelt werden. Google nimmt am EU-US-Datenschutzrahmen teil."
+"Daten können an Google LLC in den Vereinigten Staaten übertragen werden. Google beteiligt sich am EU-US-Datenschutzrahmen."
 
-#: templates/legal/privacy_policy.html:100
+#: templates/legal/privacy_policy.html:90
 msgid "8. Google Sign-In (Social Login)"
 msgstr "8. Google-Anmeldung (Social Login)"
 
-#: templates/legal/privacy_policy.html:102
+#: templates/legal/privacy_policy.html:92
 msgid ""
 "\n"
 "                On this website you can log in or create an account using your Google account (\"Google Sign-In\").\n"
@@ -2579,12 +2560,12 @@ msgstr ""
 "Auf dieser Webseite können Sie sich mit Ihrem Google-Konto anmelden oder ein Konto erstellen („Google-Anmeldung“).\n"
 "Anbieter dieses Dienstes ist Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland."
 
-#: templates/legal/privacy_policy.html:108
-#: templates/legal/privacy_policy.html:155
+#: templates/legal/privacy_policy.html:98
+#: templates/legal/privacy_policy.html:144
 msgid "Data processed"
 msgstr "Verarbeitete Daten"
 
-#: templates/legal/privacy_policy.html:109
+#: templates/legal/privacy_policy.html:99
 msgid ""
 "\n"
 "                We receive from Google your name, email address and a unique Google user ID. This data is used solely to\n"
@@ -2594,13 +2575,13 @@ msgstr ""
 "\n"
 "Wir erhalten von Google Ihren Namen, Ihre E-Mail-Adresse und eine eindeutige Google-Nutzer-ID. Diese Daten werden ausschließlich dazu verwendet, Ihr Benutzerkonto bei MentoroAI zu erstellen und zu verwalten sowie Sie beim Anmelden zu authentifizieren."
 
-#: templates/legal/privacy_policy.html:115
-#: templates/legal/privacy_policy.html:163
+#: templates/legal/privacy_policy.html:105
+#: templates/legal/privacy_policy.html:151
 msgid "Purpose"
 msgstr "Zweck"
 
-#: templates/legal/privacy_policy.html:116
-#: templates/legal/privacy_policy.html:164
+#: templates/legal/privacy_policy.html:106
+#: templates/legal/privacy_policy.html:152
 msgid ""
 "\n"
 "                Providing a convenient and secure login option and managing your user account.\n"
@@ -2609,8 +2590,8 @@ msgstr ""
 "\n"
 "Wir bieten Ihnen eine komfortable und sichere Anmeldemöglichkeit und ermöglichen die Verwaltung Ihres Benutzerkontos."
 
-#: templates/legal/privacy_policy.html:122
-#: templates/legal/privacy_policy.html:170
+#: templates/legal/privacy_policy.html:112
+#: templates/legal/privacy_policy.html:158
 msgid ""
 "\n"
 "                Your consent according to Art. 6(1)(a) GDPR.\n"
@@ -2619,12 +2600,12 @@ msgstr ""
 "\n"
 "Ihre Zustimmung gemäß Art. 6(1)(a) DSGVO."
 
-#: templates/legal/privacy_policy.html:127
-#: templates/legal/privacy_policy.html:175
+#: templates/legal/privacy_policy.html:117
+#: templates/legal/privacy_policy.html:163
 msgid "Data storage and deletion"
 msgstr "Datenspeicherung und -löschung"
 
-#: templates/legal/privacy_policy.html:128
+#: templates/legal/privacy_policy.html:118
 msgid ""
 "\n"
 "                We store the data received from Google as long as your user account exists. If you delete your account,\n"
@@ -2636,7 +2617,7 @@ msgstr ""
 "Wir speichern die von Google erhaltenen Daten, solange Ihr Nutzerkonto besteht. Wenn Sie Ihr Konto löschen,\n"
 "werden diese Daten gelöscht, es sei denn, gesetzliche Aufbewahrungsfristen erfordern eine längere Speicherung."
 
-#: templates/legal/privacy_policy.html:136
+#: templates/legal/privacy_policy.html:126
 msgid ""
 "\n"
 "                Data may be transferred to Google LLC (USA).\n"
@@ -2645,93 +2626,113 @@ msgstr ""
 "\n"
 "Daten können an Google LLC (USA) übertragen werden."
 
-#: templates/legal/privacy_policy.html:141
-#: templates/legal/privacy_policy.html:190
+#: templates/legal/privacy_policy.html:131
+#: templates/legal/privacy_policy.html:176
 msgid "Further information"
 msgstr "Weitere Informationen"
 
-#: templates/legal/privacy_policy.html:146
+#: templates/legal/privacy_policy.html:136
 msgid "9. GitHub Sign-In (Social Login)"
 msgstr "9. GitHub-Anmeldung (Social Login)"
 
-#: templates/legal/privacy_policy.html:148
+#: templates/legal/privacy_policy.html:138
+#| msgid ""
+#| "\n"
+#| "                You can also log in or create an account using your GitHub account (\"GitHub Sign-In\").\n"
+#| "                The provider of this service is GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107,\n"
+#| "                USA.\n"
+#| "            "
 msgid ""
 "\n"
 "                You can also log in or create an account using your GitHub account (\"GitHub Sign-In\").\n"
-"                The provider of this service is GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107,\n"
-"                USA.\n"
+"                The provider of this service is GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA.\n"
 "            "
 msgstr ""
 "\n"
 "Sie können sich auch mit Ihrem GitHub-Konto anmelden oder ein Konto erstellen („GitHub-Anmeldung“).\n"
-"\n"
 "Anbieter dieses Dienstes ist GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA."
 
-#: templates/legal/privacy_policy.html:156
+#: templates/legal/privacy_policy.html:145
+#| msgid ""
+#| "\n"
+#| "                We receive from GitHub your username, email address and a unique GitHub user ID. This data is used\n"
+#| "                solely to\n"
+#| "                create and manage your user account on MentoroAI and to authenticate you when you log in.\n"
+#| "            "
 msgid ""
 "\n"
-"                We receive from GitHub your username, email address and a unique GitHub user ID. This data is used\n"
-"                solely to\n"
-"                create and manage your user account on MentoroAI and to authenticate you when you log in.\n"
+"                We receive from GitHub your username, email address and a unique GitHub user ID.\n"
+"                This data is used solely to create and manage your user account on MentoroAI and to authenticate you when you log in.\n"
 "            "
 msgstr ""
 "\n"
-"Wir erhalten von GitHub Ihren Benutzernamen, Ihre E-Mail-Adresse und eine eindeutige GitHub-Benutzer-ID. Diese Daten werden ausschließlich dazu verwendet, Ihr Benutzerkonto bei MentoroAI zu erstellen und zu verwalten sowie Sie beim Anmelden zu authentifizieren."
+"Wir erhalten von GitHub Ihren Benutzernamen, Ihre E-Mail-Adresse und eine eindeutige GitHub-Benutzer-ID.\n"
+"Diese Daten werden ausschließlich dazu verwendet, Ihr Benutzerkonto bei MentoroAI zu erstellen und zu verwalten und Sie bei der Anmeldung zu authentifizieren."
 
-#: templates/legal/privacy_policy.html:176
+#: templates/legal/privacy_policy.html:164
+#| msgid ""
+#| "\n"
+#| "                We store the data received from GitHub as long as your account exists. If you delete your account, this\n"
+#| "                data\n"
+#| "                will be deleted unless statutory retention periods require longer storage.\n"
+#| "            "
 msgid ""
 "\n"
-"                We store the data received from GitHub as long as your account exists. If you delete your account, this\n"
-"                data\n"
-"                will be deleted unless statutory retention periods require longer storage.\n"
+"                We store the data received from GitHub as long as your account exists. If you delete your account,\n"
+"                this data will be deleted unless statutory retention periods require longer storage.\n"
 "            "
 msgstr ""
 "\n"
-"Wir speichern die von GitHub erhaltenen Daten, solange Ihr Konto besteht. Wenn Sie Ihr Konto löschen, werden diese Daten gelöscht, es sei denn, gesetzliche Aufbewahrungsfristen erfordern eine längere Speicherung."
+"Wir speichern die von GitHub erhaltenen Daten, solange Ihr Konto besteht. Wenn Sie Ihr Konto löschen,\n"
+"werden diese Daten gelöscht, sofern keine gesetzlichen Aufbewahrungsfristen eine längere Speicherung erfordern."
 
-#: templates/legal/privacy_policy.html:184
+#: templates/legal/privacy_policy.html:171
+#| msgid ""
+#| "\n"
+#| "                GitHub Inc. is located in the United States. Data may therefore be transferred to servers outside the\n"
+#| "                EU.\n"
+#| "            "
 msgid ""
 "\n"
-"                GitHub Inc. is located in the United States. Data may therefore be transferred to servers outside the\n"
-"                EU.\n"
+"                GitHub Inc. is located in the United States. Data may therefore be transferred to servers outside the EU.\n"
 "            "
 msgstr ""
 "\n"
 "GitHub Inc. hat seinen Sitz in den Vereinigten Staaten. Daten können daher auf Server außerhalb der EU übertragen werden."
 
-#: templates/legal/privacy_policy.html:195
+#: templates/legal/privacy_policy.html:181
 msgid "10. Your rights"
 msgstr "10. Ihre Rechte"
 
-#: templates/legal/privacy_policy.html:197
+#: templates/legal/privacy_policy.html:183
 msgid "Access to your stored data"
 msgstr "Auskunft über deine gespeicherten Daten"
 
-#: templates/legal/privacy_policy.html:198
+#: templates/legal/privacy_policy.html:184
 msgid "Rectification of inaccurate data"
 msgstr "Berichtigung unrichtiger Daten"
 
-#: templates/legal/privacy_policy.html:199
+#: templates/legal/privacy_policy.html:185
 msgid "Erasure ('right to be forgotten')"
 msgstr "Löschung ('Recht, vergessen zu werden')"
 
-#: templates/legal/privacy_policy.html:200
+#: templates/legal/privacy_policy.html:186
 msgid "Restriction of processing"
 msgstr "Einschränkung der Verarbeitung"
 
-#: templates/legal/privacy_policy.html:201
+#: templates/legal/privacy_policy.html:187
 msgid "Data portability"
 msgstr "Datenübertragbarkeit"
 
-#: templates/legal/privacy_policy.html:202
+#: templates/legal/privacy_policy.html:188
 msgid "Objection to processing"
 msgstr "Widerspruch gegen die Verarbeitung"
 
-#: templates/legal/privacy_policy.html:206
+#: templates/legal/privacy_policy.html:192
 msgid "11. Data security"
 msgstr "11. Datensicherheit"
 
-#: templates/legal/privacy_policy.html:208
+#: templates/legal/privacy_policy.html:194
 msgid ""
 "\n"
 "                We use technical and organizational measures to protect your data against manipulation, loss, or\n"
@@ -2742,11 +2743,11 @@ msgstr ""
 "Wir setzen technische und organisatorische Maßnahmen ein, um Ihre Daten vor Manipulation, Verlust oder unberechtigtem Zugriff zu schützen.\n"
 "Diese Maßnahmen werden fortlaufend an die technologischen Entwicklungen angepasst."
 
-#: templates/legal/privacy_policy.html:215
+#: templates/legal/privacy_policy.html:201
 msgid "12. Changes to this Privacy Policy"
 msgstr "12. Änderungen an dieser Datenschutzrichtlinie"
 
-#: templates/legal/privacy_policy.html:217
+#: templates/legal/privacy_policy.html:203
 msgid ""
 "\n"
 "                We reserve the right to update this Privacy Policy to reflect current legal requirements.\n"
@@ -3555,30 +3556,49 @@ msgstr ""
 "Praktische KI-Use-Cases mit verständlichen Beispielen, Vorteilen und "
 "Vorgehensweisen für Business, Recherche und kreative Anwendungen."
 
-#~ msgid ""
-#~ "\n"
-#~ "                This website uses the consent management platform Cookiebot by Usercentrics.\n"
-#~ "                Cookiebot stores cookies to document and manage your consent status.\n"
-#~ "                These cookies are technically necessary to comply with legal consent requirements.\n"
-#~ "            "
-#~ msgstr ""
-#~ "\n"
-#~ "Diese Webseite nutzt die Einwilligungsmanagement-Plattform Cookiebot von Usercentrics.\n"
-#~ "Cookiebot speichert Cookies, um Ihren Einwilligungsstatus zu dokumentieren und zu verwalten.\n"
-#~ "Diese Cookies sind technisch notwendig, um die gesetzlichen Einwilligungsvorschriften einzuhalten."
+#~ msgid "Cookie-Settings"
+#~ msgstr "Cookie-Einstellungen"
 
-#~ msgid "remembers category choices"
-#~ msgstr "Merkt sich Kategorieauswahl"
+#~ msgid ""
+#~ "ensures correct navigation history when using dynamic page loads (HTMX)"
+#~ msgstr ""
+#~ "Stellt den korrekten Browserverlauf bei Verwendung von dynamischen Laden von"
+#~ " Seiten (HTMX) sicher"
+
+#~ msgid "Preference cookies"
+#~ msgstr "Präferenz-Cookies"
 
 #~ msgid ""
 #~ "\n"
-#~ "                We use the consent management platform Cookiebot by Usercentrics to obtain and manage legally required\n"
-#~ "                cookie consent. Cookiebot stores cookies that document your consent status and block all non-essential\n"
-#~ "                cookies until you consent. The processing is based on our legal obligation under Art. 6(1)(c) GDPR.\n"
+#~ "                This website uses the open-source consent management tool Klaro to obtain and manage cookie consent.\n"
+#~ "                Klaro stores a technically necessary cookie in order to remember which cookie categories you have\n"
+#~ "                agreed to or rejected. We operate Klaro on our own servers; no data is transmitted to the provider of\n"
+#~ "                the software.\n"
 #~ "            "
 #~ msgstr ""
 #~ "\n"
-#~ "Wir nutzen die Consent-Management-Plattform Cookiebot von Usercentrics, um die rechtlich erforderliche Cookie-Einwilligung einzuholen und zu verwalten. Cookiebot speichert Cookies, die Ihren Einwilligungsstatus dokumentieren und alle nicht notwendigen Cookies blockieren, bis Sie Ihre Einwilligung erteilen. Die Verarbeitung erfolgt auf Grundlage unserer rechtlichen Verpflichtung gemäß Art. 6 Abs. 1 lit. c DSGVO."
+#~ "Diese Website verwendet das Open-Source-Tool Klaro zur Einholung und Verwaltung der Cookie-Einwilligung.\n"
+#~ "Klaro speichert ein technisch notwendiges Cookie, um zu merken, welchen Cookie-Kategorien Sie zugestimmt oder welche Sie abgelehnt haben.\n"
+#~ "Wir betreiben Klaro auf unseren eigenen Servern; es werden keine Daten an den Anbieter der Software übertragen."
+
+#~ msgid ""
+#~ "\n"
+#~ "                We use the consent management tool Klaro to obtain and manage legally required cookie consent. Klaro\n"
+#~ "                stores a technically necessary cookie (“klaro”) that documents your consent status per cookie category\n"
+#~ "                and ensures that non-essential cookies (e.g. for statistics) are only set after you have agreed to\n"
+#~ "                them. The processing is based on our legal obligation to document consent (Art. 6(1)(c) GDPR) and on\n"
+#~ "                our legitimate interest in transparent and legally compliant consent management (Art. 6(1)(f) GDPR).\n"
+#~ "                Klaro is open-source software; we run it on our own infrastructure, so no personal data is transmitted\n"
+#~ "                to the software provider.\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "Wir verwenden das Einwilligungsmanagement-Tool Klaro, um die gesetzlich erforderliche Cookie-Einwilligung einzuholen und zu verwalten. Klaro speichert ein technisch notwendiges Cookie („klaro“), das Ihren Einwilligungsstatus pro Cookie-Kategorie dokumentiert\n"
+#~ "und sicherstellt, dass nicht erforderliche Cookies (z. B. für Statistiken) erst gesetzt werden, nachdem Sie diesen zugestimmt haben\n"
+#~ ". Die Verarbeitung basiert auf unserer gesetzlichen Verpflichtung zur Dokumentation der Einwilligung (Art. 6 Abs. 1 lit. c DSGVO) und auf\n"
+#~ "unserem berechtigten Interesse an einer transparenten und rechtskonformen Einwilligungsverwaltung (Art. 6 Abs. 1 lit. f DSGVO).\n"
+#~ "Klaro ist eine Open-Source-Software, die wir auf unserer eigenen Infrastruktur betreiben, sodass keine personenbezogenen Daten\n"
+#~ "an den Softwareanbieter übermittelt werden."
 
 #~ msgid ""
 #~ "Discover AI tools for work, creativity, and automation. Filter by "

@@ -13,7 +13,6 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - fix and optimize SEO
-- replace Cookiebot with Klaro as Consent Manager
 - technical optimizations
 - minor UI updates
 
