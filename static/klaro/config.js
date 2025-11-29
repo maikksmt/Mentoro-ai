@@ -173,7 +173,8 @@ var klaroConfig = {
                     personalization_storage: 'denied',
                     security_storage: 'granted',
                 });
-                gtag('config', 'G-ECWRCZVFD1', {anonymize_ip: true});
+                // wird bereits in base.html gesendet
+                // gtag('config', 'G-ECWRCZVFD1', {anonymize_ip: true});
             },
 
             onDecline: function () {
