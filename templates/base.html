@@ -22,13 +22,13 @@
             crossorigin="anonymous" defer></script>
     {% block extra_head %}{% endblock %}
     {% if not debug %}
-        {#        <script id="Cookiebot"#}
-        {#                src="https://consent.cookiebot.com/uc.js"#}
-        {#                data-cbid="9c77a67f-5158-4c03-bad5-725d6ae4ab7e"#}
-        {#                data-blockingmode="auto"#}
-        {#                type="text/javascript"#}
-        {#                async>#}
-        {#        </script>#}
+        <script id="Cookiebot"
+                src="https://consent.cookiebot.com/uc.js"
+                data-cbid="9c77a67f-5158-4c03-bad5-725d6ae4ab7e"
+                data-blockingmode="auto"
+                type="text/javascript"
+                async>
+        </script>
         <!-- Google Consent Mode v2 Defaults (before loading any Google scripts) -->
         <script>
             window.dataLayer = window.dataLayer || [];
@@ -55,9 +55,8 @@
             gtag('config', 'G-ECWRCZVFD1', {'anonymize_ip': true});
         </script>
         {# --- Klaro Config & Script --- #}
-        <script defer type="text/javascript" src="{% static 'klaro/config.js' %}"></script>
-        <script defer type="text/javascript"
-                src="https://cdn.kiprotect.com/klaro/v0.7.22/klaro.js"></script>
+        {#        <script defer type="text/javascript" src="{% static 'klaro/config.js' %}"></script>#}
+        {#        <script defer type="text/javascript" src="https://cdn.kiprotect.com/klaro/v0.7.22/klaro.js"></script>#}
     {% endif %}
 </head>
 <body class="flex flex-col min-h-screen justify-between bg-base-100 text-base-content">
