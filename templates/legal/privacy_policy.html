@@ -52,18 +52,24 @@
             {% blocktrans %}
                 This website uses cookies to ensure technical functionality and, after your explicit consent, to analyze
                 usage behaviour. The storage and evaluation of non-essential cookies only takes place with your prior
-                consent in accordance with Art. 6(1)(a) GDPR. Consent is managed through the consent management platform
-                Cookiebot by Usercentrics.
+                consent in accordance with Art. 6(1)(a) GDPR. Technically necessary cookies are processed on the basis
+                of our legitimate interest in the secure and stable operation of the website (Art. 6(1)(f) GDPR).
+                Consent and cookie preferences are managed using the open-source consent management tool Klaro, which we
+                operate on our own servers.
             {% endblocktrans %}
         </p>
 
         <!-- 6 -->
-        <h2>{% trans "6. Consent management (Cookiebot)" %}</h2>
+        <h2>{% trans "6. Consent management (Klaro)" %}</h2>
         <p>
             {% blocktrans %}
-                We use the consent management platform Cookiebot by Usercentrics to obtain and manage legally required
-                cookie consent. Cookiebot stores cookies that document your consent status and block all non-essential
-                cookies until you consent. The processing is based on our legal obligation under Art. 6(1)(c) GDPR.
+                We use the consent management tool Klaro to obtain and manage legally required cookie consent. Klaro
+                stores a technically necessary cookie (“klaro”) that documents your consent status per cookie category
+                and ensures that non-essential cookies (e.g. for statistics) are only set after you have agreed to
+                them. The processing is based on our legal obligation to document consent (Art. 6(1)(c) GDPR) and on
+                our legitimate interest in transparent and legally compliant consent management (Art. 6(1)(f) GDPR).
+                Klaro is open-source software; we run it on our own infrastructure, so no personal data is transmitted
+                to the software provider.
             {% endblocktrans %}
         </p>
 
@@ -74,7 +80,8 @@
                 If you give your consent to the “Statistics” category, we use Google Analytics 4 to analyze website
                 usage.
                 Google Analytics 4 works with pseudonymized identifiers and does not store full IP addresses.
-                Google Consent Mode v2 ensures that no Analytics cookies are set before consent is given.
+                Google Consent Mode v2 ensures that no Analytics cookies are set before consent is given. Consent is
+                collected and transmitted to Google via Klaro and the configured Consent Mode settings.
             {% endblocktrans %}
         </p>
 

@@ -210,3 +210,6 @@ msgstr ""
 #: templates/catalog/tool_detail.html:37
 msgid "Visit Vendor website for actual prices in your region"
 msgstr ""
+#: templates/base.html:205
+msgid "Cookie-Settings"
+msgstr ""
