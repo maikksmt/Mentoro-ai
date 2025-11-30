@@ -2,9 +2,12 @@
 {% if page_obj.paginator.num_pages > 1 %}
     <div class="join my-6 justify-center flex">
         {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}" class="join-item btn btn-sm" role="button"
+            <!-- @formatter:off -->
+            <a href="?page={{ page_obj.previous_page_number }}{% if category %}&category={{ category }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}{% if free %}&free=1{% endif %}" class="join-item btn btn-sm" role="button"
                aria-pressed="false"
-               aria-label="{% trans 'Previous Page' %}">«</a>
+               aria-label="{% trans 'Previous Page' %}">{% heroicon_mini "chevron-double-left" %}
+            </a>
+            <!-- @formatter:on -->
         {% else %}
             <button class="join-item btn btn-sm btn-disabled">«</button>
         {% endif %}
@@ -12,9 +15,12 @@
     {% trans "Site" %} {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
   </span>
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}" class="join-item btn btn-sm" role="button"
+            <!-- @formatter:off -->
+            <a href="?page={{ page_obj.next_page_number }}{% if category %}&category={{ category }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}{% if free %}&free=1{% endif %}" class="join-item btn btn-sm" role="button"
                aria-pressed="false"
-               aria-label="{% trans 'Next Page' %}">»</a>
+               aria-label="{% trans 'Next Page' %}">{% heroicon_mini "chevron-double-right" %}
+            </a>
+            <!-- @formatter:on -->
         {% else %}
             <button class="join-item btn btn-sm btn-disabled">»</button>
         {% endif %}

@@ -17,8 +17,8 @@ class ToolListView(ListView, SeoMixin):
     paginate_by = 15
 
     def get_queryset(self):
-        q = self.request.GET.get("q") or ""
         lang = get_language()
+        q = self.request.GET.get("q") or ""
         free = self.request.GET.get("free") or ""
         category_slug = self.request.GET.get("category") or ""
 

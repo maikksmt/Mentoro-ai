@@ -369,7 +369,7 @@ class GuideAdmin(TranslatableTinyMCEMixin, VersionAdmin):
                 "code": lang,
                 "name": info.get("name_local") or info.get("name") or lang,
                 "changes": guide_changes,
-                "section_changes": section_changes,  # << neu
+                "section_changes": section_changes,
             })
 
         context = {
