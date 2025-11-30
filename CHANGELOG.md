@@ -12,9 +12,26 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- fix and optimize SEO
-- technical optimizations
+---
+
+## [1.0.0-beta-4] – 2025-11-30
+
+### Added
+
+- Tools Content
+
+### Changed
+
+- Optimizations for Tool-Dataset-System
 - minor UI updates
+- Glossary & Tools robustness improved
+- Static / Media / White Noise Setup cleaned up
+- Server Rate limiting optimized
+
+### Fixed
+
+- fix and optimize SEO
+- TinyMCE: Image-Upload issue (CSP blob:) fixed
 
 ---
 
