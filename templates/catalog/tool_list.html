@@ -224,5 +224,5 @@
         {% endfor %}
     </div>
 
-    {% include "partials/pagination.html" %}
+    {% include "partials/pagination.html" with page_obj=page_obj query=q category=category free=free %}
 {% endblock %}
