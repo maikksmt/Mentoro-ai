@@ -63,7 +63,7 @@ def localized_alternates(
 
 
 def seo_text(value: str) -> str:
-    """Konvertiert TinyMCE HTML in reinen SEO-kompatiblen Text."""
+    """converts TinyMCE HTML to SEO-compatible raw text."""
     if not value:
         return ""
     text = strip_tags(value)

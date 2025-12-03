@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _, get_language
 from django.views.generic import ListView, DetailView
 
-from core.seo.utils import absolute_url, localized_alternates, get_og_image
+from core.seo.utils import absolute_url, localized_alternates, get_og_image, seo_text
 from core.views import SeoMixin
 from .models import Tool, Category
 
@@ -137,7 +137,7 @@ class ToolDetailView(DetailView, SeoMixin):
         ctx = super().get_context_data(**kwargs)
         obj: Tool = ctx["object"]
 
-        title = f"{obj.name} · MentoroAI"
+        title = f"{obj.name} · Tool · MentoroAI"
         outro = _("This AI tool enhances modern workflows and helps streamline key tasks across various use cases. ")
 
         if obj.short_description:
@@ -147,7 +147,7 @@ class ToolDetailView(DetailView, SeoMixin):
         else:
             desc_raw = obj.long_description or outro
 
-        desc = desc_raw[:155]
+        desc = seo_text(desc_raw)[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)
         alts = localized_alternates(self.request, "catalog:detail", {"slug": obj.slug})
