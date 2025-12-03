@@ -13,7 +13,7 @@ def _move_parent_to_review(guide, note):
     if getattr(guide, "status", None) != getattr(Guide, "STATUS_PUBLISHED", "published"):
         return
     if hasattr(guide, "move_to_review") and can_proceed(guide.move_to_review):
-        guide.move_to_review(note=note)
+        guide.move_to_review(by=None, note=note)
         guide.save()
 
 

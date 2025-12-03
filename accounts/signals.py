@@ -6,33 +6,28 @@ from django.contrib.auth.models import Group, Permission
 from django.db.models import Q, QuerySet
 
 EDITORIAL_APPS: Tuple[str, ...] = (
-    "articles",
-    "catalog",
     "compare",
-    "content",
-    "glossary",
     "guides",
-    "newsletter",
     "prompts",
     "usecases",
 )
 
 GROUP_DEFINITIONS = (
-    ("Admin", {"apps": None, "prefixes": ()}),
+    (
+        "Admin",
+        {"apps": None, "prefixes": ()}),
     (
         "Editor",
-        {"apps": EDITORIAL_APPS, "prefixes": ("add", "change", "delete", "view")},
+        {"apps": EDITORIAL_APPS, "prefixes": ("add", "change", "view")},
     ),
     (
         "Author",
-        {"apps": EDITORIAL_APPS, "prefixes": ("add", "change", "view")},
+        {"apps": EDITORIAL_APPS, "prefixes": ("add", "view")},
     ),
 )
 
 
-def _permissions_for(
-        app_labels: Iterable[str], prefixes: Iterable[str]
-) -> QuerySet[Permission]:
+def _permissions_for(app_labels: Iterable[str], prefixes: Iterable[str]) -> QuerySet[Permission]:
     query = Q(content_type__app_label__in=app_labels)
     if prefixes:
         prefix_query = Q()

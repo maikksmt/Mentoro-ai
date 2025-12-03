@@ -5,7 +5,7 @@
 
 {% block content %}
     <div class="container mx-auto">
-        <h1 class="text-2xl font-bold">{% blocktrans %}Meine Entwürfe & Reviews{% endblocktrans %}</h1>
+        <h1 class="text-2xl font-bold">{% blocktrans %}My drafts & reviews{% endblocktrans %}</h1>
         {% if messages %}
             <div class="space-y-2">{% for m in messages %}
                 <div class="alert">{{ m }}</div>{% endfor %}</div>
@@ -31,15 +31,15 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="model" value="{{ key }}">
                                 <input type="hidden" name="object_id" value="{{ it.pk }}">
-                                <button class="btn btn-sm">{% blocktrans %}Zum Review
-                                    einreichen{% endblocktrans %}</button>
+                                <button class="btn btn-sm">{% blocktrans %}Submit for review{% endblocktrans %}
+                                </button>
                             </form>
                         {% endif %}
                     </td>
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="4" class="opacity-70">{% blocktrans %}Keine Einträge{% endblocktrans %}</td>
+                    <td colspan="4" class="opacity-70">{% blocktrans %}No entries{% endblocktrans %}</td>
                 </tr>
             {% endfor %}
             </tbody>

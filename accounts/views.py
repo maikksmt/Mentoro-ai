@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
 
-from .forms import UserAccountForm  # deine Form: first_name / last_name :contentReference[oaicite:0]{index=0}
+from .forms import UserAccountForm
 
 
 class AccountDashboardView(LoginRequiredMixin, TemplateView):
@@ -23,7 +23,6 @@ class AccountDashboardView(LoginRequiredMixin, TemplateView):
             messages.success(request, _("Your profile has been updated."))
             return redirect("account_dashboard")
 
-        # Form mit Fehlern erneut anzeigen
         context = self.get_context_data()
         context["user_account_form"] = form
         return self.render_to_response(context)

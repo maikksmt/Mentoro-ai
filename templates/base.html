@@ -168,12 +168,12 @@
     <div class="w-full flex justify-end items-center gap-2 px-4 pt-2 text-sm">
         <a href="{% url 'account_dashboard' %}"
            class="btn btn-xs btn-outline">{% trans "Dashboard" %}</a>
-        {% if request.user|has_group:"author" or request.user|has_group:"editor" or request.user|has_group:"admin" %}
+        {% if request.user|has_group:"Author" or request.user|has_group:"Editor" or request.user|has_group:"Admin" %}
             <a href="/admin" target="_blank" rel="noopener"
                class="btn btn-xs btn-outline">{% trans "Admin Panel" %}</a>
             <a href="{% url 'content:editorial:my_drafts' %}"
                class="btn btn-xs btn-outline">{% trans "Drafts" %}</a>
-            {% if request.user|has_group:"editor" or request.user|has_group:"admin" %}
+            {% if request.user|has_group:"Editor" or request.user|has_group:"Admin" %}
                 <a href="{% url 'content:editorial:review_queue' %}"
                    class="btn btn-xs btn-outline">{% trans "Reviews" %}</a>
             {% endif %}

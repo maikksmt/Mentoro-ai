@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-29 20:51+0100\n"
+"POT-Creation-Date: 2025-12-03 22:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,8 +53,8 @@ msgstr ""
 msgid "Pricing & Highlight"
 msgstr ""
 
-#: catalog/admin.py:194 compare/admin.py:33 guides/admin.py:59
-#: prompts/admin.py:51 usecases/admin.py:51
+#: catalog/admin.py:194 compare/admin.py:33 guides/admin.py:68
+#: prompts/admin.py:49 usecases/admin.py:49
 msgid "Meta"
 msgstr ""
 
@@ -166,22 +166,22 @@ msgid ""
 "This AI tool offers features and use cases that are briefly explained below. "
 msgstr ""
 
-#: compare/admin.py:36 guides/admin.py:76 prompts/admin.py:65
-#: usecases/admin.py:64
+#: compare/admin.py:36 guides/admin.py:85 prompts/admin.py:63
+#: usecases/admin.py:62
 msgid "Routing"
 msgstr ""
 
-#: compare/admin.py:39 guides/admin.py:79 prompts/admin.py:68
-#: usecases/admin.py:67
+#: compare/admin.py:39 guides/admin.py:88 prompts/admin.py:66
+#: usecases/admin.py:65
 msgid "Content (translated)"
 msgstr ""
 
-#: compare/admin.py:42 guides/admin.py:81 prompts/admin.py:70
-#: usecases/admin.py:70
+#: compare/admin.py:42 guides/admin.py:90 prompts/admin.py:68
+#: usecases/admin.py:68
 msgid "These fields are language-specific. Use the language tabs above."
 msgstr ""
 
-#: compare/admin.py:45 guides/admin.py:73
+#: compare/admin.py:45 guides/admin.py:82
 msgid "Relations"
 msgstr ""
 
@@ -190,29 +190,11 @@ msgid "Scoring"
 msgstr ""
 
 #: compare/admin.py:59 compare/admin.py:63 compare/models.py:18
-#: guides/admin.py:100 guides/admin.py:108 guides/models.py:18
-#: guides/models.py:123 guides/models.py:197 prompts/admin.py:111
+#: guides/admin.py:127 guides/admin.py:135 guides/models.py:18
+#: guides/models.py:123 guides/models.py:197 prompts/admin.py:89
 #: prompts/models.py:20 templates/content/editorial/review_queue.html:17
-#: templates/ops/seo_check.html:41 usecases/admin.py:105 usecases/models.py:20
+#: templates/ops/seo_check.html:41 usecases/admin.py:83 usecases/models.py:20
 msgid "Title"
-msgstr ""
-
-#: compare/admin.py:72
-msgid "Publish selected Comparison(s)"
-msgstr ""
-
-#: compare/admin.py:82
-#, python-format
-msgid "%(n)d comparison(s) published."
-msgstr ""
-
-#: compare/admin.py:84
-msgid "Unpublish (revert to draft)"
-msgstr ""
-
-#: compare/admin.py:91
-#, python-format
-msgid "%(n)d comparison(s) reverted to draft."
 msgstr ""
 
 #: compare/models.py:19 guides/models.py:19 prompts/models.py:21
@@ -311,12 +293,103 @@ msgid ""
 "help you navigate the modern AI world."
 msgstr ""
 
-#: core/admin.py:102
-msgid "Mark as published"
+#: core/admin.py:112
+msgid "Auto: Change in the admin form"
 msgstr ""
 
-#: core/admin.py:107
-msgid "Mark as Draft"
+#: core/admin.py:265
+msgid "Auto: Change to inline content"
+msgstr ""
+
+#: core/admin.py:326
+msgid "Send to review"
+msgstr ""
+
+#: core/admin.py:337 core/admin.py:426 core/admin.py:475
+msgid "permission denied"
+msgstr ""
+
+#: core/admin.py:355
+msgid "Transition 'move_to_review' not executable"
+msgstr ""
+
+#: core/admin.py:361
+#, python-format
+msgid "%(n)d item(s) → Review."
+msgstr ""
+
+#: core/admin.py:368 core/admin.py:460 core/admin.py:513
+#, python-format
+msgid "%(n)d skipped: %(detail)s"
+msgstr ""
+
+#: core/admin.py:372
+msgid "Request changes (→ Rework)"
+msgstr ""
+
+#: core/admin.py:382 core/admin.py:527 core/admin.py:567
+msgid "You are not authorized to perform this action."
+msgstr ""
+
+#: core/admin.py:387
+msgid "Transition 'request_rework' not executable"
+msgstr ""
+
+#: core/admin.py:409
+#, python-format
+msgid "%(n)d item(s) → Rework."
+msgstr ""
+
+#: core/admin.py:413
+msgid "Approve (Review → Approved)"
+msgstr ""
+
+#: core/admin.py:431
+msgid "transition 'approve' not executable"
+msgstr ""
+
+#: core/admin.py:452
+#, python-format
+msgid "%(n)d item(s) approved."
+msgstr ""
+
+#: core/admin.py:464
+msgid "Publish selected item(s)"
+msgstr ""
+
+#: core/admin.py:500
+msgid "Transition 'publish' not executable"
+msgstr ""
+
+#: core/admin.py:506
+#, python-format
+msgid "%(n)d item(s) published."
+msgstr ""
+
+#: core/admin.py:517
+msgid "Archive (Soft Delete)"
+msgstr ""
+
+#: core/admin.py:535
+msgid "Transition 'archive' not executable"
+msgstr ""
+
+#: core/admin.py:553
+#, python-format
+msgid "%(n)d item(s) archived."
+msgstr ""
+
+#: core/admin.py:557
+msgid "Restore (→ Draft)"
+msgstr ""
+
+#: core/admin.py:575
+msgid "Transition 'restore' not executable"
+msgstr ""
+
+#: core/admin.py:593
+#, python-format
+msgid "%(n)d item(s) restored (draft)."
 msgstr ""
 
 #: core/seo/context.py:13
@@ -368,54 +441,6 @@ msgstr ""
 msgid ""
 "This glossary entry conveys the core idea and relevance of this concept "
 "within modern AI systems. "
-msgstr ""
-
-#: guides/admin.py:200
-msgid "Auto: Change to GuideSection (Inline)"
-msgstr ""
-
-#: guides/admin.py:208
-msgid "Send to review"
-msgstr ""
-
-#: guides/admin.py:215
-msgid "You are not authorized to perform this action."
-msgstr ""
-
-#: guides/admin.py:223
-#, python-format
-msgid "%(n)d Article(s) → Review."
-msgstr ""
-
-#: guides/admin.py:225
-msgid "Request changes (→ Rework)"
-msgstr ""
-
-#: guides/admin.py:241
-#, python-format
-msgid "%(n)d Article(s) → Rework."
-msgstr ""
-
-#: guides/admin.py:243
-msgid "Publish selected Guide(s)"
-msgstr ""
-
-#: guides/admin.py:279
-msgid "Archiving (Soft Delete)"
-msgstr ""
-
-#: guides/admin.py:298
-#, python-format
-msgid "%(n)d Article(s) archived."
-msgstr ""
-
-#: guides/admin.py:300
-msgid "Restore (→ Draft)"
-msgstr ""
-
-#: guides/admin.py:319
-#, python-format
-msgid "%(n)d Article(s) restored (draft)."
 msgstr ""
 
 #: guides/models.py:20 guides/models.py:124 prompts/models.py:22
@@ -527,57 +552,8 @@ msgstr ""
 msgid "You have been unsubscribed."
 msgstr ""
 
-#: prompts/admin.py:72 usecases/admin.py:73
+#: prompts/admin.py:70 usecases/admin.py:71
 msgid "Internals"
-msgstr ""
-
-#: prompts/admin.py:88
-msgid "Auto: Change in the admin form (prompt)"
-msgstr ""
-
-#: prompts/admin.py:94
-msgid "Prompt was automatically set to \"Review\" due to changes."
-msgstr ""
-
-#: prompts/admin.py:135
-msgid "Submit for Review"
-msgstr ""
-
-#: prompts/admin.py:153
-#, python-format
-msgid "%d Article(s) set for review."
-msgstr ""
-
-#: prompts/admin.py:158 usecases/admin.py:156
-msgid "Request rework"
-msgstr ""
-
-#: prompts/admin.py:176
-#, python-format
-msgid "%d Article(s) set to rework."
-msgstr ""
-
-#: prompts/admin.py:181 templates/content/editorial/review_queue.html:37
-#: usecases/admin.py:179
-msgid "Publish"
-msgstr ""
-
-#: prompts/admin.py:208
-msgid "Archive (Soft-Delete)"
-msgstr ""
-
-#: prompts/admin.py:223
-#, python-format
-msgid "%d Article(s) archived."
-msgstr ""
-
-#: prompts/admin.py:228
-msgid "Restore as draft"
-msgstr ""
-
-#: prompts/admin.py:243
-#, python-format
-msgid "%d items(s) restored to draft."
 msgstr ""
 
 #: prompts/models.py:23 usecases/models.py:23
@@ -865,7 +841,7 @@ msgid "or continue with e-mail"
 msgstr ""
 
 #: templates/account/login.html:84
-msgid "eMail or username"
+msgid "eMail"
 msgstr ""
 
 #: templates/account/login.html:91
@@ -1009,7 +985,7 @@ msgid "Create your MentoroAI account"
 msgstr ""
 
 #: templates/account/signup.html:21
-msgid "Create an account to save your favorite guides, prompts and tools."
+msgid "Create an account to create content for guides, prompts and use cases."
 msgstr ""
 
 #: templates/account/signup.html:52
@@ -1481,7 +1457,7 @@ msgid ""
 msgstr ""
 
 #: templates/content/editorial/my_drafts.html:8
-msgid "Meine Entwürfe & Reviews"
+msgid "My drafts & reviews"
 msgstr ""
 
 #: templates/content/editorial/my_drafts.html:16
@@ -1499,13 +1475,12 @@ msgid "Status"
 msgstr ""
 
 #: templates/content/editorial/my_drafts.html:34
-msgid ""
-"Zum Review\n"
-"                                    einreichen"
+#: templates/content/editorial/submit_to_review.html:9
+msgid "Submit for review"
 msgstr ""
 
 #: templates/content/editorial/my_drafts.html:42
-msgid "Keine Einträge"
+msgid "No entries"
 msgstr ""
 
 #: templates/content/editorial/review_queue.html:9
@@ -1514,6 +1489,10 @@ msgstr ""
 
 #: templates/content/editorial/review_queue.html:18
 msgid "Author"
+msgstr ""
+
+#: templates/content/editorial/review_queue.html:37
+msgid "Publish"
 msgstr ""
 
 #: templates/content/editorial/review_queue.html:38
@@ -1525,10 +1504,7 @@ msgid "Apply changes"
 msgstr ""
 
 #: templates/content/editorial/review_queue.html:47
-msgid ""
-"\n"
-"                                        No posts in review process\n"
-"                                    "
+msgid "No posts in review process"
 msgstr ""
 
 #: templates/content/editorial/review_update.html:7
@@ -1545,10 +1521,6 @@ msgstr ""
 
 #: templates/content/editorial/review_update.html:24
 msgid "Save"
-msgstr ""
-
-#: templates/content/editorial/submit_to_review.html:9
-msgid "Beitrag zum Review einreichen"
 msgstr ""
 
 #: templates/content/editorial/submit_to_review.html:18
@@ -1978,7 +1950,7 @@ msgstr ""
 
 #: templates/glossary/glossary_list.html:43
 #: templates/glossary/glossary_list.html:76
-#: templates/partials/pagination.html:7
+#: templates/partials/pagination.html:8
 msgid "Previous Page"
 msgstr ""
 
@@ -1990,13 +1962,13 @@ msgid "Previous"
 msgstr ""
 
 #: templates/glossary/glossary_list.html:51
-#: templates/partials/pagination.html:12
+#: templates/partials/pagination.html:15
 msgid "Site"
 msgstr ""
 
 #: templates/glossary/glossary_list.html:55
 #: templates/glossary/glossary_list.html:87
-#: templates/partials/pagination.html:17
+#: templates/partials/pagination.html:21
 msgid "Next Page"
 msgstr ""
 
@@ -3221,46 +3193,6 @@ msgstr ""
 
 #: templates/usecases/list.html:47
 msgid "No published use cases found."
-msgstr ""
-
-#: usecases/admin.py:89
-msgid "Auto: Change in the admin form (usecase)"
-msgstr ""
-
-#: usecases/admin.py:95
-msgid "Usecase was automatically set to \"Review\" due to changes."
-msgstr ""
-
-#: usecases/admin.py:133
-msgid "Submit for review"
-msgstr ""
-
-#: usecases/admin.py:151
-#, python-format
-msgid "%d item(s) moved to review."
-msgstr ""
-
-#: usecases/admin.py:174
-#, python-format
-msgid "%d item(s) moved to rework."
-msgstr ""
-
-#: usecases/admin.py:206
-msgid "Archive"
-msgstr ""
-
-#: usecases/admin.py:221
-#, python-format
-msgid "%d item(s) archived."
-msgstr ""
-
-#: usecases/admin.py:226
-msgid "Restore to draft"
-msgstr ""
-
-#: usecases/admin.py:241
-#, python-format
-msgid "%d item(s) restored to draft."
 msgstr ""
 
 #: usecases/models.py:26

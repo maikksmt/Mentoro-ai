@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-29 20:51+0100\n"
-"PO-Revision-Date: 2025-11-29 20:55+0100\n"
+"POT-Creation-Date: 2025-12-03 22:22+0100\n"
+"PO-Revision-Date: 2025-12-03 22:25+0100\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -57,8 +57,8 @@ msgstr "Klassifizierung"
 msgid "Pricing & Highlight"
 msgstr "Preisgestaltung & Highlight"
 
-#: catalog/admin.py:194 compare/admin.py:33 guides/admin.py:59
-#: prompts/admin.py:51 usecases/admin.py:51
+#: catalog/admin.py:194 compare/admin.py:33 guides/admin.py:68
+#: prompts/admin.py:49 usecases/admin.py:49
 msgid "Meta"
 msgstr "Meta"
 
@@ -177,23 +177,23 @@ msgstr ""
 "Dieses KI-Tool bietet Funktionen und Anwendungsfälle, die im Folgenden kurz "
 "erläutert werden."
 
-#: compare/admin.py:36 guides/admin.py:76 prompts/admin.py:65
-#: usecases/admin.py:64
+#: compare/admin.py:36 guides/admin.py:85 prompts/admin.py:63
+#: usecases/admin.py:62
 msgid "Routing"
 msgstr "Routing"
 
-#: compare/admin.py:39 guides/admin.py:79 prompts/admin.py:68
-#: usecases/admin.py:67
+#: compare/admin.py:39 guides/admin.py:88 prompts/admin.py:66
+#: usecases/admin.py:65
 msgid "Content (translated)"
 msgstr "Inhalt (übersetzt)"
 
-#: compare/admin.py:42 guides/admin.py:81 prompts/admin.py:70
-#: usecases/admin.py:70
+#: compare/admin.py:42 guides/admin.py:90 prompts/admin.py:68
+#: usecases/admin.py:68
 msgid "These fields are language-specific. Use the language tabs above."
 msgstr ""
 "Diese Felder sind sprachspezifisch. Verwende die Sprachregisterkarten oben."
 
-#: compare/admin.py:45 guides/admin.py:73
+#: compare/admin.py:45 guides/admin.py:82
 msgid "Relations"
 msgstr "Beziehungen"
 
@@ -202,30 +202,12 @@ msgid "Scoring"
 msgstr "Scoring"
 
 #: compare/admin.py:59 compare/admin.py:63 compare/models.py:18
-#: guides/admin.py:100 guides/admin.py:108 guides/models.py:18
-#: guides/models.py:123 guides/models.py:197 prompts/admin.py:111
+#: guides/admin.py:127 guides/admin.py:135 guides/models.py:18
+#: guides/models.py:123 guides/models.py:197 prompts/admin.py:89
 #: prompts/models.py:20 templates/content/editorial/review_queue.html:17
-#: templates/ops/seo_check.html:41 usecases/admin.py:105 usecases/models.py:20
+#: templates/ops/seo_check.html:41 usecases/admin.py:83 usecases/models.py:20
 msgid "Title"
 msgstr "Titel"
-
-#: compare/admin.py:72
-msgid "Publish selected Comparison(s)"
-msgstr "Ausgewählte Vergleiche veröffentlichen"
-
-#: compare/admin.py:82
-#, python-format
-msgid "%(n)d comparison(s) published."
-msgstr "%(n)d Vergleich(e) veröffentlicht."
-
-#: compare/admin.py:84
-msgid "Unpublish (revert to draft)"
-msgstr "Unveröffentlichen (zum Entwurf zurück)"
-
-#: compare/admin.py:91
-#, python-format
-msgid "%(n)d comparison(s) reverted to draft."
-msgstr "%(n)d Vergleich(e) auf Entwurf zurückgesetzt"
 
 #: compare/models.py:19 guides/models.py:19 prompts/models.py:21
 #: usecases/models.py:21
@@ -292,11 +274,11 @@ msgstr "Nur der Autor kann den Artikel einreichen."
 
 #: content/views/editorial.py:79
 msgid "Submitted for review."
-msgstr "Zur Überprüfung eingereicht."
+msgstr "Zum Review eingereicht."
 
 #: content/views/editorial.py:87
 msgid "Editorial – Submit for Review."
-msgstr "Redaktion – Zur Überprüfung einreichen."
+msgstr "Redaktion – Zum Review einreichen."
 
 #: content/views/editorial.py:88 content/views/editorial.py:113
 #: content/views/editorial.py:151
@@ -305,7 +287,7 @@ msgstr "Interner Redaktionsbereich"
 
 #: content/views/editorial.py:112
 msgid "Editorial – Review Queue"
-msgstr "Redaktion – Prüfwarteschlange"
+msgstr "Redaktion – Review-Warteschlange"
 
 #: content/views/editorial.py:142
 msgid "Post updated."
@@ -313,7 +295,7 @@ msgstr "Beitrag aktualisiert."
 
 #: content/views/editorial.py:150
 msgid "Editorial – Review."
-msgstr "Redaktion – Überprüfung."
+msgstr "Redaktion – Review."
 
 #: content/views/editorial.py:164
 msgid "You are now registered as an author. Good luck with your writing!"
@@ -331,13 +313,104 @@ msgstr ""
 "MentoroAI bietet KI-Anleitungen, Prompts, Tool-Vergleiche und ein Glossar, "
 "um ihnen zu helfen sich in der moderne KI-Welt zurechtzufinden."
 
-#: core/admin.py:102
-msgid "Mark as published"
-msgstr "Veröffentlichen"
+#: core/admin.py:112
+msgid "Auto: Change in the admin form"
+msgstr "Auto: Änderung im Admin-Formular"
 
-#: core/admin.py:107
-msgid "Mark as Draft"
-msgstr "Als Entwurf markieren"
+#: core/admin.py:265
+msgid "Auto: Change to inline content"
+msgstr "Auto: Änderung in Inline-Inhalten"
+
+#: core/admin.py:326
+msgid "Send to review"
+msgstr "Zum Review senden"
+
+#: core/admin.py:337 core/admin.py:426 core/admin.py:475
+msgid "permission denied"
+msgstr "Zugriff verweigert"
+
+#: core/admin.py:355
+msgid "Transition 'move_to_review' not executable"
+msgstr "Übergang 'Zum Review senden' nicht ausführbar"
+
+#: core/admin.py:361
+#, python-format
+msgid "%(n)d item(s) → Review."
+msgstr "%(n)d Artikel → Review."
+
+#: core/admin.py:368 core/admin.py:460 core/admin.py:513
+#, python-format
+msgid "%(n)d skipped: %(detail)s"
+msgstr "%(n)d übersprungen: %(detail)s"
+
+#: core/admin.py:372
+msgid "Request changes (→ Rework)"
+msgstr "Änderungen anfordern (→ Nacharbeiten)"
+
+#: core/admin.py:382 core/admin.py:527 core/admin.py:567
+msgid "You are not authorized to perform this action."
+msgstr "Du bist nicht berechtigt, diese Aktion auszuführen."
+
+#: core/admin.py:387
+msgid "Transition 'request_rework' not executable"
+msgstr "Übergang 'request_rework' nicht ausführbar"
+
+#: core/admin.py:409
+#, python-format
+msgid "%(n)d item(s) → Rework."
+msgstr "%(n)d Artikel → Nacharbeiten."
+
+#: core/admin.py:413
+msgid "Approve (Review → Approved)"
+msgstr "Genehmigen (Review → Genehmigt)"
+
+#: core/admin.py:431
+msgid "transition 'approve' not executable"
+msgstr "Übergang 'Genehmigen' nicht ausführbar"
+
+#: core/admin.py:452
+#, python-format
+msgid "%(n)d item(s) approved."
+msgstr "%(n)d Artikel genehmigt."
+
+#: core/admin.py:464
+msgid "Publish selected item(s)"
+msgstr "Ausgewählte Artikel veröffentlichen"
+
+#: core/admin.py:500
+msgid "Transition 'publish' not executable"
+msgstr "Übergang 'Veröffentlichen' nicht ausführbar"
+
+#: core/admin.py:506
+#, python-format
+msgid "%(n)d item(s) published."
+msgstr "%(n)d Artikel veröffentlicht."
+
+#: core/admin.py:517
+msgid "Archive (Soft Delete)"
+msgstr "Archivieren (Soft Delete)"
+
+#: core/admin.py:535
+msgid "Transition 'archive' not executable"
+msgstr "Übergang 'Archivieren' nicht ausführbar"
+
+#: core/admin.py:553
+#, python-format
+msgid "%(n)d item(s) archived."
+msgstr "%(n)d Artikel archiviert."
+
+#: core/admin.py:557
+msgid "Restore (→ Draft)"
+msgstr "Wiederherstellen (→ Entwurf)"
+
+#: core/admin.py:575
+msgid "Transition 'restore' not executable"
+msgstr "Übergang 'Wiederherstellen' nicht ausführbar"
+
+#: core/admin.py:593
+#, python-format
+msgid "%(n)d item(s) restored (draft)."
+msgstr "%(n)d Artikel wiederhergestellt (Entwurf)"
 
 #: core/seo/context.py:13
 msgid ""
@@ -396,54 +469,6 @@ msgid ""
 msgstr ""
 "Dieser Glossareintrag vermittelt die Kernidee und Relevanz dieses Begriffs "
 "innerhalb moderner KI-Systeme."
-
-#: guides/admin.py:200
-msgid "Auto: Change to GuideSection (Inline)"
-msgstr "Auto: Änderung an GuideSection (Inline)"
-
-#: guides/admin.py:208
-msgid "Send to review"
-msgstr "Zur Überprüfung senden"
-
-#: guides/admin.py:215
-msgid "You are not authorized to perform this action."
-msgstr "Du bist nicht berechtigt, diese Aktion auszuführen."
-
-#: guides/admin.py:223
-#, python-format
-msgid "%(n)d Article(s) → Review."
-msgstr "%(n)d Artikel → Überprüfung"
-
-#: guides/admin.py:225
-msgid "Request changes (→ Rework)"
-msgstr "Änderungen anfordern (→ Nacharbeiten)"
-
-#: guides/admin.py:241
-#, python-format
-msgid "%(n)d Article(s) → Rework."
-msgstr "%(n)d Artikel → Nacharbeiten."
-
-#: guides/admin.py:243
-msgid "Publish selected Guide(s)"
-msgstr "Ausgewählte Leitfäden veröffentlichen"
-
-#: guides/admin.py:279
-msgid "Archiving (Soft Delete)"
-msgstr "Archivierung (Soft Delete)"
-
-#: guides/admin.py:298
-#, python-format
-msgid "%(n)d Article(s) archived."
-msgstr "%(n)d Artikel archiviert."
-
-#: guides/admin.py:300
-msgid "Restore (→ Draft)"
-msgstr "Wiederherstellen (→ Entwurf)"
-
-#: guides/admin.py:319
-#, python-format
-msgid "%(n)d Article(s) restored (draft)."
-msgstr "%(n)d Artikel wiederhergestellt (Entwurf)"
 
 #: guides/models.py:20 guides/models.py:124 prompts/models.py:22
 #: usecases/models.py:22
@@ -559,59 +584,9 @@ msgstr "Diese E-Mail ist bereits abgemeldet."
 msgid "You have been unsubscribed."
 msgstr "Du wurdest abgemeldet."
 
-#: prompts/admin.py:72 usecases/admin.py:73
+#: prompts/admin.py:70 usecases/admin.py:71
 msgid "Internals"
 msgstr "Intern"
-
-#: prompts/admin.py:88
-msgid "Auto: Change in the admin form (prompt)"
-msgstr "Auto: Änderung im Admin-Formular (prompt)"
-
-#: prompts/admin.py:94
-msgid "Prompt was automatically set to \"Review\" due to changes."
-msgstr ""
-"Prompt wurde aufgrund von Änderungen automatisch auf \"Überprüfen\" gesetzt."
-
-#: prompts/admin.py:135
-msgid "Submit for Review"
-msgstr "Einreichen zur Überprüfung"
-
-#: prompts/admin.py:153
-#, python-format
-msgid "%d Article(s) set for review."
-msgstr "%d Elemente zur Überprüfung eingestellt."
-
-#: prompts/admin.py:158 usecases/admin.py:156
-msgid "Request rework"
-msgstr "Nacharbeit anfordern"
-
-#: prompts/admin.py:176
-#, python-format
-msgid "%d Article(s) set to rework."
-msgstr "%d Elemente zu Nacharbeit geändert."
-
-#: prompts/admin.py:181 templates/content/editorial/review_queue.html:37
-#: usecases/admin.py:179
-msgid "Publish"
-msgstr "Veröffentlichen"
-
-#: prompts/admin.py:208
-msgid "Archive (Soft-Delete)"
-msgstr "Archivierung (Soft Delete)"
-
-#: prompts/admin.py:223
-#, python-format
-msgid "%d Article(s) archived."
-msgstr "%d Artikel archiviert."
-
-#: prompts/admin.py:228
-msgid "Restore as draft"
-msgstr "Wiederherstellen als Entwurf"
-
-#: prompts/admin.py:243
-#, python-format
-msgid "%d items(s) restored to draft."
-msgstr "%d Elemente auf Entwurf zurückgesetzt."
 
 #: prompts/models.py:23 usecases/models.py:23
 msgid "Outro"
@@ -921,8 +896,8 @@ msgid "or continue with e-mail"
 msgstr "oder mit E-Mail fortfahren"
 
 #: templates/account/login.html:84
-msgid "eMail or username"
-msgstr "E-Mail oder Benutzername"
+msgid "eMail"
+msgstr "E-Mail"
 
 #: templates/account/login.html:91
 msgid "Password"
@@ -1074,9 +1049,10 @@ msgid "Create your MentoroAI account"
 msgstr "Erstellen Sie Ihr MentoroAI-Konto"
 
 #: templates/account/signup.html:21
-msgid "Create an account to save your favorite guides, prompts and tools."
+msgid "Create an account to create content for guides, prompts and use cases."
 msgstr ""
-"Erstellen Sie ein Konto, um Ihre Leitfäden, Prompts und Tools zu speichern."
+"Erstellen Sie ein Konto, um Inhalte für Leitfäden, Prompts und "
+"Anwendungsfälle zu erstellen."
 
 #: templates/account/signup.html:52
 msgid "Sign up with Google"
@@ -1323,7 +1299,7 @@ msgstr "Entwürfe"
 
 #: templates/base.html:178 templates/partials/editorial_nav.html:13
 msgid "Reviews"
-msgstr "Überprüfungen"
+msgstr "Reviews"
 
 #: templates/base.html:197 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
@@ -1564,7 +1540,7 @@ msgstr ""
 "dass hilfreiche Vergleiche von KI-Tools bald verfügbar sind."
 
 #: templates/content/editorial/my_drafts.html:8
-msgid "Meine Entwürfe & Reviews"
+msgid "My drafts & reviews"
 msgstr "Meine Entwürfe & Reviews"
 
 #: templates/content/editorial/my_drafts.html:16
@@ -1582,13 +1558,12 @@ msgid "Status"
 msgstr "Status"
 
 #: templates/content/editorial/my_drafts.html:34
-msgid ""
-"Zum Review\n"
-"                                    einreichen"
-msgstr "Zum Review einreichen"
+#: templates/content/editorial/submit_to_review.html:9
+msgid "Submit for review"
+msgstr "Einreichen zum Review"
 
 #: templates/content/editorial/my_drafts.html:42
-msgid "Keine Einträge"
+msgid "No entries"
 msgstr "Keine Einträge"
 
 #: templates/content/editorial/review_queue.html:9
@@ -1599,6 +1574,10 @@ msgstr "Review-Warteschlange"
 msgid "Author"
 msgstr "Autor"
 
+#: templates/content/editorial/review_queue.html:37
+msgid "Publish"
+msgstr "Veröffentlichen"
+
 #: templates/content/editorial/review_queue.html:38
 msgid "Draft"
 msgstr "Entwurf"
@@ -1608,13 +1587,8 @@ msgid "Apply changes"
 msgstr "Änderungen übernehmen"
 
 #: templates/content/editorial/review_queue.html:47
-msgid ""
-"\n"
-"                                        No posts in review process\n"
-"                                    "
-msgstr ""
-"\n"
-" Keine Beiträge im Review-Prozess"
+msgid "No posts in review process"
+msgstr "Keine Beiträge im Review-Prozess"
 
 #: templates/content/editorial/review_update.html:7
 msgid "Change status"
@@ -1631,10 +1605,6 @@ msgstr "Objekt-ID"
 #: templates/content/editorial/review_update.html:24
 msgid "Save"
 msgstr "Speichern"
-
-#: templates/content/editorial/submit_to_review.html:9
-msgid "Beitrag zum Review einreichen"
-msgstr "Beitrag zum Review einreichen"
 
 #: templates/content/editorial/submit_to_review.html:18
 msgid "Objekt-ID"
@@ -2088,7 +2058,7 @@ msgstr "Begriffe anzeigen mit Buchstabe "
 
 #: templates/glossary/glossary_list.html:43
 #: templates/glossary/glossary_list.html:76
-#: templates/partials/pagination.html:7
+#: templates/partials/pagination.html:8
 msgid "Previous Page"
 msgstr "Vorherige Seite"
 
@@ -2100,13 +2070,13 @@ msgid "Previous"
 msgstr "Zurück"
 
 #: templates/glossary/glossary_list.html:51
-#: templates/partials/pagination.html:12
+#: templates/partials/pagination.html:15
 msgid "Site"
 msgstr "Seite"
 
 #: templates/glossary/glossary_list.html:55
 #: templates/glossary/glossary_list.html:87
-#: templates/partials/pagination.html:17
+#: templates/partials/pagination.html:21
 msgid "Next Page"
 msgstr "Nächste Seite"
 
@@ -2152,11 +2122,6 @@ msgid "What are cookies?"
 msgstr "Was sind Cookies?"
 
 #: templates/legal/cookie_policy.html:14
-#| msgid ""
-#| "\n"
-#| "                Cookies are small text files stored on your device when you visit a website.\n"
-#| "                They provide technical functionality or convenience features (e.g., language or theme selection).\n"
-#| "            "
 msgid ""
 "\n"
 "                Cookies are small text files stored on your device when you visit a website.\n"
@@ -2196,7 +2161,6 @@ msgid "remembers your selected language"
 msgstr "Merkt sich deine ausgewählte Sprache"
 
 #: templates/legal/cookie_policy.html:31
-#| msgid "Consent management (Klaro)"
 msgid "Consent management (Cookiebot)"
 msgstr "Einwilligungsmanagement (Cookiebot)"
 
@@ -2214,7 +2178,6 @@ msgstr ""
 "Diese Cookies sind technisch notwendig, um die gesetzlichen Einwilligungsvorschriften einzuhalten."
 
 #: templates/legal/cookie_policy.html:40
-#| msgid "stores your consent choices per cookie category (necessary)"
 msgid "stores your consent state (necessary)"
 msgstr "Speichert Ihren Einwilligungsstatus (notwendig)"
 
@@ -2227,12 +2190,6 @@ msgid "Statistics cookies (Google Analytics 4)"
 msgstr "Statistik-Cookies (Google Analytics 4)"
 
 #: templates/legal/cookie_policy.html:46
-#| msgid ""
-#| "\n"
-#| "                Google Analytics 4 is only activated after explicit consent (“Statistics” category).\n"
-#| "                Before consent, no Analytics cookies are set because Google Consent Mode v2 is configured with a\n"
-#| "                default of “denied” and is only switched to “granted” after your consent via Klaro.\n"
-#| "            "
 msgid ""
 "\n"
 "                Google Analytics 4 is only activated after explicit consent (“Statistics” category).\n"
@@ -2258,12 +2215,6 @@ msgid "Cookie control"
 msgstr "Cookie-Steuerung"
 
 #: templates/legal/cookie_policy.html:59
-#| msgid ""
-#| "\n"
-#| "                You can change or withdraw your consent at any time by opening the cookie settings via the\n"
-#| "                “Cookie settings” link in the footer of this website. This link re-opens the Klaro settings dialog.\n"
-#| "                You can also block or delete cookies via your browser settings.\n"
-#| "            "
 msgid ""
 "\n"
 "                You can change or withdraw your consent at any time by opening the Cookiebot settings via the link\n"
@@ -2448,15 +2399,6 @@ msgid "5. Cookies and tracking technologies"
 msgstr "5. Cookies und Tracking-Technologien"
 
 #: templates/legal/privacy_policy.html:52
-#| msgid ""
-#| "\n"
-#| "                This website uses cookies to ensure technical functionality and, after your explicit consent, to analyze\n"
-#| "                usage behaviour. The storage and evaluation of non-essential cookies only takes place with your prior\n"
-#| "                consent in accordance with Art. 6(1)(a) GDPR. Technically necessary cookies are processed on the basis\n"
-#| "                of our legitimate interest in the secure and stable operation of the website (Art. 6(1)(f) GDPR).\n"
-#| "                Consent and cookie preferences are managed using the open-source consent management tool Klaro, which we\n"
-#| "                operate on our own servers.\n"
-#| "            "
 msgid ""
 "\n"
 "                This website uses cookies to ensure technical functionality and, after your explicit consent, to analyze\n"
@@ -2474,7 +2416,6 @@ msgstr ""
 "Die Einwilligung wird über die Einwilligungsmanagement-Plattform Cookiebot von Usercentrics verwaltet."
 
 #: templates/legal/privacy_policy.html:61
-#| msgid "6. Consent management (Klaro)"
 msgid "6. Consent management (Cookiebot)"
 msgstr "6. Einwilligungsverwaltung (Cookiebot)"
 
@@ -2494,14 +2435,6 @@ msgid "7. Google Analytics 4"
 msgstr "7. Google Analytics 4"
 
 #: templates/legal/privacy_policy.html:73
-#| msgid ""
-#| "\n"
-#| "                If you give your consent to the “Statistics” category, we use Google Analytics 4 to analyze website\n"
-#| "                usage.\n"
-#| "                Google Analytics 4 works with pseudonymized identifiers and does not store full IP addresses.\n"
-#| "                Google Consent Mode v2 ensures that no Analytics cookies are set before consent is given. Consent is\n"
-#| "                collected and transmitted to Google via Klaro and the configured Consent Mode settings.\n"
-#| "            "
 msgid ""
 "\n"
 "                If you give your consent to the “Statistics” category, we use Google Analytics 4 to analyze website usage.\n"
@@ -2531,12 +2464,6 @@ msgid "Data transfer"
 msgstr "Datenübermittlung"
 
 #: templates/legal/privacy_policy.html:84
-#| msgid ""
-#| "\n"
-#| "                Data may be transferred to Google LLC in the United States. Google participates in the EU–US Data\n"
-#| "                Privacy\n"
-#| "                Framework.\n"
-#| "            "
 msgid ""
 "\n"
 "                Data may be transferred to Google LLC in the United States. Google participates in the EU–US Data Privacy Framework.\n"
@@ -2636,12 +2563,6 @@ msgid "9. GitHub Sign-In (Social Login)"
 msgstr "9. GitHub-Anmeldung (Social Login)"
 
 #: templates/legal/privacy_policy.html:138
-#| msgid ""
-#| "\n"
-#| "                You can also log in or create an account using your GitHub account (\"GitHub Sign-In\").\n"
-#| "                The provider of this service is GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107,\n"
-#| "                USA.\n"
-#| "            "
 msgid ""
 "\n"
 "                You can also log in or create an account using your GitHub account (\"GitHub Sign-In\").\n"
@@ -2653,12 +2574,6 @@ msgstr ""
 "Anbieter dieses Dienstes ist GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA."
 
 #: templates/legal/privacy_policy.html:145
-#| msgid ""
-#| "\n"
-#| "                We receive from GitHub your username, email address and a unique GitHub user ID. This data is used\n"
-#| "                solely to\n"
-#| "                create and manage your user account on MentoroAI and to authenticate you when you log in.\n"
-#| "            "
 msgid ""
 "\n"
 "                We receive from GitHub your username, email address and a unique GitHub user ID.\n"
@@ -2670,12 +2585,6 @@ msgstr ""
 "Diese Daten werden ausschließlich dazu verwendet, Ihr Benutzerkonto bei MentoroAI zu erstellen und zu verwalten und Sie bei der Anmeldung zu authentifizieren."
 
 #: templates/legal/privacy_policy.html:164
-#| msgid ""
-#| "\n"
-#| "                We store the data received from GitHub as long as your account exists. If you delete your account, this\n"
-#| "                data\n"
-#| "                will be deleted unless statutory retention periods require longer storage.\n"
-#| "            "
 msgid ""
 "\n"
 "                We store the data received from GitHub as long as your account exists. If you delete your account,\n"
@@ -2687,11 +2596,6 @@ msgstr ""
 "werden diese Daten gelöscht, sofern keine gesetzlichen Aufbewahrungsfristen eine längere Speicherung erfordern."
 
 #: templates/legal/privacy_policy.html:171
-#| msgid ""
-#| "\n"
-#| "                GitHub Inc. is located in the United States. Data may therefore be transferred to servers outside the\n"
-#| "                EU.\n"
-#| "            "
 msgid ""
 "\n"
 "                GitHub Inc. is located in the United States. Data may therefore be transferred to servers outside the EU.\n"
@@ -3275,8 +3179,8 @@ msgstr ""
 #: templates/partials/features_open.html:31
 msgid "Per-object review checklist and required approvals before publishing."
 msgstr ""
-"Checkliste für die Überprüfung pro Objekt und erforderliche Genehmigungen "
-"vor der Veröffentlichung."
+"Checkliste für die Reviews pro Objekt und erforderliche Genehmigungen vor "
+"der Veröffentlichung."
 
 #: templates/partials/features_open.html:32
 msgid "Versioning & change log for all content (diffs, rollbacks)."
@@ -3498,48 +3402,6 @@ msgstr "Praktische Anwendungsbeispiele für KI in Ihrem Alltag und Beruf."
 msgid "No published use cases found."
 msgstr "Keine veröffentlichten Anwendungsfälle gefunden."
 
-#: usecases/admin.py:89
-msgid "Auto: Change in the admin form (usecase)"
-msgstr "Auto: Änderung im Admin-Formular (usecase)"
-
-#: usecases/admin.py:95
-msgid "Usecase was automatically set to \"Review\" due to changes."
-msgstr ""
-"Usecase wurde aufgrund von Änderungen automatisch auf \"Überprüfen\" "
-"gesetzt."
-
-#: usecases/admin.py:133
-msgid "Submit for review"
-msgstr "Einreichen zur Überprüfung"
-
-#: usecases/admin.py:151
-#, python-format
-msgid "%d item(s) moved to review."
-msgstr "%d Elemente zu Entwurf geändert."
-
-#: usecases/admin.py:174
-#, python-format
-msgid "%d item(s) moved to rework."
-msgstr "%d Elemente zu Nacharbeit geändert."
-
-#: usecases/admin.py:206
-msgid "Archive"
-msgstr "Archiv"
-
-#: usecases/admin.py:221
-#, python-format
-msgid "%d item(s) archived."
-msgstr "%d Artikel archiviert."
-
-#: usecases/admin.py:226
-msgid "Restore to draft"
-msgstr "Zurücksetzen auf Entwurf"
-
-#: usecases/admin.py:241
-#, python-format
-msgid "%d item(s) restored to draft."
-msgstr "%d Elemente auf Entwurf zurückgesetzt."
-
 #: usecases/models.py:26
 msgid "Persona"
 msgstr "Persona"
@@ -3555,6 +3417,116 @@ msgid ""
 msgstr ""
 "Praktische KI-Use-Cases mit verständlichen Beispielen, Vorteilen und "
 "Vorgehensweisen für Business, Recherche und kreative Anwendungen."
+
+#~ msgid "Meine Entwürfe & Reviews"
+#~ msgstr "Meine Entwürfe & Reviews"
+
+#~ msgid ""
+#~ "Zum Review\n"
+#~ "                                    einreichen"
+#~ msgstr "Zum Review einreichen"
+
+#~ msgid "Keine Einträge"
+#~ msgstr "Keine Einträge"
+
+#~ msgid ""
+#~ "\n"
+#~ "                                        No posts in review process\n"
+#~ "                                    "
+#~ msgstr ""
+#~ "\n"
+#~ " Keine Beiträge im Review-Prozess"
+
+#~ msgid "Beitrag zum Review einreichen"
+#~ msgstr "Beitrag zum Review einreichen"
+
+#~ msgid "Publish selected Comparison(s)"
+#~ msgstr "Ausgewählte Vergleiche veröffentlichen"
+
+#, python-format
+#~ msgid "%(n)d comparison(s) published."
+#~ msgstr "%(n)d Vergleich(e) veröffentlicht."
+
+#~ msgid "Unpublish (revert to draft)"
+#~ msgstr "Unveröffentlichen (zum Entwurf zurück)"
+
+#, python-format
+#~ msgid "%(n)d comparison(s) reverted to draft."
+#~ msgstr "%(n)d Vergleich(e) auf Entwurf zurückgesetzt"
+
+#~ msgid "Mark as published"
+#~ msgstr "Veröffentlichen"
+
+#~ msgid "Mark as Draft"
+#~ msgstr "Als Entwurf markieren"
+
+#~ msgid "Auto: Change to GuideSection (Inline)"
+#~ msgstr "Auto: Änderung an GuideSection (Inline)"
+
+#~ msgid "Archiving (Soft Delete)"
+#~ msgstr "Archivierung (Soft Delete)"
+
+#, python-format
+#~ msgid "%(n)d Article(s) archived."
+#~ msgstr "%(n)d Artikel archiviert."
+
+#~ msgid "Prompt was automatically set to \"Review\" due to changes."
+#~ msgstr ""
+#~ "Prompt wurde aufgrund von Änderungen automatisch auf \"Überprüfen\" gesetzt."
+
+#~ msgid "Submit for Review"
+#~ msgstr "Einreichen zur Überprüfung"
+
+#, python-format
+#~ msgid "%d Article(s) set for review."
+#~ msgstr "%d Elemente zur Überprüfung eingestellt."
+
+#~ msgid "Request rework"
+#~ msgstr "Nacharbeit anfordern"
+
+#, python-format
+#~ msgid "%d Article(s) set to rework."
+#~ msgstr "%d Elemente zu Nacharbeit geändert."
+
+#, python-format
+#~ msgid "%d Article(s) archived."
+#~ msgstr "%d Artikel archiviert."
+
+#~ msgid "Restore as draft"
+#~ msgstr "Wiederherstellen als Entwurf"
+
+#, python-format
+#~ msgid "%d items(s) restored to draft."
+#~ msgstr "%d Elemente auf Entwurf zurückgesetzt."
+
+#~ msgid "eMail or username"
+#~ msgstr "E-Mail oder Benutzername"
+
+#~ msgid "Auto: Change in the admin form (usecase)"
+#~ msgstr "Auto: Änderung im Admin-Formular (usecase)"
+
+#~ msgid "Usecase was automatically set to \"Review\" due to changes."
+#~ msgstr ""
+#~ "Usecase wurde aufgrund von Änderungen automatisch auf \"Überprüfen\" "
+#~ "gesetzt."
+
+#, python-format
+#~ msgid "%d item(s) moved to review."
+#~ msgstr "%d Elemente zu Entwurf geändert."
+
+#, python-format
+#~ msgid "%d item(s) moved to rework."
+#~ msgstr "%d Elemente zu Nacharbeit geändert."
+
+#~ msgid "Archive"
+#~ msgstr "Archiv"
+
+#~ msgid "Restore to draft"
+#~ msgstr "Zurücksetzen auf Entwurf"
+
+#, python-format
+#~ msgid "%d item(s) restored to draft."
+#~ msgstr "%d Elemente auf Entwurf zurückgesetzt."
 
 #~ msgid "Cookie-Settings"
 #~ msgstr "Cookie-Einstellungen"
@@ -3802,10 +3774,6 @@ msgstr ""
 #~ msgid "%d Article(s) published."
 #~ msgstr "%d Elemente veröffentlicht."
 
-#, python-format
-#~ msgid "%d item(s) published."
-#~ msgstr "%d Elemente veröffentlicht."
-
 #~ msgid "Quick introduction to AI tools & practice"
 #~ msgstr "Schnelle Einführung in KI-Tools und Praxis."
 
@@ -3868,10 +3836,6 @@ msgstr ""
 
 #~ msgid "Newsletter confirmation"
 #~ msgstr "Newsletterbestätigung"
-
-#, python-format
-#~ msgid "%d skipped: %s"
-#~ msgstr "%d übersprungen: %s"
 
 #, python-format
 #~ msgid "%d Skipped: Transition not possible (%s)."
