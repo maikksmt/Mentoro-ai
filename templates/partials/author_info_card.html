@@ -22,11 +22,11 @@
         </p>
         <div class="card-actions justify-center mt-4">
             {% if request.user.is_authenticated %}
-                {% if request.user|has_group:"author" or request.user|has_group:"editor" or request.user|has_group:"admin" %}
+                {% if request.user|has_group:"Author" or request.user|has_group:"Editor" or request.user|has_group:"Admin" %}
                     <h3 class="text-lg font-semibold mb-4">
-                        {% blocktrans %}Access your drafts and continue creating new content.{% endblocktrans %}
+                        {% blocktrans %}Access your Content and creating new content.{% endblocktrans %}
                     </h3>
-                    <a href="{% url 'content:editorial:my_drafts' %}" class="btn btn-primary btn-wide"
+                    <a href="{% url 'content:editorial:my_content' %}" class="btn btn-primary btn-wide"
                        aria-label="{% trans "Go to my editorial drafts " %}">{% blocktrans %}
                         My drafts{% endblocktrans %}</a>
                 {% else %}

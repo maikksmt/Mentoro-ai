@@ -8,10 +8,10 @@ from parler.models import TranslatableModel, TranslatedFields
 from parler.utils.context import switch_language
 
 from catalog.models import Category, Tool
-from core.models.editorial import EditorialMixin, EditorialWorkflowMixin
+from core.models.editorial import EditorialWorkflowMixin
 
 
-class Guide(EditorialMixin, TranslatableModel, EditorialWorkflowMixin):
+class Guide(EditorialWorkflowMixin, TranslatableModel):
     live_i18n = models.JSONField(default=dict, blank=True)
     LIVE_SNAPSHOT_FIELDS = ("slug", "public_slug", "title", "intro", "body")
     translations = TranslatedFields(

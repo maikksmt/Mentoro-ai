@@ -14,6 +14,25 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0-beta-5] – 2025-12-07
+
+### Added
+
+- User Signup enabled
+
+### Changed
+
+- update editorial backend
+- update editorial templates
+- update editorial groups permissions
+- centralize admin object permissions and setup permissions for objects and Roles
+
+### Fixed
+
+- fix and optimize SEO
+
+---
+
 ## [1.0.0-beta-4] – 2025-11-30
 
 ### Added

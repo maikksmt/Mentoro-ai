@@ -7,13 +7,10 @@ from parler.utils.context import switch_language
 from taggit.managers import TaggableManager
 
 from catalog.models import Tool
-from core.models.editorial import (
-    EditorialMixin,
-    EditorialWorkflowMixin,
-)
+from core.models.editorial import EditorialWorkflowMixin
 
 
-class Prompt(EditorialMixin, TranslatableModel, EditorialWorkflowMixin):
+class Prompt(EditorialWorkflowMixin, TranslatableModel):
     LIVE_SNAPSHOT_FIELDS = ("slug", "public_slug", "title", "intro", "body", "outro")
     live_i18n = models.JSONField(default=dict, blank=True)
     translations = TranslatedFields(

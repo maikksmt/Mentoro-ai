@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load admin_change_url %}
+{% load i18n %}
+{% block seo_title %}<title>{{ seo_title }} – MentoroAI</title>{% endblock %}
+
+
+{% block content %}
+    <div class="container mx-auto">
+        <h1 class="text-2xl font-bold">{% blocktrans %}My Content{% endblocktrans %}</h1>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>{% trans "Typ" %}</th>
+                <th>{% trans "Titel" %}</th>
+                <th>{% trans "Status" %}</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for key, it in items %}
+                <tr>
+                    <td class="capitalize">{{ key }}</td>
+                    <td>
+                        <a href="{% admin_change_url it %}" target="_blank" class="link"> {{ it.title }} </a>
+
+                    </td>
+                    <td>{{ it.status }}</td>
+                    <td class="text-right flex gap-2 justify-end">
+
+                        {# Draft/Rework/Approved → Review #}
+                        {% if it.status != "review" and it.status != "archived" %}
+                            <form method="post" action="{% url 'content:editorial:submit_to_review' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="model" value="{{ key }}">
+                                <input type="hidden" name="object_id" value="{{ it.pk }}">
+                                {% if it.status == "draft" %}
+                                    <button class="btn btn-sm btn-primary">{% trans "Submit for review" %}</button>
+                                {% elif it.status == "approved" or it.status == "published" %}
+                                    <button class="btn btn-sm btn-warning">{% trans "Back to review" %}</button>
+                                {% endif %}
+                            </form>
+                        {% endif %}
+
+                        {# Approved → Published (Publish) #}
+                        {% if it.status == "approved" %}
+                            <form method="post" action="{% url 'content:editorial:my_content_update' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="model" value="{{ key }}">
+                                <input type="hidden" name="object_id" value="{{ it.pk }}">
+                                <input type="hidden" name="status" value="published">
+                                <button class="btn btn-sm btn-primary">{% trans "Publish" %}</button>
+                            </form>
+                        {% endif %}
+
+                        {# Published → Archived #}
+                        {% if it.status == "published" %}
+                            <form method="post" action="{% url 'content:editorial:my_content_update' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="model" value="{{ key }}">
+                                <input type="hidden" name="object_id" value="{{ it.pk }}">
+                                <input type="hidden" name="status" value="archived">
+                                <button class="btn btn-sm btn-ghost">{% trans "Archive" %}</button>
+                            </form>
+                        {% endif %}
+
+                        {# Archived → Draft (Restore) #}
+                        {% if it.status == "archived" %}
+                            <form method="post" action="{% url 'content:editorial:my_content_update' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="model" value="{{ key }}">
+                                <input type="hidden" name="object_id" value="{{ it.pk }}">
+                                <input type="hidden" name="status" value="draft">
+                                <button class="btn btn-sm">{% trans "Restore" %}</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="opacity-70">{% blocktrans %}No entries{% endblocktrans %}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

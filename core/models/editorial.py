@@ -72,29 +72,8 @@ class PublishedOnlyManager(EditorialManager):
         return qs
 
 
-# -------- Basemixin --------
+# -------- Editorial Workflow Mixin --------
 
-class EditorialMixin(models.Model):
-    """
-    Abstract base with common editorial fields (author/reviewer, timestamps) shared by content models;
-    keeps audit info consistent.
-    """
-    author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="%(class)s_author",
-        on_delete=models.SET_NULL, null=True, blank=True
-    )
-    created_at = models.DateTimeField(default=timezone.now, editable=False)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_published = models.BooleanField(default=False)
-    published_at = models.DateTimeField(null=True, blank=True)
-    objects = EditorialManager()
-    published = PublishedOnlyManager()
-
-    class Meta:
-        abstract = True
-
-
-# -------- Workflow --------
 
 class EditorialWorkflowMixin(models.Model):
     """
@@ -119,6 +98,16 @@ class EditorialWorkflowMixin(models.Model):
     ]
     LIVE_SNAPSHOT_FIELDS = ("slug", "public_slug", "title")
     status = FSMField(default=STATUS_DRAFT, choices=STATUS_CHOICES, protected=True)
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="%(class)s_author",
+        on_delete=models.SET_NULL, null=True, blank=True
+    )
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
+    objects = EditorialManager()
+    published = PublishedOnlyManager()
     submitted_for_review_at = models.DateTimeField(null=True, blank=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
     reviewed_by = models.ForeignKey(
@@ -126,6 +115,9 @@ class EditorialWorkflowMixin(models.Model):
     )
     review_note = models.TextField(blank=True)
     last_published_revision_id = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        abstract = True
 
     def _update_live_snapshot(self) -> None:
         if not hasattr(self, "live_i18n"):
@@ -150,9 +142,6 @@ class EditorialWorkflowMixin(models.Model):
             self.save(update_fields=["live_i18n"])
         except Exception:
             pass
-
-    class Meta:
-        abstract = True
 
     # --- Transitions ---
 

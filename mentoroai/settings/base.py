@@ -375,7 +375,7 @@ SOCIALACCOUNT_PROVIDERS = {
     "google": {"VERIFIED_EMAIL": True},
     "github": {"VERIFIED_EMAIL": True, "EMAIL_REQUIRED": True},
 }
-ACCOUNT_SIGNUP_ENABLED = False
+ACCOUNT_SIGNUP_ENABLED = True
 ACCOUNT_ADAPTER = "accounts.adapters.ToggleSignupAccountAdapter"
 
 # Editorial
