@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-03 22:22+0100\n"
+"POT-Creation-Date: 2025-12-04 23:18+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,13 +54,13 @@ msgid "Pricing & Highlight"
 msgstr ""
 
 #: catalog/admin.py:194 compare/admin.py:33 guides/admin.py:68
-#: prompts/admin.py:49 usecases/admin.py:49
+#: prompts/admin.py:41 usecases/admin.py:41
 msgid "Meta"
 msgstr ""
 
-#: catalog/models.py:15 catalog/models.py:45 compare/models.py:20
-#: glossary/models.py:11 guides/models.py:21 prompts/models.py:24
-#: usecases/models.py:24
+#: catalog/models.py:15 catalog/models.py:45 compare/models.py:16
+#: glossary/models.py:11 guides/models.py:21 prompts/models.py:21
+#: usecases/models.py:20
 msgid "Slug"
 msgstr ""
 
@@ -166,18 +166,18 @@ msgid ""
 "This AI tool offers features and use cases that are briefly explained below. "
 msgstr ""
 
-#: compare/admin.py:36 guides/admin.py:85 prompts/admin.py:63
-#: usecases/admin.py:62
+#: compare/admin.py:36 guides/admin.py:85 prompts/admin.py:55
+#: usecases/admin.py:54
 msgid "Routing"
 msgstr ""
 
-#: compare/admin.py:39 guides/admin.py:88 prompts/admin.py:66
-#: usecases/admin.py:65
+#: compare/admin.py:39 guides/admin.py:88 prompts/admin.py:58
+#: usecases/admin.py:57
 msgid "Content (translated)"
 msgstr ""
 
-#: compare/admin.py:42 guides/admin.py:90 prompts/admin.py:68
-#: usecases/admin.py:68
+#: compare/admin.py:42 guides/admin.py:90 prompts/admin.py:60
+#: usecases/admin.py:60
 msgid "These fields are language-specific. Use the language tabs above."
 msgstr ""
 
@@ -189,24 +189,24 @@ msgstr ""
 msgid "Scoring"
 msgstr ""
 
-#: compare/admin.py:59 compare/admin.py:63 compare/models.py:18
+#: compare/admin.py:59 compare/admin.py:63 compare/models.py:14
 #: guides/admin.py:127 guides/admin.py:135 guides/models.py:18
-#: guides/models.py:123 guides/models.py:197 prompts/admin.py:89
-#: prompts/models.py:20 templates/content/editorial/review_queue.html:17
-#: templates/ops/seo_check.html:41 usecases/admin.py:83 usecases/models.py:20
+#: guides/models.py:123 guides/models.py:197 prompts/admin.py:81
+#: prompts/models.py:17 templates/content/editorial/review_queue.html:14
+#: templates/ops/seo_check.html:41 usecases/admin.py:75 usecases/models.py:16
 msgid "Title"
 msgstr ""
 
-#: compare/models.py:19 guides/models.py:19 prompts/models.py:21
-#: usecases/models.py:21
+#: compare/models.py:15 guides/models.py:19 prompts/models.py:18
+#: usecases/models.py:17
 msgid "Intro"
 msgstr ""
 
-#: compare/models.py:31 templates/partials/_guideitem_card.html:15
+#: compare/models.py:25 templates/partials/_guideitem_card.html:15
 msgid "Comparison"
 msgstr ""
 
-#: compare/models.py:32 compare/views.py:74 compare/views.py:194
+#: compare/models.py:26 compare/views.py:74 compare/views.py:194
 #: compare/views.py:232 compare/views.py:263 compare/views.py:266
 #: templates/base.html:88 templates/base.html:112
 #: templates/content/what-to-find.html:36
@@ -214,7 +214,7 @@ msgstr ""
 msgid "Comparisons"
 msgstr ""
 
-#: compare/models.py:55
+#: compare/models.py:49
 msgid "At least one tool is required if a score breakdown is provided."
 msgstr ""
 
@@ -242,45 +242,41 @@ msgstr ""
 msgid "Discover side-by-side tool comparisons."
 msgstr ""
 
-#: content/views/editorial.py:55
-msgid "Editorial – My Drafts."
+#: content/views/editorial.py:72
+msgid "My Content - Guides, Prompts, Usecases, Comparisons"
 msgstr ""
 
-#: content/views/editorial.py:56
-msgid "Internal editorial area."
+#: content/views/editorial.py:86 content/views/editorial.py:124
+#: content/views/editorial.py:187
+msgid "Invalid request."
 msgstr ""
 
-#: content/views/editorial.py:71
-msgid "Only the author can submit the article."
+#: content/views/editorial.py:95 content/views/editorial.py:136
+#: content/views/editorial.py:199
+msgid "Unknown/unsupported target status."
 msgstr ""
 
-#: content/views/editorial.py:79
-msgid "Submitted for review."
+#: content/views/editorial.py:98
+msgid "You are not allowed to submit this item for review."
 msgstr ""
 
-#: content/views/editorial.py:87
-msgid "Editorial – Submit for Review."
+#: content/views/editorial.py:101 content/views/editorial.py:144
+#: content/views/editorial.py:207
+msgid "Transition not available on this object."
 msgstr ""
 
-#: content/views/editorial.py:88 content/views/editorial.py:113
-#: content/views/editorial.py:151
-msgid "Internal editorial area"
+#: content/views/editorial.py:104 content/views/editorial.py:149
+#: content/views/editorial.py:210
+msgid "Transition not allowed from current state."
 msgstr ""
 
-#: content/views/editorial.py:112
-msgid "Editorial – Review Queue"
+#: content/views/editorial.py:109 content/views/editorial.py:155
+#: content/views/editorial.py:215
+msgid "Status updated."
 msgstr ""
 
-#: content/views/editorial.py:142
-msgid "Post updated."
-msgstr ""
-
-#: content/views/editorial.py:150
-msgid "Editorial – Review."
-msgstr ""
-
-#: content/views/editorial.py:164
-msgid "You are now registered as an author. Good luck with your writing!"
+#: content/views/editorial.py:140 content/views/editorial.py:203
+msgid "You are not allowed to perform this transition."
 msgstr ""
 
 #: content/views/home.py:47
@@ -297,97 +293,97 @@ msgstr ""
 msgid "Auto: Change in the admin form"
 msgstr ""
 
-#: core/admin.py:265
+#: core/admin.py:261
 msgid "Auto: Change to inline content"
 msgstr ""
 
-#: core/admin.py:326
+#: core/admin.py:322
 msgid "Send to review"
 msgstr ""
 
-#: core/admin.py:337 core/admin.py:426 core/admin.py:475
+#: core/admin.py:333 core/admin.py:422 core/admin.py:471
 msgid "permission denied"
 msgstr ""
 
-#: core/admin.py:355
+#: core/admin.py:351
 msgid "Transition 'move_to_review' not executable"
 msgstr ""
 
-#: core/admin.py:361
+#: core/admin.py:357
 #, python-format
 msgid "%(n)d item(s) → Review."
 msgstr ""
 
-#: core/admin.py:368 core/admin.py:460 core/admin.py:513
+#: core/admin.py:364 core/admin.py:456 core/admin.py:509
 #, python-format
 msgid "%(n)d skipped: %(detail)s"
 msgstr ""
 
-#: core/admin.py:372
+#: core/admin.py:368
 msgid "Request changes (→ Rework)"
 msgstr ""
 
-#: core/admin.py:382 core/admin.py:527 core/admin.py:567
+#: core/admin.py:378 core/admin.py:523 core/admin.py:563
 msgid "You are not authorized to perform this action."
 msgstr ""
 
-#: core/admin.py:387
+#: core/admin.py:383
 msgid "Transition 'request_rework' not executable"
 msgstr ""
 
-#: core/admin.py:409
+#: core/admin.py:405
 #, python-format
 msgid "%(n)d item(s) → Rework."
 msgstr ""
 
-#: core/admin.py:413
+#: core/admin.py:409
 msgid "Approve (Review → Approved)"
 msgstr ""
 
-#: core/admin.py:431
+#: core/admin.py:427
 msgid "transition 'approve' not executable"
 msgstr ""
 
-#: core/admin.py:452
+#: core/admin.py:448
 #, python-format
 msgid "%(n)d item(s) approved."
 msgstr ""
 
-#: core/admin.py:464
+#: core/admin.py:460
 msgid "Publish selected item(s)"
 msgstr ""
 
-#: core/admin.py:500
+#: core/admin.py:496
 msgid "Transition 'publish' not executable"
 msgstr ""
 
-#: core/admin.py:506
+#: core/admin.py:502
 #, python-format
 msgid "%(n)d item(s) published."
 msgstr ""
 
-#: core/admin.py:517
+#: core/admin.py:513
 msgid "Archive (Soft Delete)"
 msgstr ""
 
-#: core/admin.py:535
+#: core/admin.py:531
 msgid "Transition 'archive' not executable"
 msgstr ""
 
-#: core/admin.py:553
+#: core/admin.py:549
 #, python-format
 msgid "%(n)d item(s) archived."
 msgstr ""
 
-#: core/admin.py:557
+#: core/admin.py:553
 msgid "Restore (→ Draft)"
 msgstr ""
 
-#: core/admin.py:575
+#: core/admin.py:571
 msgid "Transition 'restore' not executable"
 msgstr ""
 
-#: core/admin.py:593
+#: core/admin.py:589
 #, python-format
 msgid "%(n)d item(s) restored (draft)."
 msgstr ""
@@ -443,12 +439,12 @@ msgid ""
 "within modern AI systems. "
 msgstr ""
 
-#: guides/models.py:20 guides/models.py:124 prompts/models.py:22
-#: usecases/models.py:22
+#: guides/models.py:20 guides/models.py:124 prompts/models.py:19
+#: usecases/models.py:18
 msgid "Body"
 msgstr ""
 
-#: guides/models.py:22 prompts/models.py:25 usecases/models.py:25
+#: guides/models.py:22 prompts/models.py:22 usecases/models.py:21
 msgid "Public slug"
 msgstr ""
 
@@ -514,7 +510,7 @@ msgstr ""
 msgid "Reason (optional)"
 msgstr ""
 
-#: newsletter/views.py:20 templates/base.html:195
+#: newsletter/views.py:20 templates/base.html:194
 msgid "Newsletter"
 msgstr ""
 
@@ -552,26 +548,26 @@ msgstr ""
 msgid "You have been unsubscribed."
 msgstr ""
 
-#: prompts/admin.py:70 usecases/admin.py:71
+#: prompts/admin.py:62 usecases/admin.py:63
 msgid "Internals"
 msgstr ""
 
-#: prompts/models.py:23 usecases/models.py:23
+#: prompts/models.py:20 usecases/models.py:19
 msgid "Outro"
 msgstr ""
 
-#: prompts/models.py:28
+#: prompts/models.py:25
 msgid "Select the AI tool for which this prompt has been optimized."
 msgstr ""
 
-#: prompts/models.py:32 prompts/views.py:137
+#: prompts/models.py:29 prompts/views.py:137
 #: templates/partials/_guideitem_card.html:9
 #: templates/partials/_teaser_card.html:9
 #: templates/prompts/prompt_detail.html:22
 msgid "Prompt"
 msgstr ""
 
-#: prompts/models.py:33 prompts/views.py:69 prompts/views.py:136
+#: prompts/models.py:30 prompts/views.py:69 prompts/views.py:136
 #: templates/base.html:79 templates/base.html:103
 #: templates/content/home.html:97 templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
@@ -1214,31 +1210,31 @@ msgstr ""
 msgid "Admin Panel"
 msgstr ""
 
-#: templates/base.html:175 templates/partials/editorial_nav.html:9
-msgid "Drafts"
+#: templates/base.html:175 templates/content/editorial/my_content.html:9
+msgid "My Content"
 msgstr ""
 
-#: templates/base.html:178 templates/partials/editorial_nav.html:13
+#: templates/base.html:178
 msgid "Reviews"
 msgstr ""
 
-#: templates/base.html:197 templates/partials/_entry_cards.html:5
+#: templates/base.html:196 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
 msgstr ""
 
-#: templates/base.html:198
+#: templates/base.html:197
 msgid "Legal notice"
 msgstr ""
 
-#: templates/base.html:199
+#: templates/base.html:198
 msgid "Privacy policy"
 msgstr ""
 
-#: templates/base.html:202 templates/legal/terms_of_use.html:10
+#: templates/base.html:201 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr ""
 
-#: templates/base.html:203
+#: templates/base.html:202
 msgid "Copyright"
 msgstr ""
 
@@ -1456,79 +1452,76 @@ msgid ""
 "that helpful comparisons of AI tools will be available soon."
 msgstr ""
 
-#: templates/content/editorial/my_drafts.html:8
-msgid "My drafts & reviews"
-msgstr ""
-
-#: templates/content/editorial/my_drafts.html:16
+#: templates/content/editorial/my_content.html:13
 msgid "Typ"
 msgstr ""
 
-#: templates/content/editorial/my_drafts.html:17
+#: templates/content/editorial/my_content.html:14
 msgid "Titel"
 msgstr ""
 
-#: templates/content/editorial/my_drafts.html:18
-#: templates/content/editorial/review_update.html:20
+#: templates/content/editorial/my_content.html:15
 #: templates/ops/seo_check.html:40
 msgid "Status"
 msgstr ""
 
-#: templates/content/editorial/my_drafts.html:34
-#: templates/content/editorial/submit_to_review.html:9
+#: templates/content/editorial/my_content.html:37
 msgid "Submit for review"
 msgstr ""
 
-#: templates/content/editorial/my_drafts.html:42
-msgid "No entries"
+#: templates/content/editorial/my_content.html:39
+#: templates/content/editorial/review_queue.html:39
+#: templates/content/editorial/review_queue.html:42
+msgid "Back to review"
 msgstr ""
 
-#: templates/content/editorial/review_queue.html:9
-msgid "Review Queue"
-msgstr ""
-
-#: templates/content/editorial/review_queue.html:18
-msgid "Author"
-msgstr ""
-
-#: templates/content/editorial/review_queue.html:37
+#: templates/content/editorial/my_content.html:51
+#: templates/content/editorial/review_queue.html:38
 msgid "Publish"
 msgstr ""
 
-#: templates/content/editorial/review_queue.html:38
-msgid "Draft"
+#: templates/content/editorial/my_content.html:62
+#: templates/content/editorial/review_queue.html:36
+#: templates/content/editorial/review_queue.html:40
+#: templates/content/editorial/review_queue.html:43
+#: templates/content/editorial/review_queue.html:48
+msgid "Archive"
 msgstr ""
 
-#: templates/content/editorial/review_queue.html:40
+#: templates/content/editorial/my_content.html:73
+msgid "Restore"
+msgstr ""
+
+#: templates/content/editorial/my_content.html:80
+msgid "No entries"
+msgstr ""
+
+#: templates/content/editorial/review_queue.html:6
+msgid "Review Queue"
+msgstr ""
+
+#: templates/content/editorial/review_queue.html:15
+msgid "Author"
+msgstr ""
+
+#: templates/content/editorial/review_queue.html:34
+msgid "Approve"
+msgstr ""
+
+#: templates/content/editorial/review_queue.html:35
+msgid "Request rework"
+msgstr ""
+
+#: templates/content/editorial/review_queue.html:45
+msgid "Restore to draft"
+msgstr ""
+
+#: templates/content/editorial/review_queue.html:51
 msgid "Apply changes"
 msgstr ""
 
-#: templates/content/editorial/review_queue.html:47
+#: templates/content/editorial/review_queue.html:58
 msgid "No posts in review process"
-msgstr ""
-
-#: templates/content/editorial/review_update.html:7
-msgid "Change status"
-msgstr ""
-
-#: templates/content/editorial/review_update.html:12
-msgid "Type"
-msgstr ""
-
-#: templates/content/editorial/review_update.html:16
-msgid "Object ID"
-msgstr ""
-
-#: templates/content/editorial/review_update.html:24
-msgid "Save"
-msgstr ""
-
-#: templates/content/editorial/submit_to_review.html:18
-msgid "Objekt-ID"
-msgstr ""
-
-#: templates/content/editorial/submit_to_review.html:22
-msgid "Einreichen"
 msgstr ""
 
 #: templates/content/home.html:12
@@ -1568,7 +1561,7 @@ msgid "Current content"
 msgstr ""
 
 #: templates/content/home.html:98 templates/usecases/list.html:8
-#: usecases/models.py:35 usecases/views.py:68 usecases/views.py:132
+#: usecases/models.py:29 usecases/views.py:68 usecases/views.py:132
 msgid "Usecases"
 msgstr ""
 
@@ -2837,7 +2830,7 @@ msgid "To the comparisons"
 msgstr ""
 
 #: templates/partials/_guideitem_card.html:11
-#: templates/partials/_teaser_card.html:11 usecases/models.py:34
+#: templates/partials/_teaser_card.html:11 usecases/models.py:28
 #: usecases/views.py:133
 msgid "Usecase"
 msgstr ""
@@ -2888,7 +2881,7 @@ msgid ""
 msgstr ""
 
 #: templates/partials/author_info_card.html:27
-msgid "Access your drafts and continue creating new content."
+msgid "Access your Content and creating new content."
 msgstr ""
 
 #: templates/partials/author_info_card.html:30
@@ -2945,14 +2938,6 @@ msgstr ""
 
 #: templates/partials/copy_block.html:18
 msgid "Copy text block"
-msgstr ""
-
-#: templates/partials/editorial_nav.html:9
-msgid "Go to my editorial drafts"
-msgstr ""
-
-#: templates/partials/editorial_nav.html:13
-msgid "Go to editorial review queue"
 msgstr ""
 
 #: templates/partials/features_open.html:5
@@ -3195,7 +3180,7 @@ msgstr ""
 msgid "No published use cases found."
 msgstr ""
 
-#: usecases/models.py:26
+#: usecases/models.py:22
 msgid "Persona"
 msgstr ""
 

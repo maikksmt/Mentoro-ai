@@ -13,8 +13,6 @@ def require_group(*group_names):
                 raise PermissionDenied
             if u.is_superuser:
                 return view_func(request, *args, **kwargs)
-            if u.is_staff:
-                return view_func(request, *args, **kwargs)
             if group_names:
                 if u.groups.filter(name__in=group_names).exists():
                     return view_func(request, *args, **kwargs)

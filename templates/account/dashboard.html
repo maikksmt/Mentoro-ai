@@ -40,7 +40,6 @@
                         </span>
                     </div>
                 </div>
-
                 <div class="text-sm">
                     <div class="font-medium">
                         {{ user.get_full_name|default:user.get_username }}
@@ -49,19 +48,15 @@
                         {{ user.email }}
                     </div>
                 </div>
-
             </div>
-
         </div>
         <div class="grid gap-4 md:grid-cols-2">
-
             {# Account overview #}
             <div class="card bg-base-100 shadow-sm">
                 <div class="card-body space-y-3">
                     <h2 class="card-title text-base">
                         {% trans "Account overview" %}
                     </h2>
-
                     <dl class="text-sm space-y-1">
                         <div class="flex justify-between gap-4">
                             <dt class="opacity-70">{% trans "E-mail" %}</dt>
@@ -82,17 +77,13 @@
                             </dd>
                         </div>
                     </dl>
-
                     <div class="divider my-1"></div>
-
                     {# Name für Autor:innen-Profil bearbeiten #}
                     <form method="post" action="{% url 'account_dashboard' %}" class="space-y-2">
                         {% csrf_token %}
-
                         <p class="text-xs opacity-70">
                             {% trans "This name can be shown as the author name on your published content." %}
                         </p>
-
                         <div class="form-control">
                             <label class="label">
                                 <span class="label-text">{% trans "First name" %}</span>
@@ -106,7 +97,6 @@
                                 </label>
                             {% endif %}
                         </div>
-
                         <div class="form-control">
                             <label class="label">
                                 <span class="label-text">{% trans "Last name" %}</span>
@@ -120,7 +110,6 @@
                                 </label>
                             {% endif %}
                         </div>
-
                         <div class="card-actions justify-end pt-2">
                             <button type="submit" class="btn btn-primary btn-sm">
                                 {% heroicon_outline "user" class="w-4 h-4 mr-1" %}
@@ -130,19 +119,15 @@
                     </form>
                 </div>
             </div>
-
-
             {# Security: password / reauth #}
             <div class="card bg-base-100 shadow-sm">
                 <div class="card-body space-y-3">
                     <h2 class="card-title text-base">
                         {% trans "Security" %}
                     </h2>
-
                     <p class="text-sm opacity-70">
                         {% trans "Update your password and keep your account secure." %}
                     </p>
-
                     <div class="space-y-2 text-sm">
                         {% if user.has_usable_password %}
                             <div class="flex justify-between items-center gap-4">

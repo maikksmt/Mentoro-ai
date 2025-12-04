@@ -206,10 +206,6 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
 
-        base = super().has_change_permission(request, obj)
-        if not base:
-            return False
-
         if obj is None:
             return True
 
