@@ -36,7 +36,7 @@
                                 {% if it.status == "draft" %}
                                     <button class="btn btn-sm btn-primary">{% trans "Submit for review" %}</button>
                                 {% elif it.status == "approved" or it.status == "published" %}
-                                    <button class="btn btn-sm btn-warning">{% trans "Back to review" %}</button>
+                                    <button class="btn btn-sm btn-warning">{% trans "Roll-Back to review" %}</button>
                                 {% endif %}
                             </form>
                         {% endif %}
@@ -59,7 +59,7 @@
                                 <input type="hidden" name="model" value="{{ key }}">
                                 <input type="hidden" name="object_id" value="{{ it.pk }}">
                                 <input type="hidden" name="status" value="archived">
-                                <button class="btn btn-sm btn-ghost">{% trans "Archive" %}</button>
+                                <button class="btn btn-sm btn-error">{% trans "Archive" %}</button>
                             </form>
                         {% endif %}
 
@@ -70,7 +70,7 @@
                                 <input type="hidden" name="model" value="{{ key }}">
                                 <input type="hidden" name="object_id" value="{{ it.pk }}">
                                 <input type="hidden" name="status" value="draft">
-                                <button class="btn btn-sm">{% trans "Restore" %}</button>
+                                <button class="btn btn-sm btn-info">{% trans "Restore" %}</button>
                             </form>
                         {% endif %}
                     </td>
