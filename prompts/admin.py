@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils.formats import date_format
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, get_language, get_language_info
 from parler.utils.context import switch_language
 from reversion.admin import VersionAdmin
@@ -64,6 +65,28 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
             "fields": ("live_i18n",),
         }),
     )
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = list(super().get_readonly_fields(request, obj))
+
+        can_edit = self.has_change_permission(request, obj)
+
+        if not can_edit:
+            fields += ["intro", "body", "outro"]
+
+        return fields
+
+    def intro(self, obj):
+        value = obj.safe_translation_getter("intro", any_language=True)
+        return mark_safe(value or "")
+
+    def body(self, obj):
+        value = obj.safe_translation_getter("body", any_language=True)
+        return mark_safe(value or "")
+    
+    def outro(self, obj):
+        value = obj.safe_translation_getter("outro", any_language=True)
+        return mark_safe(value or "")
 
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("title",)}

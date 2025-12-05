@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from reversion.admin import VersionAdmin
 
@@ -52,6 +53,20 @@ class ComparisonAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Ver
 
     readonly_fields = ("updated_at",)
     filter_horizontal = ("tools",)
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = list(super().get_readonly_fields(request, obj))
+
+        can_edit = self.has_change_permission(request, obj)
+
+        if not can_edit:
+            fields += ["intro"]
+
+        return fields
+
+    def intro(self, obj):
+        value = obj.safe_translation_getter("intro", any_language=True)
+        return mark_safe(value or "")
 
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("title",)}
