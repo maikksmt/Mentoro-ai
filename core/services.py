@@ -24,14 +24,12 @@ def get_latest_items(limit: int = 6, mix: Tuple[int, int, int] = (3, 2, 1)) -> L
     """
     g_need, p_need, u_need = mix
 
-    # Base-Querysets – robust sortiert
     g_qs: QuerySet = _safe_order_by_published(Guide.published)
     p_qs: QuerySet = _safe_order_by_published(Prompt.published)
     u_qs: QuerySet = _safe_order_by_published(UseCase.published)
 
     items: List[Dict[str, Any]] = []
 
-    # Primärbedarf decken
     g_pick = list(g_qs[:g_need])
     p_pick = list(p_qs[:p_need])
     u_pick = list(u_qs[:u_need])
@@ -43,7 +41,6 @@ def get_latest_items(limit: int = 6, mix: Tuple[int, int, int] = (3, 2, 1)) -> L
     # Fill remaining slots with the most recent leftover items (all types together)
     deficit = max(0, limit - len(items))
     if deficit:
-        # IDs ausschließen, die schon drin sind
         taken_ids = {
             *[("guide", g.pk) for g in g_pick],
             *[("prompt", p.pk) for p in p_pick],

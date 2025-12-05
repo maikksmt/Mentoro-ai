@@ -6,14 +6,10 @@ from parler.models import TranslatableModel, TranslatedFields
 from parler.utils.context import switch_language
 
 from catalog.models import Tool
-from core.models.editorial import (
-    EditorialMixin,
-    EditorialManager,
-    PublishedOnlyManager, EditorialWorkflowMixin,
-)
+from core.models.editorial import EditorialWorkflowMixin
 
 
-class Comparison(EditorialMixin, TranslatableModel, EditorialWorkflowMixin):
+class Comparison(EditorialWorkflowMixin, TranslatableModel):
     translations = TranslatedFields(
         title=models.CharField(_("Title"), max_length=200),
         intro=models.TextField(_("Intro"), blank=True),
@@ -24,8 +20,6 @@ class Comparison(EditorialMixin, TranslatableModel, EditorialWorkflowMixin):
     winner = models.ForeignKey(
         Tool, on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
     )
-    objects = EditorialManager()
-    published = PublishedOnlyManager()
 
     class Meta:
         verbose_name = _("Comparison")

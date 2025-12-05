@@ -6,14 +6,10 @@ from parler.models import TranslatableModel, TranslatedFields
 from parler.utils.context import switch_language
 
 from catalog.models import Tool
-from core.models.editorial import (
-    EditorialMixin,
-    EditorialManager,
-    PublishedOnlyManager, EditorialWorkflowMixin,
-)
+from core.models.editorial import EditorialWorkflowMixin
 
 
-class UseCase(EditorialMixin, TranslatableModel, EditorialWorkflowMixin):
+class UseCase(EditorialWorkflowMixin, TranslatableModel):
     LIVE_SNAPSHOT_FIELDS = ("slug", "public_slug", "title", "intro", "body", "outro")
     live_i18n = models.JSONField(default=dict, blank=True)
     translations = TranslatedFields(
@@ -27,8 +23,6 @@ class UseCase(EditorialMixin, TranslatableModel, EditorialWorkflowMixin):
     )
 
     tools = models.ManyToManyField(Tool, related_name="usecases", blank=True)
-    objects = EditorialManager()
-    published = PublishedOnlyManager()
 
     class Meta:
         verbose_name = _("Usecase")

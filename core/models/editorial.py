@@ -25,20 +25,26 @@ class EditorialQuerySet(TranslatableQuerySet):
     def rework(self):
         return self.filter(status=EditorialWorkflowMixin.STATUS_REWORK).order_by("pk")
 
+    def approved(self):
+        return self.filter(status=EditorialWorkflowMixin.STATUS_APPROVED).order_by("pk")
+
     def published(self):
         return self.filter(status=EditorialWorkflowMixin.STATUS_PUBLISHED).order_by("published_at")
 
     def visible_on_site(self):
         """
         Public visibility filter:
-        includes published items and review items that already have a last_published_at/live revision,
-        preventing premature exposure.
+        includes published items and review/approved items that already have a
+        last_published_at/live revision, preventing premature exposure.
         """
         return (
             self.filter(
                 Q(status=EditorialWorkflowMixin.STATUS_PUBLISHED)
                 | Q(
-                    status=EditorialWorkflowMixin.STATUS_REVIEW,
+                    status__in=[
+                        EditorialWorkflowMixin.STATUS_REVIEW,
+                        EditorialWorkflowMixin.STATUS_APPROVED,
+                    ],
                     last_published_revision_id__isnull=False,
                 )
             ).order_by("updated_at")
@@ -66,29 +72,8 @@ class PublishedOnlyManager(EditorialManager):
         return qs
 
 
-# -------- Basemixin --------
+# -------- Editorial Workflow Mixin --------
 
-class EditorialMixin(models.Model):
-    """
-    Abstract base with common editorial fields (author/reviewer, timestamps) shared by content models;
-    keeps audit info consistent.
-    """
-    author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="%(class)s_author",
-        on_delete=models.SET_NULL, null=True, blank=True
-    )
-    created_at = models.DateTimeField(default=timezone.now, editable=False)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_published = models.BooleanField(default=False)
-    published_at = models.DateTimeField(null=True, blank=True)
-    objects = EditorialManager()
-    published = PublishedOnlyManager()
-
-    class Meta:
-        abstract = True
-
-
-# -------- Workflow --------
 
 class EditorialWorkflowMixin(models.Model):
     """
@@ -99,6 +84,7 @@ class EditorialWorkflowMixin(models.Model):
     STATUS_DRAFT = "draft"
     STATUS_REVIEW = "review"
     STATUS_REWORK = "rework"
+    STATUS_APPROVED = "approved"
     STATUS_PUBLISHED = "published"
     STATUS_ARCHIVED = "archived"
 
@@ -106,11 +92,22 @@ class EditorialWorkflowMixin(models.Model):
         (STATUS_DRAFT, "Draft"),
         (STATUS_REVIEW, "Review"),
         (STATUS_REWORK, "Rework"),
+        (STATUS_APPROVED, "Approved"),
         (STATUS_PUBLISHED, "Published"),
         (STATUS_ARCHIVED, "Archived"),
     ]
     LIVE_SNAPSHOT_FIELDS = ("slug", "public_slug", "title")
     status = FSMField(default=STATUS_DRAFT, choices=STATUS_CHOICES, protected=True)
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="%(class)s_author",
+        on_delete=models.SET_NULL, null=True, blank=True
+    )
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
+    objects = EditorialManager()
+    published = PublishedOnlyManager()
     submitted_for_review_at = models.DateTimeField(null=True, blank=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
     reviewed_by = models.ForeignKey(
@@ -118,6 +115,9 @@ class EditorialWorkflowMixin(models.Model):
     )
     review_note = models.TextField(blank=True)
     last_published_revision_id = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        abstract = True
 
     def _update_live_snapshot(self) -> None:
         if not hasattr(self, "live_i18n"):
@@ -143,22 +143,16 @@ class EditorialWorkflowMixin(models.Model):
         except Exception:
             pass
 
-    class Meta:
-        abstract = True
-
     # --- Transitions ---
 
-    @transition(field='status', source=[STATUS_PUBLISHED], target=STATUS_REVIEW)
-    def move_to_review(self, *, by=None, note: str | None = None):
+    @transition(field=status, source=[STATUS_DRAFT, STATUS_REWORK, STATUS_PUBLISHED, STATUS_APPROVED], target=STATUS_REVIEW)
+    def move_to_review(self, *, by, note: str | None = None):
+        self.submitted_for_review_at = timezone.now()
         if note:
             try:
                 self.review_note = note
             except Exception:
                 pass
-
-    @transition(field=status, source=[STATUS_DRAFT, STATUS_REWORK, STATUS_PUBLISHED], target=STATUS_REVIEW)
-    def submit_for_review(self, *, by):
-        self.submitted_for_review_at = timezone.now()
 
     @transition(field=status, source=STATUS_REVIEW, target=STATUS_REWORK)
     def request_rework(self, *, by, note=""):
@@ -166,7 +160,14 @@ class EditorialWorkflowMixin(models.Model):
         self.reviewed_by = by
         self.review_note = note
 
-    @transition(field=status, source=STATUS_REVIEW, target=STATUS_PUBLISHED)
+    @transition(field=status, source=STATUS_REVIEW, target=STATUS_APPROVED)
+    def approve(self, *, by, note=""):
+        self.reviewed_at = timezone.now()
+        self.reviewed_by = by
+        if note:
+            self.review_note = note
+
+    @transition(field=status, source=STATUS_APPROVED, target=STATUS_PUBLISHED)
     def publish(self, *, by, note=""):
         self.reviewed_at = timezone.now()
         self.published_at = timezone.now()

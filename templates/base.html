@@ -94,26 +94,34 @@
     <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
             <li class="mx-1"><a href="{% url 'glossary:list' %}"
-                                class="btn btn-glossary btn-soft text-base-content">{% trans "Glossary" %}</a>
+                                class="btn btn-sm xl:btn-md btn-glossary btn-soft text-base-content">{% trans "Glossary" %}</a>
             </li>
             <li class="mx-1"><a href="{% url 'guides:list' %}"
-                                class="btn btn-guide btn-soft text-base-content">{% trans "Guides" %}</a>
+                                class="btn btn-sm xl:btn-md btn-guide btn-soft text-base-content">{% trans "Guides" %}</a>
             </li>
             <li class="mx-1"><a href="{% url 'prompts:list' %}"
-                                class="btn btn-prompt btn-soft text-base-content">{% trans "Prompts" %}</a>
+                                class="btn btn-sm xl:btn-md btn-prompt btn-soft text-base-content">{% trans "Prompts" %}</a>
             </li>
             <li class="mx-1"><a href="{% url 'usecases:list' %}"
-                                class="btn btn-usecase btn-soft text-base-content">{% trans "Use cases" %}</a>
+                                class="btn btn-sm xl:btn-md btn-usecase btn-soft text-base-content">{% trans "Use cases" %}</a>
             </li>
             <li class="mx-1"><a href="{% url 'catalog:list' %}"
-                                class="btn btn-tool btn-soft text-base-content">{% trans "Tools" %}</a>
+                                class="btn btn-sm xl:btn-md btn-tool btn-soft text-base-content">{% trans "Tools" %}</a>
             </li>
             <li class="mx-1"><a href="{% url 'compare:index' %}"
-                                class="btn btn-compare btn-soft text-base-content">{% trans "Comparisons" %}</a>
+                                class="btn btn-sm xl:btn-md btn-compare btn-soft text-base-content">{% trans "Comparisons" %}</a>
             </li>
         </ul>
     </div>
     <div class="navbar-end">
+        {% if request.user.is_authenticated %}
+            <a href="{% url 'account_logout' %}" class="btn btn-sm xl:btn-md btn-secondary mx-2" role="button" aria-pressed="false"
+               aria-label="{% trans "Logout" %}">{% trans 'Logout' %}</a>
+        {% else %}
+            <a href="{% url 'account_login' %}" class="btn btn-sm xl:btn-md btn-secondary mx-2" role="button" aria-pressed="false"
+               aria-label="{% trans "Login" %}">{% trans 'Login' %}</a>
+        {% endif %}
+
         <!-- Search -->
         <button class="btn btn-ghost btn-circle" aria-label="{% trans "Search" %}">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -168,17 +176,16 @@
     <div class="w-full flex justify-end items-center gap-2 px-4 pt-2 text-sm">
         <a href="{% url 'account_dashboard' %}"
            class="btn btn-xs btn-outline">{% trans "Dashboard" %}</a>
-        {% if request.user|has_group:"author" or request.user|has_group:"editor" or request.user|has_group:"admin" %}
+        {% if request.user|has_group:"Author" or request.user|has_group:"Editor" or request.user|has_group:"Admin" %}
             <a href="/admin" target="_blank" rel="noopener"
                class="btn btn-xs btn-outline">{% trans "Admin Panel" %}</a>
-            <a href="{% url 'content:editorial:my_drafts' %}"
-               class="btn btn-xs btn-outline">{% trans "Drafts" %}</a>
-            {% if request.user|has_group:"editor" or request.user|has_group:"admin" %}
+            <a href="{% url 'content:editorial:my_content' %}"
+               class="btn btn-xs btn-outline">{% trans "My Content" %}</a>
+            {% if request.user|has_group:"Editor" or request.user|has_group:"Admin" %}
                 <a href="{% url 'content:editorial:review_queue' %}"
                    class="btn btn-xs btn-outline">{% trans "Reviews" %}</a>
             {% endif %}
         {% endif %}
-
     </div>
 {% endif %}
 

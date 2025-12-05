@@ -375,8 +375,12 @@ SOCIALACCOUNT_PROVIDERS = {
     "google": {"VERIFIED_EMAIL": True},
     "github": {"VERIFIED_EMAIL": True, "EMAIL_REQUIRED": True},
 }
-ACCOUNT_SIGNUP_ENABLED = False
+ACCOUNT_SIGNUP_ENABLED = True
 ACCOUNT_ADAPTER = "accounts.adapters.ToggleSignupAccountAdapter"
+
+# Editorial
+AUTHOR_GROUP_NAMES = ["Author"]
+EDITOR_GROUP_NAMES = ["Editor", "Admin"]
 
 # E-Mail
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -393,9 +397,6 @@ EMAIL_TIMEOUT = 60
 # EMAIL_SSL_KEYFILE = os.getenv("DJANGO_EMAIL_SSL_KEYFILE")
 # EMAIL_SSL_CERTFILE = os.getenv("DJANGO_EMAIL_SSL_CERTFILE")
 
-# Editorial
-
-EDITOR_GROUP_NAMES = ["Editors", "Admins"]
 
 DJANGO_LOG_LEVEL = os.getenv("DJANGO_LOG_LEVEL", "INFO")
 LOGGING = {
