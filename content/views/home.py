@@ -60,6 +60,7 @@ class HomePageView(SeoMixin, TemplateView):
             self.request,
             title=title,
             description=description,
+            og_type="website",
             canonical=canonical,
             alternates=alts,
             og_image=get_og_image(),
