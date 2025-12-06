@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-27 23:53+0100\n"
-"PO-Revision-Date: 2025-11-29 03:02+0100\n"
+"PO-Revision-Date: 2025-12-06 14:05+0100\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: de\n"
@@ -283,3 +283,19 @@ msgstr ""
 #: templates/base.html:205
 msgid "Cookie-Settings"
 msgstr "Cookie-Einstellungen"
+
+#: templates/guides/guide_detail.html:38
+msgid "Author:"
+msgstr "Autor:"
+
+#: templates/guides/guide_detail.html:11
+msgid "Reading time:"
+msgstr "Lesezeit:"
+
+#: templates/guides/guide_list.html:46
+msgid "Updated:"
+msgstr "Aktualisiert:"
+
+#: templates/guides/guide_list.html:53
+msgid "from"
+msgstr "Von"

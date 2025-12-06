@@ -10,7 +10,7 @@ from core.views import SeoMixin
 from .models import Tool, Category
 
 
-class ToolListView(ListView, SeoMixin):
+class ToolListView(SeoMixin, ListView):
     model = Tool
     template_name = "catalog/tool_list.html"
     context_object_name = "object_list"
@@ -58,6 +58,10 @@ class ToolListView(ListView, SeoMixin):
         free = self.request.GET.get("free") == "1"
         category_slug = self.request.GET.get("category") or ""
         lang = get_language()
+        title = _("AI tools catalog")
+        description = _(
+            "Discover AI tools for productivity, marketing, coding, creatives and more to find the best match for your needs."
+        )
 
         categories = (
             Category.objects
@@ -70,17 +74,18 @@ class ToolListView(ListView, SeoMixin):
         alts = localized_alternates(self.request, "catalog:list")
         ctx["seo"] = self.build_seo(
             self.request,
-            title=_("Tools · MentoroAI"),
-            description=_(
-                "Overview of modern AI tools across all categories, with features, use cases, language support, and filters to quickly find the right solution."),
+            title=title,
+            description=description,
             canonical=canonical,
             alternates=alts,
+            og_image=get_og_image(),
             json_ld={
                 "@context": "https://schema.org",
                 "@type": "CollectionPage",
-                "name": "Tools",
+                "name": title,
+                "description": description,
                 "url": canonical,
-                "inLanguage": get_language(),
+                "inLanguage": lang,
             },
         )
 
@@ -100,7 +105,7 @@ class ToolListView(ListView, SeoMixin):
         return ctx
 
 
-class ToolDetailView(DetailView, SeoMixin):
+class ToolDetailView(SeoMixin, DetailView):
     model = Tool
     template_name = "catalog/tool_detail.html"
     context_object_name = "object"
@@ -136,8 +141,10 @@ class ToolDetailView(DetailView, SeoMixin):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         obj: Tool = ctx["object"]
+        lang = get_language()
 
-        title = f"{obj.name} · Tool · MentoroAI"
+        title_ = obj.safe_translation_getter("name", any_language=True) or str(obj)
+        title = f"{title_} · MentoroAI"
         outro = _("This AI tool enhances modern workflows and helps streamline key tasks across various use cases. ")
 
         if obj.short_description:
@@ -153,15 +160,22 @@ class ToolDetailView(DetailView, SeoMixin):
         alts = localized_alternates(self.request, "catalog:detail", {"slug": obj.slug})
         json_ld = {
             "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": obj.name,
-            "description": _("This AI tool offers features and use cases that are briefly explained below. ") + desc,
-            "inLanguage": get_language(),
-            "mainEntityOfPage": canonical,
+            "@type": "SoftwareApplication",
+            "name": title,
+            "description": desc,
             "url": canonical,
+            "inLanguage": lang,
         }
         if og_img:
             json_ld["image"] = [og_img]
+
+        if getattr(obj, "website", None):
+            json_ld["applicationCategory"] = "AIApplication"
+        if getattr(obj, "vendor", None):
+            json_ld["provider"] = {
+                "@type": "Organization",
+                "name": obj.vendor,
+            }
 
         ctx["seo"] = self.build_seo(
             self.request,

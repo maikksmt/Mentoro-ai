@@ -213,3 +213,15 @@ msgstr ""
 #: templates/base.html:205
 msgid "Cookie-Settings"
 msgstr ""
+#: templates/guides/guide_detail.html:38
+msgid "Author:"
+msgstr ""
+#: templates/guides/guide_detail.html:11
+msgid "Reading time:"
+msgstr ""
+#: templates/guides/guide_list.html:46
+msgid "Updated:"
+msgstr ""
+#: templates/guides/guide_list.html:53
+msgid "from"
+msgstr ""

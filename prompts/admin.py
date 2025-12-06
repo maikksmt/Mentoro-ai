@@ -19,7 +19,7 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
     tinymce_fields = ("intro", "body", "outro")
     list_display = (
         "display_title", "pk", "status", "is_published", "author", "reviewed_by",
-        "published_at_formatted", "updated_at_formatted",
+        "published_fmt", "updated_fmt",
     )
     list_filter = ("status", "author", "reviewed_by")
     search_fields = ("translations__title", "translations__intro", "translations__body", "translations__slug")
@@ -83,7 +83,7 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
     def body(self, obj):
         value = obj.safe_translation_getter("body", any_language=True)
         return mark_safe(value or "")
-    
+
     def outro(self, obj):
         value = obj.safe_translation_getter("outro", any_language=True)
         return mark_safe(value or "")
@@ -91,12 +91,12 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("title",)}
 
-    def published_at_formatted(self, obj):
+    def published_fmt(self, obj):
         if not obj.published_at:
             return "-"
         return date_format(obj.published_at, format="d.m.Y H:i", use_l10n=True)
 
-    def updated_at_formatted(self, obj):
+    def updated_fmt(self, obj):
         if not obj.updated_at:
             return "-"
         return date_format(obj.updated_at, format="d.m.Y H:i", use_l10n=True)

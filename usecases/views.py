@@ -30,7 +30,7 @@ def _resolve_by_slug(qs: QuerySet[UseCase], slug: str) -> Optional[UseCase]:
     return None
 
 
-class UseCaseListView(ListView, SeoMixin):
+class UseCaseListView(SeoMixin, ListView):
     paginate_by = 15
     template_name = "usecases/list.html"
     context_object_name = "object_list"
@@ -48,28 +48,34 @@ class UseCaseListView(ListView, SeoMixin):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         ctx = super().get_context_data(**kwargs)
+        lang = get_language()
         canonical = absolute_url(self.request.path)
         alts = localized_alternates(self.request, "usecases:list")
+        title = _("AI use cases · MentoroAI")
+        description = _(
+            "Practical AI use cases with clear examples, benefits and guidance for business tasks, research and creative work."
+        )
         ctx["seo"] = self.build_seo(
             self.request,
-            title=_("Usecases · MentoroAI"),
-            description=_(
-                "Practical AI use cases with clear examples, benefits, and step-by-step guidance for business tasks, research, and creative applications."),
+            title=title,
+            description=description,
             canonical=canonical,
             alternates=alts,
+            og_image=get_og_image(),
             json_ld={
                 "@context": "https://schema.org",
                 "@type": "CollectionPage",
-                "name": "Usecases",
+                "name": title,
+                "description": description,
                 "url": canonical,
-                "inLanguage": get_language(),
+                "inLanguage": lang,
             },
         )
         ctx["crumbs"] = [(_("Usecases"), self.request.path)]
         return ctx
 
 
-class UseCaseDetailView(DetailView, SeoMixin):
+class UseCaseDetailView(SeoMixin, DetailView):
     model = UseCase
     template_name = "usecases/detail.html"
     context_object_name = "object"
@@ -90,25 +96,36 @@ class UseCaseDetailView(DetailView, SeoMixin):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         ctx = super().get_context_data(**kwargs)
         obj: UseCase = ctx["object"]
-        title = f"{obj.title}"
-        desc_source = obj.intro or obj.body or obj.title
+        lang = get_language()
+        title = getattr(obj, "display_title", None) or getattr(obj, "title", None) or str(obj)
+        desc_source = getattr(obj, "display_intro", None) or getattr(obj, "display_body", None) or title
         desc = seo_text(desc_source)[:155]
-        canonical = absolute_url(self.request.path)
+        canonical = absolute_url(obj.get_absolute_url())
         og_img = getattr(obj, "hero_image_url", None)
         alts = localized_alternates(
             self.request,
-            url_name="usecases:detail",  # optional, Fallback
+            url_name="usecases:detail",
             obj=obj,
         )
         json_ld = {
             "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": obj.title,
+            "@type": "CaseStudy",
+            "name": title,
             "description": desc,
-            "inLanguage": get_language(),
-            "mainEntityOfPage": canonical,
             "url": canonical,
+            "inLanguage": lang,
+            "mainEntityOfPage": canonical,
         }
+        tools = list(getattr(obj, "tools").all()) if hasattr(obj, "tools") else []
+        if tools:
+            json_ld["about"] = [
+                {
+                    "@type": "SoftwareApplication",
+                    "name": t.name,
+                    "url": absolute_url(t.get_absolute_url()),
+                }
+                for t in tools
+            ]
         if og_img:
             json_ld["image"] = [og_img]
 

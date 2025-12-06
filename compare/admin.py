@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from reversion.admin import VersionAdmin
@@ -15,11 +16,11 @@ class ComparisonAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Ver
     list_display = (
         "title_col",
         "status",
-        "published_at",
+        "published_fmt",
         "author",
         "reviewed_by",
         "winner",
-        "updated_at",
+        "updated_fmt",
         "pk",
     )
     list_display_links = ("title_col",)
@@ -51,7 +52,8 @@ class ComparisonAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Ver
         }),
     )
 
-    readonly_fields = ("updated_at",)
+    readonly_fields = (
+        "status", "submitted_for_review_at", "reviewed_at", "reviewed_by", "is_published", "last_published_revision_id", "updated_at",)
     filter_horizontal = ("tools",)
 
     def get_readonly_fields(self, request, obj=None):
@@ -70,6 +72,16 @@ class ComparisonAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Ver
 
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("title",)}
+
+    def published_fmt(self, obj):
+        if not obj.published_at:
+            return "-"
+        return date_format(obj.published_at, format="d.m.Y H:i", use_l10n=True)
+
+    def updated_fmt(self, obj):
+        if not obj.updated_at:
+            return "-"
+        return date_format(obj.updated_at, format="d.m.Y H:i", use_l10n=True)
 
     @admin.display(ordering="translations__title", description=_("Title"))
     def title_col(self, obj):

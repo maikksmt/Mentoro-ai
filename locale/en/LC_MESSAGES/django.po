@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-05 12:50+0100\n"
+"POT-Creation-Date: 2025-12-06 14:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: accounts/views.py:23
+#: accounts/views.py:19
+msgid "My account"
+msgstr ""
+
+#: accounts/views.py:21
+msgid "Manage your MentoroAI profile, settings and editorial access."
+msgstr ""
+
+#: accounts/views.py:47
 msgid "Your profile has been updated."
 msgstr ""
 
@@ -53,7 +61,7 @@ msgstr ""
 msgid "Pricing & Highlight"
 msgstr ""
 
-#: catalog/admin.py:194 compare/admin.py:34 guides/admin.py:68
+#: catalog/admin.py:194 compare/admin.py:35 guides/admin.py:68
 #: prompts/admin.py:42 usecases/admin.py:42
 msgid "Meta"
 msgstr ""
@@ -133,64 +141,59 @@ msgstr ""
 msgid "Affiliate-Programs"
 msgstr ""
 
-#: catalog/views.py:73
-msgid "Tools · MentoroAI"
+#: catalog/views.py:61
+msgid "AI tools catalog"
 msgstr ""
 
-#: catalog/views.py:75
+#: catalog/views.py:63
 msgid ""
-"Overview of modern AI tools across all categories, with features, use cases, "
-"language support, and filters to quickly find the right solution."
+"Discover AI tools for productivity, marketing, coding, creatives and more to "
+"find the best match for your needs."
 msgstr ""
 
-#: catalog/views.py:95 catalog/views.py:180
+#: catalog/views.py:100 catalog/views.py:194
 msgid "Catalog"
 msgstr ""
 
-#: catalog/views.py:96 catalog/views.py:181 templates/catalog/tool_list.html:6
+#: catalog/views.py:101 catalog/views.py:195 templates/catalog/tool_list.html:6
 msgid "All tools"
 msgstr ""
 
-#: catalog/views.py:132
+#: catalog/views.py:137
 msgid "Tool does not exist"
 msgstr ""
 
-#: catalog/views.py:141
+#: catalog/views.py:148
 msgid ""
 "This AI tool enhances modern workflows and helps streamline key tasks across "
 "various use cases. "
 msgstr ""
 
-#: catalog/views.py:158
-msgid ""
-"This AI tool offers features and use cases that are briefly explained below. "
-msgstr ""
-
-#: compare/admin.py:37 guides/admin.py:85 prompts/admin.py:56
+#: compare/admin.py:38 guides/admin.py:85 prompts/admin.py:56
 #: usecases/admin.py:55
 msgid "Routing"
 msgstr ""
 
-#: compare/admin.py:40 guides/admin.py:88 prompts/admin.py:59
+#: compare/admin.py:41 guides/admin.py:88 prompts/admin.py:59
 #: usecases/admin.py:58
 msgid "Content (translated)"
 msgstr ""
 
-#: compare/admin.py:43 guides/admin.py:90 prompts/admin.py:61
+#: compare/admin.py:44 guides/admin.py:90 prompts/admin.py:61
 #: usecases/admin.py:61
 msgid "These fields are language-specific. Use the language tabs above."
 msgstr ""
 
-#: compare/admin.py:46 guides/admin.py:82
+#: compare/admin.py:47 guides/admin.py:82
 msgid "Relations"
 msgstr ""
 
-#: compare/admin.py:49
+#: compare/admin.py:50
 msgid "Scoring"
 msgstr ""
 
-#: compare/admin.py:74 compare/admin.py:78 compare/models.py:14
-#: guides/admin.py:127 guides/admin.py:135 guides/models.py:18
+#: compare/admin.py:86 compare/admin.py:90 compare/models.py:14
+#: guides/admin.py:127 guides/admin.py:131 guides/models.py:18
 #: guides/models.py:123 guides/models.py:197 prompts/admin.py:104
 #: prompts/models.py:17 templates/content/editorial/review_queue.html:14
 #: templates/ops/seo_check.html:41 usecases/admin.py:94 usecases/models.py:16
@@ -206,8 +209,8 @@ msgstr ""
 msgid "Comparison"
 msgstr ""
 
-#: compare/models.py:26 compare/views.py:74 compare/views.py:194
-#: compare/views.py:232 compare/views.py:263 compare/views.py:266
+#: compare/models.py:26 compare/views.py:79 compare/views.py:210
+#: compare/views.py:248 compare/views.py:279 compare/views.py:282
 #: templates/base.html:88 templates/base.html:112
 #: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
@@ -218,27 +221,27 @@ msgstr ""
 msgid "At least one tool is required if a score breakdown is provided."
 msgstr ""
 
+#: compare/views.py:57
+msgid "AI tool comparisons · MentoroAI"
+msgstr ""
+
 #: compare/views.py:59
-msgid "Comparisons · MentoroAI"
-msgstr ""
-
-#: compare/views.py:61
 msgid ""
-"Compare AI tools by features, pricing, performance, and use cases to "
-"identify the best option for your needs across different workflows."
+"Compare AI tools by features, performance and use cases to find the best "
+"option for your workflows."
 msgstr ""
 
-#: compare/views.py:227
+#: compare/views.py:243
 msgid "Tool comparisons"
 msgstr ""
 
-#: compare/views.py:229
+#: compare/views.py:245
 msgid ""
 "Comparisons of AI tools based on criteria such as price, functionality, and "
 "quality."
 msgstr ""
 
-#: compare/views.py:264
+#: compare/views.py:280
 msgid "Discover side-by-side tool comparisons."
 msgstr ""
 
@@ -279,111 +282,161 @@ msgstr ""
 msgid "You are not allowed to perform this transition."
 msgstr ""
 
-#: content/views/home.py:47
+#: content/views/home.py:45
 msgid "AI tools, guides & usecases for beginners and professionals"
 msgstr ""
 
-#: content/views/home.py:49
+#: content/views/home.py:47
 msgid ""
-"MentoroAI offers AI tutorials, prompts, tool comparisons, and a glossary to "
-"help you navigate the modern AI world."
+"MentoroAI offers AI tutorials, guides, prompts, tool comparisons, use cases "
+"and a glossary to help you navigate the modern AI world."
 msgstr ""
 
-#: core/admin.py:112
+#: content/views/legal.py:43 templates/legal/legal_notice.html:5
+msgid "Legal Notice – MentoroAI"
+msgstr ""
+
+#: content/views/legal.py:45
+msgid ""
+"Legal notice (Impressum) for MentoroAI with information according to § 5 TMG "
+"and contact details."
+msgstr ""
+
+#: content/views/legal.py:52 templates/legal/privacy_policy.html:5
+msgid "Privacy Policy – MentoroAI"
+msgstr ""
+
+#: content/views/legal.py:54
+msgid ""
+"Privacy policy for MentoroAI explaining data processing, cookies, analytics "
+"and your rights under GDPR."
+msgstr ""
+
+#: content/views/legal.py:61 templates/legal/cookie_policy.html:5
+msgid "Cookie Policy – MentoroAI"
+msgstr ""
+
+#: content/views/legal.py:63
+msgid ""
+"Cookie policy for MentoroAI describing the types of cookies used, consent "
+"management and control options."
+msgstr ""
+
+#: content/views/legal.py:70 templates/legal/terms_of_use.html:5
+msgid "Terms of Use – MentoroAI"
+msgstr ""
+
+#: content/views/legal.py:72
+msgid ""
+"Terms of use for MentoroAI outlining scope, use of content, user accounts, "
+"liability and changes."
+msgstr ""
+
+#: content/views/legal.py:79 templates/legal/copyright.html:5
+msgid "Copyright & Licenses – MentoroAI"
+msgstr ""
+
+#: content/views/legal.py:81
+msgid ""
+"Information on copyright, open-source license (GPLv3) and use of content and "
+"trademarks for MentoroAI."
+msgstr ""
+
+#: core/admin.py:113
 msgid "Auto: Change in the admin form"
 msgstr ""
 
-#: core/admin.py:261
+#: core/admin.py:274
 msgid "Auto: Change to inline content"
 msgstr ""
 
-#: core/admin.py:322
+#: core/admin.py:335
 msgid "Send to review"
 msgstr ""
 
-#: core/admin.py:333 core/admin.py:422 core/admin.py:471
+#: core/admin.py:346 core/admin.py:435 core/admin.py:484
 msgid "permission denied"
 msgstr ""
 
-#: core/admin.py:351
+#: core/admin.py:364
 msgid "Transition 'move_to_review' not executable"
 msgstr ""
 
-#: core/admin.py:357
+#: core/admin.py:370
 #, python-format
 msgid "%(n)d item(s) → Review."
 msgstr ""
 
-#: core/admin.py:364 core/admin.py:456 core/admin.py:509
+#: core/admin.py:377 core/admin.py:469 core/admin.py:522
 #, python-format
 msgid "%(n)d skipped: %(detail)s"
 msgstr ""
 
-#: core/admin.py:368
+#: core/admin.py:381
 msgid "Request changes (→ Rework)"
 msgstr ""
 
-#: core/admin.py:378 core/admin.py:523 core/admin.py:563
+#: core/admin.py:391 core/admin.py:536 core/admin.py:576
 msgid "You are not authorized to perform this action."
 msgstr ""
 
-#: core/admin.py:383
+#: core/admin.py:396
 msgid "Transition 'request_rework' not executable"
 msgstr ""
 
-#: core/admin.py:405
+#: core/admin.py:418
 #, python-format
 msgid "%(n)d item(s) → Rework."
 msgstr ""
 
-#: core/admin.py:409
+#: core/admin.py:422
 msgid "Approve (Review → Approved)"
 msgstr ""
 
-#: core/admin.py:427
+#: core/admin.py:440
 msgid "transition 'approve' not executable"
 msgstr ""
 
-#: core/admin.py:448
+#: core/admin.py:461
 #, python-format
 msgid "%(n)d item(s) approved."
 msgstr ""
 
-#: core/admin.py:460
+#: core/admin.py:473
 msgid "Publish selected item(s)"
 msgstr ""
 
-#: core/admin.py:496
+#: core/admin.py:509
 msgid "Transition 'publish' not executable"
 msgstr ""
 
-#: core/admin.py:502
+#: core/admin.py:515
 #, python-format
 msgid "%(n)d item(s) published."
 msgstr ""
 
-#: core/admin.py:513
+#: core/admin.py:526
 msgid "Archive (Soft Delete)"
 msgstr ""
 
-#: core/admin.py:531
+#: core/admin.py:544
 msgid "Transition 'archive' not executable"
 msgstr ""
 
-#: core/admin.py:549
+#: core/admin.py:562
 #, python-format
 msgid "%(n)d item(s) archived."
 msgstr ""
 
-#: core/admin.py:553
+#: core/admin.py:566
 msgid "Restore (→ Draft)"
 msgstr ""
 
-#: core/admin.py:571
+#: core/admin.py:584
 msgid "Transition 'restore' not executable"
 msgstr ""
 
-#: core/admin.py:589
+#: core/admin.py:602
 #, python-format
 msgid "%(n)d item(s) restored (draft)."
 msgstr ""
@@ -419,24 +472,14 @@ msgstr ""
 msgid "Glossary terms"
 msgstr ""
 
-#: glossary/views.py:46
-msgid "Glossary · MentoroAI"
+#: glossary/views.py:45
+msgid "AI glossary"
 msgstr ""
 
-#: glossary/views.py:48
+#: glossary/views.py:47
 msgid ""
-"AI glossary with clear, concise explanations of key terms across machine "
-"learning, LLMs, model behavior, training methods, and modern workflows."
-msgstr ""
-
-#: glossary/views.py:87
-msgid " An entry from the MentoroAI glossary on important basic AI terms."
-msgstr ""
-
-#: glossary/views.py:128
-msgid ""
-"This glossary entry conveys the core idea and relevance of this concept "
-"within modern AI systems. "
+"Understand key terms in AI, machine learning and data science with clear, "
+"beginner-friendly definitions."
 msgstr ""
 
 #: guides/models.py:20 guides/models.py:124 prompts/models.py:19
@@ -453,7 +496,7 @@ msgstr ""
 msgid "Guide"
 msgstr ""
 
-#: guides/models.py:29 guides/views.py:50 guides/views.py:119
+#: guides/models.py:29 guides/views.py:55 guides/views.py:126
 #: templates/base.html:76 templates/base.html:100
 #: templates/content/home.html:96 templates/content/what-to-find.html:32
 #: templates/guides/guide_list.html:7 templates/partials/_entry_cards.html:19
@@ -492,14 +535,14 @@ msgstr ""
 msgid "Auto: Change to GuideSection (delete)"
 msgstr ""
 
-#: guides/views.py:37
-msgid "Guides · MentoroAI"
+#: guides/views.py:35
+msgid "AI guides · MentoroAI"
 msgstr ""
 
-#: guides/views.py:39
+#: guides/views.py:37
 msgid ""
-"Structured AI guides with step-by-step instructions, foundational knowledge, "
-"and practical workflows for efficient, real-world usage."
+"Browse practical AI guides and tutorials to learn step by step how to use AI "
+"tools in everyday life and work."
 msgstr ""
 
 #: newsletter/forms.py:7 newsletter/forms.py:23
@@ -560,28 +603,28 @@ msgstr ""
 msgid "Select the AI tool for which this prompt has been optimized."
 msgstr ""
 
-#: prompts/models.py:29 prompts/views.py:137
+#: prompts/models.py:29 prompts/views.py:142
 #: templates/partials/_guideitem_card.html:9
 #: templates/partials/_teaser_card.html:9
-#: templates/prompts/prompt_detail.html:22
+#: templates/prompts/prompt_detail.html:41
 msgid "Prompt"
 msgstr ""
 
-#: prompts/models.py:30 prompts/views.py:69 prompts/views.py:136
+#: prompts/models.py:30 prompts/views.py:73 prompts/views.py:141
 #: templates/base.html:79 templates/base.html:103
 #: templates/content/home.html:97 templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
 msgid "Prompts"
 msgstr ""
 
-#: prompts/views.py:55
-msgid "Prompts · MentoroAI"
+#: prompts/views.py:54
+msgid "AI prompts · MentoroAI"
 msgstr ""
 
-#: prompts/views.py:57
+#: prompts/views.py:55
 msgid ""
-"Collection of tested prompt templates for ChatGPT and other AI models, "
-"organized by categories and use cases for fast, practical usage."
+"Browse ready-made AI prompts for writing, coding, learning, marketing and "
+"more."
 msgstr ""
 
 #: templates/account/3rdparty.html:5
@@ -1361,7 +1404,7 @@ msgid "Filter: "
 msgstr ""
 
 #: templates/catalog/tool_list.html:16 templates/catalog/tool_list.html:25
-#: templates/compare/index.html:17
+#: templates/compare/index.html:16
 msgid "All categories"
 msgstr ""
 
@@ -1377,7 +1420,7 @@ msgstr ""
 msgid "Reset filters"
 msgstr ""
 
-#: templates/catalog/tool_list.html:72 templates/compare/index.html:25
+#: templates/catalog/tool_list.html:72 templates/compare/index.html:24
 msgid "Reset"
 msgstr ""
 
@@ -1389,7 +1432,7 @@ msgstr ""
 msgid "Website"
 msgstr ""
 
-#: templates/catalog/tool_list.html:214 templates/compare/index.html:50
+#: templates/catalog/tool_list.html:214 templates/compare/index.html:72
 #: templates/content/home.html:72
 msgid "Details"
 msgstr ""
@@ -1398,23 +1441,43 @@ msgstr ""
 msgid "No tools found."
 msgstr ""
 
-#: templates/compare/detail.html:12
+#: templates/compare/detail.html:11 templates/guides/guide_detail.html:11
+#: templates/prompts/prompt_detail.html:11 templates/usecases/detail.html:14
+msgid "Reading time: "
+msgstr ""
+
+#: templates/compare/detail.html:17 templates/guides/guide_detail.html:17
+#: templates/prompts/prompt_detail.html:17 templates/usecases/detail.html:20
+msgid "Published: "
+msgstr ""
+
+#: templates/compare/detail.html:21 templates/guides/guide_detail.html:21
+#: templates/prompts/prompt_detail.html:21 templates/usecases/detail.html:24
+msgid "Last Updated: "
+msgstr ""
+
+#: templates/compare/detail.html:29 templates/guides/guide_detail.html:29
+#: templates/prompts/prompt_detail.html:29 templates/usecases/detail.html:32
+msgid "Author: "
+msgstr ""
+
+#: templates/compare/detail.html:41
 msgid "Winner"
 msgstr ""
 
-#: templates/compare/detail.html:24
+#: templates/compare/detail.html:54
 msgid "Evaluation according to criteria"
 msgstr ""
 
-#: templates/compare/detail.html:31
+#: templates/compare/detail.html:61
 msgid "Criteria"
 msgstr ""
 
-#: templates/compare/detail.html:53
+#: templates/compare/detail.html:83
 msgid "Remarks"
 msgstr ""
 
-#: templates/compare/detail.html:61
+#: templates/compare/detail.html:91
 msgid "Similar comparisons"
 msgstr ""
 
@@ -1426,27 +1489,37 @@ msgstr ""
 msgid "Comparisons based on criteria such as price, functionality and quality."
 msgstr ""
 
-#: templates/compare/index.html:13
+#: templates/compare/index.html:12
 msgid "Search…"
 msgstr ""
 
-#: templates/compare/index.html:24
+#: templates/compare/index.html:23
 msgid "Filter"
 msgstr ""
 
-#: templates/compare/index.html:35 templates/compare/index.html:50
+#: templates/compare/index.html:33 templates/compare/index.html:72
 #: templates/glossary/glossary_results.html:7
-#: templates/guides/guide_list.html:18 templates/guides/guide_list.html:41
+#: templates/guides/guide_list.html:18 templates/guides/guide_list.html:54
 #: templates/partials/_guideitem_card.html:22
 #: templates/partials/_guideitem_card.html:29
 #: templates/partials/_teaser_card.html:21
 #: templates/partials/_teaser_card.html:28
-#: templates/prompts/prompt_list.html:17 templates/prompts/prompt_list.html:35
-#: templates/usecases/list.html:19 templates/usecases/list.html:40
+#: templates/prompts/prompt_list.html:17 templates/prompts/prompt_list.html:51
+#: templates/usecases/list.html:19 templates/usecases/list.html:56
 msgid "Read details about "
 msgstr ""
 
-#: templates/compare/index.html:56
+#: templates/compare/index.html:60 templates/guides/guide_list.html:41
+#: templates/prompts/prompt_list.html:39 templates/usecases/list.html:44
+msgid "Updated:"
+msgstr ""
+
+#: templates/compare/index.html:66 templates/guides/guide_list.html:47
+#: templates/prompts/prompt_list.html:45 templates/usecases/list.html:50
+msgid "from"
+msgstr ""
+
+#: templates/compare/index.html:79
 msgid ""
 "There are currently no comparisons available. We are working hard to ensure "
 "that helpful comparisons of AI tools will be available soon."
@@ -1564,7 +1637,7 @@ msgid "Current content"
 msgstr ""
 
 #: templates/content/home.html:98 templates/usecases/list.html:8
-#: usecases/models.py:29 usecases/views.py:68 usecases/views.py:132
+#: usecases/models.py:29 usecases/views.py:74 usecases/views.py:149
 msgid "Usecases"
 msgstr ""
 
@@ -1979,7 +2052,7 @@ msgstr ""
 msgid "No hits."
 msgstr ""
 
-#: templates/guides/guide_detail.html:47
+#: templates/guides/guide_detail.html:64
 msgid "Related Guides"
 msgstr ""
 
@@ -1987,17 +2060,13 @@ msgstr ""
 msgid "Step-by-step instructions on AI topics – understandable and practical."
 msgstr ""
 
-#: templates/guides/guide_list.html:41 templates/prompts/prompt_list.html:35
-#: templates/usecases/list.html:40
+#: templates/guides/guide_list.html:55 templates/prompts/prompt_list.html:51
+#: templates/usecases/list.html:56
 msgid "Read more"
 msgstr ""
 
-#: templates/guides/guide_list.html:47
+#: templates/guides/guide_list.html:63
 msgid "No published guides available."
-msgstr ""
-
-#: templates/legal/cookie_policy.html:5
-msgid "Cookie Policy – MentoroAI"
 msgstr ""
 
 #: templates/legal/cookie_policy.html:10
@@ -2107,10 +2176,6 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/copyright.html:5
-msgid "Copyright & Licenses – MentoroAI"
-msgstr ""
-
 #: templates/legal/copyright.html:10
 msgid "Copyright & Licenses"
 msgstr ""
@@ -2169,10 +2234,6 @@ msgid ""
 "        "
 msgstr ""
 
-#: templates/legal/legal_notice.html:5
-msgid "Legal Notice – MentoroAI"
-msgstr ""
-
 #: templates/legal/legal_notice.html:10
 msgid "Legal Notice"
 msgstr ""
@@ -2205,10 +2266,6 @@ msgid ""
 "                The operators of the linked pages are solely responsible for "
 "their content.\n"
 "            "
-msgstr ""
-
-#: templates/legal/privacy_policy.html:5
-msgid "Privacy Policy – MentoroAI"
 msgstr ""
 
 #: templates/legal/privacy_policy.html:10
@@ -2514,10 +2571,6 @@ msgid ""
 "                We reserve the right to update this Privacy Policy to "
 "reflect current legal requirements.\n"
 "            "
-msgstr ""
-
-#: templates/legal/terms_of_use.html:5
-msgid "Terms of Use – MentoroAI"
 msgstr ""
 
 #: templates/legal/terms_of_use.html:12
@@ -2834,7 +2887,7 @@ msgstr ""
 
 #: templates/partials/_guideitem_card.html:11
 #: templates/partials/_teaser_card.html:11 usecases/models.py:28
-#: usecases/views.py:133
+#: usecases/views.py:150
 msgid "Usecase"
 msgstr ""
 
@@ -2889,13 +2942,13 @@ msgid "Access your Content and creating new content."
 msgstr ""
 
 #: templates/partials/author_info_card.html:30
-msgid "Go to my editorial drafts "
+msgid "Go to my content "
 msgstr ""
 
 #: templates/partials/author_info_card.html:30
 msgid ""
 "\n"
-"                        My drafts"
+"                        My content"
 msgstr ""
 
 #: templates/partials/author_info_card.html:33
@@ -3102,15 +3155,15 @@ msgstr ""
 msgid "Browse beginner-friendly tools"
 msgstr ""
 
-#: templates/prompts/prompt_detail.html:32
+#: templates/prompts/prompt_detail.html:51
 msgid "Suitable tools"
 msgstr ""
 
-#: templates/prompts/prompt_detail.html:38 templates/usecases/detail.html:50
+#: templates/prompts/prompt_detail.html:57 templates/usecases/detail.html:67
 msgid "No tools linked."
 msgstr ""
 
-#: templates/prompts/prompt_detail.html:47
+#: templates/prompts/prompt_detail.html:66
 msgid "More Prompts"
 msgstr ""
 
@@ -3118,7 +3171,7 @@ msgstr ""
 msgid "Templates that significantly improve your AI responses."
 msgstr ""
 
-#: templates/prompts/prompt_list.html:42
+#: templates/prompts/prompt_list.html:58
 msgid "No published prompts found."
 msgstr ""
 
@@ -3164,15 +3217,11 @@ msgstr ""
 msgid "Continue with GitHub"
 msgstr ""
 
-#: templates/usecases/detail.html:13 templates/usecases/list.html:22
-msgid "Persona:"
-msgstr ""
-
-#: templates/usecases/detail.html:41
+#: templates/usecases/detail.html:58
 msgid "Tools used"
 msgstr ""
 
-#: templates/usecases/detail.html:59
+#: templates/usecases/detail.html:76
 msgid "Similar use cases"
 msgstr ""
 
@@ -3180,7 +3229,11 @@ msgstr ""
 msgid "Practical AI application examples for your everyday life and job."
 msgstr ""
 
-#: templates/usecases/list.html:47
+#: templates/usecases/list.html:22
+msgid "Persona:"
+msgstr ""
+
+#: templates/usecases/list.html:63
 msgid "No published use cases found."
 msgstr ""
 
@@ -3188,12 +3241,12 @@ msgstr ""
 msgid "Persona"
 msgstr ""
 
-#: usecases/views.py:55
-msgid "Usecases · MentoroAI"
+#: usecases/views.py:54
+msgid "AI use cases · MentoroAI"
 msgstr ""
 
-#: usecases/views.py:57
+#: usecases/views.py:56
 msgid ""
-"Practical AI use cases with clear examples, benefits, and step-by-step "
-"guidance for business tasks, research, and creative applications."
+"Practical AI use cases with clear examples, benefits and guidance for "
+"business tasks, research and creative work."
 msgstr ""

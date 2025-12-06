@@ -24,22 +24,38 @@
                     {% endif %}
 
                     <div class="card-actions justify-between mt-4">
-                        <div class="gap-2 text-sm text-base-content/80">
-                            {% if obj.reading_time %}
-                                <span>{% heroicon_outline "clock" size=16 %} {{ obj.reading_time }}&nbsp;min</span>
-                            {% endif %}
-                            {% if obj.published_at %}
-                                <time datetime="{{ obj.published_at|date:'c' }}"
-                                      class="inline-flex items-center gap-1 whitespace-nowrap">
-                                    {% heroicon_outline "calendar-days" size=16 %}{{ obj.published_at|date:"d.m.Y" }}
+                        <div class="flex flex-col gap-1 text-sm text-base-content/80">
+                            <div class="flex flex-wrap items-center gap-2">
+                                {% if obj.published_at %}
+                                    <time datetime="{{ obj.published_at|date:'c' }}"
+                                          class="inline-flex items-center gap-1 whitespace-nowrap">
+                                        {% heroicon_outline "calendar-days" size=16 %}
+                                        {{ obj.published_at|date:"d.m.Y" }}
+                                    </time>
+                                {% endif %}
+                            </div>
+                            {% if obj.updated_at %}
+                                <time datetime="{{ obj.updated_at|date:'c' }}"
+                                      class=" text-xs inline-flex items-center gap-1 whitespace-nowrap">
+                                    {% heroicon_outline "calendar-days" size=14 %}
+                                    {% trans "Updated:" %} {{ obj.updated_at|date:"d.m.Y" }}
                                 </time>
                             {% endif %}
+                            {% if obj.author %}
+                                <div class="text-xs text-base-content/80 inline-flex items-center gap-1">
+                                    {% heroicon_outline "user" size=14 %}
+                                    <span> {% trans "from" %} {{ obj.author.get_full_name|default:obj.author.username }}</span>
+                                </div>
+                            {% endif %}
                         </div>
+
                         <a href="{{ obj.get_absolute_url }}" class="btn btn-primary" role="button"
                            aria-pressed="false"
-                           aria-label="
-                                   {% trans "Read details about " %}{{ obj.display_title }}">{% trans "Read more" %}</a>
+                           aria-label="{% trans "Read details about " %}{{ obj.display_title }}">
+                            {% trans "Read more" %}
+                        </a>
                     </div>
+
                 </div>
             </article>
         {% empty %}
