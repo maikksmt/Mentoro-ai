@@ -34,7 +34,7 @@ def resolve_starter_guide_url(lang: str) -> str | None:
     return g.get_absolute_url(language=lang)
 
 
-class HomePageView(TemplateView, SeoMixin):
+class HomePageView(SeoMixin, TemplateView):
     template_name = "content/home.html"
 
     def get_context_data(self, **kwargs):
@@ -42,21 +42,28 @@ class HomePageView(TemplateView, SeoMixin):
         ctx = super().get_context_data(**kwargs)
         canonical = absolute_url(self.request.path)
         alts = localized_alternates(self.request, "content:home")
+        title = _("AI tools, guides & usecases for beginners and professionals")
+        description = _(
+            "MentoroAI offers AI tutorials, guides, prompts, tool comparisons, use cases and a glossary to help you navigate the modern AI world."
+        )
+        json_ld = {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "@id": canonical + "#website",
+            "url": canonical,
+            "name": getattr(settings, "SITE_NAME", "MentoroAI"),
+            "inLanguage": lang,
+            "description": description,
+        },
+
         ctx["seo"] = self.build_seo(
             self.request,
-            title=_("AI tools, guides & usecases for beginners and professionals"),
-            description=_(
-                "MentoroAI offers AI tutorials, prompts, tool comparisons, and a glossary to help you navigate the modern AI world."),
+            title=title,
+            description=description,
             canonical=canonical,
             alternates=alts,
             og_image=get_og_image(),
-            json_ld={
-                "@context": "https://schema.org",
-                "@type": "CollectionPage",
-                "name": "Home",
-                "url": canonical,
-                "inLanguage": get_language(),
-            },
+            json_ld=json_ld,
         )
         ctx["start_guide_url"] = resolve_starter_guide_url(lang)
         ctx["latest_items"] = get_latest_items(limit=6)

@@ -98,6 +98,7 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
     """
     AUTHOR_GROUP_NAMES = getattr(settings, "AUTHOR_GROUP_NAMES", ["Author"])
     EDITOR_GROUP_NAMES = getattr(settings, "EDITOR_GROUP_NAMES", ["Editor", "Admin"])
+    ADMIN_GROUP_NAMES = getattr(settings, "ADMIN_GROUP_NAMES", ["Admin"])
 
     workflow_actions = [
         "action_submit_for_review",
@@ -142,6 +143,13 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
         if not user.is_authenticated or obj is None:
             return False
         return getattr(obj, "author_id", None) == user.id
+
+    def _is_admin_user(self, user):
+        if not user.is_authenticated:
+            return False
+        if user.is_superuser:
+            return True
+        return user.groups.filter(name__in=self.ADMIN_GROUP_NAMES).exists()
 
     # ---- Auto-Review-Logik (beim Speichern im Admin) ----
 
@@ -233,6 +241,11 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
         if not self._is_editor_user(request.user):
             if "author" in [f.name for f in self.model._meta.fields]:
                 fields.append("author")
+
+        if "published_at" in [f.name for f in self.model._meta.fields]:
+            if not self._is_admin_user(request.user):
+                fields.append("published_at")
+
         return fields
 
     # ---- Save-hook that all editorial admins share ----

@@ -19,7 +19,7 @@ class UseCaseAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Versio
     tinymce_fields = ("intro", "body")
     list_display = (
         "display_title", "pk", "status", "is_published", "author", "reviewed_by",
-        "published_at_fmt", "updated_at_fmt",
+        "published_fmt", "updated_fmt",
     )
     list_filter = ("status", "author", "reviewed_by")
     search_fields = ("translations__title", "translations__intro", "translations__body", "translations__slug")
@@ -93,10 +93,10 @@ class UseCaseAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Versio
 
     display_title.short_description = _("Title")
 
-    def published_at_fmt(self, obj):
+    def published_fmt(self, obj):
         return date_format(obj.published_at, "d.m.Y H:i", use_l10n=True) if obj.published_at else "-"
 
-    def updated_at_fmt(self, obj):
+    def updated_fmt(self, obj):
         return date_format(obj.updated_at, "d.m.Y H:i", use_l10n=True) if obj.updated_at else "-"
 
     def get_urls(self):

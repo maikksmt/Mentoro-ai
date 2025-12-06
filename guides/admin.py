@@ -54,15 +54,15 @@ class GuideSectionInline(TranslatableTinyMCEInlineMixin, TranslatableStackedInli
 class GuideAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, VersionAdmin):
     tinymce_fields = ("intro", "body")
     list_display = (
-        "display_title", "pk", "status", "is_published", "author", "reviewed_by", "published_at_formatted",
-        "updated_at_formatted")
+        "display_title", "pk", "status", "is_published", "author", "reviewed_by", "published_fmt",
+        "updated_fmt")
     list_filter = ("status", "categories", "author", "reviewed_by")
     search_fields = ("translations__title", "translations__intro", "slug")
     ordering = ("-published_at", "-updated_at")
     date_hierarchy = "published_at"
     readonly_fields = (
-        "status", "submitted_for_review_at", "reviewed_at", "reviewed_by", "live_i18n", "is_published",
-        "public_slug", "updated_at", "last_published_revision_id",)
+        "status", "submitted_for_review_at", "reviewed_at", "reviewed_by", "live_i18n", "is_published", "updated_at",
+        "public_slug", "last_published_revision_id",)
 
     fieldsets = (
         (_("Meta"), {
@@ -114,12 +114,12 @@ class GuideAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, VersionA
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("title",)}
 
-    def published_at_formatted(self, obj):
+    def published_fmt(self, obj):
         if not obj.published_at:
             return "-"
         return date_format(obj.published_at, format="d.m.Y H:i", use_l10n=True)
 
-    def updated_at_formatted(self, obj):
+    def updated_fmt(self, obj):
         if not obj.updated_at:
             return "-"
         return date_format(obj.updated_at, format="d.m.Y H:i", use_l10n=True)
@@ -128,10 +128,6 @@ class GuideAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, VersionA
     def title_col(self, obj):
         return obj.safe_translation_getter("title", any_language=True) or f"Guide #{obj.pk}"
 
-    published_at_formatted.short_description = "published_at"
-    published_at_formatted.admin_order_field = "published_at"
-    updated_at_formatted.short_description = "updated_at"
-    updated_at_formatted.admin_order_field = "updated_at"
     title_col.short_description = _("Title")
     title_col.admin_order_field = "translations__title"
 

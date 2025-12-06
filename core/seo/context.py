@@ -2,7 +2,7 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 
 from .types import SeoMeta
-from .utils import absolute_url
+from .utils import absolute_url, get_og_image
 
 
 def defaults(request) -> SeoMeta:
@@ -13,7 +13,7 @@ def defaults(request) -> SeoMeta:
             "MentoroAI provides curated AI guides, prompts, tool overviews, comparisons, and a clear glossary to help you work productively with modern AI technologies."),
         canonical=canonical,
         robots="index,follow",
-        og_image=None,
+        og_image=get_og_image(),
         alternates=[],
         json_ld={
             "@context": "https://schema.org",

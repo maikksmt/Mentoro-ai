@@ -13,7 +13,7 @@ from core.views import SeoMixin
 from .models import GlossaryTerm
 
 
-class GlossaryListView(ListView, SeoMixin):
+class GlossaryListView(SeoMixin, ListView):
     model = GlossaryTerm
     template_name = "glossary/glossary_list.html"
     context_object_name = "terms"
@@ -39,21 +39,27 @@ class GlossaryListView(ListView, SeoMixin):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        lang = get_language()
         canonical = absolute_url(self.request.path)
         alts = localized_alternates(self.request, "glossary:list")
+        title = _("AI glossary")
+        description = _(
+            "Understand key terms in AI, machine learning and data science with clear, beginner-friendly definitions."
+        )
         ctx["seo"] = self.build_seo(
             self.request,
-            title=_("Glossary · MentoroAI"),
-            description=_(
-                "AI glossary with clear, concise explanations of key terms across machine learning, LLMs, model behavior, training methods, and modern workflows."),
+            title=title,
+            description=description,
             canonical=canonical,
             alternates=alts,
+            og_image=get_og_image(),
             json_ld={
                 "@context": "https://schema.org",
                 "@type": "CollectionPage",
-                "name": "Glossary",
+                "name": title,
+                "description": description,
                 "url": canonical,
-                "inLanguage": get_language(),
+                "inLanguage": lang,
             },
         )
         ctx["q"] = (self.request.GET.get("q") or "").strip()
@@ -62,7 +68,7 @@ class GlossaryListView(ListView, SeoMixin):
         return ctx
 
 
-class GlossaryDetailView(DetailView, SeoMixin):
+class GlossaryDetailView(SeoMixin, DetailView):
     model = GlossaryTerm
     template_name = "glossary/glossary_detail.html"
     context_object_name = "term"
@@ -83,13 +89,12 @@ class GlossaryDetailView(DetailView, SeoMixin):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         obj: GlossaryTerm = ctx["term"]
+        lang = get_language()
         title = f"{obj.term} · MentoroAI"
-        suffix = _(" An entry from the MentoroAI glossary on important basic AI terms.")
-
         if obj.long_definition:
             desc_source = obj.long_definition
         else:
-            desc_source = f"{obj.term}{suffix}"
+            desc_source = f"{obj.term} · {obj.short_definition}"
         desc = seo_text(desc_source)[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)
@@ -123,13 +128,16 @@ class GlossaryDetailView(DetailView, SeoMixin):
             alts.append(AltHref(lang="x-default", url=canonical))
         json_ld = {
             "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": obj.term,
-            "description": _("This glossary entry conveys the core idea and relevance of this concept within modern AI systems. ") + desc,
-            "inLanguage": get_language(),
-            "mainEntityOfPage": canonical,
+            "@type": "DefinedTerm",
+            "name": obj.term,
+            "description": desc,
             "url": canonical,
+            "inLanguage": lang,
+            "inDefinedTermSet": absolute_url(reverse("glossary:list")),
         }
+        slug = getattr(obj, "slug", None)
+        if slug:
+            json_ld["termCode"] = slug
         if og_img:
             json_ld["image"] = [og_img]
 

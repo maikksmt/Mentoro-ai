@@ -10,7 +10,7 @@ from core.views import SeoMixin
 from .models import Guide, GuideSection, GuideItem
 
 
-class GuideListView(ListView, SeoMixin):
+class GuideListView(SeoMixin, ListView):
     paginate_by = 15
     template_name = "guides/guide_list.html"
     context_object_name = "object_list"
@@ -30,28 +30,33 @@ class GuideListView(ListView, SeoMixin):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        lang = get_language()
         canonical = absolute_url(self.request.path)
+        title = _("AI guides · MentoroAI")
+        description = _(
+            "Browse practical AI guides and tutorials to learn step by step how to use AI tools in everyday life and work."
+        )
         alts = localized_alternates(self.request, "guides:list")
         ctx["seo"] = self.build_seo(
             self.request,
-            title=_("Guides · MentoroAI"),
-            description=_(
-                "Structured AI guides with step-by-step instructions, foundational knowledge, and practical workflows for efficient, real-world usage."),
+            title=title,
+            description=description,
             canonical=canonical,
             alternates=alts,
             json_ld={
                 "@context": "https://schema.org",
                 "@type": "CollectionPage",
-                "name": "Guides",
+                "name": title,
+                "description": description,
                 "url": canonical,
-                "inLanguage": get_language(),
+                "inLanguage": lang,
             },
         )
         ctx["crumbs"] = [(_("Guides"), reverse("guides:list"))]
         return ctx
 
 
-class GuideDetailView(DetailView, SeoMixin):
+class GuideDetailView(SeoMixin, DetailView):
     model = Guide
     template_name = "guides/guide_detail.html"
     context_object_name = "object"
@@ -79,6 +84,7 @@ class GuideDetailView(DetailView, SeoMixin):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         obj: Guide = ctx["object"]
+        lang = get_language()
         title = f"{obj.title}"
         desc_source = obj.intro or obj.body or obj.title
         desc = seo_text(desc_source)[:155]
@@ -92,11 +98,12 @@ class GuideDetailView(DetailView, SeoMixin):
         json_ld = {
             "@context": "https://schema.org",
             "@type": "Article",
-            "headline": obj.title,
+            "headline": title,
             "description": desc,
-            "inLanguage": get_language(),
-            "mainEntityOfPage": canonical,
             "url": canonical,
+            "inLanguage": lang,
+            "mainEntityOfPage": canonical,
+
         }
         if og_img:
             json_ld["image"] = [og_img]

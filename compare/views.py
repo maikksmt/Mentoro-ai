@@ -11,7 +11,7 @@ from core.views import SeoMixin
 from .models import Comparison
 
 
-class ComparisonListView(ListView, SeoMixin):
+class ComparisonListView(SeoMixin, ListView):
     model = Comparison
     template_name = "compare/index.html"
     context_object_name = "objects"
@@ -54,19 +54,24 @@ class ComparisonListView(ListView, SeoMixin):
 
         canonical = absolute_url(self.request.path)
         alts = localized_alternates(self.request, "compare:index")
+        title = _("AI tool comparisons · MentoroAI")
+        description = _(
+            "Compare AI tools by features, performance and use cases to find the best option for your workflows."
+        )
         ctx["seo"] = self.build_seo(
             self.request,
-            title=_("Comparisons · MentoroAI"),
-            description=_(
-                "Compare AI tools by features, pricing, performance, and use cases to identify the best option for your needs across different workflows."),
+            title=title,
+            description=description,
             canonical=canonical,
             alternates=alts,
+            og_image=get_og_image(),
             json_ld={
                 "@context": "https://schema.org",
                 "@type": "CollectionPage",
-                "name": "Comparison",
+                "name": title,
+                "description": description,
                 "url": canonical,
-                "inLanguage": get_language(),
+                "inLanguage": lang,
             },
         )
         ctx.update({
@@ -80,7 +85,7 @@ class ComparisonListView(ListView, SeoMixin):
         return ctx
 
 
-class ComparisonDetailView(DetailView, SeoMixin):
+class ComparisonDetailView(SeoMixin, DetailView):
     model = Comparison
     template_name = "compare/detail.html"
     context_object_name = "object"
@@ -152,24 +157,35 @@ class ComparisonDetailView(DetailView, SeoMixin):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         obj: Comparison = ctx["object"]
-        title = f"{obj.title}"
+        title = obj.title
         desc_source = obj.intro or obj.title
         desc = seo_text(desc_source)[:155]
-        canonical = absolute_url(self.request.path)
-        og_img = getattr(obj, "hero_image_url", None)
+        canonical = absolute_url(obj.get_absolute_url())
+        lang = get_language()
+        og_img = get_og_image()
         alts = localized_alternates(
             self.request,
             url_name="compare:detail",  # optional, Fallback
             obj=obj,
         )
+        tools = list(getattr(obj, "tools").all()) if getattr(obj, "tools", None) else []
         json_ld = {
             "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": obj.title,
+            "@type": "ItemList",
+            "name": title,
             "description": desc,
-            "inLanguage": get_language(),
+            "inLanguage": lang,
             "mainEntityOfPage": canonical,
             "url": canonical,
+            "itemListElement": [
+                {
+                    "@type": "SoftwareApplication",
+                    "name": tool.name,
+                    "url": absolute_url(tool.get_absolute_url()),
+                    "position": idx + 1,
+                }
+                for idx, tool in enumerate(tools)
+            ],
         }
         if og_img:
             json_ld["image"] = [og_img]
