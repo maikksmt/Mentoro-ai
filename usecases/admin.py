@@ -16,7 +16,7 @@ from .models import UseCase
 
 @admin.register(UseCase)
 class UseCaseAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, VersionAdmin):
-    tinymce_fields = ("intro", "body")
+    tinymce_fields = ("intro", "body", "outro")
     list_display = (
         "display_title", "pk", "status", "is_published", "author", "reviewed_by",
         "published_fmt", "updated_fmt",
@@ -56,7 +56,7 @@ class UseCaseAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Versio
             "fields": ("slug", "public_slug", "tools"),
         }),
         (_("Content (translated)"), {
-            "fields": ("title", "intro", "body"),
+            "fields": ("title", "intro", "body", "outro"),
             "description": _(
                 "These fields are language-specific. Use the language tabs above."
             ),
