@@ -59,7 +59,7 @@ defusedxml==0.7.1
     # via py-serializable
 dj-database-url==3.0.1
     # via -r requirements.in
-django==5.2.8
+django==5.2.9
     # via
     #   -r requirements.in
     #   dj-database-url

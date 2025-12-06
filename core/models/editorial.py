@@ -169,9 +169,11 @@ class EditorialWorkflowMixin(models.Model):
 
     @transition(field=status, source=STATUS_APPROVED, target=STATUS_PUBLISHED)
     def publish(self, *, by, note=""):
-        self.reviewed_at = timezone.now()
-        self.published_at = timezone.now()
+        now = timezone.now()
+        self.reviewed_at = now
         self.reviewed_by = by
+        if not self.published_at:
+            self.published_at = now
         if note:
             self.review_note = note
         self._update_live_snapshot()

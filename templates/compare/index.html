@@ -9,8 +9,7 @@
     <form method="get" class="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-2xl">
         <label class="input col-span-2">
             {% heroicon_solid "magnifying-glass" class="opacity-70" %}
-            <input type="search" name="q" value="{{ q|default_if_none:'' }}" class="grow"
-                   placeholder="{% trans 'Search…' %}">
+            <input type="search" name="q" value="{{ q|default_if_none:'' }}" class="grow" placeholder="{% trans 'Search…' %}">
         </label>
         <label class="col-span-2">
             <select name="category" class="select appearance-none">
@@ -25,7 +24,6 @@
             {% if q or category %}<a href="." class="btn ml-2">{% trans "Reset" %}</a>{% endif %}
         </div>
     </form>
-
     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {% for cmp in object_list %}
             <article class="card bg-base-100 shadow hover:shadow-lg transition">
@@ -45,9 +43,34 @@
                         {% endif %}
                     </div>
                     <div class="card-actions justify-end mt-4">
+                        <div class="flex flex-col gap-1 text-sm text-base-content/80">
+                            <div class="flex flex-wrap items-center gap-2">
+                                {% if cmp.published_at %}
+                                    <time datetime="{{ cmp.published_at|date:'c' }}"
+                                          class="inline-flex items-center gap-1 whitespace-nowrap">
+                                        {% heroicon_outline "calendar-days" size=16 %}
+                                        {{ cmp.published_at|date:"d.m.Y" }}
+                                    </time>
+                                {% endif %}
+                            </div>
+                            {% if cmp.updated_at %}
+                                <time datetime="{{ cmp.updated_at|date:'c' }}"
+                                      class=" text-xs inline-flex items-center gap-1 whitespace-nowrap">
+                                    {% heroicon_outline "calendar-days" size=14 %}
+                                    {% trans "Updated:" %} {{ cmp.updated_at|date:"d.m.Y" }}
+                                </time>
+                            {% endif %}
+                            {% if cmp.author %}
+                                <div class="text-xs text-base-content/80 inline-flex items-center gap-1">
+                                    {% heroicon_outline "user" size=14 %}
+                                    <span> {% trans "from" %} {{ cmp.author.get_full_name|default:cmp.author.username }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
                         <a href="{% url 'compare:detail' slug=cmp.slug %}" class="btn btn-sm btn-primary" role="button"
                            aria-pressed="false"
-                           aria-label="{% trans "Read details about " %}{{ cmp.title }}">{% trans "Details" %}</a>
+                           aria-label="{% trans "Read details about " %}{{ cmp.title }}">{% trans "Details" %}
+                        </a>
                     </div>
                 </div>
             </article>

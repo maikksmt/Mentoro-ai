@@ -30,7 +30,7 @@ def _resolve_by_slug(qs: QuerySet[Prompt], slug: str) -> Optional[Prompt]:
     return None
 
 
-class PromptListView(ListView, SeoMixin):
+class PromptListView(SeoMixin, ListView):
     model = Prompt
     template_name = "prompts/prompt_list.html"
     context_object_name = "object_list"
@@ -48,21 +48,25 @@ class PromptListView(ListView, SeoMixin):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         ctx = super().get_context_data(**kwargs)
+        lang = get_language()
         canonical = absolute_url(self.request.path)
         alts = localized_alternates(self.request, "prompts:list")
+        title = _("AI prompts · MentoroAI")
+        description = _("Browse ready-made AI prompts for writing, coding, learning, marketing and more.")
         ctx["seo"] = self.build_seo(
             self.request,
-            title=_("Prompts · MentoroAI"),
-            description=_(
-                "Collection of tested prompt templates for ChatGPT and other AI models, organized by categories and use cases for fast, practical usage."),
+            title=title,
+            description=description,
             canonical=canonical,
             alternates=alts,
+            og_image=get_og_image(),
             json_ld={
                 "@context": "https://schema.org",
                 "@type": "CollectionPage",
-                "name": "Prompts",
+                "name": title,
+                "description": description,
                 "url": canonical,
-                "inLanguage": get_language(),
+                "inLanguage": lang,
             },
         )
         ctx["crumbs"] = [
@@ -71,7 +75,7 @@ class PromptListView(ListView, SeoMixin):
         return ctx
 
 
-class PromptDetailView(DetailView, SeoMixin):
+class PromptDetailView(SeoMixin, DetailView):
     model = Prompt
     template_name = "prompts/prompt_detail.html"
     context_object_name = "object"
@@ -91,26 +95,27 @@ class PromptDetailView(DetailView, SeoMixin):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         ctx = super().get_context_data(**kwargs)
+        lang = get_language()
         obj: Prompt = ctx["object"]
-        title = f"{obj.title}"
-        desc_source = obj.intro or obj.body or obj.title
+        title = obj.display_title or obj.title
+        desc_source = obj.intro or obj.body or title
         desc = seo_text(desc_source)[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)
 
         alts = localized_alternates(
             self.request,
-            url_name="prompts:detail",  # optional, Fallback
+            url_name="prompts:detail",
             obj=obj,
         )
         json_ld = {
             "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": obj.title,
+            "@type": "CreativeWork",
+            "name": title,
             "description": desc,
-            "inLanguage": get_language(),
-            "mainEntityOfPage": canonical,
             "url": canonical,
+            "inLanguage": lang,
+            "mainEntityOfPage": canonical,
         }
         if og_img:
             json_ld["image"] = [og_img]

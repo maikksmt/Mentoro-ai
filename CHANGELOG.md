@@ -19,6 +19,7 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - User Signup enabled
+- add author and date information to editorial list and detail sites
 
 ### Changed
 
@@ -26,10 +27,13 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - update editorial templates
 - update editorial groups permissions
 - centralize admin object permissions and setup permissions for objects and Roles
+- update to Django 5.2.9
+- minor UI improvements
 
 ### Fixed
 
 - fix and optimize SEO
+- behavior for published date for Editorial Objects to not be updated after changes.
 
 ---
 

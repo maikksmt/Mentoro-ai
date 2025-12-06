@@ -8,15 +8,32 @@
         <article class="prose max-w-none">
             <header class="mb-6">
                 <h1 class="text-3xl font-bold">{{ display_title }}</h1>
-                <div class="mt-2 flex flex-wrap items-center gap-3 text-sm text-base-content/70">
-                    {% if display_persona %}
-                        <span><strong>{% trans "Persona:" %}</strong> {{ display_persona }}</span>
+                <div class="mt-2 flex flex-wrap items-center gap-3 text-sm text-base-content/80">
+                    {% if object.reading_time %}
+                        <span class="inline-flex items-center gap-1">
+                            {% heroicon_outline "clock" size=16 %} {% blocktrans %}Reading time: {% endblocktrans %}
+                            {{ object.reading_time }}&nbsp;min
+                        </span>
                     {% endif %}
                     {% if object.published_at %}
-                        <time datetime="{{ object.published_at|date:'c' }}">
-                            📅 {{ object.published_at|date:"d.m.Y" }}</time>
+                        <time datetime="{{ object.published_at|date:'c' }}" class="inline-flex items-center gap-1 whitespace-nowrap">
+                            {% heroicon_outline "calendar-days" size=16 %}{% trans "Published: " %} {{ object.published_at|date:"d.m.Y" }}
+                        </time>
+                        {% if object.updated_at %}
+                            <time datetime="{{ object.updated_at|date:'c' }}" class="inline-flex items-center gap-1 whitespace-nowrap">
+                                {% trans "Last Updated: " %} {{ object.updated_at|date:"d.m.Y" }}
+                            </time>
+                        {% endif %}
                     {% endif %}
                 </div>
+                {% if object.author %}
+                    <div>
+                        <div class="text-sm text-base-content/80 inline-flex items-center gap-1">
+                            {% heroicon_outline "user" size=16 %} {% trans "Author: " %}
+                            <span>{{ object.author.get_full_name|default:object.author.username }}</span>
+                        </div>
+                    </div>
+                {% endif %}
             </header>
 
             {% if display_intro %}
