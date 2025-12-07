@@ -20,6 +20,9 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - User Signup enabled
 - add author and date information to editorial list and detail sites
+- Richtext / TinyMCE Safelist
+- tool cards for used tools in use cases.
+- fonts for project.
 
 ### Changed
 
@@ -29,6 +32,8 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - centralize admin object permissions and setup permissions for objects and Roles
 - update to Django 5.2.9
 - minor UI improvements
+- richtext ALLOWED_TAGS and ALLOWED_ATTRS
+- templates
 
 ### Fixed
 

@@ -34,18 +34,18 @@
             </header>
 
             {% if display_intro %}
-                <p class="prose text-base-content/80">{{ display_intro|richtext|safe }}</p>
+                <div class="prose text-base-content/80">{{ display_intro|richtext|safe }}</div>
                 <div class="divider"></div>
             {% endif %}
-            <p class="prose content">
+            <div class="prose content">
                 {{ display_body|richtext|safe }}
-            </p>
+            </div>
             {% for section in object.sections.all %}
                 <div class="divider"></div>
                 <div class="">
                     <h2>{{ section.display_title }}</h2>
                     {% if section.display_body %}
-                        <p class="opacity-80">{{ section.display_body|richtext|safe }}</p>
+                        <div class="opacity-80">{{ section.display_body|richtext|safe }}</div>
                     {% endif %}
                 </div>
                 <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

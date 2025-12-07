@@ -13,6 +13,7 @@ def defaults(request) -> SeoMeta:
             "MentoroAI provides curated AI guides, prompts, tool overviews, comparisons, and a clear glossary to help you work productively with modern AI technologies."),
         canonical=canonical,
         robots="index,follow",
+        og_type="website",
         og_image=get_og_image(),
         alternates=[],
         json_ld={
