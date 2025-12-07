@@ -4417,3 +4417,82 @@ msgstr ""
 
 #~ msgid "drafts"
 #~ msgstr "Entwurf"
+
+#: templates/content/richtext_layout_examples.html:2
+msgid "Layout templates for rich text"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:7
+msgid "Rich text layout templates"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:9
+msgid "Use these examples as copy & paste templates in TinyMCE HTML mode."
+msgstr ""
+#: templates/content/richtext_layout_examples.html:12
+msgid ""
+"\n"
+"                In the editor: switch to <strong>&quot;&lt;&nbsp;&gt;&quot; / &quot;Source Code&quot;</strong>, insert the desired\n"
+"                code, and customize the content (text, icons, images)."
+msgstr ""
+#: templates/content/richtext_layout_examples.html:19
+msgid "Image on the left / Text on the right"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:76
+msgid "Image above / Text below"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:48
+msgid "Image on the right / Text on the left"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:52
+msgid "Preview"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:445
+msgid "Mini-Hero / Subheading"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:368
+msgid "Info boxes: Tip / Example / Key takeaway"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:314
+msgid "Icon-List &amp; Checklist"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:237
+msgid "2-/3-/4-column sections"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:160
+msgid "Callouts: Tip / Hint / Warning"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:132
+msgid "2 cards side by side"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:18
+msgid "Notice for authors"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:21
+msgid ""
+"\n"
+"                    In TinyMCE, you can work freely with HTML and use all approved TailwindCSS and DaisyUI utilities. Here is an overview of\n"
+"                    the recommended building blocks:"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:41
+msgid "Typography"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:52
+msgid "DaisyUI Components"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:54
+msgid "(Notes, tips, warnings)"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:55
+msgid "(for structured sections)"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:56
+msgid "(small markings)"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:57
+msgid "(Buttons, rarely used in texts)"
+msgstr ""
+#: templates/content/richtext_layout_examples.html:65
+msgid ""
+"\n"
+"                    Note: For complex layouts such as image-text combinations, info boxes, or maps, you will find ready-made copy-and-paste\n"
+"                    snippets below."
+msgstr ""
