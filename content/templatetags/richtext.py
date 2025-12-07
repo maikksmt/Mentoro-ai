@@ -37,9 +37,15 @@ ALLOWED_TAGS = [
     "tr",
     "th",
     "td",
+    "div",
+    "section",
+    "article",
+    "header",
+    "footer",
+    "nav",
 ]
 ALLOWED_ATTRS = {
-    "*": ["class", "id"],
+    "*": ["class", "id", "style", "data-*", "aria-*"],
     "a": ["href", "title", "rel", "target"],
     "img": ["src", "alt", "title", "width", "height", "loading"],
     "table": ["border", "cellpadding", "cellspacing"],
@@ -58,6 +64,6 @@ def richtext(html: str) -> str:
         tags=ALLOWED_TAGS,
         attributes=ALLOWED_ATTRS,
         protocols=ALLOWED_PROTOCOLS,
-        strip=True,
+        strip=False,
     )
     return mark_safe(cleaned)

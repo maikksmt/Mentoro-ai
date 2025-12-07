@@ -291,7 +291,7 @@ TINYMCE_DEFAULT_CONFIG = {
         },
     ],
     "toolbar": (
-        "fullscreen preview | undo redo | styles | bold italic underline removeformat | alignleft aligncenter alignright alignjustify |"
+        "fullscreen preview code | undo redo | styles | bold italic underline removeformat | alignleft aligncenter alignright alignjustify |"
         "bullist numlist outdent indent | table | link image media charmap codesample | "
         "visualblocks visualchars | searchreplace emoticons wordcount "
     ),
