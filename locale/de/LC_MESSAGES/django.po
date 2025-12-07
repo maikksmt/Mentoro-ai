@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-06 14:13+0100\n"
+"POT-Creation-Date: 2025-12-07 03:46+0100\n"
 "PO-Revision-Date: 2025-12-06 14:11+0100\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -220,8 +220,7 @@ msgstr "Intro"
 msgid "Comparison"
 msgstr "Vergleich"
 
-#: compare/models.py:26 compare/views.py:79 compare/views.py:210
-#: compare/views.py:248 compare/views.py:279 compare/views.py:282
+#: compare/models.py:26 compare/views.py:78 compare/views.py:210
 #: templates/base.html:88 templates/base.html:112
 #: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
@@ -234,33 +233,17 @@ msgstr ""
 "Wenn eine Aufschlüsselung der Punktzahl bereitgestellt wird, ist mindestens "
 "ein Tool erforderlich."
 
-#: compare/views.py:57
+#: compare/views.py:56
 msgid "AI tool comparisons · MentoroAI"
 msgstr "KI-Tool-Vergleiche · MentoroAI"
 
-#: compare/views.py:59
+#: compare/views.py:58
 msgid ""
 "Compare AI tools by features, performance and use cases to find the best "
 "option for your workflows."
 msgstr ""
 "Vergleichen Sie KI-Tools nach Funktionen, Leistung und Anwendungsfällen, um "
 "die beste Option zu finden."
-
-#: compare/views.py:243
-msgid "Tool comparisons"
-msgstr "Tool-Vergleiche"
-
-#: compare/views.py:245
-msgid ""
-"Comparisons of AI tools based on criteria such as price, functionality, and "
-"quality."
-msgstr ""
-"Vergleiche von KI-Tools anhand von Kriterien wie Preis, Funktionalität und "
-"Qualität."
-
-#: compare/views.py:280
-msgid "Discover side-by-side tool comparisons."
-msgstr "Entdecke direkte Tool-vergleiche."
 
 #: content/views/editorial.py:72
 msgid "My Content - Guides, Prompts, Usecases, Comparisons"
@@ -531,7 +514,7 @@ msgstr "Public slug"
 msgid "Guide"
 msgstr "Leitfaden"
 
-#: guides/models.py:29 guides/views.py:55 guides/views.py:126
+#: guides/models.py:29 guides/views.py:55 guides/views.py:127
 #: templates/base.html:76 templates/base.html:100
 #: templates/content/home.html:96 templates/content/what-to-find.html:32
 #: templates/guides/guide_list.html:7 templates/partials/_entry_cards.html:19
@@ -643,14 +626,14 @@ msgstr "Outro"
 msgid "Select the AI tool for which this prompt has been optimized."
 msgstr "Wähle das KI-Tool aus, für das dieser Prompt optimiert wurde."
 
-#: prompts/models.py:29 prompts/views.py:142
+#: prompts/models.py:29 prompts/views.py:144
 #: templates/partials/_guideitem_card.html:9
 #: templates/partials/_teaser_card.html:9
 #: templates/prompts/prompt_detail.html:41
 msgid "Prompt"
 msgstr "Prompt"
 
-#: prompts/models.py:30 prompts/views.py:73 prompts/views.py:141
+#: prompts/models.py:30 prompts/views.py:74 prompts/views.py:143
 #: templates/base.html:79 templates/base.html:103
 #: templates/content/home.html:97 templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
@@ -1527,7 +1510,7 @@ msgid "Website"
 msgstr "Webseite"
 
 #: templates/catalog/tool_list.html:214 templates/compare/index.html:72
-#: templates/content/home.html:72
+#: templates/content/home.html:72 templates/usecases/detail.html:91
 msgid "Details"
 msgstr "Details"
 
@@ -1724,7 +1707,7 @@ msgstr "KI-Tools entdecken"
 msgid "Featured Tools"
 msgstr "Ausgewählte Tools"
 
-#: templates/content/home.html:70
+#: templates/content/home.html:70 templates/usecases/detail.html:88
 msgid "Rating"
 msgstr "Bewertung"
 
@@ -1737,7 +1720,7 @@ msgid "Current content"
 msgstr "Aktuelle Inhalte"
 
 #: templates/content/home.html:98 templates/usecases/list.html:8
-#: usecases/models.py:29 usecases/views.py:74 usecases/views.py:149
+#: usecases/models.py:29 usecases/views.py:74 usecases/views.py:150
 msgid "Usecases"
 msgstr "Anwendungsfälle"
 
@@ -3203,7 +3186,7 @@ msgstr "Zu den Vergleichen"
 
 #: templates/partials/_guideitem_card.html:11
 #: templates/partials/_teaser_card.html:11 usecases/models.py:28
-#: usecases/views.py:150
+#: usecases/views.py:151
 msgid "Usecase"
 msgstr "Anwendungsfall"
 
@@ -3517,7 +3500,7 @@ msgstr "Anfängerfreundliche Tools durchsuchen"
 msgid "Suitable tools"
 msgstr "Geeignete Tools"
 
-#: templates/prompts/prompt_detail.html:57 templates/usecases/detail.html:67
+#: templates/prompts/prompt_detail.html:57
 msgid "No tools linked."
 msgstr "Keine Tools verknüpft."
 
@@ -3582,7 +3565,7 @@ msgstr "Continue with GitHub"
 msgid "Tools used"
 msgstr "Verwendete Tools"
 
-#: templates/usecases/detail.html:76
+#: templates/usecases/detail.html:104
 msgid "Similar use cases"
 msgstr "Ähnliche Anwendungsfälle"
 
@@ -3613,6 +3596,19 @@ msgid ""
 msgstr ""
 "Praktische KI-Anwendungsfälle mit klaren Beispielen, Vorteilen und "
 "Anleitungen für geschäftliche Aufgaben, Forschung und kreative Arbeit."
+
+#~ msgid "Tool comparisons"
+#~ msgstr "Tool-Vergleiche"
+
+#~ msgid ""
+#~ "Comparisons of AI tools based on criteria such as price, functionality, "
+#~ "and quality."
+#~ msgstr ""
+#~ "Vergleiche von KI-Tools anhand von Kriterien wie Preis, Funktionalität "
+#~ "und Qualität."
+
+#~ msgid "Discover side-by-side tool comparisons."
+#~ msgstr "Entdecke direkte Tool-vergleiche."
 
 #~ msgid "Tools · MentoroAI"
 #~ msgstr "Tools · MentoroAI"
