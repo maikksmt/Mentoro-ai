@@ -21,6 +21,7 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - User Signup enabled
 - add author and date information to editorial list and detail sites
 - Richtext / TinyMCE Safelist
+- Richtext Layout Notes and layout snippets for Authors
 - tool cards for used tools in use cases.
 - fonts for project.
 
