@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-07 03:46+0100\n"
+"POT-Creation-Date: 2025-12-07 14:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -210,7 +210,7 @@ msgid "Comparison"
 msgstr ""
 
 #: compare/models.py:26 compare/views.py:78 compare/views.py:210
-#: templates/base.html:88 templates/base.html:112
+#: templates/base.html:91 templates/base.html:115
 #: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
 msgid "Comparisons"
@@ -482,7 +482,7 @@ msgid "Guide"
 msgstr ""
 
 #: guides/models.py:29 guides/views.py:55 guides/views.py:127
-#: templates/base.html:76 templates/base.html:100
+#: templates/base.html:79 templates/base.html:103
 #: templates/content/home.html:96 templates/content/what-to-find.html:32
 #: templates/guides/guide_list.html:7 templates/partials/_entry_cards.html:19
 msgid "Guides"
@@ -538,7 +538,7 @@ msgstr ""
 msgid "Reason (optional)"
 msgstr ""
 
-#: newsletter/views.py:20 templates/base.html:203
+#: newsletter/views.py:20 templates/base.html:206
 msgid "Newsletter"
 msgstr ""
 
@@ -596,7 +596,7 @@ msgid "Prompt"
 msgstr ""
 
 #: prompts/models.py:30 prompts/views.py:74 prompts/views.py:143
-#: templates/base.html:79 templates/base.html:103
+#: templates/base.html:82 templates/base.html:106
 #: templates/content/home.html:97 templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
 msgid "Prompts"
@@ -836,7 +836,7 @@ msgstr ""
 
 #: templates/account/login.html:4 templates/account/login.html:103
 #: templates/account/password_reset_from_key_done.html:23
-#: templates/base.html:145 templates/partials/author_info_card.html:56
+#: templates/base.html:148 templates/partials/author_info_card.html:56
 msgid "Login"
 msgstr ""
 
@@ -885,7 +885,7 @@ msgid "Create a free account"
 msgstr ""
 
 #: templates/account/logout.html:4 templates/account/logout.html:20
-#: templates/account/logout.html:32 templates/base.html:142
+#: templates/account/logout.html:32 templates/base.html:145
 msgid "Logout"
 msgstr ""
 
@@ -1196,73 +1196,73 @@ msgstr ""
 msgid "No differences in this language."
 msgstr ""
 
-#: templates/base.html:68
+#: templates/base.html:71
 msgid "Mobile menu"
 msgstr ""
 
-#: templates/base.html:73 templates/base.html:97
+#: templates/base.html:76 templates/base.html:100
 #: templates/content/what-to-find.html:31
 #: templates/partials/_entry_cards.html:11
 msgid "Glossary"
 msgstr ""
 
-#: templates/base.html:82 templates/base.html:106
+#: templates/base.html:85 templates/base.html:109
 #: templates/partials/_entry_cards.html:35
 msgid "Use cases"
 msgstr ""
 
-#: templates/base.html:85 templates/base.html:109
+#: templates/base.html:88 templates/base.html:112
 #: templates/content/what-to-find.html:35
 #: templates/partials/_entry_cards.html:43
 msgid "Tools"
 msgstr ""
 
-#: templates/base.html:120 templates/catalog/tool_list.html:63
+#: templates/base.html:123 templates/catalog/tool_list.html:63
 #: templates/catalog/tool_list.html:64
 msgid "Search"
 msgstr ""
 
-#: templates/base.html:129
+#: templates/base.html:132
 msgid "Toggle theme"
 msgstr ""
 
-#: templates/base.html:152
+#: templates/base.html:155
 msgid "Language select"
 msgstr ""
 
-#: templates/base.html:179
+#: templates/base.html:182
 msgid "Dashboard"
 msgstr ""
 
-#: templates/base.html:182
+#: templates/base.html:185
 msgid "Admin Panel"
 msgstr ""
 
-#: templates/base.html:184 templates/content/editorial/my_content.html:9
+#: templates/base.html:187 templates/content/editorial/my_content.html:9
 msgid "My Content"
 msgstr ""
 
-#: templates/base.html:187
+#: templates/base.html:190
 msgid "Reviews"
 msgstr ""
 
-#: templates/base.html:205 templates/partials/_entry_cards.html:5
+#: templates/base.html:208 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
 msgstr ""
 
-#: templates/base.html:206
+#: templates/base.html:209
 msgid "Legal notice"
 msgstr ""
 
-#: templates/base.html:207
+#: templates/base.html:210
 msgid "Privacy policy"
 msgstr ""
 
-#: templates/base.html:210 templates/legal/terms_of_use.html:10
+#: templates/base.html:213 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr ""
 
-#: templates/base.html:211
+#: templates/base.html:214
 msgid "Copyright"
 msgstr ""
 
@@ -1510,33 +1510,33 @@ msgid ""
 "that helpful comparisons of AI tools will be available soon."
 msgstr ""
 
-#: templates/content/editorial/my_content.html:13
+#: templates/content/editorial/my_content.html:17
 msgid "Typ"
 msgstr ""
 
-#: templates/content/editorial/my_content.html:14
+#: templates/content/editorial/my_content.html:18
 msgid "Titel"
 msgstr ""
 
-#: templates/content/editorial/my_content.html:15
+#: templates/content/editorial/my_content.html:19
 #: templates/ops/seo_check.html:40
 msgid "Status"
 msgstr ""
 
-#: templates/content/editorial/my_content.html:37
+#: templates/content/editorial/my_content.html:41
 msgid "Submit for review"
 msgstr ""
 
-#: templates/content/editorial/my_content.html:39
+#: templates/content/editorial/my_content.html:43
 msgid "Roll-Back to review"
 msgstr ""
 
-#: templates/content/editorial/my_content.html:51
+#: templates/content/editorial/my_content.html:55
 #: templates/content/editorial/review_queue.html:38
 msgid "Publish"
 msgstr ""
 
-#: templates/content/editorial/my_content.html:62
+#: templates/content/editorial/my_content.html:66
 #: templates/content/editorial/review_queue.html:36
 #: templates/content/editorial/review_queue.html:40
 #: templates/content/editorial/review_queue.html:43
@@ -1544,11 +1544,11 @@ msgstr ""
 msgid "Archive"
 msgstr ""
 
-#: templates/content/editorial/my_content.html:73
+#: templates/content/editorial/my_content.html:77
 msgid "Restore"
 msgstr ""
 
-#: templates/content/editorial/my_content.html:80
+#: templates/content/editorial/my_content.html:84
 msgid "No entries"
 msgstr ""
 
@@ -1628,6 +1628,175 @@ msgstr ""
 
 #: templates/content/home.html:108
 msgid "No published content yet."
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:3
+msgid "Layout templates for rich text"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:7
+msgid "Rich text layout templates"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:9
+msgid "Use these examples as copy & paste templates in TinyMCE HTML mode."
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:11
+msgid ""
+"\n"
+"                In the editor: switch to <strong>&quot;&lt;&nbsp;&gt;&quot; "
+"&nbsp;HTML Source Code</strong>, insert the desired\n"
+"                code, and customize the content (text, icons, images)."
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:18
+msgid "Notice for authors"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:21
+msgid ""
+"\n"
+"                        In TinyMCE, you can work freely with HTML and use "
+"the approved TailwindCSS and DaisyUI utilities.\n"
+"                        Here is an overview of the most useful building "
+"blocks for layouts in guides and rich text content:\n"
+"                    "
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:31
+msgid "Layout"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:54
+msgid "(for images)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:61
+msgid "Typography & lists"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:79
+msgid "(for list items)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:83
+msgid "(for colored bullets)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:90
+msgid "DaisyUI components & visual style"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:94
+msgid "(for small CTAs only)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:119
+msgid ""
+"\n"
+"                        Tip: Most classes also work with responsive prefixes "
+"such as <code>sm:</code>, <code>md:</code>,\n"
+"                        <code>lg:</code>. For complex layouts (image–text "
+"combinations, info boxes, cards) you can use the\n"
+"                        ready-made snippets below and only adapt the "
+"content.\n"
+"                    "
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:131
+msgid "Image on the left / Text on the right"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:135
+#: templates/content/richtext_layout_examples.html:164
+#: templates/content/richtext_layout_examples.html:192
+#: templates/content/richtext_layout_examples.html:220
+#: templates/content/richtext_layout_examples.html:248
+#: templates/content/richtext_layout_examples.html:562
+msgid "Preview"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:160
+msgid "Image on the right / Text on the left"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:188
+msgid "Image above / Text below"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:216
+msgid "3 cards side by side"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:244
+msgid "2 cards side by side"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:272
+msgid "Callouts: Tip / Note / Warning"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:278
+msgid "Preview (Tip)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:301
+msgid "Preview (Note)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:324
+msgid "Preview (Warning)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:349
+msgid "2-/3-/4-column sections"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:355
+msgid "Preview (2 Columns)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:378
+msgid "Preview (3 Columns)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:401
+msgid "Preview (4 Columns)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:426
+msgid "Icon-List &amp; Checklist"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:432
+msgid "Preview (Icon List)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:455
+msgid "Preview (Checklist)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:480
+msgid ""
+"Info boxes: Tip / Example / Key\n"
+"                    takeaway"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:487
+msgid "Preview (Info Tip)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:510
+msgid "Preview (Example)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:533
+msgid "Preview (Key Takeaway)"
+msgstr ""
+
+#: templates/content/richtext_layout_examples.html:558
+msgid "Mini-Hero / Subheading"
 msgstr ""
 
 #: templates/content/what-to-find.html:11

@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-27 23:53+0100\n"
-"PO-Revision-Date: 2025-12-06 14:05+0100\n"
+"PO-Revision-Date: 2025-12-07 14:16+0100\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: de\n"
@@ -299,3 +299,113 @@ msgstr "Aktualisiert:"
 #: templates/guides/guide_list.html:53
 msgid "from"
 msgstr "Von"
+
+#: templates/content/richtext_layout_examples.html:2
+msgid "Layout templates for rich text"
+msgstr "Layoutvorlagen für Rich Text"
+
+#: templates/content/richtext_layout_examples.html:7
+msgid "Rich text layout templates"
+msgstr "Rich-Text-Layoutvorlagen"
+
+#: templates/content/richtext_layout_examples.html:9
+msgid "Use these examples as copy & paste templates in TinyMCE HTML mode."
+msgstr ""
+"Verwenden Sie diese Beispiele als Copy & Paste-Vorlagen im TinyMCE HTML-"
+"Modus."
+
+#: templates/content/richtext_layout_examples.html:12
+msgid ""
+"\n"
+"                In the editor: switch to <strong>&quot;&lt;&nbsp;&gt;&quot; / &quot;Source Code&quot;</strong>, insert the desired\n"
+"                code, and customize the content (text, icons, images)."
+msgstr ""
+"\n"
+"Im Editor: Wechseln Sie zu <strong>&quot;&lt;&nbsp;&gt;&quot; / &quot;Quellcode&quot;</strong>, fügen Sie den gewünschten\n"
+"Code ein und passen Sie den Inhalt (Text, Symbole, Bilder) an."
+
+#: templates/content/richtext_layout_examples.html:19
+msgid "Image on the left / Text on the right"
+msgstr "Bild links / Text rechts"
+
+#: templates/content/richtext_layout_examples.html:76
+msgid "Image above / Text below"
+msgstr "Bild oben / Text unten"
+
+#: templates/content/richtext_layout_examples.html:48
+msgid "Image on the right / Text on the left"
+msgstr "Bild rechts / Text links"
+
+#: templates/content/richtext_layout_examples.html:52
+msgid "Preview"
+msgstr "Vorschau"
+
+#: templates/content/richtext_layout_examples.html:445
+msgid "Mini-Hero / Subheading"
+msgstr "Mini-Hero / Untertitel"
+
+#: templates/content/richtext_layout_examples.html:368
+msgid "Info boxes: Tip / Example / Key takeaway"
+msgstr "Infoboxen: Tipp / Beispiel / Key takeaway"
+
+#: templates/content/richtext_layout_examples.html:314
+msgid "Icon-List &amp; Checklist"
+msgstr "Icon-Liste &amp; Checkliste"
+
+#: templates/content/richtext_layout_examples.html:237
+msgid "2-/3-/4-column sections"
+msgstr "2-/3-/4-Spalten Abschnitte"
+
+#: templates/content/richtext_layout_examples.html:160
+msgid "Callouts: Tip / Hint / Warning"
+msgstr "Hinweise: Tipp / Hinweis / Warnung"
+
+#: templates/content/richtext_layout_examples.html:132
+msgid "2 cards side by side"
+msgstr "2 Karten nebeneinander"
+
+#: templates/content/richtext_layout_examples.html:18
+msgid "Notice for authors"
+msgstr "Hinweis für Autoren"
+
+#: templates/content/richtext_layout_examples.html:21
+msgid ""
+"\n"
+"                    In TinyMCE, you can work freely with HTML and use all approved TailwindCSS and DaisyUI utilities. Here is an overview of\n"
+"                    the recommended building blocks:"
+msgstr ""
+"\n"
+"In TinyMCE können Sie frei mit HTML arbeiten und alle genehmigten TailwindCSS- und DaisyUI-Elemente verwenden. Hier ist ein Überblick über die empfohlenen Bausteine:"
+
+#: templates/content/richtext_layout_examples.html:41
+msgid "Typography"
+msgstr "Typographie"
+
+#: templates/content/richtext_layout_examples.html:52
+msgid "DaisyUI Components"
+msgstr "DaisyUI-Komponenten"
+
+#: templates/content/richtext_layout_examples.html:54
+msgid "(Notes, tips, warnings)"
+msgstr "(Hinweise, Tipps, Warnungen)"
+
+#: templates/content/richtext_layout_examples.html:55
+msgid "(for structured sections)"
+msgstr "(Für strukturierte Abschnitte)"
+
+#: templates/content/richtext_layout_examples.html:56
+msgid "(small markings)"
+msgstr "(Kleine Markierungen)"
+
+#: templates/content/richtext_layout_examples.html:57
+msgid "(Buttons, rarely used in texts)"
+msgstr "(Schaltflächen, selten in Texten verwendet)"
+
+#: templates/content/richtext_layout_examples.html:65
+msgid ""
+"\n"
+"                    Note: For complex layouts such as image-text combinations, info boxes, or maps, you will find ready-made copy-and-paste\n"
+"                    snippets below."
+msgstr ""
+"\n"
+"Hinweis: Für komplexe Layouts wie Bild-Text-Kombinationen, Info-Boxen oder Karten finden Sie vorgefertigte Copy-and-Paste-Beispiele unten."

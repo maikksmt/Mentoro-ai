@@ -1,0 +1,583 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block seo_title %}{% blocktrans %}Layout templates for rich text{% endblocktrans %} - MentoroAI{% endblock %}
+{% block content %}
+    <div class="container mx-auto space-y-8">
+        <header class="space-y-3">
+            <h1 class="text-3xl font-bold">{% blocktrans %}Rich text layout templates{% endblocktrans %}</h1>
+            <p class="text-base-content/80">
+                {% blocktrans %}Use these examples as copy & paste templates in TinyMCE HTML mode.{% endblocktrans %}
+            </p>
+            <p class="text-sm text-base-content/70">{% blocktrans %}
+                In the editor: switch to <strong>&quot;&lt;&nbsp;&gt;&quot; &nbsp;HTML Source Code</strong>, insert the desired
+                code, and customize the content (text, icons, images).{% endblocktrans %}
+            </p>
+        </header>
+        <div class="alert bg-base-200 border border-base-300 my-6">
+            <div class="space-y-3">
+                <p class="text-lg font-semibold">{% blocktrans %}Notice for authors{% endblocktrans %}</p>
+
+                <p class="text-base-content/80 text-sm">
+                    {% blocktrans %}
+                        In TinyMCE, you can work freely with HTML and use the approved TailwindCSS and DaisyUI utilities.
+                        Here is an overview of the most useful building blocks for layouts in guides and rich text content:
+                    {% endblocktrans %}
+                </p>
+
+                <div class="grid md:grid-cols-3 gap-6 mt-4">
+
+                    {# Layout #}
+                    <div class="space-y-2">
+                        <p class="font-semibold text-primary">{% trans "Layout" %}</p>
+                        <ul class="list-disc pl-5 space-y-1 text-sm">
+                            <li>
+                                <code>flex</code>, <code>inline-flex</code>, <code>grid</code>,
+                                <code>md:flex</code>, <code>md:grid</code>
+                            </li>
+                            <li>
+                                <code>md:grid-cols-2</code>, <code>md:grid-cols-3</code>, <code>md:grid-cols-4</code>
+                            </li>
+                            <li>
+                                <code>items-start</code>, <code>items-center</code>,
+                                <code>justify-between</code>, <code>justify-center</code>
+                            </li>
+                            <li>
+                                <code>gap-4</code>, <code>gap-6</code>, <code>gap-8</code>,
+                                <code>my-6</code>, <code>space-y-3</code>
+                            </li>
+                            <li>
+                                <code>w-1/2</code>, <code>w-1/3</code>, <code>w-2/3</code>,
+                                <code>max-w-lg</code>, <code>mx-auto</code>
+                            </li>
+                            <li>
+                                <code>max-h-32</code>, <code>max-h-40</code>, <code>object-contain</code>
+                                {% blocktrans %}(for images){% endblocktrans %}
+                            </li>
+                        </ul>
+                    </div>
+
+                    {# Typography & Lists #}
+                    <div class="space-y-2">
+                        <p class="font-semibold text-primary">{% trans "Typography & lists" %}</p>
+                        <ul class="list-disc pl-5 space-y-1 text-sm">
+                            <li>
+                                <code>text-sm</code>, <code>text-base</code>, <code>text-lg</code>,
+                                <code>text-xl</code>, <code>text-2xl</code>
+                            </li>
+                            <li>
+                                <code>font-medium</code>, <code>font-semibold</code>, <code>font-bold</code>
+                            </li>
+                            <li>
+                                <code>leading-tight</code>, <code>leading-normal</code>,
+                                <code>leading-relaxed</code>
+                            </li>
+                            <li>
+                                <code>text-left</code>, <code>text-center</code>, <code>text-right</code>
+                            </li>
+                            <li>
+                                <code>list-disc</code>, <code>list-decimal</code>,
+                                <code>space-y-1</code> {% blocktrans %}(for list items){% endblocktrans %}
+                            </li>
+                            <li>
+                                <code>marker:text-primary</code>, <code>marker:text-accent</code>
+                                {% blocktrans %}(for colored bullets){% endblocktrans %}
+                            </li>
+                        </ul>
+                    </div>
+
+                    {# Components & Visual style #}
+                    <div class="space-y-2">
+                        <p class="font-semibold text-primary">{% blocktrans %}DaisyUI components & visual style{% endblocktrans %}</p>
+                        <ul class="list-disc pl-5 space-y-1 text-sm">
+                            <li>
+                                <code>alert</code>, <code>card</code>, <code>badge</code>, <code>btn</code>
+                                {% blocktrans %}(for small CTAs only){% endblocktrans %}
+                            </li>
+                            <li>
+                                <code>rounded-md</code>, <code>rounded-lg</code>, <code>rounded-xl</code>
+                            </li>
+                            <li>
+                                <code>border</code>, <code>border-base-200</code>, <code>border-base-300</code>
+                            </li>
+                            <li>
+                                <code>bg-base-100</code>, <code>bg-base-200</code>,
+                                <code>bg-primary</code>, <code>bg-info</code>, <code>bg-warning</code>
+                            </li>
+                            <li>
+                                <code>text-base-content</code>, <code>text-base-content/80</code>,
+                                <code>text-primary</code>, <code>text-accent</code>
+                            </li>
+                            <li>
+                                <code>shadow</code>, <code>shadow-md</code>, <code>shadow-lg</code>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <p class="text-xs text-base-content/70">
+                    {% blocktrans %}
+                        Tip: Most classes also work with responsive prefixes such as <code>sm:</code>, <code>md:</code>,
+                        <code>lg:</code>. For complex layouts (image–text combinations, info boxes, cards) you can use the
+                        ready-made snippets below and only adapt the content.
+                    {% endblocktrans %}
+                </p>
+            </div>
+        </div>
+
+
+        <section class="card bg-base-100 border border-base-300 shadow-sm">
+            <div class="card-body space-y-4">
+                <h2 class="card-title text-xl font-semibold">{% blocktrans %}Image on the left / Text on the right{% endblocktrans %}</h2>
+                <div class="grid gap-6 md:grid-cols-2 items-start">
+                    <!-- Vorschau -->
+                    <div class="space-y-2">
+                        <p class="text-sm text-base-content/80">{% trans "Preview" %}</p>
+                        <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                            {% include "content/richtext_snippets/image_left_text_right.html" %}
+                        </div>
+                    </div>
+
+                    <!-- Copy & Paste -->
+                    <div class="space-y-2">
+                        <p class="text-sm text-base-content/80">
+                            HTML (TinyMCE &gt; "Code" / "HTML")
+                        </p>
+                        <textarea
+                                class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                rows="15"
+                                readonly>{% include "content/richtext_snippets/image_left_text_right.html" %}
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- 2. Bild rechts / Text links -->
+        <section class="card bg-base-100 border border-base-300 shadow-sm">
+            <div class="card-body space-y-4">
+                <h2 class="card-title text-xl font-semibold">{% blocktrans %}Image on the right / Text on the left{% endblocktrans %}</h2>
+                <div class="grid gap-6 md:grid-cols-2 items-start">
+                    <!-- Vorschau -->
+                    <div class="space-y-2">
+                        <p class="text-sm text-base-content/80">{% trans "Preview" %}</p>
+                        <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                            {% include "content/richtext_snippets/image_right_text_left.html" %}
+                        </div>
+                    </div>
+
+                    <!-- Copy & Paste -->
+                    <div class="space-y-2">
+                        <p class="text-sm text-base-content/80">
+                            HTML (TinyMCE &gt; "Code" / "HTML")
+                        </p>
+                        <textarea
+                                class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                rows="15"
+                                readonly>{% include "content/richtext_snippets/image_right_text_left.html" %}
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Bild oben / Text unten -->
+        <section class="card bg-base-100 border border-base-300 shadow-sm">
+            <div class="card-body space-y-4">
+                <h2 class="card-title text-xl font-semibold">{% blocktrans %}Image above / Text below{% endblocktrans %}</h2>
+                <div class="grid gap-6 md:grid-cols-2 items-start">
+                    <!-- Vorschau -->
+                    <div class="space-y-2">
+                        <p class="text-sm text-base-content/80">{% trans "Preview" %}</p>
+                        <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                            {% include "content/richtext_snippets/image_top_text_bottom.html" %}
+                        </div>
+                    </div>
+
+                    <!-- Copy & Paste -->
+                    <div class="space-y-2">
+                        <p class="text-sm text-base-content/80">
+                            HTML (TinyMCE &gt; "Code" / "HTML")
+                        </p>
+                        <textarea
+                                class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                rows="15"
+                                readonly>{% include "content/richtext_snippets/image_top_text_bottom.html" %}
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 3 Cards nebeneinander -->
+        <section class="card bg-base-100 border border-base-300 shadow-sm">
+            <div class="card-body space-y-4">
+                <h2 class="card-title text-xl font-semibold">{% blocktrans %}3 cards side by side{% endblocktrans %}</h2>
+                <div class="grid gap-6 md:grid-cols-2 items-start">
+                    <!-- Vorschau -->
+                    <div class="space-y-2">
+                        <p class="text-sm text-base-content/80">{% trans "Preview" %}</p>
+                        <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                            {% include "content/richtext_snippets/cards_3col.html" %}
+                        </div>
+                    </div>
+
+                    <!-- Copy & Paste -->
+                    <div class="space-y-2">
+                        <p class="text-sm text-base-content/80">
+                            HTML (TinyMCE &gt; "Code" / "HTML")
+                        </p>
+                        <textarea
+                                class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                rows="15"
+                                readonly>{% include "content/richtext_snippets/cards_3col.html" %}
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 2 Cards nebeneinander -->
+        <section class="card bg-base-100 border border-base-300 shadow-sm">
+            <div class="card-body space-y-4">
+                <h2 class="card-title text-xl font-semibold">{% blocktrans %}2 cards side by side{% endblocktrans %}</h2>
+                <div class="grid gap-6 md:grid-cols-2 items-start">
+                    <!-- Vorschau -->
+                    <div class="space-y-2">
+                        <p class="text-sm text-base-content/80">{% trans "Preview" %}</p>
+                        <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                            {% include "content/richtext_snippets/cards_2col.html" %}
+                        </div>
+                    </div>
+
+                    <!-- Copy & Paste -->
+                    <div class="space-y-2">
+                        <p class="text-sm text-base-content/80">
+                            HTML (TinyMCE &gt; "Code" / "HTML")
+                        </p>
+                        <textarea
+                                class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                rows="15"
+                                readonly>{% include "content/richtext_snippets/cards_2col.html" %}
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. Callouts: Tipp / Hinweis / Warnung -->
+        <section class="card bg-base-100 border border-base-300 shadow-sm">
+            <div class="card-body space-y-4">
+                <h2 class="card-title text-xl font-semibold">{% blocktrans %}Callouts: Tip / Note / Warning{% endblocktrans %}</h2>
+                <div class="space-y-6">
+                    <!-- Tipp -->
+                    <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <!-- Vorschau -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">{% trans "Preview (Tip)" %}</p>
+                            <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                                {% include "content/richtext_snippets/callout_tip.html" %}
+                            </div>
+                        </div>
+
+                        <!-- Copy & Paste -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">
+                                HTML (TinyMCE &gt; "Code" / "HTML")
+                            </p>
+                            <textarea
+                                    class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                    rows="15"
+                                    readonly>{% include "content/richtext_snippets/callout_tip.html" %}
+                        </textarea>
+                        </div>
+                    </div>
+
+                    <!-- Hinweis -->
+                    <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <!-- Vorschau -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">{% trans "Preview (Note)" %}</p>
+                            <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                                {% include "content/richtext_snippets/callout_note.html" %}
+                            </div>
+                        </div>
+
+                        <!-- Copy & Paste -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">
+                                HTML (TinyMCE &gt; "Code" / "HTML")
+                            </p>
+                            <textarea
+                                    class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                    rows="15"
+                                    readonly>{% include "content/richtext_snippets/callout_note.html" %}
+                        </textarea>
+                        </div>
+                    </div>
+
+                    <!-- Warnung -->
+                    <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <!-- Vorschau -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">{% trans "Preview (Warning)" %}</p>
+                            <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                                {% include "content/richtext_snippets/callout_warning.html" %}
+                            </div>
+                        </div>
+
+                        <!-- Copy & Paste -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">
+                                HTML (TinyMCE &gt; "Code" / "HTML")
+                            </p>
+                            <textarea
+                                    class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                    rows="15"
+                                    readonly>{% include "content/richtext_snippets/callout_warning.html" %}
+                        </textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. 2-/3-/4-Spalten-Abschnitte -->
+        <section class="card bg-base-100 border border-base-300 shadow-sm">
+            <div class="card-body space-y-4">
+                <h2 class="card-title text-xl font-semibold">{% blocktrans %}2-/3-/4-column sections{% endblocktrans %}</h2>
+                <div class="space-y-6">
+                    <!-- 2-Spalten -->
+                    <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <!-- Vorschau -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">{% trans "Preview (2 Columns)" %}</p>
+                            <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                                {% include "content/richtext_snippets/cols_2.html" %}
+                            </div>
+                        </div>
+
+                        <!-- Copy & Paste -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">
+                                HTML (TinyMCE &gt; "Code" / "HTML")
+                            </p>
+                            <textarea
+                                    class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                    rows="15"
+                                    readonly>{% include "content/richtext_snippets/cols_2.html" %}
+                        </textarea>
+                        </div>
+                    </div>
+
+                    <!-- 3-Spalten -->
+                    <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <!-- Vorschau -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">{% trans "Preview (3 Columns)" %}</p>
+                            <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                                {% include "content/richtext_snippets/cols_3.html" %}
+                            </div>
+                        </div>
+
+                        <!-- Copy & Paste -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">
+                                HTML (TinyMCE &gt; "Code" / "HTML")
+                            </p>
+                            <textarea
+                                    class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                    rows="15"
+                                    readonly>{% include "content/richtext_snippets/cols_3.html" %}
+                        </textarea>
+                        </div>
+                    </div>
+
+                    <!-- 4-Spalten -->
+                    <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <!-- Vorschau -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">{% trans "Preview (4 Columns)" %}</p>
+                            <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                                {% include "content/richtext_snippets/cols_4.html" %}
+                            </div>
+                        </div>
+
+                        <!-- Copy & Paste -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">
+                                HTML (TinyMCE &gt; "Code" / "HTML")
+                            </p>
+                            <textarea
+                                    class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                    rows="15"
+                                    readonly>{% include "content/richtext_snippets/cols_4.html" %}
+                        </textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. Icon-Listen & Checkliste -->
+        <section class="card bg-base-100 border border-base-300 shadow-sm">
+            <div class="card-body space-y-4">
+                <h2 class="card-title text-xl font-semibold">{% blocktrans %}Icon-List &amp; Checklist{% endblocktrans %}</h2>
+                <div class="space-y-6">
+                    <!-- Icon-Liste -->
+                    <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <!-- Vorschau -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">{% trans "Preview (Icon List)" %}</p>
+                            <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                                {% include "content/richtext_snippets/icon_list.html" %}
+                            </div>
+                        </div>
+
+                        <!-- Copy & Paste -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">
+                                HTML (TinyMCE &gt; "Code" / "HTML")
+                            </p>
+                            <textarea
+                                    class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                    rows="15"
+                                    readonly>{% include "content/richtext_snippets/icon_list.html" %}
+                        </textarea>
+                        </div>
+                    </div>
+
+                    <!-- Checkliste -->
+                    <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <!-- Vorschau -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">{% trans "Preview (Checklist)" %}</p>
+                            <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                                {% include "content/richtext_snippets/checklist.html" %}
+                            </div>
+                        </div>
+
+                        <!-- Copy & Paste -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">
+                                HTML (TinyMCE &gt; "Code" / "HTML")
+                            </p>
+                            <textarea
+                                    class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                    rows="15"
+                                    readonly>{% include "content/richtext_snippets/checklist.html" %}
+                        </textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. Info-Boxen: Tipp / Beispiel / Key Takeaway -->
+        <section class="card bg-base-100 border border-base-300 shadow-sm">
+            <div class="card-body space-y-4">
+                <h2 class="card-title text-xl font-semibold">{% blocktrans %}Info boxes: Tip / Example / Key
+                    takeaway{% endblocktrans %}</h2>
+                <div class="space-y-6">
+                    <!-- Tipp -->
+                    <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <!-- Vorschau -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">{% trans "Preview (Info Tip)" %}</p>
+                            <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                                {% include "content/richtext_snippets/infobox_tip.html" %}
+                            </div>
+                        </div>
+
+                        <!-- Copy & Paste -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">
+                                HTML (TinyMCE &gt; "Code" / "HTML")
+                            </p>
+                            <textarea
+                                    class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                    rows="15"
+                                    readonly>{% include "content/richtext_snippets/infobox_tip.html" %}
+                        </textarea>
+                        </div>
+                    </div>
+
+                    <!-- Beispiel -->
+                    <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <!-- Vorschau -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">{% trans "Preview (Example)" %}</p>
+                            <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                                {% include "content/richtext_snippets/infobox_example.html" %}
+                            </div>
+                        </div>
+
+                        <!-- Copy & Paste -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">
+                                HTML (TinyMCE &gt; "Code" / "HTML")
+                            </p>
+                            <textarea
+                                    class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                    rows="15"
+                                    readonly>{% include "content/richtext_snippets/infobox_example.html" %}
+                        </textarea>
+                        </div>
+                    </div>
+
+                    <!-- Key Takeaway -->
+                    <div class="grid gap-6 md:grid-cols-2 items-start">
+                        <!-- Vorschau -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">{% trans "Preview (Key Takeaway)" %}</p>
+                            <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                                {% include "content/richtext_snippets/infobox_key_takeaway.html" %}
+                            </div>
+                        </div>
+
+                        <!-- Copy & Paste -->
+                        <div class="space-y-2">
+                            <p class="text-sm text-base-content/80">
+                                HTML (TinyMCE &gt; "Code" / "HTML")
+                            </p>
+                            <textarea
+                                    class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                    rows="15"
+                                    readonly>{% include "content/richtext_snippets/infobox_key_takeaway.html" %}
+                        </textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 10. Mini-Hero / Zwischenüberschrift -->
+        <section class="card bg-base-100 border border-base-300 shadow-sm">
+            <div class="card-body space-y-4">
+                <h2 class="card-title text-xl font-semibold">{% blocktrans %}Mini-Hero / Subheading{% endblocktrans %}</h2>
+                <div class="grid gap-6 md:grid-cols-2 items-start">
+                    <!-- Vorschau -->
+                    <div class="space-y-2">
+                        <p class="text-sm text-base-content/80">{% trans "Preview" %}</p>
+                        <div class="border border-base-300 rounded-lg p-4 bg-base-100">
+                            {% include "content/richtext_snippets/mini_hero.html" %}
+                        </div>
+                    </div>
+
+                    <!-- Copy & Paste -->
+                    <div class="space-y-2">
+                        <p class="text-sm text-base-content/80">
+                            HTML (TinyMCE &gt; "Code" / "HTML")
+                        </p>
+                        <textarea
+                                class="textarea textarea-bordered w-full text-xs font-mono whitespace-pre"
+                                rows="15"
+                                readonly>{% include "content/richtext_snippets/mini_hero.html" %}
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
