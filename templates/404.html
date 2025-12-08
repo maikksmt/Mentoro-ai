@@ -21,13 +21,13 @@
             </p>
 
             <div class="flex flex-wrap justify-center gap-3">
-                <a href="{% url 'home' %}" class="btn btn-primary">
+                <a href="{% url 'content:home' %}" class="btn btn-primary">
                     {% trans "Go to homepage" %}
                 </a>
                 <a href="{% url 'guides:list' %}" class="btn btn-outline">
                     {% trans "Browse all guides" %}
                 </a>
-                <a href="{% url 'catalog:tool_list' %}" class="btn btn-ghost">
+                <a href="{% url 'catalog:list' %}" class="btn btn-ghost">
                     {% trans "Discover AI tools" %}
                 </a>
             </div>
