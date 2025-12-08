@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-07 14:11+0100\n"
+"POT-Creation-Date: 2025-12-08 22:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -610,6 +610,116 @@ msgstr ""
 msgid ""
 "Browse ready-made AI prompts for writing, coding, learning, marketing and "
 "more."
+msgstr ""
+
+#: templates/400.html:5
+msgid "Bad request – MentoroAI"
+msgstr ""
+
+#: templates/400.html:12
+msgid "Error 400"
+msgstr ""
+
+#: templates/400.html:16
+msgid "The request could not be processed."
+msgstr ""
+
+#: templates/400.html:20
+msgid ""
+"The page you tried to access could not be understood. The link may be broken "
+"or\n"
+"                    incomplete."
+msgstr ""
+
+#: templates/400.html:26 templates/403.html:25 templates/404.html:25
+#: templates/500.html:25
+msgid "Go to homepage"
+msgstr ""
+
+#: templates/400.html:29
+msgid "Browse guides"
+msgstr ""
+
+#: templates/403.html:5
+msgid "Access denied – MentoroAI"
+msgstr ""
+
+#: templates/403.html:12
+msgid "Error 403"
+msgstr ""
+
+#: templates/403.html:16
+msgid "You don't have permission to access this page."
+msgstr ""
+
+#: templates/403.html:20
+msgid ""
+"You may not have the required permissions or you might not be logged in."
+msgstr ""
+
+#: templates/403.html:28
+msgid "Log in"
+msgstr ""
+
+#: templates/403.html:33
+msgid "If you believe this is a mistake, please contact us."
+msgstr ""
+
+#: templates/404.html:5
+msgid "Page not found – MentoroAI"
+msgstr ""
+
+#: templates/404.html:12
+msgid "Error 404"
+msgstr ""
+
+#: templates/404.html:16
+msgid "We couldn't find this page."
+msgstr ""
+
+#: templates/404.html:20
+msgid "The URL you requested does not exist anymore or might have been moved."
+msgstr ""
+
+#: templates/404.html:28
+msgid "Browse all guides"
+msgstr ""
+
+#: templates/404.html:31
+msgid "Discover AI tools"
+msgstr ""
+
+#: templates/404.html:36
+msgid ""
+"Tip: Check the URL for mistakes or use the search feature to find content."
+msgstr ""
+
+#: templates/500.html:5
+msgid "Internal server error – MentoroAI"
+msgstr ""
+
+#: templates/500.html:12
+msgid "Error 500"
+msgstr ""
+
+#: templates/500.html:16
+msgid "Something went wrong on our side."
+msgstr ""
+
+#: templates/500.html:20
+msgid ""
+"An unexpected error occurred. Our team has been notified and is looking into "
+"it."
+msgstr ""
+
+#: templates/500.html:28
+msgid "Reload page"
+msgstr ""
+
+#: templates/500.html:33
+msgid ""
+"If this continues, feel free to contact us and describe what you were doing "
+"before the error happened."
 msgstr ""
 
 #: templates/account/3rdparty.html:5
@@ -1668,31 +1778,31 @@ msgstr ""
 msgid "Layout"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:54
+#: templates/content/richtext_layout_examples.html:58
 msgid "(for images)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:61
+#: templates/content/richtext_layout_examples.html:65
 msgid "Typography & lists"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:79
+#: templates/content/richtext_layout_examples.html:83
 msgid "(for list items)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:83
+#: templates/content/richtext_layout_examples.html:87
 msgid "(for colored bullets)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:90
+#: templates/content/richtext_layout_examples.html:94
 msgid "DaisyUI components & visual style"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:94
+#: templates/content/richtext_layout_examples.html:98
 msgid "(for small CTAs only)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:119
+#: templates/content/richtext_layout_examples.html:123
 msgid ""
 "\n"
 "                        Tip: Most classes also work with responsive prefixes "
@@ -1704,98 +1814,98 @@ msgid ""
 "                    "
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:131
+#: templates/content/richtext_layout_examples.html:135
 msgid "Image on the left / Text on the right"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:135
-#: templates/content/richtext_layout_examples.html:164
-#: templates/content/richtext_layout_examples.html:192
-#: templates/content/richtext_layout_examples.html:220
-#: templates/content/richtext_layout_examples.html:248
-#: templates/content/richtext_layout_examples.html:562
+#: templates/content/richtext_layout_examples.html:139
+#: templates/content/richtext_layout_examples.html:168
+#: templates/content/richtext_layout_examples.html:196
+#: templates/content/richtext_layout_examples.html:224
+#: templates/content/richtext_layout_examples.html:252
+#: templates/content/richtext_layout_examples.html:566
 msgid "Preview"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:160
+#: templates/content/richtext_layout_examples.html:164
 msgid "Image on the right / Text on the left"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:188
+#: templates/content/richtext_layout_examples.html:192
 msgid "Image above / Text below"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:216
+#: templates/content/richtext_layout_examples.html:220
 msgid "3 cards side by side"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:244
+#: templates/content/richtext_layout_examples.html:248
 msgid "2 cards side by side"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:272
+#: templates/content/richtext_layout_examples.html:276
 msgid "Callouts: Tip / Note / Warning"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:278
+#: templates/content/richtext_layout_examples.html:282
 msgid "Preview (Tip)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:301
+#: templates/content/richtext_layout_examples.html:305
 msgid "Preview (Note)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:324
+#: templates/content/richtext_layout_examples.html:328
 msgid "Preview (Warning)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:349
+#: templates/content/richtext_layout_examples.html:353
 msgid "2-/3-/4-column sections"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:355
+#: templates/content/richtext_layout_examples.html:359
 msgid "Preview (2 Columns)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:378
+#: templates/content/richtext_layout_examples.html:382
 msgid "Preview (3 Columns)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:401
+#: templates/content/richtext_layout_examples.html:405
 msgid "Preview (4 Columns)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:426
+#: templates/content/richtext_layout_examples.html:430
 msgid "Icon-List &amp; Checklist"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:432
+#: templates/content/richtext_layout_examples.html:436
 msgid "Preview (Icon List)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:455
+#: templates/content/richtext_layout_examples.html:459
 msgid "Preview (Checklist)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:480
+#: templates/content/richtext_layout_examples.html:484
 msgid ""
 "Info boxes: Tip / Example / Key\n"
 "                    takeaway"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:487
+#: templates/content/richtext_layout_examples.html:491
 msgid "Preview (Info Tip)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:510
+#: templates/content/richtext_layout_examples.html:514
 msgid "Preview (Example)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:533
+#: templates/content/richtext_layout_examples.html:537
 msgid "Preview (Key Takeaway)"
 msgstr ""
 
-#: templates/content/richtext_layout_examples.html:558
+#: templates/content/richtext_layout_examples.html:562
 msgid "Mini-Hero / Subheading"
 msgstr ""
 
@@ -3178,112 +3288,94 @@ msgid "A quick preview of features we’re building next."
 msgstr ""
 
 #: templates/partials/features_open.html:28
-msgid "Editorial system"
-msgstr ""
-
-#: templates/partials/features_open.html:30
-msgid ""
-"Draft → review → publish → archive workflow with roles (Author, Editor, "
-"Admin) and status history."
-msgstr ""
-
-#: templates/partials/features_open.html:31
-msgid "Per-object review checklist and required approvals before publishing."
-msgstr ""
-
-#: templates/partials/features_open.html:32
-msgid "Versioning & change log for all content (diffs, rollbacks)."
-msgstr ""
-
-#: templates/partials/features_open.html:36
 msgid "Discovery & navigation"
 msgstr ""
 
-#: templates/partials/features_open.html:38
+#: templates/partials/features_open.html:30
 msgid ""
 "Unified search across Tools, Guides, Prompts, Use-Cases with filters and "
 "tags."
 msgstr ""
 
-#: templates/partials/features_open.html:39
+#: templates/partials/features_open.html:31
 msgid "Compare view: side-by-side feature comparison for tools and prompts."
 msgstr ""
 
-#: templates/partials/features_open.html:40
+#: templates/partials/features_open.html:32
 msgid "RSS/Atom feeds for new and updated content."
 msgstr ""
 
-#: templates/partials/features_open.html:44
+#: templates/partials/features_open.html:36
 msgid "Quality & accessibility"
 msgstr ""
 
-#: templates/partials/features_open.html:46
+#: templates/partials/features_open.html:38
 msgid ""
 "A11y passes (focus states, landmarks, color contrast) and keyboard-first UX."
 msgstr ""
 
-#: templates/partials/features_open.html:47
+#: templates/partials/features_open.html:39
 msgid "Reading modes: compact vs. comfortable layout."
 msgstr ""
 
-#: templates/partials/features_open.html:48
+#: templates/partials/features_open.html:40
 msgid "Glossary hover cards for terms used in content."
 msgstr ""
 
-#: templates/partials/features_open.html:52
+#: templates/partials/features_open.html:44
 msgid "Prompt Studio"
 msgstr ""
 
-#: templates/partials/features_open.html:53
+#: templates/partials/features_open.html:45
 msgid "planned"
 msgstr ""
 
-#: templates/partials/features_open.html:55
+#: templates/partials/features_open.html:47
 msgid ""
 "Model picker for each prompt (e.g., GPT-4 class, Claude, Llama) and per-"
 "model tips."
 msgstr ""
 
-#: templates/partials/features_open.html:56
+#: templates/partials/features_open.html:48
 msgid ""
 "Structured prompt templates with variables, examples, and tone/style presets."
 msgstr ""
 
-#: templates/partials/features_open.html:57
+#: templates/partials/features_open.html:49
 msgid "Guardrails: context hints, do/don’t lists, and input validation."
 msgstr ""
 
-#: templates/partials/features_open.html:58
+#: templates/partials/features_open.html:50
 msgid "One-click copy, shareable links, and export (Markdown/JSON)."
 msgstr ""
 
-#: templates/partials/features_open.html:59
+#: templates/partials/features_open.html:51
 msgid "Execution notes: record outputs to compare iterations."
 msgstr ""
 
-#: templates/partials/features_open.html:63
+#: templates/partials/features_open.html:55
 msgid "Performance & reliability"
 msgstr ""
 
-#: templates/partials/features_open.html:65
+#: templates/partials/features_open.html:57
 msgid "Image optimization and smart caching."
 msgstr ""
 
-#: templates/partials/features_open.html:66
+#: templates/partials/features_open.html:58
 msgid "Offline-friendly error pages and graceful fallbacks."
 msgstr ""
 
-#: templates/partials/features_open.html:71
+#: templates/partials/features_open.html:63
 msgid ""
 "Heads-up: Priorities may shift based on user feedback. If a feature is "
 "critical for you, please tell us!"
 msgstr ""
 
-#: templates/partials/features_open.html:77
+#: templates/partials/features_open.html:69
 msgid "Close"
 msgstr ""
 
-#: templates/partials/features_open.html:85
+#: templates/partials/features_open.html:77
 msgid "Close modal"
 msgstr ""
 
