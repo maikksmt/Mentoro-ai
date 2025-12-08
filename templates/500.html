@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}<title>{% trans "Internal server error – MentoroAI" %}</title>{% endblock %}
+
+{% block content %}
+    <section class="hero min-h-[60vh]">
+        <div class="hero-content text-center max-w-2xl flex flex-col items-center">
+
+            <div class="badge badge-error badge-outline mb-4">
+                {% trans "Error 500" %}
+            </div>
+
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                {% trans "Something went wrong on our side." %}
+            </h1>
+
+            <p class="text-base md:text-lg text-base-content/70 mb-6">
+                {% blocktrans %}An unexpected error occurred. Our team has been notified and is looking into it.{% endblocktrans %}
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-3">
+                <a href="{% url 'home' %}" class="btn btn-primary">
+                    {% trans "Go to homepage" %}
+                </a>
+                <button type="button" class="btn btn-outline" onclick="location.reload()">
+                    {% trans "Reload page" %}
+                </button>
+            </div>
+
+            <p class="mt-8 text-sm text-base-content/60">
+                {% trans "If this continues, feel free to contact us and describe what you were doing before the error happened." %}
+            </p>
+
+        </div>
+    </section>
+{% endblock %}
