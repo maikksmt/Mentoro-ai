@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block seo_title %}<title>{% trans "Page not found – MentoroAI" %}</title>{% endblock %}
+
+{% block content %}
+    <section class="hero min-h-[60vh]">
+        <div class="hero-content text-center max-w-2xl flex flex-col items-center">
+
+            <div class="badge badge-error badge-outline mb-4">
+                {% trans "Error 404" %}
+            </div>
+
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                {% trans "We couldn't find this page." %}
+            </h1>
+
+            <p class="text-base md:text-lg text-base-content/70 mb-6">
+                {% blocktrans %}The URL you requested does not exist anymore or might have been moved.{% endblocktrans %}
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-3">
+                <a href="{% url 'home' %}" class="btn btn-primary">
+                    {% trans "Go to homepage" %}
+                </a>
+                <a href="{% url 'guides:list' %}" class="btn btn-outline">
+                    {% trans "Browse all guides" %}
+                </a>
+                <a href="{% url 'catalog:tool_list' %}" class="btn btn-ghost">
+                    {% trans "Discover AI tools" %}
+                </a>
+            </div>
+
+            <p class="mt-8 text-sm text-base-content/60">
+                {% trans "Tip: Check the URL for mistakes or use the search feature to find content." %}
+            </p>
+
+        </div>
+    </section>
+{% endblock %}

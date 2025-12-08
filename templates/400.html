@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}<title>{% trans "Bad request – MentoroAI" %}</title>{% endblock %}
+
+{% block content %}
+    <section class="hero min-h-[60vh]">
+        <div class="hero-content text-center max-w-2xl flex flex-col items-center">
+
+            <div class="badge badge-neutral badge-outline mb-4">
+                {% trans "Error 400" %}
+            </div>
+
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                {% trans "The request could not be processed." %}
+            </h1>
+
+            <p class="text-base md:text-lg text-base-content/70 mb-6">
+                {% blocktrans %}The page you tried to access could not be understood. The link may be broken or
+                    incomplete.{% endblocktrans %}
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-3">
+                <a href="{% url 'home' %}" class="btn btn-primary">
+                    {% trans "Go to homepage" %}
+                </a>
+                <a href="{% url 'guides:list' %}" class="btn btn-outline">
+                    {% trans "Browse guides" %}
+                </a>
+            </div>
+
+        </div>
+    </section>
+{% endblock %}
