@@ -6,11 +6,17 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [Unreleased]
-
-#### (New changes are placed here as the beta phase progresses.)
+## [1.0.0-beta-6] – Unreleased
 
 ### Added
+
+- error pages (400,403,404,500)
+
+### Changed
+
+- update for rich text layout examples page
+
+### Fixed
 
 ---
 

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}<title>{% trans "Access denied – MentoroAI" %}</title>{% endblock %}
+
+{% block content %}
+    <section class="hero min-h-[60vh]">
+        <div class="hero-content text-center max-w-2xl flex flex-col items-center">
+
+            <div class="badge badge-warning badge-outline mb-4">
+                {% trans "Error 403" %}
+            </div>
+
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                {% trans "You don't have permission to access this page." %}
+            </h1>
+
+            <p class="text-base md:text-lg text-base-content/70 mb-6">
+                {% blocktrans %}You may not have the required permissions or you might not be logged in.{% endblocktrans %}
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-3">
+                <a href="{% url 'content:home' %}" class="btn btn-primary">
+                    {% trans "Go to homepage" %}
+                </a>
+                <a href="{% url 'account_login' %}" class="btn btn-outline">
+                    {% trans "Log in" %}
+                </a>
+            </div>
+
+            <p class="mt-8 text-sm text-base-content/60">
+                {% trans "If you believe this is a mistake, please contact us." %}
+            </p>
+
+        </div>
+    </section>
+{% endblock %}
