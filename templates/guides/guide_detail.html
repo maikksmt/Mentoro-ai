@@ -37,12 +37,12 @@
                 <div class="prose text-base-content/80">{{ display_intro|richtext|safe }}</div>
                 <div class="divider"></div>
             {% endif %}
-            <div class="prose content">
+            <div class="content">
                 {{ display_body|richtext|safe }}
             </div>
             {% for section in object.sections.all %}
                 <div class="divider"></div>
-                <div class="">
+                <div>
                     <h2>{{ section.display_title }}</h2>
                     {% if section.display_body %}
                         <div class="opacity-80">{{ section.display_body|richtext|safe }}</div>

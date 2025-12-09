@@ -1,0 +1,34 @@
+/* Optional: Admin-spezifische Anpassungen für Hinweise, Boxen etc. */
+body.mce-content-body .card,
+body.mce-content-body .alert {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Reset TinyMCE iframe background + text color */
+html, body, .mce-content-body {
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+
+/* Optional: Schriftgröße und Basistypografie */
+.mce-content-body {
+    @apply bg-white text-black;
+    font-size: 16px;
+    line-height: 1.6;
+    padding: 1.25rem 1.5rem !important;
+    box-sizing: border-box;
+}
+
+/* Damit Dark Mode aus dem Admin NICHT greift */
+:root {
+    color-scheme: only light;
+}
+
+@layer components {
+    .richtext-body {
+        @apply prose;
+        max-width: 100%;
+        width: 100%;
+    }
+}
