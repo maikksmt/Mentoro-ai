@@ -254,8 +254,17 @@
 }
 
 /* -----------------------------------------
-   Richtext / TinyMCE Safelist für MentoroAI
+   Richtext / TinyMCE specific
 ------------------------------------------ */
+
+
+.prose .alert * {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 28px !important;
+    border: 0 !important;
+}
+
 
 /* Basic Layout: flex + grid */
 @source inline("flex inline-flex grid");

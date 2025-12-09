@@ -257,6 +257,11 @@ TINYMCE_DEFAULT_CONFIG = {
     "license_key": 'gpl',
     "menubar": False,
     "height": 540,
+    "body_class": "richtext-body",
+    "content_css": [
+        "/static/css/output.css",
+        "/static/css/tinymce-editor.css",
+    ],
     "plugins": (
         "anchor autolink autoresize autosave charmap code codesample emoticons fullscreen image link lists "
         "media preview quickbars searchreplace table visualblocks visualchars insertdatetime wordcount"
