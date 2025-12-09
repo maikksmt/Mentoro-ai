@@ -1,4 +1,5 @@
 import bleach
+from bleach.css_sanitizer import CSSSanitizer
 from django import template
 from django.utils.safestring import mark_safe
 
@@ -44,7 +45,7 @@ ALLOWED_TAGS = [
     "footer",
     "nav",
 ]
-ALLOWED_ATTRS = {
+ALLOWED_ATTRIBUTES = {
     "*": ["class", "id", "style", "data-*", "aria-*"],
     "a": ["href", "title", "rel", "target"],
     "img": ["src", "alt", "title", "width", "height", "loading"],
@@ -54,6 +55,56 @@ ALLOWED_ATTRS = {
 }
 ALLOWED_PROTOCOLS = ["http", "https", "mailto", "data"]
 
+css_sanitizer = CSSSanitizer(
+    allowed_css_properties=[
+        # Textdarstellung
+        "color",
+        "background-color",
+        "text-align",
+        "font-weight",
+        "font-style",
+        "text-decoration",
+        "line-height",
+        "letter-spacing",
+
+        # Abstände
+        "margin",
+        "margin-top",
+        "margin-right",
+        "margin-bottom",
+        "margin-left",
+        "padding",
+        "padding-top",
+        "padding-right",
+        "padding-bottom",
+        "padding-left",
+
+        # Größen
+        "width",
+        "height",
+        "max-width",
+
+        # Rahmen
+        "border",
+        "border-width",
+        "border-style",
+        "border-color",
+        "border-radius",
+
+        # Bilder
+        "object-fit",
+
+        # Tabellen
+        "border-collapse",
+        "border-spacing",
+        "vertical-align",
+
+        # Sonstiges (sicher)
+        "display",  # inline, block – unkritisch
+        "opacity",  # unkritisch
+    ],
+)
+
 
 @register.filter(name="richtext")
 def richtext(html: str) -> str:
@@ -62,8 +113,9 @@ def richtext(html: str) -> str:
     cleaned = bleach.clean(
         html,
         tags=ALLOWED_TAGS,
-        attributes=ALLOWED_ATTRS,
+        attributes=ALLOWED_ATTRIBUTES,
         protocols=ALLOWED_PROTOCOLS,
-        strip=False,
+        css_sanitizer=css_sanitizer,
+        strip=True,
     )
     return mark_safe(cleaned)
