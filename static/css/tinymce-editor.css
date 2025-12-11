@@ -1,34 +1,72 @@
-/* Optional: Admin-spezifische Anpassungen für Hinweise, Boxen etc. */
+
 body.mce-content-body .card,
 body.mce-content-body .alert {
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
 
-/* Reset TinyMCE iframe background + text color */
-html, body, .mce-content-body {
+
+/* Hintergrund & Standard-Textfarbe im Iframe */
+html,
+body {
     background: #ffffff !important;
     color: #000000 !important;
 }
 
-/* Optional: Schriftgröße und Basistypografie */
+/* Textfarben im Content explizit schwarz */
+.mce-content-body,
+.mce-content-body p,
+.mce-content-body li,
+.mce-content-body strong,
+.mce-content-body b,
+.mce-content-body em,
+.mce-content-body i,
+.mce-content-body blockquote {
+    color: #000000 !important;
+}
+
+/* Listen & Marker */
+.mce-content-body ul,
+.mce-content-body ol {
+    list-style-position: outside; /* optional, nur für sauberes Layout */
+}
+
+.mce-content-body li::marker {
+    color: #000000 !important;
+}
+
+/* Grundtypografie & Innenabstand */
 .mce-content-body {
-    @apply bg-white text-black;
-    font-size: 16px;
     line-height: 1.6;
     padding: 1.25rem 1.5rem !important;
+}
+
+/* volle Breite im Iframe, auch bei .prose / .richtext-body */
+.mce-content-body,
+.mce-content-body.prose,
+.mce-content-body.richtext-body {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     box-sizing: border-box;
 }
 
-/* Damit Dark Mode aus dem Admin NICHT greift */
+/* Dark Mode im Iframe deaktivieren */
 :root {
     color-scheme: only light;
 }
 
-@layer components {
-    .richtext-body {
-        @apply prose;
-        max-width: 100%;
-        width: 100%;
-    }
+.field-body .tox-tinymce,
+.form-row .tox-tinymce,
+.tox.tox-tinymce {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.field-body,
+.form-row,
+.form-group {
+    width: 100% !important;
+    max-width: 100% !important;
 }
