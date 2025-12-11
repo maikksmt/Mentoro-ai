@@ -15,12 +15,16 @@ body {
 
 /* Textfarben im Content explizit schwarz */
 .mce-content-body,
+.mce-content-body h2,
+.mce-content-body h3,
+.mce-content-body div,
 .mce-content-body p,
 .mce-content-body li,
 .mce-content-body strong,
 .mce-content-body b,
 .mce-content-body em,
 .mce-content-body i,
+.mce-content-body a,
 .mce-content-body blockquote {
     color: #000000 !important;
 }
