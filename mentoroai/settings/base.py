@@ -257,7 +257,7 @@ TINYMCE_DEFAULT_CONFIG = {
     "license_key": 'gpl',
     "menubar": False,
     "height": 540,
-    "body_class": "richtext-body",
+    "body_class": "prose richtext-body",
     "content_css": [
         "/static/css/output.css",
         "/static/css/tinymce-editor.css",
