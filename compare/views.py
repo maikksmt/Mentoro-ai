@@ -6,18 +6,27 @@ from django.views.generic import ListView, DetailView
 
 from catalog.models import Category
 from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
+from core.services import related_comparisons, to_teaser_item
 from core.views import SeoMixin
 from .models import Comparison
 
 
 class ComparisonListView(SeoMixin, ListView):
     model = Comparison
-    template_name = "compare/index.html"
+    template_name = "compare/comparison_list.html"
     context_object_name = "objects"
-    paginate_by = 12
+    paginate_by = 15
 
     def get_queryset(self):
-        qs = Comparison.published.language().prefetch_related("tools", "tools__categories")
+        lang = get_language()
+        q = self.request.GET.get("q") or ""
+
+        qs = (
+            Comparison.published.language(lang)
+            .prefetch_related("tools", "tools__categories")
+            .distinct()
+        )
+
         cat = self.request.GET.get("category") or self.request.GET.get("cat")
         if cat:
             qs = qs.filter(
@@ -25,190 +34,162 @@ class ComparisonListView(SeoMixin, ListView):
                 | Q(tools__categories__pk__iexact=cat)
             ).distinct()
 
-        q = self.request.GET.get("q")
         if q:
             qs = qs.filter(
                 Q(translations__title__icontains=q)
-                | Q(translations__slug__icontains=q)
-                | Q(translations__public_slug__icontains=q)
+                | Q(translations__intro__icontains=q)
+                | Q(translations__body__icontains=q)
                 | Q(tools__translations__name__icontains=q)
             ).distinct()
-        if not qs.ordered:
-            qs = qs.order_by("-published_at", "-updated_at")
+
         return qs
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
+    def _categories_for_filters(self, ctx):
         lang = get_language()
-        q = self.request.GET.get("q", "").strip()
-        category = self.request.GET.get("category")
-        available_categories = (
-            Category.objects.filter(
-                tools__comparisons__in=ctx["object_list"]
-            )
-            .active_translations(lang)
-            .distinct()
-            .order_by("translations__name")
-        )
-
-        canonical = absolute_url(self.request.path)
-        alts = localized_alternates(self.request, "compare:index")
-        title = _("AI tool comparisons · MentoroAI")
-        description = _(
-            "Compare AI tools by features, performance and use cases to find the best option for your workflows."
-        )
-        ctx["seo"] = self.build_seo(
-            self.request,
-            title=title,
-            description=description,
-            canonical=canonical,
-            alternates=alts,
-            og_image=get_og_image(),
-            json_ld={
-                "@context": "https://schema.org",
-                "@type": "CollectionPage",
-                "name": title,
-                "description": description,
-                "url": canonical,
-                "inLanguage": lang,
-            },
-        )
-        ctx.update({
-            "crumbs": [
-                (_("Comparisons"), self.request.path),
-            ],
-            "q": q or "",
-            "category": category or "",
-            "available_categories": available_categories,
-        })
-        return ctx
-
-
-class ComparisonDetailView(SeoMixin, DetailView):
-    model = Comparison
-    template_name = "compare/detail.html"
-    context_object_name = "object"
-
-    def get_queryset(self):
-        return Comparison.objects.language().prefetch_related("tools", "tools__categories")
-
-    def get_object(self, queryset=None):
-        slug = self.kwargs.get("slug")
-        qs = queryset or self.get_queryset()
-
-        obj = qs.filter(Q(translations__slug=slug)).distinct().first()
-
-        if not obj:
-            obj = get_object_or_404(
-                Comparison.objects.prefetch_related("tools", "tools__categories"),
-                Q(translations__slug=slug)
-            )
-        return obj
-
-    def _build_score_rows(self, obj):
-        sb = getattr(obj, "score_breakdown", None)
-        if not sb:
-            return []
-
-        if isinstance(sb, dict):
-            return [{"key": k, "value": v} for k, v in sb.items()]
-        if isinstance(sb, list):
-            rows = []
-            for item in sb:
-                if isinstance(item, dict):
-                    key = item.get("key") or item.get("name") or item.get("title")
-                    value = item.get("value") or item.get("score")
-                    rows.append({"key": key, "value": value})
-                elif isinstance(item, (list, tuple)) and len(item) == 2:
-                    rows.append({"key": item[0], "value": item[1]})
-            return rows
-        return []
-
-    def _related(self, obj):
-        tools = getattr(obj, "tools", None)
-        if not tools:
-            return []
-        tool_ids = list(tools.values_list("pk", flat=True))
-        if not tool_ids:
-            return []
-        return (
-            self.get_queryset()
-            .filter(tools__in=tool_ids)
-            .exclude(pk=obj.pk)
-            .distinct()[:3]
-        )
-
-    def _categories_for_object(self, obj):
         try:
             return (
-                Category.objects.language()
-                .filter(tools__in=obj.tools.all())
+                Category.objects
+                .translated(lang)
+                .filter(tools__comparisons__in=ctx["object_list"])
                 .distinct()
                 .order_by("translations__name")
             )
         except Exception:
-            return (
-                Category.objects.filter(tools__in=obj.tools.all())
-                .distinct()
-                .order_by("name")
-            )
+            return Category.objects.translated(lang).order_by("name")
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        obj: Comparison = ctx["object"]
-        title = obj.title
-        desc_source = obj.intro or obj.title
-        desc = seo_text(desc_source)[:155]
-        canonical = absolute_url(obj.get_absolute_url())
-        lang = get_language()
-        og_img = get_og_image()
-        alts = localized_alternates(
-            self.request,
-            url_name="compare:detail",  # optional, Fallback
-            obj=obj,
+        request = self.request
+        category_slug = self.request.GET.get("category") or ""
+        q = self.request.GET.get("q") or ""
+
+        title = _("AI tool comparisons")
+        description = _(
+            "Side-by-side comparisons of AI tools to help you understand strengths, weaknesses and special features."
         )
-        tools = list(getattr(obj, "tools").all()) if getattr(obj, "tools", None) else []
-        json_ld = {
-            "@context": "https://schema.org",
-            "@type": "ItemList",
-            "name": title,
-            "description": desc,
-            "inLanguage": lang,
-            "mainEntityOfPage": canonical,
-            "url": canonical,
-            "itemListElement": [
-                {
-                    "@type": "SoftwareApplication",
-                    "name": tool.name,
-                    "url": absolute_url(tool.get_absolute_url()),
-                    "position": idx + 1,
-                }
-                for idx, tool in enumerate(tools)
-            ],
-        }
-        if og_img:
-            json_ld["image"] = [og_img]
+
+        canonical = absolute_url(reverse("compare:index"))
+        alternates = localized_alternates(request, url_name="compare:index")
 
         ctx["seo"] = self.build_seo(
-            self.request,
+            request,
             title=title,
-            description=desc,
-            og_type="article",
+            description=seo_text(description),
             canonical=canonical,
-            og_image=get_og_image(og_img),
-            alternates=alts,
-            json_ld=json_ld,
+            og_type="website",
+            og_image=get_og_image(),
+            alternates=alternates,
         )
 
-        ctx.update({
-            "categories": self._categories_for_object(obj),
-            "tools_list": list(getattr(obj, "tools").all()) if getattr(obj, "tools", None) else [],
-            "score_rows": self._build_score_rows(obj),
-            "related": self._related(obj),
+        ctx["categories"] = self._categories_for_filters(ctx)
+        ctx["category"] = category_slug
+        ctx["q"] = q
+        ctx["crumbs"] = [
+            (_("Comparisons"), request.path),
+        ]
+        return ctx
 
-            "crumbs": [
-                (_("Comparisons"), reverse("compare:index")),
-                (title, self.request.path),
-            ],
-        })
+
+class ComparisonDetailView(SeoMixin, DetailView):
+    """
+    Detail view for a single comparison.
+    """
+    model = Comparison
+    template_name = "compare/comparison_detail.html"
+    context_object_name = "obj"
+
+    def get_object(self, queryset=None):
+        lang = get_language()
+        slug = self.kwargs["slug"]
+
+        qs = (
+            Comparison.published.language(lang)
+            .prefetch_related(
+                "tools",
+                "tool_entries",
+                "tool_entries__tool",
+            )
+            .distinct()
+        )
+
+        try:
+            return qs.get(translations__public_slug=slug)
+        except Comparison.DoesNotExist:
+            return get_object_or_404(qs, translations__slug=slug)
+
+    def _categories_for_object(self, obj: Comparison):
+        """
+        Collect all categories used by tools in this comparison.
+        """
+        cats = (
+            Category.objects.filter(tools__comparisons=obj)
+            .distinct()
+            .order_by("translations__name")
+        )
+        return cats
+
+    def _related(self, obj: Comparison, limit: int = 4):
+        """
+        Simple related comparisons: share at least one tool or category.
+        """
+        lang = get_language()
+
+        tools = obj.tools.all()
+        categories = self._categories_for_object(obj)
+
+        qs = (
+            Comparison.published.language(lang)
+            .exclude(pk=obj.pk)
+            .filter(
+                Q(tools__in=tools)
+                | Q(tools__categories__in=categories)
+            )
+            .distinct()
+        )
+        return qs[:limit]
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        request = self.request
+        obj: Comparison = ctx["obj"]
+        lang = get_language()
+
+        title = obj.get_live_value("title", language=lang) or obj.safe_translation_getter(
+            "title"
+        )
+        intro = obj.get_live_value("intro", language=lang) or obj.safe_translation_getter(
+            "intro"
+        )
+        body = obj.get_live_value("body", language=lang) or obj.safe_translation_getter(
+            "body"
+        )
+
+        description_source = intro or body
+        description = seo_text(description_source or "")
+
+        canonical = absolute_url(obj.get_absolute_url(language=lang))
+        alternates = localized_alternates(request, obj=obj)
+
+        ctx["seo"] = self.build_seo(
+            request,
+            title=title,
+            description=description,
+            canonical=canonical,
+            og_type="article",
+            og_image=get_og_image(),
+            alternates=alternates,
+        )
+
+        entries = obj.tool_entries.select_related("tool").all()
+        ctx["tool_entries"] = entries
+        ctx["tools_list"] = [entry.tool for entry in entries]
+
+        ctx["categories"] = self._categories_for_object(obj)
+        rel_qs = related_comparisons(obj, limit=3)
+        ctx["related_comparisons"] = [to_teaser_item(c, "comparison") for c in rel_qs]
+
+        ctx["crumbs"] = [
+            (_("Comparisons"), reverse("compare:index")),
+            (title, request.path),
+        ]
         return ctx

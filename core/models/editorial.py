@@ -143,6 +143,22 @@ class EditorialWorkflowMixin(models.Model):
         except Exception:
             pass
 
+    def get_live_value(self, field: str, language: str | None = None) -> str | None:
+        """
+        returns live snapshot data for language or fallback to live snapshot from default (or other available) language.
+        """
+        lang = language or get_language()
+        live = self.live_i18n or {}
+        value = (live.get(lang) or {}).get(field)
+        if value:
+            return value
+        for code, data in live.items():
+            if not isinstance(data, dict):
+                continue
+            value = data.get(field)
+            if value:
+                return value
+
     # --- Transitions ---
 
     @transition(field=status, source=[STATUS_DRAFT, STATUS_REWORK, STATUS_PUBLISHED, STATUS_APPROVED], target=STATUS_REVIEW)

@@ -3,7 +3,7 @@
 {% block content %}
     {% include "partials/breadcrumbs.html" %}
     <header class="mb-3 card-header-tool">
-        <h1 class="text-3xl font-bold">{% trans "All tools" %}</h1>
+        <h1 class="text-3xl font-bold">{% trans "AI Tools" %}</h1>
         <p class="text-base-content/70 mt-2">
             {% trans "Quickly find the right AI tools for your tasks." %}
         </p>
@@ -34,8 +34,7 @@
         </details>
 
     {% endif %}
-    <form method="get"
-          class="py-2 md:py-4 flex flex-wrap items-center gap-3 md:gap-4">
+    <form method="get" class="py-2 md:py-4 flex flex-wrap items-center gap-3 md:gap-4">
 
         {% if category %}
             <input type="hidden" name="category" value="{{ category }}">
@@ -74,7 +73,7 @@
             {% endif %}
         </div>
     </form>
-    <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-2 lg:gap-6 md:grid-cols-2 lg:grid-cols-3">
         {% for t in object_list %}
             <article class="card bg-base-100 shadow-sm hover:shadow-lg transition border border-base-200 flex flex-col">
                 <div class="card-body gap-4 flex flex-col h-full">

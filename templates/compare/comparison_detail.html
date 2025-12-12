@@ -1,0 +1,124 @@
+{% extends "base.html" %} {% load i18n richtext %}
+{% block content %}
+    <div class="max-w-5xl mx-auto">
+        {% include "partials/breadcrumbs.html" %}
+        <article class="prose max-w-none">
+            <header class="mb-6">
+                <h1 class="text-3xl font-bold">{{ obj.title }}</h1>
+                <div class="mt-2 flex flex-wrap items-center gap-3 text-sm text-base-content/80">
+                    {% if object.reading_time %}
+                        <span class="inline-flex items-center gap-1">
+                            {% heroicon_outline "clock" size=16 %} {% blocktrans %}Reading time: {% endblocktrans %}
+                            {{ object.reading_time }}&nbsp;min
+                        </span>
+                    {% endif %}
+                    {% if object.published_at %}
+                        <time datetime="{{ object.published_at|date:'c' }}" class="inline-flex items-center gap-1 whitespace-nowrap">
+                            {% heroicon_outline "calendar-days" size=16 %}{% trans "Published: " %} {{ object.published_at|date:"d.m.Y" }}
+                        </time>
+                        {% if object.updated_at %}
+                            <time datetime="{{ object.updated_at|date:'c' }}" class="inline-flex items-center gap-1 whitespace-nowrap">
+                                {% trans "Last Updated: " %} {{ object.updated_at|date:"d.m.Y" }}
+                            </time>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% if object.author %}
+                    <div>
+                        <div class="text-sm text-base-content/80 inline-flex items-center gap-1">
+                            {% heroicon_outline "user" size=16 %} {% trans "Author: " %}
+                            <span>{{ object.author.get_full_name|default:object.author.username }}</span>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="flex flex-wrap gap-2 pt-2">
+                    {% for tool in tools_list %}
+                        <a href="{% url 'catalog:detail' slug=tool.slug %}" class="not-prose badge badge-compare">
+                            {{ tool.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </header>
+
+            {% if obj.intro %}
+                <div class="prose max-w-none text-base-content/80">{{ obj.intro|richtext|safe }}</div>
+            {% endif %}
+
+            {% if obj.body %}
+                <section class="prose max-w-none my-6">
+                    {{ obj.body|safe }}
+                </section>
+            {% endif %}
+
+            {% if tool_entries %}
+                <section class="space-y-4">
+                    <h2 class="text-xl font-semibold">{% trans "Detailed comparison" %}</h2>
+                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {% for entry in tool_entries %}
+                            <article class="card bg-base-100 border border-base-300 shadow-sm h-full">
+                                <div class="card-body space-y-3">
+                                    <header>
+                                        <h3 class="card-title text-lg">{{ entry.tool.name }}</h3>
+                                        {% if entry.label %}
+                                            <p class="text-sm text-base-content/70 md:min-h-[4rem]">{{ entry.label }}</p>
+                                        {% endif %}
+                                    </header>
+                                    {% if entry.summary %}
+                                        <div class="prose max-w-none text-sm md:min-h-[12rem]">
+                                            {{ entry.summary|richtext|safe }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if entry.pros %}
+                                        <div class="prose max-w-none text-sm md:min-h-[20rem]">
+                                            <h4 class="text-sm font-semibold mb-1">
+                                                {% trans "Strengths" %}
+                                            </h4>
+                                            <div class="prose max-w-none text-sm">
+                                                {{ entry.pros|richtext|safe }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if entry.cons %}
+                                        <div class="prose max-w-none text-sm md:min-h-[20rem]">
+                                            <h4 class="text-sm font-semibold mb-1">
+                                                {% trans "Limitations" %}
+                                            </h4>
+                                            <div class="prose max-w-none text-sm">
+                                                {{ entry.cons|richtext|safe }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if entry.special %}
+                                        <div class="prose max-w-none text-sm md:min-h-[20rem]">
+                                            <h4 class="text-sm font-semibold mb-1">
+                                                {% trans "Special notes" %}
+                                            </h4>
+                                            <div class="prose max-w-none text-sm">
+                                                {{ entry.special|richtext|safe }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+
+            {% if related_comparisons %}
+                <section class="mt-10">
+                    <h2 class="text-2xl font-semibold mb-4">{% trans "Related Comparisons" %}</h2>
+                    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {% for item in related_comparisons %}
+                            {% include "partials/_teaser_card.html" with item=item %}
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+        </article>
+    </div>
+{% endblock %}

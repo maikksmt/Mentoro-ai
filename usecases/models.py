@@ -31,11 +31,6 @@ class UseCase(EditorialWorkflowMixin, TranslatableModel):
     def __str__(self) -> str:
         return self.safe_translation_getter("title", any_language=True) or f"UseCase #{self.pk}"
 
-    def get_live_value(self, field: str, language: str | None = None):
-        """Liest den Wert aus dem Live-Snapshot (live_i18n) für die angegebene Sprache."""
-        lang = language or get_language()
-        return (self.live_i18n or {}).get(lang, {}).get(field)
-
     def _current_values_for(self, language: str):
         """Gibt die aktuellen Übersetzungswerte (Draft) für eine Sprache zurück."""
         with switch_language(self, language):
@@ -82,19 +77,10 @@ class UseCase(EditorialWorkflowMixin, TranslatableModel):
         if not self.published_at:
             self.published_at = timezone.now()
 
-        live = dict(self.live_i18n or {})
-
         for lang in self.get_available_languages():
             with switch_language(self, lang):
                 if self.slug and self.public_slug != self.slug:
                     self.public_slug = self.slug
-
-                snap = live.get(lang, {})
-                for f in self.LIVE_SNAPSHOT_FIELDS:
-                    snap[f] = getattr(self, f, None)
-                live[lang] = snap
-
-        self.live_i18n = live
 
     def get_absolute_url(self, language: str | None = None):
         lang = language or get_language()

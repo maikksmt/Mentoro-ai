@@ -60,7 +60,7 @@ class TranslatableTinyMCEInlineMixin:
     to keep the editing experience consistent.
     """
     tinymce_fields: tuple[str, ...] = ()
-    wide_text_inputs: tuple[str, ...] = ("title",)
+    wide_text_inputs: tuple[str, ...] = ("title", "label")
 
     class Media:
         css = {
