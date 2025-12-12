@@ -11,12 +11,19 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - error pages (400,403,404,500)
+- comparison added to services functions
 
 ### Changed
 
 - update for rich text layout examples page
+- rework Comparison Views and Templates
+- minor UI updates
+- Comparison Data model
+- Metadata
 
 ### Fixed
+
+- editorial workflow
 
 ---
 

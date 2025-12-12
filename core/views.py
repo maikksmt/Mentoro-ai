@@ -3,15 +3,19 @@ from core.seo.types import SeoMeta, AltHref
 
 
 class SeoMixin:
-    def build_seo(self, request, *, title, description, canonical, og_type=None, og_image=None, alternates=None, json_ld=None):
+    def build_seo(self, request, *, title, description, date=None, author=None, canonical, og_type=None, og_image=None, alternates=None,
+                  json_ld=None):
         alts: list[AltHref] = []
+        if date is not None:
+            date = date.strftime("%Y-%m-%dT%H:%M:%S")
         for a in (alternates or []):
             if isinstance(a, AltHref):
                 alts.append(a)
             else:
                 alts.append(AltHref(**a))
         return SeoMeta(
-            title=title, description=description, og_type=og_type, canonical=canonical,
+            title=title, description=description, date=date, author=author,
+            og_type=og_type, canonical=canonical,
             og_image=og_image, alternates=alts, json_ld=json_ld
         )
 

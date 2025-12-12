@@ -165,22 +165,43 @@ class ComparisonDetailView(SeoMixin, DetailView):
         )
 
         description_source = intro or body
-        description = seo_text(description_source or "")
+        description = seo_text(description_source or "")[:155]
 
         canonical = absolute_url(obj.get_absolute_url(language=lang))
         alternates = localized_alternates(request, obj=obj)
+        entries = obj.tool_entries.select_related("tool").all()
+
+        json_ld = {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": title,
+            "description": description,
+            "url": canonical,
+            "inLanguage": lang,
+        }
+        if entries:
+            json_ld["about"] = [
+                {
+                    "@type": "SoftwareApplication",
+                    "name": entry.tool.name,
+                    "url": absolute_url(entry.tool.get_absolute_url()),
+                }
+                for entry in entries
+            ]
 
         ctx["seo"] = self.build_seo(
             request,
             title=title,
             description=description,
+            date=obj.updated_at,
+            author=obj.author.get_full_name or obj.author.username,
             canonical=canonical,
             og_type="article",
             og_image=get_og_image(),
             alternates=alternates,
+            json_ld=json_ld,
         )
 
-        entries = obj.tool_entries.select_related("tool").all()
         ctx["tool_entries"] = entries
         ctx["tools_list"] = [entry.tool for entry in entries]
 

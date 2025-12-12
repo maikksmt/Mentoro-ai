@@ -125,6 +125,8 @@ class PromptDetailView(SeoMixin, DetailView):
             self.request,
             title=title,
             description=desc,
+            date=obj.updated_at,
+            author=obj.author.get_full_name or obj.author.username,
             og_type="article",
             canonical=canonical,
             og_image=get_og_image(og_img),
