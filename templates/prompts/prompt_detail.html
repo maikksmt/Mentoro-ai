@@ -49,10 +49,42 @@
             {% if object.tools.all %}
                 <section class="my-6">
                     <h2 class="text-2xl font-semibold mb-2">{% trans "Suitable tools" %}</h2>
-                    <div class="flex flex-wrap gap-2">
+                    <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
                         {% for t in object.tools.all %}
                             <a href="{% url 'catalog:detail' slug=t.slug %}"
-                               class="badge badge-outline">{{ t.name }}</a>
+                               class="card border rounded-md hover:shadow-xl transition-shadow h-full">
+                                <div class="card-body">
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar">
+                                            {% if t.logo %}
+                                                <div class="w-10 h-10 rounded-full">
+                                                    <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" width="40" height="40">
+                                                </div>
+                                            {% else %}
+                                                <div class="w-10 h-10 rounded-full ring-1 ring-base-300">
+                                                    <div class="flex h-full w-full items-center justify-center bg-base-200 text-lg font-semibold">
+                                                        {{ t.name|first|upper }}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <h3 class="font-semibold leading-tight">{{ t.name }}</h3>
+                                            {% if t.vendor %}<p class="text-sm opacity-70">{{ t.vendor }}</p>{% endif %}
+                                        </div>
+                                    </div>
+                                    {% if t.short_description %}
+                                        <p class="opacity-80 mt-3 line-clamp-2">{{ t.short_description|richtext|safe|truncatewords:12 }}</p>{% endif %}
+                                    <div class="card-actions mt-4 justify-between items-center">
+                                        {% if t.rating %}
+                                            <span class="badge badge-primary badge-outline"
+                                                  aria-label="{% trans "Rating" %}">{{ t.rating }}★
+                                            </span>
+                                        {% endif %}
+                                        <span class="btn btn-sm btn-block btn-primary">{% trans "Details" %}</span>
+                                    </div>
+                                </div>
+                            </a>
                         {% empty %}
                             <span class="text-base-content/70">{% trans "No tools linked." %}</span>
                         {% endfor %}

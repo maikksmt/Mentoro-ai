@@ -39,16 +39,21 @@ class UseCaseAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Versio
     )
 
     fieldsets = (
+        (_("Editorial"), {
+            "fields": (
+                "status",
+                "author",
+                "reviewed_by",
+                "reviewed_at",
+                "review_note",
+            )
+        }),
         (_("Meta"), {
             "fields": (
-                "author",
-                "status",
                 "is_published",
                 "published_at",
                 "updated_at",
                 "submitted_for_review_at",
-                "reviewed_at",
-                "reviewed_by",
                 "last_published_revision_id",
             ),
         }),

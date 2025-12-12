@@ -254,22 +254,44 @@
             {#            </section>#}
 
             {% if related_tools %}
-                <section class="mt-8">
+                <section class="mt-10">
                     <h2 class="text-2xl font-semibold mb-4">{% trans "Similar tools" %}</h2>
-                    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
                         {% for t in related_tools %}
-                            <article class="card bg-base-100 shadow-sm">
+                            <a href="{% url 'catalog:detail' slug=t.slug %}"
+                               class="card border rounded-md hover:shadow-xl transition-shadow h-full">
                                 <div class="card-body">
-                                    <h3 class="card-title text-base">
-                                        <a href="{% url 'catalog:detail' slug=t.slug %}" class="link link-hover">
-                                            {{ t.name }}
-                                        </a>
-                                    </h3>
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar">
+                                            {% if t.logo %}
+                                                <div class="w-10 h-10 rounded-full">
+                                                    <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" width="40" height="40">
+                                                </div>
+                                            {% else %}
+                                                <div class="w-10 h-10 rounded-full ring-1 ring-base-300">
+                                                    <div class="flex h-full w-full items-center justify-center bg-base-200 text-lg font-semibold">
+                                                        {{ t.name|first|upper }}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <h3 class="font-semibold leading-tight">{{ t.name }}</h3>
+                                            {% if t.vendor %}<p class="text-sm opacity-70">{{ t.vendor }}</p>{% endif %}
+                                        </div>
+                                    </div>
                                     {% if t.short_description %}
-                                        <p class="text-sm text-base-content/70 line-clamp-3">{{ t.short_description|richtext|safe }}</p>
-                                    {% endif %}
+                                        <p class="opacity-80 mt-3 line-clamp-2">{{ t.short_description|richtext|safe|truncatewords:12 }}</p>{% endif %}
+                                    <div class="card-actions mt-4 justify-between items-center">
+                                        {% if t.rating %}
+                                            <span class="badge badge-primary badge-outline"
+                                                  aria-label="{% trans "Rating" %}">{{ t.rating }}★
+                                            </span>
+                                        {% endif %}
+                                        <span class="btn btn-sm btn-block btn-primary">{% trans "Details" %}</span>
+                                    </div>
                                 </div>
-                            </article>
+                            </a>
                         {% endfor %}
                     </div>
                 </section>
