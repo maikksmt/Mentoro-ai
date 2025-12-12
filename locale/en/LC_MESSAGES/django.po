@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-08 22:35+0100\n"
+"POT-Creation-Date: 2025-12-12 11:13+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -194,7 +194,7 @@ msgstr ""
 
 #: compare/admin.py:86 compare/admin.py:90 compare/models.py:14
 #: guides/admin.py:127 guides/admin.py:131 guides/models.py:18
-#: guides/models.py:123 guides/models.py:197 prompts/admin.py:104
+#: guides/models.py:132 guides/models.py:217 prompts/admin.py:104
 #: prompts/models.py:17 templates/content/editorial/review_queue.html:14
 #: templates/ops/seo_check.html:41 usecases/admin.py:94 usecases/models.py:16
 msgid "Title"
@@ -352,7 +352,7 @@ msgstr ""
 msgid "%(n)d item(s) → Review."
 msgstr ""
 
-#: core/admin.py:377 core/admin.py:469 core/admin.py:522
+#: core/admin.py:377 core/admin.py:469 core/admin.py:518
 #, python-format
 msgid "%(n)d skipped: %(detail)s"
 msgstr ""
@@ -361,7 +361,7 @@ msgstr ""
 msgid "Request changes (→ Rework)"
 msgstr ""
 
-#: core/admin.py:391 core/admin.py:536 core/admin.py:576
+#: core/admin.py:391 core/admin.py:532 core/admin.py:572
 msgid "You are not authorized to perform this action."
 msgstr ""
 
@@ -391,37 +391,37 @@ msgstr ""
 msgid "Publish selected item(s)"
 msgstr ""
 
-#: core/admin.py:509
+#: core/admin.py:505
 msgid "Transition 'publish' not executable"
 msgstr ""
 
-#: core/admin.py:515
+#: core/admin.py:511
 #, python-format
 msgid "%(n)d item(s) published."
 msgstr ""
 
-#: core/admin.py:526
+#: core/admin.py:522
 msgid "Archive (Soft Delete)"
 msgstr ""
 
-#: core/admin.py:544
+#: core/admin.py:540
 msgid "Transition 'archive' not executable"
 msgstr ""
 
-#: core/admin.py:562
+#: core/admin.py:558
 #, python-format
 msgid "%(n)d item(s) archived."
 msgstr ""
 
-#: core/admin.py:566
+#: core/admin.py:562
 msgid "Restore (→ Draft)"
 msgstr ""
 
-#: core/admin.py:584
+#: core/admin.py:580
 msgid "Transition 'restore' not executable"
 msgstr ""
 
-#: core/admin.py:602
+#: core/admin.py:598
 #, python-format
 msgid "%(n)d item(s) restored (draft)."
 msgstr ""
@@ -467,7 +467,7 @@ msgid ""
 "beginner-friendly definitions."
 msgstr ""
 
-#: guides/models.py:20 guides/models.py:124 prompts/models.py:19
+#: guides/models.py:20 guides/models.py:133 prompts/models.py:19
 #: usecases/models.py:18
 msgid "Body"
 msgstr ""
@@ -488,27 +488,27 @@ msgstr ""
 msgid "Guides"
 msgstr ""
 
-#: guides/models.py:129
+#: guides/models.py:138
 msgid "Guide Section"
 msgstr ""
 
-#: guides/models.py:130
+#: guides/models.py:139
 msgid "Guide Sections"
 msgstr ""
 
-#: guides/models.py:198
+#: guides/models.py:218
 msgid "Teaser"
 msgstr ""
 
-#: guides/models.py:206
+#: guides/models.py:226
 msgid "Guide Item"
 msgstr ""
 
-#: guides/models.py:207
+#: guides/models.py:227
 msgid "Guide Items"
 msgstr ""
 
-#: guides/models.py:243
+#: guides/models.py:263
 msgid "Either content_object (content_type + object_id) OR a URL."
 msgstr ""
 
@@ -1527,7 +1527,7 @@ msgstr ""
 msgid "Website"
 msgstr ""
 
-#: templates/catalog/tool_list.html:214 templates/compare/index.html:72
+#: templates/catalog/tool_list.html:214 templates/compare/index.html:65
 #: templates/content/home.html:72 templates/usecases/detail.html:91
 msgid "Details"
 msgstr ""
@@ -1592,29 +1592,24 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
-#: templates/compare/index.html:33 templates/compare/index.html:72
+#: templates/compare/index.html:33 templates/compare/index.html:65
 #: templates/glossary/glossary_results.html:7
-#: templates/guides/guide_list.html:18 templates/guides/guide_list.html:54
+#: templates/guides/guide_list.html:18 templates/guides/guide_list.html:47
 #: templates/partials/_guideitem_card.html:22
 #: templates/partials/_guideitem_card.html:29
 #: templates/partials/_teaser_card.html:21
 #: templates/partials/_teaser_card.html:28
-#: templates/prompts/prompt_list.html:17 templates/prompts/prompt_list.html:51
-#: templates/usecases/list.html:19 templates/usecases/list.html:56
+#: templates/prompts/prompt_list.html:17 templates/prompts/prompt_list.html:44
+#: templates/usecases/list.html:19 templates/usecases/list.html:49
 msgid "Read details about "
 msgstr ""
 
-#: templates/compare/index.html:60 templates/guides/guide_list.html:41
-#: templates/prompts/prompt_list.html:39 templates/usecases/list.html:44
-msgid "Updated:"
-msgstr ""
-
-#: templates/compare/index.html:66 templates/guides/guide_list.html:47
-#: templates/prompts/prompt_list.html:45 templates/usecases/list.html:50
+#: templates/compare/index.html:59 templates/guides/guide_list.html:40
+#: templates/prompts/prompt_list.html:38 templates/usecases/list.html:43
 msgid "from"
 msgstr ""
 
-#: templates/compare/index.html:79
+#: templates/compare/index.html:72
 msgid ""
 "There are currently no comparisons available. We are working hard to ensure "
 "that helpful comparisons of AI tools will be available soon."
@@ -2324,12 +2319,12 @@ msgstr ""
 msgid "Step-by-step instructions on AI topics – understandable and practical."
 msgstr ""
 
-#: templates/guides/guide_list.html:55 templates/prompts/prompt_list.html:51
-#: templates/usecases/list.html:56
+#: templates/guides/guide_list.html:48 templates/prompts/prompt_list.html:44
+#: templates/usecases/list.html:49
 msgid "Read more"
 msgstr ""
 
-#: templates/guides/guide_list.html:63
+#: templates/guides/guide_list.html:56
 msgid "No published guides available."
 msgstr ""
 
@@ -3417,7 +3412,7 @@ msgstr ""
 msgid "Templates that significantly improve your AI responses."
 msgstr ""
 
-#: templates/prompts/prompt_list.html:58
+#: templates/prompts/prompt_list.html:51
 msgid "No published prompts found."
 msgstr ""
 
@@ -3479,7 +3474,7 @@ msgstr ""
 msgid "Persona:"
 msgstr ""
 
-#: templates/usecases/list.html:63
+#: templates/usecases/list.html:56
 msgid "No published use cases found."
 msgstr ""
 

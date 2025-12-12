@@ -170,7 +170,7 @@ class EditorialWorkflowMixin(models.Model):
     @transition(field=status, source=STATUS_APPROVED, target=STATUS_PUBLISHED)
     def publish(self, *, by, note=""):
         now = timezone.now()
-        if not self.is_published and self.published_at <= now:
+        if not self.is_published and (not self.published_at or self.published_at <= now):
             self.published_at = now
 
         self.updated_at = now
