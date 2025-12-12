@@ -103,7 +103,7 @@ class EditorialWorkflowMixin(models.Model):
         on_delete=models.SET_NULL, null=True, blank=True
     )
     created_at = models.DateTimeField(default=timezone.now, editable=False)
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(default=timezone.now)
     is_published = models.BooleanField(default=False)
     published_at = models.DateTimeField(null=True, blank=True)
     objects = EditorialManager()
@@ -170,10 +170,10 @@ class EditorialWorkflowMixin(models.Model):
     @transition(field=status, source=STATUS_APPROVED, target=STATUS_PUBLISHED)
     def publish(self, *, by, note=""):
         now = timezone.now()
-        self.reviewed_at = now
-        self.reviewed_by = by
-        if not self.published_at:
+        if not self.is_published and self.published_at <= now:
             self.published_at = now
+
+        self.updated_at = now
         if note:
             self.review_note = note
         self._update_live_snapshot()

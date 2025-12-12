@@ -45,21 +45,14 @@
                     <div class="card-actions justify-end mt-4">
                         <div class="flex flex-col gap-1 text-sm text-base-content/80">
                             <div class="flex flex-wrap items-center gap-2">
-                                {% if cmp.published_at %}
-                                    <time datetime="{{ cmp.published_at|date:'c' }}"
+                                {% if cmp.updated_at %}
+                                    <time datetime="{{ cmp.updated_at|date:'c' }}"
                                           class="inline-flex items-center gap-1 whitespace-nowrap">
                                         {% heroicon_outline "calendar-days" size=16 %}
-                                        {{ cmp.published_at|date:"d.m.Y" }}
+                                        {{ cmp.updated_at|date:"d.m.Y" }}
                                     </time>
                                 {% endif %}
                             </div>
-                            {% if cmp.updated_at %}
-                                <time datetime="{{ cmp.updated_at|date:'c' }}"
-                                      class=" text-xs inline-flex items-center gap-1 whitespace-nowrap">
-                                    {% heroicon_outline "calendar-days" size=14 %}
-                                    {% trans "Updated:" %} {{ cmp.updated_at|date:"d.m.Y" }}
-                                </time>
-                            {% endif %}
                             {% if cmp.author %}
                                 <div class="text-xs text-base-content/80 inline-flex items-center gap-1">
                                     {% heroicon_outline "user" size=14 %}
