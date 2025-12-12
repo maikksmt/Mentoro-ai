@@ -103,7 +103,7 @@ class EditorialWorkflowMixin(models.Model):
         on_delete=models.SET_NULL, null=True, blank=True
     )
     created_at = models.DateTimeField(default=timezone.now, editable=False)
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(default=timezone.now)
     is_published = models.BooleanField(default=False)
     published_at = models.DateTimeField(null=True, blank=True)
     objects = EditorialManager()
@@ -143,6 +143,22 @@ class EditorialWorkflowMixin(models.Model):
         except Exception:
             pass
 
+    def get_live_value(self, field: str, language: str | None = None) -> str | None:
+        """
+        returns live snapshot data for language or fallback to live snapshot from default (or other available) language.
+        """
+        lang = language or get_language()
+        live = self.live_i18n or {}
+        value = (live.get(lang) or {}).get(field)
+        if value:
+            return value
+        for code, data in live.items():
+            if not isinstance(data, dict):
+                continue
+            value = data.get(field)
+            if value:
+                return value
+
     # --- Transitions ---
 
     @transition(field=status, source=[STATUS_DRAFT, STATUS_REWORK, STATUS_PUBLISHED, STATUS_APPROVED], target=STATUS_REVIEW)
@@ -170,10 +186,10 @@ class EditorialWorkflowMixin(models.Model):
     @transition(field=status, source=STATUS_APPROVED, target=STATUS_PUBLISHED)
     def publish(self, *, by, note=""):
         now = timezone.now()
-        self.reviewed_at = now
-        self.reviewed_by = by
-        if not self.published_at:
+        if not self.is_published and (not self.published_at or self.published_at <= now):
             self.published_at = now
+
+        self.updated_at = now
         if note:
             self.review_note = note
         self._update_live_snapshot()

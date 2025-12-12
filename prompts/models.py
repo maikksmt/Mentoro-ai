@@ -44,10 +44,6 @@ class Prompt(EditorialWorkflowMixin, TranslatableModel):
                 "outro": get("outro"),
             }
 
-    def get_live_value(self, field: str, language: str | None = None):
-        lang = language or get_language()
-        return (self.live_i18n or {}).get(lang, {}).get(field)
-
     def get_display_value(self, field: str, language: str | None = None):
         val = self.get_live_value(field, language)
         if val:

@@ -12,31 +12,35 @@ from django.utils.translation import get_language
 from parler.utils.context import switch_language
 from reversion.models import Version
 
+from compare.models import Comparison
 from guides.models import Guide
 from prompts.models import Prompt
 from usecases.models import UseCase
 
 
-def get_latest_items(limit: int = 6, mix: Tuple[int, int, int] = (3, 2, 1)) -> List[Dict[str, Any]]:
+def get_latest_items(limit: int = 6, mix: Tuple[int, int, int, int] = (4, 3, 2, 1)) -> List[Dict[str, Any]]:
     """
     Returns a balanced, recency-sorted mix of Guides/Prompts/UseCases based on mix;
     includes robust fallbacks when a type has too few items.
     """
-    g_need, p_need, u_need = mix
+    g_need, p_need, u_need, c_need = mix
 
     g_qs: QuerySet = _safe_order_by_published(Guide.published)
     p_qs: QuerySet = _safe_order_by_published(Prompt.published)
     u_qs: QuerySet = _safe_order_by_published(UseCase.published)
+    c_qs: QuerySet = _safe_order_by_published(Comparison.published)
 
     items: List[Dict[str, Any]] = []
 
     g_pick = list(g_qs[:g_need])
     p_pick = list(p_qs[:p_need])
     u_pick = list(u_qs[:u_need])
+    c_pick = list(c_qs[:c_need])
 
     items.extend([to_teaser_item(g, "guide") for g in g_pick])
     items.extend([to_teaser_item(p, "prompt") for p in p_pick])
     items.extend([to_teaser_item(u, "usecase") for u in u_pick])
+    items.extend([to_teaser_item(c, "comparison") for c in c_pick])
 
     # Fill remaining slots with the most recent leftover items (all types together)
     deficit = max(0, limit - len(items))
@@ -45,6 +49,7 @@ def get_latest_items(limit: int = 6, mix: Tuple[int, int, int] = (3, 2, 1)) -> L
             *[("guide", g.pk) for g in g_pick],
             *[("prompt", p.pk) for p in p_pick],
             *[("usecase", u.pk) for u in u_pick],
+            *[("comparison", c.pk) for c in c_pick],
         }
 
         def rest(qs, kind):
@@ -57,6 +62,7 @@ def get_latest_items(limit: int = 6, mix: Tuple[int, int, int] = (3, 2, 1)) -> L
         merged.extend(list(rest(g_qs[g_need: g_need + limit * 2], "guide")))
         merged.extend(list(rest(p_qs[p_need: p_need + limit * 2], "prompt")))
         merged.extend(list(rest(u_qs[u_need: u_need + limit * 2], "usecase")))
+        merged.extend(list(rest(c_qs[c_need: c_need + limit * 2], "comparison")))
         merged.sort(key=lambda x: (x.get("date") or 0), reverse=True)
         items.extend(merged[:deficit])
 
@@ -105,7 +111,7 @@ def related_guides(guide, limit=6):
     return items[:limit]
 
 
-def related_prompts(prompt, limit=8):
+def related_prompts(prompt, limit=6):
     """
     Like related_guides but for Prompts: ranks by overlapping categories/tools;
     uses a time-based fallback if relations are missing.
@@ -174,6 +180,54 @@ def related_usecases(usecase, limit=6):
     return items[:limit]
 
 
+def related_comparisons(comparison: Comparison, limit: int = 6) -> List[Dict[str, Any]]:
+    """
+    Finds related Comparisons by overlapping tools (and tool categories as a secondary signal).
+    Returns teaser dicts compatible with templates/partials/_teaser_card.html
+    via to_teaser_item(..., "comparison").
+    """
+
+    if comparison is None:
+        return []
+
+    tool_ids = _ids(comparison.tools.all()) if hasattr(comparison, "tools") else []
+
+    cat_ids = list(
+        comparison.tools.values_list("categories__id", flat=True).distinct()
+    ) if tool_ids else []
+
+    qs = (
+        Comparison.published.exclude(pk=comparison.pk)
+        .prefetch_related("tools", "tools__categories")
+        .distinct()
+    )
+
+    if tool_ids or cat_ids:
+        qs = (
+            qs.filter(Q(tools__in=tool_ids) | Q(tools__categories__in=cat_ids))
+            .annotate(
+                tool_matches=Count("tools", filter=Q(tools__in=tool_ids), distinct=True),
+                cat_matches=Count(
+                    "tools__categories", filter=Q(tools__categories__in=cat_ids), distinct=True
+                ),
+            )
+            .order_by("-tool_matches", "-cat_matches", "-published_at")
+        )
+    else:
+        qs = qs.order_by("-published_at")
+
+    items = list(qs[:limit])
+
+    # fallback: always return something useful
+    if len(items) < limit:
+        fallback = Comparison.published.exclude(
+            pk__in=[c.pk for c in items] + [comparison.pk]
+        ).order_by("-published_at")[: limit - len(items)]
+        items.extend(fallback)
+
+    return items[:limit]
+
+
 # ---------- Helpers ----------
 
 
@@ -238,11 +292,18 @@ def teaser_for_usecase(u: UseCase, limit: int = 160) -> str:
     else:
         src = getattr(u, "intro", "") or ""
 
-    if not src:
-        steps = getattr(u, "workflow_steps", None)
-        step0 = _first(steps) if isinstance(steps, (list, tuple)) else ""
-        src = step0 or ""
+    return (strip_tags(src) or "")[:limit]
 
+
+def teaser_for_comparison(c: Comparison, limit: int = 160) -> str:
+    """
+    Builds a compact teaser text for a Comparison.
+    """
+    getter = getattr(c, "safe_translation_getter", None)
+    if callable(getter):
+        src = getter("intro", any_language=True) or getter("body", any_language=True) or ""
+    else:
+        src = getattr(c, "intro", None) or getattr(c, "body", "") or ""
     return (strip_tags(src) or "")[:limit]
 
 
@@ -285,6 +346,14 @@ def to_teaser_item(obj, kind: str) -> Dict[str, Any]:
             "url": reverse("usecases:detail", kwargs={"slug": obj.slug}),
             "date": getattr(obj, "published_at", None),
             "badge": "Usecase",
+        }
+    if kind == "comparison":
+        return {
+            "title": _t(obj, "title"),
+            "teaser": teaser_for_comparison(obj),
+            "url": obj.get_absolute_url(),
+            "date": getattr(obj, "published_at", None),
+            "badge": "Comparison",
         }
     return {
         "title": str(obj),
@@ -410,12 +479,12 @@ def _inline_diff(a: str, b: str) -> tuple[str, str]:
             out_a.append(eq_a)
             out_b.append(eq_b)
         elif tag == "replace":
-            out_a.append(f"<del class='diff-del'>{escape((a or '')[i1:i2])}</del>")
-            out_b.append(f"<ins class='diff-ins'>{escape((b or '')[j1:j2])}</ins>")
+            out_a.append(f"<del class='diff-ins'>{escape((a or '')[i1:i2])}</del>")
+            out_b.append(f"<ins class='diff-del'>{escape((b or '')[j1:j2])}</ins>")
         elif tag == "delete":
-            out_a.append(f"<del class='diff-del'>{escape((a or '')[i1:i2])}</del>")
+            out_b.append(f"<del class='diff-del'>{escape((a or '')[i1:i2])}</del>")
         elif tag == "insert":
-            out_b.append(f"<ins class='diff-ins'>{escape((b or '')[j1:j2])}</ins>")
+            out_a.append(f"<ins class='diff-ins'>{escape((b or '')[j1:j2])}</ins>")
     return ("".join(out_a), "".join(out_b))
 
 

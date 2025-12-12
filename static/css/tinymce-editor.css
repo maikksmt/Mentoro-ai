@@ -25,6 +25,7 @@ body {
 .mce-content-body em,
 .mce-content-body i,
 .mce-content-body a,
+.mce-content-body th,
 .mce-content-body blockquote {
     color: #000000 !important;
 }

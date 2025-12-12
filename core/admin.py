@@ -60,7 +60,7 @@ class TranslatableTinyMCEInlineMixin:
     to keep the editing experience consistent.
     """
     tinymce_fields: tuple[str, ...] = ()
-    wide_text_inputs: tuple[str, ...] = ("title",)
+    wide_text_inputs: tuple[str, ...] = ("title", "label")
 
     class Media:
         css = {
@@ -484,17 +484,13 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
                         skipped.append((obj.pk, _("permission denied")))
                         continue
 
-                    if getattr(obj, "status", None) == getattr(
-                            obj, "STATUS_PUBLISHED", "published"
-                    ):
+                    if getattr(obj, "status", None) == getattr(obj, "STATUS_PUBLISHED", "published"):
                         continue
 
                     transition = self._get_transition(obj, "publish")
                     if transition and can_proceed(transition):
                         try:
-                            transition(
-                                by=request.user, note="Admin-Action publish"
-                            )
+                            transition(by=request.user, note="Admin-Action publish")
                         except TypeError:
                             transition()
 
