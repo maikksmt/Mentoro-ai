@@ -410,12 +410,12 @@ def _inline_diff(a: str, b: str) -> tuple[str, str]:
             out_a.append(eq_a)
             out_b.append(eq_b)
         elif tag == "replace":
-            out_a.append(f"<del class='diff-del'>{escape((a or '')[i1:i2])}</del>")
-            out_b.append(f"<ins class='diff-ins'>{escape((b or '')[j1:j2])}</ins>")
+            out_a.append(f"<del class='diff-ins'>{escape((a or '')[i1:i2])}</del>")
+            out_b.append(f"<ins class='diff-del'>{escape((b or '')[j1:j2])}</ins>")
         elif tag == "delete":
-            out_a.append(f"<del class='diff-del'>{escape((a or '')[i1:i2])}</del>")
+            out_b.append(f"<del class='diff-del'>{escape((a or '')[i1:i2])}</del>")
         elif tag == "insert":
-            out_b.append(f"<ins class='diff-ins'>{escape((b or '')[j1:j2])}</ins>")
+            out_a.append(f"<ins class='diff-ins'>{escape((b or '')[j1:j2])}</ins>")
     return ("".join(out_a), "".join(out_b))
 
 

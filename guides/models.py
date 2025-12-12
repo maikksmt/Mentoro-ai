@@ -43,18 +43,30 @@ class Guide(EditorialWorkflowMixin, TranslatableModel):
             }
 
     def get_live_value(self, field: str, language: str | None = None) -> str | None:
+        """
+        returns live snapshot data for language or fallback to live snapshot from default (or other available) language.
+        """
         lang = language or get_language()
-        return (self.live_i18n or {}).get(lang, {}).get(field)
+        live = self.live_i18n or {}
+        value = (live.get(lang) or {}).get(field)
+        if value:
+            return value
+        for code, data in live.items():
+            if not isinstance(data, dict):
+                continue
+            value = data.get(field)
+            if value:
+                return value
 
     def get_display_value(self, field: str, language: str | None = None) -> str | None:
         """
-        Bevorzugt Live-Snapshot (wenn vorhanden), sonst aktuelle Draft-Werte.
-        So bleibt die Liste stabil während Review.
+        Prefer live snapshot (if available) or fallback to current draft values.
+        This keeps the list stable during review.
         """
         lang = language or get_language()
-        live = self.get_live_value(field, lang)
-        if live:
-            return live
+        live_value = self.get_live_value(field, lang)
+        if live_value is not None:
+            return live_value
         return self._current_values_for(lang).get(field)
 
     def get_absolute_url(self, language: str | None = None):
@@ -145,13 +157,24 @@ class GuideSection(TranslatableModel):
 
     def get_live_value(self, field: str, language: str | None = None):
         lang = language or get_language()
-        return (self.live_i18n or {}).get(lang, {}).get(field)
+        live = self.live_i18n or {}
+        value = (live.get(lang) or {}).get(field)
+        if value:
+            return value
+        for code, data in live.items():
+            if not isinstance(data, dict):
+                continue
+            value = data.get(field)
+            if value:
+                return value
+
+        return None
 
     def get_display_value(self, field: str, language: str | None = None):
-        val = self.get_live_value(field, language)
-        if val:
-            return val
         lang = language or get_language()
+        live_value = self.get_live_value(field, lang)
+        if live_value is not None:
+            return live_value
         return self._current_values_for(lang).get(field)
 
     @property

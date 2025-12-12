@@ -484,17 +484,13 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
                         skipped.append((obj.pk, _("permission denied")))
                         continue
 
-                    if getattr(obj, "status", None) == getattr(
-                            obj, "STATUS_PUBLISHED", "published"
-                    ):
+                    if getattr(obj, "status", None) == getattr(obj, "STATUS_PUBLISHED", "published"):
                         continue
 
                     transition = self._get_transition(obj, "publish")
                     if transition and can_proceed(transition):
                         try:
-                            transition(
-                                by=request.user, note="Admin-Action publish"
-                            )
+                            transition(by=request.user, note="Admin-Action publish")
                         except TypeError:
                             transition()
 

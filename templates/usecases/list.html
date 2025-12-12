@@ -29,21 +29,14 @@
                     <div class="card-actions justify-between items-center mt-4">
                         <div class="flex flex-col gap-1 text-sm text-base-content/80">
                             <div class="flex flex-wrap items-center gap-2">
-                                {% if obj.published_at %}
-                                    <time datetime="{{ obj.published_at|date:'c' }}"
+                                {% if obj.updated_at %}
+                                    <time datetime="{{ obj.updated_at|date:'c' }}"
                                           class="inline-flex items-center gap-1 whitespace-nowrap">
                                         {% heroicon_outline "calendar-days" size=16 %}
-                                        {{ obj.published_at|date:"d.m.Y" }}
+                                        {{ obj.updated_at|date:"d.m.Y" }}
                                     </time>
                                 {% endif %}
                             </div>
-                            {% if obj.updated_at %}
-                                <time datetime="{{ obj.updated_at|date:'c' }}"
-                                      class=" text-xs inline-flex items-center gap-1 whitespace-nowrap">
-                                    {% heroicon_outline "calendar-days" size=14 %}
-                                    {% trans "Updated:" %} {{ obj.updated_at|date:"d.m.Y" }}
-                                </time>
-                            {% endif %}
                             {% if obj.author %}
                                 <div class="text-xs text-base-content/80 inline-flex items-center gap-1">
                                     {% heroicon_outline "user" size=14 %}
