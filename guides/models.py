@@ -42,22 +42,6 @@ class Guide(EditorialWorkflowMixin, TranslatableModel):
                 "body": self.safe_translation_getter("body"),
             }
 
-    def get_live_value(self, field: str, language: str | None = None) -> str | None:
-        """
-        returns live snapshot data for language or fallback to live snapshot from default (or other available) language.
-        """
-        lang = language or get_language()
-        live = self.live_i18n or {}
-        value = (live.get(lang) or {}).get(field)
-        if value:
-            return value
-        for code, data in live.items():
-            if not isinstance(data, dict):
-                continue
-            value = data.get(field)
-            if value:
-                return value
-
     def get_display_value(self, field: str, language: str | None = None) -> str | None:
         """
         Prefer live snapshot (if available) or fallback to current draft values.

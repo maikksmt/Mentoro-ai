@@ -10,10 +10,13 @@ from core.models.editorial import EditorialWorkflowMixin
 
 
 class Comparison(EditorialWorkflowMixin, TranslatableModel):
+    live_i18n = models.JSONField(default=dict, blank=True)
+    LIVE_SNAPSHOT_FIELDS = ("slug", "public_slug", "title", "intro", "body")
     translations = TranslatedFields(
         title=models.CharField(_("Title"), max_length=200),
         intro=models.TextField(_("Intro"), blank=True),
         slug=models.SlugField(_("Slug"), max_length=220, unique=True),
+        public_slug=models.SlugField(_("Public slug"), max_length=220, unique=True, null=True, blank=True),
     )
     tools = models.ManyToManyField(Tool, related_name="comparisons", blank=True)
     score_breakdown = models.JSONField(default=dict, blank=True)
