@@ -7,9 +7,9 @@
                    class="flex flex-col text-center py-3" aria-label="{% trans "Read details about " %}{{ term.term }}">
                     <span class="font-semibold">{{ term.term }}</span>
                     {% if not compact %}
-                        <span class="text-sm opacity-70">{{ term.short_definition|truncatewords:24 }}</span>
+                        <span class="text-sm opacity-70">{{ term.short_definition|truncatewords_html:24 }}...</span>
                     {% else %}
-                        <span class="text-xs opacity-70">{{ term.short_definition|truncatewords:12 }}</span>
+                        <span class="text-xs opacity-70">{{ term.short_definition|truncatewords_html:12 }}...</span>
                     {% endif %}
                 </a>
             </li>

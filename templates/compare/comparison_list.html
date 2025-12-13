@@ -65,9 +65,9 @@
                         </h2>
 
                         {% if obj.intro %}
-                            <p class="line-clamp-3">{{ obj.intro|richtext|safe|truncatewords_html:30 }}</p>
+                            <p class="line-clamp-3">{{ obj.intro|richtext|safe|truncatewords_html:30 }}...</p>
                         {% else %}
-                            <p class="line-clamp-3">{{ obj.body|richtext|safe|truncatewords_html:30 }}</p>
+                            <p class="line-clamp-3">{{ obj.body|richtext|safe|truncatewords_html:30 }}...</p>
                         {% endif %}
                         <div class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/70">
                             {% trans "Tools" %}
