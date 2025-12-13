@@ -6,7 +6,7 @@
     {% include "partials/breadcrumbs.html" %}
     <header class="mb-6 card-header-usecase">
         <h1 class="text-3xl font-bold">{% trans "Usecases" %}</h1>
-        <p class="text-base-content/70 mt-2">
+        <p class="text-base-content/80 mt-2">
             {% trans "Practical AI application examples for your everyday life and job." %}
         </p>
     </header>
@@ -19,7 +19,7 @@
                                 {% trans "Read details about " %}{{ obj.display_title }}">{{ obj.display_title }}</a>
                     </h2>
                     {% if obj.persona %}
-                        <p class="text-sm text-base-content/70">{% trans "Persona:" %} {{ obj.persona }}</p>
+                        <p class="text-sm text-base-content/80">{% trans "Persona:" %} {{ obj.persona }}</p>
                     {% endif %}
                     {% if obj.display_intro %}
                         <p class="line-clamp-3">{{ obj.display_intro|richtext|safe|truncatewords_html:30 }}</p>

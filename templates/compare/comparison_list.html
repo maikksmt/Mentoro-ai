@@ -4,7 +4,7 @@
     {% include "partials/breadcrumbs.html" %}
     <header class="mb-3 card-header-compare">
         <h1 class="text-3xl font-bold">{% trans "AI tool comparisons" %}</h1>
-        <p class="text-base-content/70 mt-2">
+        <p class="text-base-content/80 mt-2">
             {% trans "Side-by-side comparisons of AI tools to help you understand strengths, weaknesses and special features." %}
         </p>
     </header>
@@ -113,7 +113,7 @@
         {% include "partials/pagination.html" %}
 
     {% else %}
-        <p class="text-base-content/70">
+        <p>
             {% trans "No comparisons available." %}
         </p>
     {% endif %}

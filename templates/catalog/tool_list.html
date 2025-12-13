@@ -4,7 +4,7 @@
     {% include "partials/breadcrumbs.html" %}
     <header class="mb-3 card-header-tool">
         <h1 class="text-3xl font-bold">{% trans "AI Tools" %}</h1>
-        <p class="text-base-content/70 mt-2">
+        <p class="text-base-content/80 mt-2">
             {% trans "Quickly find the right AI tools for your tasks." %}
         </p>
     </header>
@@ -191,16 +191,7 @@
                         {% endif %}
                     </div>
                     <footer class="mt-auto flex items-center justify-between gap-2">
-                        {% if t.rating %}
-                            <div class="flex items-center gap-1 text-xs text-base-content/80">
-                                <span>⭐</span>
-                                <span>{{ t.rating|floatformat:1 }}/5</span>
-                            </div>
-
-                        {% else %}
-                            <span></span>
-                        {% endif %}
-
+                        <span></span>
                         <div class="flex gap-2 items-center">
                             {% if t.website %}
                                 <a href="{{ t.website }}" target="_blank" rel="nofollow noopener"
