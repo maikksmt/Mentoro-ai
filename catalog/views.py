@@ -181,6 +181,7 @@ class ToolDetailView(SeoMixin, DetailView):
             self.request,
             title=title,
             description=desc,
+            date=obj.updated_at,
             canonical=canonical,
             og_image=get_og_image(og_img),
             alternates=alts,

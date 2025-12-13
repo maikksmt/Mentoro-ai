@@ -11,6 +11,8 @@ class AltHref:
 class SeoMeta:
     title: str
     description: str
+    date: str
+    author: str
     og_type: str
     canonical: str
     robots: str = "index,follow"
