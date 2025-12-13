@@ -307,7 +307,7 @@
 @source inline("leading-{none,tight,normal,relaxed,loose}");
 
 /* Listen im Content */
-@source inline("list-{disc,decimal}");
+@source inline("list-{disc,decimal,none}");
 @source inline("marker:text-{primary,secondary,accent}"); /* schöne Bullet-Farben */
 
 /* Boxen, Cards, Callouts */
