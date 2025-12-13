@@ -90,6 +90,10 @@ class GuideDetailView(SeoMixin, DetailView):
         desc = seo_text(desc_source)[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)
+        author_obj = getattr(obj, "author", None)
+        author_name = ""
+        if author_obj:
+            author_name = (author_obj.get_full_name() or getattr(author_obj, "username", "") or "")
         alts = localized_alternates(
             self.request,
             url_name="guides:detail",  # optional, Fallback
@@ -113,7 +117,7 @@ class GuideDetailView(SeoMixin, DetailView):
             title=title,
             description=desc,
             date=obj.updated_at,
-            author=obj.author.get_full_name or obj.author.username,
+            author=author_name,
             og_type="article",
             canonical=canonical,
             og_image=get_og_image(og_img),

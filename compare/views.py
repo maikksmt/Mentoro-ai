@@ -170,6 +170,10 @@ class ComparisonDetailView(SeoMixin, DetailView):
         canonical = absolute_url(obj.get_absolute_url(language=lang))
         alternates = localized_alternates(request, obj=obj)
         entries = obj.tool_entries.select_related("tool").all()
+        author_obj = getattr(obj, "author", None)
+        author_name = ""
+        if author_obj:
+            author_name = (author_obj.get_full_name() or getattr(author_obj, "username", "") or "")
 
         json_ld = {
             "@context": "https://schema.org",
@@ -194,7 +198,7 @@ class ComparisonDetailView(SeoMixin, DetailView):
             title=title,
             description=description,
             date=obj.updated_at,
-            author=obj.author.get_full_name or obj.author.username,
+            author=author_name,
             canonical=canonical,
             og_type="article",
             og_image=get_og_image(),

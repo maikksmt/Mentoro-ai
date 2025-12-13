@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -6,15 +7,25 @@ from parler.utils.context import switch_language
 from core.models.editorial import EditorialWorkflowMixin
 from usecases.models import UseCase
 
+User = get_user_model()
+
 
 class TestPublicViews(TestCase):
     @classmethod
     def setUpTestData(cls):
+        cls.author = User.objects.create_user(
+            username="author1",
+            email="author1@example.com",
+            password="testpass123",
+            first_name="John",
+            last_name="Doe",
+        )
         # Published EN
         cls.pub = UseCase.published.create(
             slug="public-uc",
             status=EditorialWorkflowMixin.STATUS_PUBLISHED,
             published_at=timezone.now(),
+            author=cls.author,
         )
         with switch_language(cls.pub, "en"):
             cls.pub.title = "Public UC"
