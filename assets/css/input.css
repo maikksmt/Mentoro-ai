@@ -193,6 +193,15 @@
     }
 }
 
+@layer utilities {
+    @supports (color: color-mix(in oklab, red, red)) {
+        :root .prose {
+            --tw-prose-body: color-mix(in oklab, var(--color-base-content) 90%, transparent);
+            --tw-prose-lead: color-mix(in oklab, var(--color-base-content) 90%, transparent);
+        }
+    }
+}
+
 
 /*!* -------------------------------------*/
 /*   4) TYPE SCALE — Utility-like classes*/

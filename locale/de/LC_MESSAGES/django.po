@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-13 01:03+0100\n"
+"POT-Creation-Date: 2025-12-13 18:01+0100\n"
 "PO-Revision-Date: 2025-12-12 20:40+0100\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -82,7 +82,7 @@ msgstr "Slug"
 msgid "Category"
 msgstr "Kategorie"
 
-#: catalog/models.py:22 templates/catalog/tool_detail.html:77
+#: catalog/models.py:22 templates/catalog/tool_detail.html:62
 #: templates/catalog/tool_list.html:113
 msgid "Categories"
 msgstr "Kategorien"
@@ -333,7 +333,8 @@ msgstr ""
 "und Besonderheiten zu verstehen."
 
 #: compare/views.py:88 compare/views.py:217 templates/base.html:88
-#: templates/base.html:112 templates/content/what-to-find.html:36
+#: templates/base.html:112 templates/content/home.html:99
+#: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
 msgid "Comparisons"
 msgstr "Vergleiche"
@@ -1597,114 +1598,96 @@ msgstr "Webseite des Anbieters"
 msgid "Featured tool"
 msgstr "Empfohlenes Tool"
 
-#: templates/catalog/tool_detail.html:92 templates/catalog/tool_detail.html:170
-#: templates/catalog/tool_list.html:128
+#: templates/catalog/tool_detail.html:77 templates/catalog/tool_list.html:128
 msgid "Pricing"
 msgstr "Preismodell"
 
-#: templates/catalog/tool_detail.html:97 templates/catalog/tool_list.html:132
+#: templates/catalog/tool_detail.html:82 templates/catalog/tool_list.html:132
 msgid "Free Tier"
 msgstr "Kostenloser Tarif"
 
-#: templates/catalog/tool_detail.html:111 templates/catalog/tool_list.html:143
+#: templates/catalog/tool_detail.html:96 templates/catalog/tool_list.html:143
 msgid "Languages"
 msgstr "Sprachen"
 
-#: templates/catalog/tool_detail.html:117 templates/catalog/tool_list.html:149
+#: templates/catalog/tool_detail.html:102 templates/catalog/tool_list.html:149
 msgid "German"
 msgstr "Deutsch"
 
-#: templates/catalog/tool_detail.html:119 templates/catalog/tool_list.html:151
+#: templates/catalog/tool_detail.html:104 templates/catalog/tool_list.html:151
 msgid "English"
 msgstr "Englisch"
 
-#: templates/catalog/tool_detail.html:121 templates/catalog/tool_list.html:153
+#: templates/catalog/tool_detail.html:106 templates/catalog/tool_list.html:153
 msgid "French"
 msgstr "Französisch"
 
-#: templates/catalog/tool_detail.html:123 templates/catalog/tool_list.html:155
+#: templates/catalog/tool_detail.html:108 templates/catalog/tool_list.html:155
 msgid "Spanish"
 msgstr "Spanisch"
 
-#: templates/catalog/tool_detail.html:125 templates/catalog/tool_list.html:157
+#: templates/catalog/tool_detail.html:110 templates/catalog/tool_list.html:157
 msgid "Italian"
 msgstr "Italienisch"
 
-#: templates/catalog/tool_detail.html:127 templates/catalog/tool_list.html:159
+#: templates/catalog/tool_detail.html:112 templates/catalog/tool_list.html:159
 msgid "Portuguese"
 msgstr "Portugiesisch"
 
-#: templates/catalog/tool_detail.html:129 templates/catalog/tool_list.html:161
+#: templates/catalog/tool_detail.html:114 templates/catalog/tool_list.html:161
 msgid "Dutch"
 msgstr "Niederländisch"
 
-#: templates/catalog/tool_detail.html:131 templates/catalog/tool_list.html:163
+#: templates/catalog/tool_detail.html:116 templates/catalog/tool_list.html:163
 msgid "Japanese"
 msgstr "Japanisch"
 
-#: templates/catalog/tool_detail.html:133 templates/catalog/tool_list.html:165
+#: templates/catalog/tool_detail.html:118 templates/catalog/tool_list.html:165
 msgid "Korean"
 msgstr "Koreanisch"
 
-#: templates/catalog/tool_detail.html:135 templates/catalog/tool_list.html:167
+#: templates/catalog/tool_detail.html:120 templates/catalog/tool_list.html:167
 msgid "Hindi"
 msgstr "Hindi"
 
-#: templates/catalog/tool_detail.html:137 templates/catalog/tool_list.html:169
+#: templates/catalog/tool_detail.html:122 templates/catalog/tool_list.html:169
 msgid "Arabian"
 msgstr "Arabisch"
 
-#: templates/catalog/tool_detail.html:139 templates/catalog/tool_list.html:171
+#: templates/catalog/tool_detail.html:124 templates/catalog/tool_list.html:171
 msgid "Turkish"
 msgstr "Türkisch"
 
-#: templates/catalog/tool_detail.html:141 templates/catalog/tool_list.html:173
+#: templates/catalog/tool_detail.html:126 templates/catalog/tool_list.html:173
 msgid "Polish"
 msgstr "Polnisch"
 
-#: templates/catalog/tool_detail.html:143 templates/catalog/tool_list.html:175
+#: templates/catalog/tool_detail.html:128 templates/catalog/tool_list.html:175
 msgid "Russian"
 msgstr "Russisch"
 
-#: templates/catalog/tool_detail.html:145 templates/catalog/tool_list.html:177
+#: templates/catalog/tool_detail.html:130 templates/catalog/tool_list.html:177
 msgid "Chinese"
 msgstr "Chinesisch"
 
-#: templates/catalog/tool_detail.html:147 templates/catalog/tool_list.html:179
+#: templates/catalog/tool_detail.html:132 templates/catalog/tool_list.html:179
 msgid "More"
 msgstr "Weitere"
 
-#: templates/catalog/tool_detail.html:160
+#: templates/catalog/tool_detail.html:145
 msgid "What this tool can do"
 msgstr "Was dieses Tool kann"
 
-#: templates/catalog/tool_detail.html:173
-#: templates/catalog/tool_detail.html:177
-msgid "Pricing last checked on"
-msgstr "Preise zuletzt geprüft am"
-
-#: templates/catalog/tool_detail.html:194
-msgid "month"
-msgstr "Monat"
-
-#: templates/catalog/tool_detail.html:205
-msgid "year"
-msgstr "Jahr"
-
-#: templates/catalog/tool_detail.html:210
-msgid "On request"
-msgstr "Auf Anfrage"
-
-#: templates/catalog/tool_detail.html:258
+#: templates/catalog/tool_detail.html:152
 msgid "Similar tools"
 msgstr "Ähnliche Tools"
 
-#: templates/catalog/tool_detail.html:288 templates/content/home.html:70
+#: templates/catalog/tool_detail.html:182 templates/content/home.html:70
 #: templates/prompts/prompt_detail.html:81 templates/usecases/detail.html:88
 msgid "Rating"
 msgstr "Bewertung"
 
-#: templates/catalog/tool_detail.html:291 templates/catalog/tool_list.html:213
+#: templates/catalog/tool_detail.html:185 templates/catalog/tool_list.html:204
 #: templates/content/home.html:72 templates/prompts/prompt_detail.html:84
 #: templates/usecases/detail.html:91
 msgid "Details"
@@ -1749,11 +1732,11 @@ msgstr "Zurücksetzen"
 msgid "Featured"
 msgstr "Empfohlen"
 
-#: templates/catalog/tool_list.html:208
+#: templates/catalog/tool_list.html:199
 msgid "Website"
 msgstr "Webseite"
 
-#: templates/catalog/tool_list.html:221
+#: templates/catalog/tool_list.html:212
 msgid "No tools found."
 msgstr "Keine Tools gefunden."
 
@@ -1947,7 +1930,7 @@ msgstr "Aktuelle Inhalte"
 msgid "Usecases"
 msgstr "Anwendungsfälle"
 
-#: templates/content/home.html:108
+#: templates/content/home.html:109
 msgid "No published content yet."
 msgstr "Noch keine veröffentlichten Inhalte."
 
@@ -3982,6 +3965,18 @@ msgid ""
 msgstr ""
 "Praktische KI-Anwendungsfälle mit klaren Beispielen, Vorteilen und "
 "Anleitungen für geschäftliche Aufgaben, Forschung und kreative Arbeit."
+
+#~ msgid "Pricing last checked on"
+#~ msgstr "Preise zuletzt geprüft am"
+
+#~ msgid "month"
+#~ msgstr "Monat"
+
+#~ msgid "year"
+#~ msgstr "Jahr"
+
+#~ msgid "On request"
+#~ msgstr "Auf Anfrage"
 
 #~ msgid "Scoring"
 #~ msgstr "Scoring"
