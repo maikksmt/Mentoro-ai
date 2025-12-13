@@ -33,7 +33,7 @@
                 {% endif %}
             </header>
             {% if display_intro %}
-                <section class="prose my-6 text-base-content/80 max-w-full">
+                <section class="prose my-6 max-w-full">
                     {{ display_intro|richtext|safe }}
                 </section>
             {% endif %}
@@ -42,7 +42,7 @@
                 {% include "partials/copy_block.html" with content=display_body %}
             </section>
             {% if display_outro %}
-                <section class="prose text-base-content/80 max-w-full">
+                <section class="prose max-w-full">
                     {{ display_outro|richtext|safe }}
                 </section>
             {% endif %}
