@@ -54,7 +54,7 @@ class HomePageView(SeoMixin, TemplateView):
             "name": getattr(settings, "SITE_NAME", "MentoroAI"),
             "inLanguage": lang,
             "description": description,
-        },
+        }
 
         ctx["seo"] = self.build_seo(
             self.request,
