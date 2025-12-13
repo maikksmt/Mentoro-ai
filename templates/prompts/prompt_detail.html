@@ -74,7 +74,7 @@
                                         </div>
                                     </div>
                                     {% if t.short_description %}
-                                        <p class="opacity-80 mt-3 line-clamp-2">{{ t.short_description|richtext|safe|truncatewords:12 }}</p>{% endif %}
+                                        <p class="opacity-80 mt-3 line-clamp-2">{{ t.short_description|richtext|safe|truncatewords_html:12 }}...</p>{% endif %}
                                     <div class="card-actions mt-4 justify-between items-center">
                                         {% if t.rating %}
                                             <span class="badge badge-primary badge-outline"

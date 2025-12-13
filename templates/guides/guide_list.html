@@ -18,9 +18,9 @@
                                 {% trans "Read details about " %}{{ obj.display_title }}">{{ obj.display_title }}</a>
                     </h2>
                     {% if obj.display_intro %}
-                        <p class="line-clamp-3">{{ obj.display_intro|richtext|safe|truncatewords_html:30 }}</p>
+                        <p class="line-clamp-3">{{ obj.display_intro|richtext|safe|truncatewords_html:30 }}...</p>
                     {% else %}
-                        <p class="line-clamp-3">{{ obj.display_body|richtext|safe|truncatewords_html:30 }}</p>
+                        <p class="line-clamp-3">{{ obj.display_body|richtext|safe|truncatewords_html:30 }}...</p>
                     {% endif %}
 
                     <div class="card-actions justify-between mt-4">
