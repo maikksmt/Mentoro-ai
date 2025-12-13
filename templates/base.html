@@ -1,4 +1,3 @@
-{# templates/base.html #}
 <!DOCTYPE html>
 
 <html lang="{{ LANGUAGE_CODE|default:'en' }}">
@@ -15,9 +14,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
     <link rel="preload" href="{% static 'css/output.css' %}" as="style">
     <link href="{% static 'css/output.css' %}" rel="stylesheet" type="text/css">
-    {% block seo_title %}
-        <title>{{ SITE_NAME|default:"MentoroAI" }}</title>
-    {% endblock %}
+
     {% include "partials/_seo_meta.html" %}
     <script src="{% url 'javascript-catalog' %}" async></script>
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"

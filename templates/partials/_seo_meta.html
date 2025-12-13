@@ -16,7 +16,11 @@
     <link rel="alternate" hreflang="{{ alt.lang }}" href="{{ alt.url }}">{% endfor %}
 
 {# Meta basics #}
+<meta name="title" content="{{ seo.title|default_if_none:'' }}">
 <meta name="description" content="{{ seo.description|default_if_none:'' }}">
+<meta name="date" content="{{ seo.date|default_if_none:'' }}">
+<meta name="author" content="{{ seo.author|default_if_none:'' }}">
+<meta name="publisher" content="mentoro-ai.com">
 <meta name="robots" content="{{ seo.robots|default:'index,follow' }}">
 
 {# OpenGraph/Twitter #}
@@ -34,11 +38,14 @@
 <meta name="twitter:title" content="{{ seo.title }}">
 <meta name="twitter:description" content="{{ seo.description }}">
 {% if seo.og_image %}
-    <meta name="twitter:image" content="{{ seo.og_image }}">{% endif %}
+    <meta name="twitter:image" content="{{ seo.og_image }}">
+{% endif %}
 
 {# JSON-LD (WebSite oder Article) #}
 {% if seo.json_ld %}
     <script type="application/ld+json">
-{{ seo.json_ld|jsonld|safe }}
-</script>
+    {{ seo.json_ld|jsonld|safe }}
+    </script>
 {% endif %}
+<link rel="start" title="Startseite" href="https://www.mentoro-ai.com/">
+<link rel="copyright" title="Impressum" href="{% url 'legal:copyright' %}">

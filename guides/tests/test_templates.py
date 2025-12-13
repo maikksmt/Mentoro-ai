@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone, translation
@@ -5,9 +6,23 @@ from django.utils import timezone, translation
 from core.models.editorial import EditorialWorkflowMixin
 from guides.models import Guide
 
+User = get_user_model()
+
 
 def make_pub():
-    g = Guide.objects.create(status=EditorialWorkflowMixin.STATUS_PUBLISHED, published_at=timezone.now())
+    author = User.objects.create_user(
+        username="john-doe",
+        email="john@example.com",
+        password="testpass123",
+        first_name="John",
+        last_name="Doe",
+    )
+
+    g = Guide.objects.create(
+        status=EditorialWorkflowMixin.STATUS_PUBLISHED,
+        published_at=timezone.now(),
+        author=author,
+    )
     g.create_translation("en", slug="hello-en", title="Hello EN", intro="i", body="b")
     g.create_translation("de", slug="hello-de", title="Hallo DE", intro="i", body="b")
     return g

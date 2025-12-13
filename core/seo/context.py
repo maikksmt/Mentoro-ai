@@ -11,6 +11,8 @@ def defaults(request) -> SeoMeta:
         title=getattr(settings, "SITE_NAME", "Site"),
         description=_(
             "MentoroAI provides curated AI guides, prompts, tool overviews, comparisons, and a clear glossary to help you work productively with modern AI technologies."),
+        date="",
+        author="",
         canonical=canonical,
         robots="index,follow",
         og_type="website",

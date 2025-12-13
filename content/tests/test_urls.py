@@ -1,11 +1,12 @@
-from django.test import SimpleTestCase
+from django.test import TestCase
+
 from django.urls import reverse, NoReverseMatch
 
 
-class ContentURLTests(SimpleTestCase):
+class ContentURLTests(TestCase):
     def test_home_url_resolves(self):
         try:
-            url = reverse("home")
+            url = reverse("content:home")
         except NoReverseMatch:
             url = "/"
         resp = self.client.get(url)
