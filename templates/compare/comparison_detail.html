@@ -42,7 +42,7 @@
             </header>
 
             {% if obj.intro %}
-                <div class="prose max-w-none text-base-content/80">{{ obj.intro|richtext|safe }}</div>
+                <div class="prose max-w-none">{{ obj.intro|richtext|safe }}</div>
             {% endif %}
 
             {% if obj.body %}
@@ -61,7 +61,7 @@
                                     <header>
                                         <h3 class="card-title text-lg">{{ entry.tool.name }}</h3>
                                         {% if entry.label %}
-                                            <p class="text-sm text-base-content/70 md:min-h-[4rem]">{{ entry.label }}</p>
+                                            <p class="text-sm text-base-content/80 md:min-h-[4rem]">{{ entry.label }}</p>
                                         {% endif %}
                                     </header>
                                     {% if entry.summary %}
