@@ -63,7 +63,8 @@
                                 </div>
                             </div>
                             {% if t.short_description %}
-                                <p class="opacity-80 mt-3 line-clamp-2">{{ t.short_description|richtext|safe|truncatewords_html:12 }}...</p>{% endif %}
+                                <p class="opacity-80 mt-3 line-clamp-2">{{ t.short_description|richtext|safe|truncatewords_html:12 }}
+                                    ...</p>{% endif %}
                             <div class="card-actions mt-4 justify-between items-center">
                                 {% if t.rating %}
                                     <span class="badge badge-primary badge-outline"
@@ -95,7 +96,8 @@
                 <span class="opacity-70 text-sm">
                     <a class="link link-hover ml-2" href="{% url 'guides:list' %}">{% trans "Guides" %}</a> •
                     <a class="link link-hover" href="{% url 'prompts:list' %}">{% trans "Prompts" %}</a> •
-                    <a class="link link-hover" href="{% url 'usecases:list' %}">{% trans "Usecases" %}</a>
+                    <a class="link link-hover" href="{% url 'usecases:list' %}">{% trans "Usecases" %}</a> •
+                    <a class="link link-hover" href="{% url 'compare:index' %}">{% trans "Comparisons" %}</a>
                 </span>
             </h2>
         </div>

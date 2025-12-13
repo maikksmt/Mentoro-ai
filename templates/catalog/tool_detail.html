@@ -256,7 +256,7 @@
             {% if related_tools %}
                 <section class="mt-10">
                     <h2 class="text-2xl font-semibold mb-4">{% trans "Similar tools" %}</h2>
-                    <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                    <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                         {% for t in related_tools %}
                             <a href="{% url 'catalog:detail' slug=t.slug %}"
                                class="card border rounded-md hover:shadow-xl transition-shadow h-full">
@@ -281,7 +281,7 @@
                                         </div>
                                     </div>
                                     {% if t.short_description %}
-                                        <p class="opacity-80 mt-3 line-clamp-2">{{ t.short_description|richtext|safe|truncatewords_html:12 }}...</p>{% endif %}
+                                        <p class="opacity-80 mt-3 line-clamp-2">{{ t.short_description|richtext|safe|truncatewords_html:12 }}</p>{% endif %}
                                     <div class="card-actions mt-4 justify-between items-center">
                                         {% if t.rating %}
                                             <span class="badge badge-primary badge-outline"

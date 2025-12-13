@@ -22,9 +22,9 @@
                         <p class="text-sm text-base-content/70">{% trans "Persona:" %} {{ obj.persona }}</p>
                     {% endif %}
                     {% if obj.display_intro %}
-                        <p class="line-clamp-3">{{ obj.display_intro|richtext|safe|truncatewords_html:30 }}...</p>
+                        <p class="line-clamp-3">{{ obj.display_intro|richtext|safe|truncatewords_html:30 }}</p>
                     {% else %}
-                        <p class="line-clamp-3">{{ obj.display_body|richtext|safe|truncatewords_html:30 }}...</p>
+                        <p class="line-clamp-3">{{ obj.display_body|richtext|safe|truncatewords_html:30 }}</p>
                     {% endif %}
                     <div class="card-actions justify-between items-center mt-4">
                         <div class="flex flex-col gap-1 text-sm text-base-content/80">
