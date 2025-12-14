@@ -44,8 +44,11 @@
         <h3>3. {% trans "Statistics cookies (Google Analytics 4)" %}</h3>
         <p>
             {% blocktrans %}
-                Google Analytics 4 is only activated after explicit consent (“Statistics” category).
-                Before consent, no Analytics cookies are set due to Google Consent Mode v2.
+                We use Google Analytics 4 to analyze how our website is used.
+                Google Analytics 4 is deployed via Google Tag Manager.
+                Analytics cookies are only activated after you have given explicit consent in the “Statistics” category.
+                Before consent is granted, Google Consent Mode v2 ensures that no Analytics cookies are stored
+                and only anonymized, non-identifying signals may be transmitted.
             {% endblocktrans %}
         </p>
 
@@ -54,14 +57,22 @@
             <li><strong>_ga_*</strong> — {% trans "used to maintain session state (expires after 1 year)" %}</li>
         </ul>
 
+
         <h2>{% trans "Cookie control" %}</h2>
         <p>
             {% blocktrans %}
-                You can change or withdraw your consent at any time by opening the Cookiebot settings via the link
-                “Change your consent” at the bottom of the page.
-                Browser-based blocking or deleting of cookies is also possible.
+                You can change or withdraw your consent at any time using the Cookiebot consent dialog
+                available on this website (e.g. via the Cookiebot icon).
+                In addition, cookies can be blocked or deleted using your browser settings.
             {% endblocktrans %}
         </p>
+        <p>
+            {% blocktrans %}
+                Cookiebot also controls the execution of tracking technologies managed via Google Tag Manager
+                based on your selected consent categories.
+            {% endblocktrans %}
+        </p>
+
 
     </section>
 {% endblock %}

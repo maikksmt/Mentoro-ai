@@ -6,12 +6,13 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [1.0.0-beta-6] – Unreleased
+## [1.0.0-beta-6] – 2025-12-14
 
 ### Added
 
 - error pages (400,403,404,500)
 - comparison added to services functions
+- Google Analytics 4 completely converted to Google Tag Manager
 
 ### Changed
 
@@ -20,6 +21,8 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - minor UI updates
 - Comparison Data model
 - Metadata
+- Direct GA4 tracking removed from templates
+- Privacy and cookie information adapted to new tracking architecture
 
 ### Fixed
 
