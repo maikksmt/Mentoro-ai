@@ -5,7 +5,6 @@ body.mce-content-body .alert {
     margin-bottom: 1rem;
 }
 
-
 /* Hintergrund & Standard-Textfarbe im Iframe */
 html,
 body {
@@ -17,6 +16,7 @@ body {
 .mce-content-body,
 .mce-content-body h2,
 .mce-content-body h3,
+.mce-content-body h4,
 .mce-content-body div,
 .mce-content-body p,
 .mce-content-body li,

@@ -29,6 +29,7 @@
                 type="text/javascript"
                 async>
         </script>
+
         <!-- Google Consent Mode v2 Defaults (before loading any Google scripts) -->
         <script>
             window.dataLayer = window.dataLayer || [];
@@ -38,28 +39,66 @@
             }
 
             gtag('consent', 'default', {
-                'ad_storage': 'denied',
                 'analytics_storage': 'denied',
-                'ad_user_data': 'denied',
-                'ad_personalization': 'denied',
+                'ad_storage': 'denied',
                 'functionality_storage': 'denied',
                 'personalization_storage': 'denied',
                 'security_storage': 'granted',
+                'ad_personalization': 'denied',
+                'ad_user_data': 'denied',
             });
             gtag('set', 'ads_data_redaction', true);
         </script>
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-ECWRCZVFD1"></script>
         <script>
-            gtag('js', new Date());
-            gtag('config', 'G-ECWRCZVFD1', {'anonymize_ip': true});
+            function applyConsentFromCookiebot() {
+                if (!window.Cookiebot || !Cookiebot.consent) return;
+
+                const stats = !!Cookiebot.consent.statistics;
+                const mkt = !!Cookiebot.consent.marketing;
+                const pref = !!Cookiebot.consent.preferences;
+
+                gtag('consent', 'update', {
+                    'analytics_storage': stats ? 'granted' : 'denied',
+                    'ad_storage': mkt ? 'granted' : 'denied',
+                    'functionality_storage': pref ? 'granted' : 'denied',
+                    'personalization_storage': pref ? 'granted' : 'denied',
+                    'security_storage': 'granted',
+                    'ad_personalization': mkt ? 'granted' : 'denied',
+                    'ad_user_data': mkt ? 'granted' : 'denied',
+                });
+            }
+
+            window.addEventListener('CookiebotOnConsentReady', applyConsentFromCookiebot);
+            window.addEventListener('CookiebotOnAccept', applyConsentFromCookiebot);
+            window.addEventListener('CookiebotOnDecline', applyConsentFromCookiebot);
         </script>
-        {# --- Klaro Config & Script --- #}
-        {#        <script defer type="text/javascript" src="{% static 'klaro/config.js' %}"></script>#}
-        {#        <script defer type="text/javascript" src="https://cdn.kiprotect.com/klaro/v0.7.22/klaro.js"></script>#}
+
+        <!-- Google Tag Manager -->
+        <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-TVCTJB6R');</script>
+        <!-- End Google Tag Manager -->
     {% endif %}
 </head>
 <body class="flex flex-col min-h-screen justify-between bg-base-100 text-base-content">
+{% if not debug %}
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TVCTJB6R"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+{% endif %}
 
 <!-- Navbar -->
 <div class="navbar bg-base-100 shadow-sm z-100">
