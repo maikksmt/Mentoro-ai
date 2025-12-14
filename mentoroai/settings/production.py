@@ -1,4 +1,3 @@
-import os
 from django.core.exceptions import ImproperlyConfigured
 
 from .base import *  # noqa: F403,F401
@@ -47,11 +46,6 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS
 SECURE_HSTS_PRELOAD = env_bool("DJANGO_SECURE_HSTS_PRELOAD", True)
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = os.getenv("DJANGO_SECURE_REFERRER_POLICY", "same-origin")
-
-# GOOGLE
-
-GA_MEASUREMENT_ID = os.getenv("GA_MEASUREMENT_ID", "")
-ENABLE_GA = bool(GA_MEASUREMENT_ID)
 
 # LOGGING
 
