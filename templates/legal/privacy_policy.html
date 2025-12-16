@@ -9,14 +9,18 @@
     <section class="prose max-w-3xl mx-auto py-4">
         <h1>{% trans "Privacy Policy" %}</h1>
 
-        <h2>{% trans "1. Controller" %}</h2>
+        <h2>{% trans "Controller" %}</h2>
         <p>
             {% trans "Controller under data protection law, in particular the EU GDPR, is:" %}<br>
             <strong>Maik Kusmat</strong><br>
             {% trans "Email" %}: <a href="mailto:contact@mentoro-ai.com">contact@mentoro-ai.com</a>
         </p>
+        <p>
+            {% trans "A data protection officer has not been appointed, as there is no legal requirement to do so." %}
+        </p>
 
-        <h2>{% trans "2. Collection and storage of personal data" %}</h2>
+
+        <h2>{% trans "Collection and storage of personal data" %}</h2>
         <p>
             {% blocktrans %}
                 When you visit this website, information sent by your browser is automatically collected (e.g., IP
@@ -25,8 +29,25 @@
                 correctly and serve the security of the system.
             {% endblocktrans %}
         </p>
+        <h2>{% trans "Sources of personal data" %}</h2>
+        <ul>
+            <li>{% trans "Directly from users (registration, contact, content submission)" %}</li>
+            <li>{% trans "Automatically through website usage (server logs, technical data)" %}</li>
+            <li>{% trans "Third-party authentication providers (Google, GitHub)" %}</li>
+        </ul>
+        <h2>{% trans "Data retention" %}</h2>
+        <p>
+            {% blocktrans %}
+                Personal data is stored only for as long as necessary for the respective purpose:
+            {% endblocktrans %}
+        </p>
+        <ul>
+            <li>{% trans "Server log data (IP address, timestamps): up to 30 days" %}</li>
+            <li>{% trans "Contact requests: up to 12 months after completion" %}</li>
+            <li>{% trans "User account data: for the duration of the account" %}</li>
+        </ul>
 
-        <h2>{% trans "3. Contact" %}</h2>
+        <h2>{% trans "Contact" %}</h2>
         <p>
             {% blocktrans %}
                 If you contact us by email, we store your details to process the request and for possible follow-up
@@ -34,7 +55,7 @@
             {% endblocktrans %}
         </p>
 
-        <h2>{% trans "4. Registration / User accounts" %}</h2>
+        <h2>{% trans "Registration / User accounts" %}</h2>
         <p>
             {% blocktrans %}
                 If you create a user account, we process your entered data (name, email address, password) solely for
@@ -42,7 +63,7 @@
             {% endblocktrans %}
         </p>
 
-        <h2>{% trans "5. Cookies and tracking technologies" %}</h2>
+        <h2>{% trans "Cookies and tracking technologies" %}</h2>
         <p>
             {% blocktrans %}
                 This website uses cookies to ensure technical functionality and, after your explicit consent, to analyze
@@ -52,8 +73,11 @@
                 Consent is managed through the consent management platform Cookiebot by Usercentrics.
             {% endblocktrans %}
         </p>
+        <p>
+            <a href="{% url 'legal:cookies' %}">{% trans "Cookie Policy" %}</a>
+        </p>
 
-        <h2>{% trans "6. Consent management (Cookiebot)" %}</h2>
+        <h2>{% trans "Consent management (Cookiebot)" %}</h2>
         <p>
             {% blocktrans %}
                 We use the consent management platform Cookiebot by Usercentrics to obtain and manage legally required
@@ -61,7 +85,7 @@
                 cookies until you consent. The processing is based on our legal obligation under Art. 6(1)(c) GDPR.
             {% endblocktrans %}
         </p>
-        <h2>{% trans "7. Google Tag Manager" %}</h2>
+        <h2>{% trans "Google Tag Manager" %}</h2>
         <p>
             {% blocktrans %}
                 We use Google Tag Manager to manage and deploy website tags (e.g., Google Analytics).
@@ -87,7 +111,7 @@
             {% endblocktrans %}
         </p>
 
-        <h2>{% trans "8. Google Analytics 4" %}</h2>
+        <h2>{% trans "Google Analytics 4" %}</h2>
         <p>
             {% blocktrans %}
                 If you give your consent to the “Statistics” category, we use Google Analytics 4 to analyze website usage.
@@ -107,7 +131,7 @@
         </p>
 
 
-        <h2>{% trans "9. Google Sign-In (Social Login)" %}</h2>
+        <h2>{% trans "Google Sign-In (Social Login)" %}</h2>
         <p>
             {% blocktrans %}
                 On this website you can log in or create an account using your Google account ("Google Sign-In").
@@ -152,7 +176,7 @@
             https://policies.google.com/privacy
         </p>
 
-        <h2>{% trans "10. GitHub Sign-In (Social Login)" %}</h2>
+        <h2>{% trans "GitHub Sign-In (Social Login)" %}</h2>
         <p>
             {% blocktrans %}
                 You can also log in or create an account using your GitHub account ("GitHub Sign-In").
@@ -196,7 +220,7 @@
             https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement
         </p>
 
-        <h2>{% trans "11. Your rights" %}</h2>
+        <h2>{% trans "Your rights" %}</h2>
         <ul>
             <li>{% trans "Access to your stored data" %}</li>
             <li>{% trans "Rectification of inaccurate data" %}</li>
@@ -206,20 +230,43 @@
             <li>{% trans "Objection to processing" %}</li>
         </ul>
 
-        <h2>{% trans "12. Data security" %}</h2>
+        <h2>{% trans "Data security" %}</h2>
         <p>
             {% blocktrans %}
                 We use technical and organizational measures to protect your data against manipulation, loss, or
                 unauthorized access. These measures are continuously adapted in line with technological developments.
             {% endblocktrans %}
         </p>
-
-        <h2>{% trans "13. Changes to this Privacy Policy" %}</h2>
         <p>
             {% blocktrans %}
-                We reserve the right to update this Privacy Policy to reflect current legal requirements.
+                Our servers are hosted within the European Union and are protected by modern security measures
+                such as encryption, firewalls and access controls.
             {% endblocktrans %}
         </p>
+
+        <h2>{% trans "Children" %}</h2>
+        <p>
+            {% blocktrans %}
+                This website is intended for a general audience.
+                It is not specifically designed for children under the age of 16.
+                We do not knowingly collect personal data from children.
+                If you believe that a child has provided us with personal data, please contact us.
+            {% endblocktrans %}
+        </p>
+
+
+        <h2>{% trans "Changes to this Privacy Policy" %}</h2>
+        <p>
+            {% blocktrans %}
+                We may update this Privacy Policy from time to time.
+                Significant changes will be announced on this website.
+                The current version is always available on this page.
+            {% endblocktrans %}
+        </p>
+
+        <h2>{% trans "Effective date" %}</h2>
+        <p>Version 1.0</p>
+        <p>{% trans "This Privacy Policy is effective as of 16 December 2025." %}</p>
 
     </section>
 {% endblock %}
