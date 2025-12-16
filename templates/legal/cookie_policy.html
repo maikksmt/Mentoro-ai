@@ -13,66 +13,102 @@
         <p>
             {% blocktrans %}
                 Cookies are small text files stored on your device when you visit a website.
-                They provide technical functionality or convenience features (e.g., language selection).
+                They provide technical functionality or convenience features (e.g., language or theme selection)
+                and can also be used for statistical analysis.
             {% endblocktrans %}
         </p>
-        <h2>{% trans "Cookies we use" %}</h2>
 
+        <h2>{% trans "Cookies we use" %}</h2>
         <p>{% trans "This website uses the following types of cookies:" %}</p>
 
+        <!-- 1. Necessary cookies -->
         <h3>1. {% trans "Technically necessary cookies" %}</h3>
-        <ul>
-            <li><strong>csrftoken</strong> — {% trans "security cookie for form submissions" %}</li>
-            <li><strong>sessionid</strong> — {% trans "stores the current session ID" %}</li>
-            <li><strong>preferred_theme</strong> — {% trans "remembers your selected theme (light/dark)" %}</li>
-            <li><strong>django_language</strong> — {% trans "remembers your selected language" %}</li>
-        </ul>
-
-        <h3>2. {% trans "Consent management (Cookiebot)" %}</h3>
         <p>
             {% blocktrans %}
-                This website uses the consent management platform Cookiebot by Usercentrics.
-                Cookiebot stores cookies to document and manage your consent status.
-                These cookies are technically necessary to comply with legal consent requirements.
+                These cookies are required for the secure operation of the website and basic functions
+                such as login, form security, language selection and navigation. They cannot be disabled in our systems.
             {% endblocktrans %}
         </p>
         <ul>
-            <li><strong>CookieConsent</strong> — {% trans "stores your consent state (necessary)" %}</li>
-            <li><strong>CookieConsentBulkSetting-* </strong> — {% trans "remembers category choices" %}</li>
+            <li>
+                <strong>csrftoken</strong> —
+                {% trans "security cookie for form submissions (protection against Cross-Site-Request-Forgery attacks)" %}
+            </li>
+            <li>
+                <strong>sessionid</strong> —
+                {% trans "stores an anonymous session ID to keep you logged in and process requests across pages" %}
+            </li>
+            <li>
+                <strong>django_language</strong> —
+                {% trans "remembers your selected language (e.g. German or English) so that pages are displayed in the correct language" %}
+            </li>
+            <li>
+                <strong>htmx-current-path-for-history</strong> —
+                {% trans "stores the current path to keep browser navigation and history working when using HTMX" %}
+            </li>
+            <li>
+                <strong>CookieConsent</strong> —
+                {% trans "stores your consent state for cookie categories and proves that consent has been obtained" %}
+            </li>
         </ul>
 
+        <!-- 2. Preference cookies -->
+        <h3>2. {% trans "Preference cookies" %}</h3>
+        <p>
+            {% blocktrans %}
+                Preference cookies allow the website to remember information that changes the way the
+                website behaves or looks, for example your selected light/dark theme.
+            {% endblocktrans %}
+        </p>
+        <ul>
+            <li>
+                <strong>preferred_theme</strong> —
+                {% trans "remembers your selected theme (light/dark) for future visits" %}
+            </li>
+            <li>
+                <strong>CookieConsentBulkSetting-*</strong> —
+                {% trans "optionally stores your category choices when you apply the same settings to multiple services" %}
+            </li>
+        </ul>
+
+        <!-- 3. Consent management + GA4 statistics -->
         <h3>3. {% trans "Statistics cookies (Google Analytics 4)" %}</h3>
         <p>
             {% blocktrans %}
-                We use Google Analytics 4 to analyze how our website is used.
+                We use Google Analytics 4 to analyze how our website is used and to improve our content.
                 Google Analytics 4 is deployed via Google Tag Manager.
-                Analytics cookies are only activated after you have given explicit consent in the “Statistics” category.
+                Statistics cookies are only activated after you have given explicit consent
+                in the “Statistics” category in the Cookiebot dialog.
                 Before consent is granted, Google Consent Mode v2 ensures that no Analytics cookies are stored
                 and only anonymized, non-identifying signals may be transmitted.
             {% endblocktrans %}
         </p>
-
         <ul>
-            <li><strong>_ga</strong> — {% trans "used to distinguish users (expires after 2 years)" %}</li>
-            <li><strong>_ga_*</strong> — {% trans "used to maintain session state (expires after 1 year)" %}</li>
+            <li>
+                <strong>_ga</strong> —
+                {% trans "used to distinguish users and generate anonymous statistics (typically expires after 2 years)" %}
+            </li>
+            <li>
+                <strong>_ga_*</strong> —
+                {% trans "used to maintain session state for Google Analytics 4 (typically expires after 1 year)" %}
+            </li>
         </ul>
-
 
         <h2>{% trans "Cookie control" %}</h2>
         <p>
             {% blocktrans %}
                 You can change or withdraw your consent at any time using the Cookiebot consent dialog
-                available on this website (e.g. via the Cookiebot icon).
+                available on this website (for example via the Cookiebot icon or the link in the footer).
                 In addition, cookies can be blocked or deleted using your browser settings.
             {% endblocktrans %}
         </p>
         <p>
             {% blocktrans %}
                 Cookiebot also controls the execution of tracking technologies managed via Google Tag Manager
-                based on your selected consent categories.
+                based on your selected consent categories. This means that non-essential cookies and tags
+                (such as Google Analytics) are only activated after you have given your consent.
             {% endblocktrans %}
         </p>
-
 
     </section>
 {% endblock %}
