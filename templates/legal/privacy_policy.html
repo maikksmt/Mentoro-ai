@@ -9,6 +9,7 @@
     <section class="prose max-w-3xl mx-auto py-4">
         <h1>{% trans "Privacy Policy" %}</h1>
 
+        <!-- 1. Controller -->
         <h2>{% trans "Controller" %}</h2>
         <p>
             {% trans "Controller under data protection law, in particular the EU GDPR, is:" %}<br>
@@ -19,23 +20,33 @@
             {% trans "A data protection officer has not been appointed, as there is no legal requirement to do so." %}
         </p>
 
-
-        <h2>{% trans "Collection and storage of personal data" %}</h2>
+        <!-- 2. Überblick -->
+        <h2>{% trans "Overview of data processing" %}</h2>
         <p>
             {% blocktrans %}
-                When you visit this website, information sent by your browser is automatically collected (e.g., IP
-                address,
-                date and time, pages viewed, browser used). These data are technically required to display the website
-                correctly and serve the security of the system.
+                This Privacy Policy explains what personal data we process when you use this website,
+                for which purposes we do so and on which legal bases this is carried out.
             {% endblocktrans %}
         </p>
-        <h2>{% trans "Sources of personal data" %}</h2>
+
+        <h3>{% trans "Categories of personal data" %}</h3>
+        <ul>
+            <li>{% trans "Identification data (name, username)" %}</li>
+            <li>{% trans "Contact data (email address)" %}</li>
+            <li>{% trans "Account data (login credentials, user ID)" %}</li>
+            <li>{% trans "Usage data (visited pages, interactions)" %}</li>
+            <li>{% trans "Technical data (IP address, browser, device information)" %}</li>
+        </ul>
+
+        <h3>{% trans "Sources of personal data" %}</h3>
         <ul>
             <li>{% trans "Directly from users (registration, contact, content submission)" %}</li>
             <li>{% trans "Automatically through website usage (server logs, technical data)" %}</li>
             <li>{% trans "Third-party authentication providers (Google, GitHub)" %}</li>
+            <li>{% trans "Personal data received from third-party providers (Google, GitHub): name, email address, external user ID" %}</li>
         </ul>
-        <h2>{% trans "Data retention" %}</h2>
+
+        <h3>{% trans "Data retention" %}</h3>
         <p>
             {% blocktrans %}
                 Personal data is stored only for as long as necessary for the respective purpose:
@@ -47,7 +58,20 @@
             <li>{% trans "User account data: for the duration of the account" %}</li>
         </ul>
 
-        <h2>{% trans "Contact" %}</h2>
+        <!-- 3. Verarbeitungsvorgänge auf der Website -->
+        <h2>{% trans "Processing activities on this website" %}</h2>
+
+        <h3>{% trans "Collection and storage of personal data" %}</h3>
+        <p>
+            {% blocktrans %}
+                When you visit this website, information sent by your browser is automatically collected (e.g., IP
+                address,
+                date and time, pages viewed, browser used). These data are technically required to display the website
+                correctly and serve the security of the system.
+            {% endblocktrans %}
+        </p>
+
+        <h3>{% trans "Contact" %}</h3>
         <p>
             {% blocktrans %}
                 If you contact us by email, we store your details to process the request and for possible follow-up
@@ -55,7 +79,7 @@
             {% endblocktrans %}
         </p>
 
-        <h2>{% trans "Registration / User accounts" %}</h2>
+        <h3>{% trans "Registration / User accounts" %}</h3>
         <p>
             {% blocktrans %}
                 If you create a user account, we process your entered data (name, email address, password) solely for
@@ -63,75 +87,7 @@
             {% endblocktrans %}
         </p>
 
-        <h2>{% trans "Cookies and tracking technologies" %}</h2>
-        <p>
-            {% blocktrans %}
-                This website uses cookies to ensure technical functionality and, after your explicit consent, to analyze
-                usage behaviour. The storage and evaluation of non-essential cookies only takes place with your prior
-                consent in accordance with Art. 6(1)(a) GDPR. Technically necessary cookies are processed on the basis
-                of our legitimate interest in the secure and stable operation of the website (Art. 6(1)(f) GDPR).
-                Consent is managed through the consent management platform Cookiebot by Usercentrics.
-            {% endblocktrans %}
-        </p>
-        <p>
-            <a href="{% url 'legal:cookies' %}">{% trans "Cookie Policy" %}</a>
-        </p>
-
-        <h2>{% trans "Consent management (Cookiebot)" %}</h2>
-        <p>
-            {% blocktrans %}
-                We use the consent management platform Cookiebot by Usercentrics to obtain and manage legally required
-                cookie consent. Cookiebot stores cookies that document your consent status and block all non-essential
-                cookies until you consent. The processing is based on our legal obligation under Art. 6(1)(c) GDPR.
-            {% endblocktrans %}
-        </p>
-        <h2>{% trans "Google Tag Manager" %}</h2>
-        <p>
-            {% blocktrans %}
-                We use Google Tag Manager to manage and deploy website tags (e.g., Google Analytics).
-                Google Tag Manager itself does not typically set cookies and does not create user profiles.
-                When loading the Tag Manager, technical information (such as IP address and device information) may be transmitted to
-                Google.
-                The execution of non-essential tags is controlled by your consent via Cookiebot and Google Consent Mode v2.
-            {% endblocktrans %}
-        </p>
-
-        <p>
-            <strong>{% trans "Legal basis" %}:</strong>
-            {% blocktrans %}
-                Legitimate interests under Art. 6(1)(f) GDPR for the use of a tag management system.
-                Processing for analytics purposes takes place only with your consent under Art. 6(1)(a) GDPR.
-            {% endblocktrans %}
-        </p>
-
-        <p>
-            <strong>{% trans "Data transfer" %}:</strong>
-            {% blocktrans %}
-                Data may be transferred to Google LLC in the United States. Google participates in the EU–US Data Privacy Framework.
-            {% endblocktrans %}
-        </p>
-
-        <h2>{% trans "Google Analytics 4" %}</h2>
-        <p>
-            {% blocktrans %}
-                If you give your consent to the “Statistics” category, we use Google Analytics 4 to analyze website usage.
-                We deploy Google Analytics 4 via Google Tag Manager.
-                Google Analytics 4 works with pseudonymized identifiers and does not store full IP addresses.
-                Google Consent Mode v2 ensures that no Analytics cookies are set before consent is given.
-            {% endblocktrans %}
-        </p>
-
-        <p><strong>{% trans "Legal basis" %}:</strong> {% trans "Your consent under Art. 6(1)(a) GDPR." %}</p>
-
-        <p>
-            <strong>{% trans "Data transfer" %}:</strong>
-            {% blocktrans %}
-                Data may be transferred to Google LLC in the United States. Google participates in the EU–US Data Privacy Framework.
-            {% endblocktrans %}
-        </p>
-
-
-        <h2>{% trans "Google Sign-In (Social Login)" %}</h2>
+        <h3>{% trans "Google Sign-In (Social Login)" %}</h3>
         <p>
             {% blocktrans %}
                 On this website you can log in or create an account using your Google account ("Google Sign-In").
@@ -176,7 +132,7 @@
             https://policies.google.com/privacy
         </p>
 
-        <h2>{% trans "GitHub Sign-In (Social Login)" %}</h2>
+        <h3>{% trans "GitHub Sign-In (Social Login)" %}</h3>
         <p>
             {% blocktrans %}
                 You can also log in or create an account using your GitHub account ("GitHub Sign-In").
@@ -220,6 +176,78 @@
             https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement
         </p>
 
+        <!-- 4. Cookies, Tracking & Consent -->
+        <h2>{% trans "Cookies, tracking and consent management" %}</h2>
+
+        <h3>{% trans "Cookies and tracking technologies" %}</h3>
+        <p>
+            {% blocktrans %}
+                This website uses cookies to ensure technical functionality and, after your explicit consent, to analyze
+                usage behaviour. The storage and evaluation of non-essential cookies only takes place with your prior
+                consent in accordance with Art. 6(1)(a) GDPR. Technically necessary cookies are processed on the basis
+                of our legitimate interest in the secure and stable operation of the website (Art. 6(1)(f) GDPR).
+                Consent is managed through the consent management platform Cookiebot by Usercentrics.
+            {% endblocktrans %}
+        </p>
+        <p>
+            <a href="{% url 'legal:cookies' %}">{% trans "Cookie Policy" %}</a>
+        </p>
+
+        <h3>{% trans "Consent management (Cookiebot)" %}</h3>
+        <p>
+            {% blocktrans %}
+                We use the consent management platform Cookiebot by Usercentrics to obtain and manage legally required
+                cookie consent. Cookiebot stores cookies that document your consent status and block all non-essential
+                cookies until you consent. The processing is based on our legal obligation under Art. 6(1)(c) GDPR.
+            {% endblocktrans %}
+        </p>
+
+        <h3>{% trans "Google Tag Manager" %}</h3>
+        <p>
+            {% blocktrans %}
+                We use Google Tag Manager to manage and deploy website tags (e.g., Google Analytics).
+                Google Tag Manager itself does not typically set cookies and does not create user profiles.
+                When loading the Tag Manager, technical information (such as IP address and device information) may be transmitted to
+                Google.
+                The execution of non-essential tags is controlled by your consent via Cookiebot and Google Consent Mode v2.
+            {% endblocktrans %}
+        </p>
+
+        <p>
+            <strong>{% trans "Legal basis" %}:</strong>
+            {% blocktrans %}
+                Legitimate interests under Art. 6(1)(f) GDPR for the use of a tag management system.
+                Processing for analytics purposes takes place only with your consent under Art. 6(1)(a) GDPR.
+            {% endblocktrans %}
+        </p>
+
+        <p>
+            <strong>{% trans "Data transfer" %}:</strong>
+            {% blocktrans %}
+                Data may be transferred to Google LLC in the United States. Google participates in the EU–US Data Privacy Framework.
+            {% endblocktrans %}
+        </p>
+
+        <h3>{% trans "Google Analytics 4" %}</h3>
+        <p>
+            {% blocktrans %}
+                If you give your consent to the “Statistics” category, we use Google Analytics 4 to analyze website usage.
+                We deploy Google Analytics 4 via Google Tag Manager.
+                Google Analytics 4 works with pseudonymized identifiers and does not store full IP addresses.
+                Google Consent Mode v2 ensures that no Analytics cookies are set before consent is given.
+            {% endblocktrans %}
+        </p>
+
+        <p><strong>{% trans "Legal basis" %}:</strong> {% trans "Your consent under Art. 6(1)(a) GDPR." %}</p>
+
+        <p>
+            <strong>{% trans "Data transfer" %}:</strong>
+            {% blocktrans %}
+                Data may be transferred to Google LLC in the United States. Google participates in the EU–US Data Privacy Framework.
+            {% endblocktrans %}
+        </p>
+
+        <!-- 5. Betroffenenrechte -->
         <h2>{% trans "Your rights" %}</h2>
         <ul>
             <li>{% trans "Access to your stored data" %}</li>
@@ -230,6 +258,25 @@
             <li>{% trans "Objection to processing" %}</li>
         </ul>
 
+        <h3>{% trans "Withdrawal of consent and objection" %}</h3>
+        <p>
+            {% blocktrans %}
+                You may withdraw your consent at any time with effect for the future.
+                You can do so via the Cookiebot consent dialog or by contacting us by email.
+                The lawfulness of processing carried out before the withdrawal remains unaffected.
+            {% endblocktrans %}
+        </p>
+
+        <h3>{% trans "Right to lodge a complaint" %}</h3>
+        <p>
+            {% blocktrans %}
+                You have the right to lodge a complaint with a supervisory authority,
+                in particular in the EU member state of your habitual residence,
+                place of work or place of the alleged infringement.
+            {% endblocktrans %}
+        </p>
+
+        <!-- 6. Weitere Informationen -->
         <h2>{% trans "Data security" %}</h2>
         <p>
             {% blocktrans %}
@@ -244,6 +291,21 @@
             {% endblocktrans %}
         </p>
 
+        <h2>{% trans "Do Not Track signals" %}</h2>
+        <p>
+            {% blocktrans %}
+                Our website does not currently respond to "Do Not Track" signals.
+                Tracking technologies are controlled exclusively via explicit user consent.
+            {% endblocktrans %}
+        </p>
+
+        <h2>{% trans "Automated decision-making" %}</h2>
+        <p>
+            {% blocktrans %}
+                We do not use automated decision-making or profiling within the meaning of Art. 22 GDPR.
+            {% endblocktrans %}
+        </p>
+
         <h2>{% trans "Children" %}</h2>
         <p>
             {% blocktrans %}
@@ -254,19 +316,18 @@
             {% endblocktrans %}
         </p>
 
-
         <h2>{% trans "Changes to this Privacy Policy" %}</h2>
         <p>
             {% blocktrans %}
                 We may update this Privacy Policy from time to time.
-                Significant changes will be announced on this website.
+                If material changes are made, we will notify users by a prominent notice on the website.
                 The current version is always available on this page.
             {% endblocktrans %}
         </p>
 
         <h2>{% trans "Effective date" %}</h2>
-        <p>Version 1.0</p>
         <p>{% trans "This Privacy Policy is effective as of 16 December 2025." %}</p>
+        <p>Version 1.0</p>
 
     </section>
 {% endblock %}
