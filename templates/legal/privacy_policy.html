@@ -28,6 +28,14 @@
                 for which purposes we do so and on which legal bases this is carried out.
             {% endblocktrans %}
         </p>
+        <p>
+            {% blocktrans %}
+                MentoroAI is an informational platform that provides guides, glossaries,
+                tool overviews and practical examples on the use of AI tools.
+                Personal data is processed when you visit the website, create an account
+                or interact with these contents.
+            {% endblocktrans %}
+        </p>
 
         <h3>{% trans "Categories of personal data" %}</h3>
         <ul>
@@ -36,6 +44,15 @@
             <li>{% trans "Account data (login credentials, user ID)" %}</li>
             <li>{% trans "Usage data (visited pages, interactions)" %}</li>
             <li>{% trans "Technical data (IP address, browser, device information)" %}</li>
+        </ul>
+        <h3>{% trans "Purposes of data processing" %}</h3>
+        <ul>
+            <li>{% trans "Providing and operating the website and its core functions" %}</li>
+            <li>{% trans "Creating and managing user accounts and saved content" %}</li>
+            <li>{% trans "Responding to contact requests and communication" %}</li>
+            <li>{% trans "Ensuring security and preventing misuse or attacks" %}</li>
+            <li>{% trans "Analyzing usage and improving our content and services" %}</li>
+            <li>{% trans "Complying with legal obligations (e.g. retention duties)" %}</li>
         </ul>
 
         <h3>{% trans "Sources of personal data" %}</h3>
@@ -56,6 +73,15 @@
             <li>{% trans "Server log data (IP address, timestamps): up to 30 days" %}</li>
             <li>{% trans "Contact requests: up to 12 months after completion" %}</li>
             <li>{% trans "User account data: for the duration of the account" %}</li>
+            <li>{% trans "Server log data (IP address, timestamps): up to 30 days" %}</li>
+            <li>{% trans "Contact requests: up to 12 months after completion" %}</li>
+            <li>{% trans "User account data: for the duration of the account" %}</li>
+            <li>
+                {% trans "Analytics data (Google Analytics 4): depending on the configuration, typically up to 14 months." %}
+            </li>
+            <li>
+                {% trans "Consent logs (Cookiebot): stored for as long as required to prove lawful consent under applicable law." %}
+            </li>
         </ul>
 
         <!-- 3. Verarbeitungsvorgänge auf der Website -->
@@ -127,6 +153,15 @@
                 Data may be transferred to Google LLC (USA).
             {% endblocktrans %}
         </p>
+        <p>
+            {% blocktrans %}
+                Where data is transferred to countries outside the European Union for which no adequacy
+                decision of the European Commission exists, we implement appropriate safeguards such as
+                standard contractual clauses in accordance with Art. 46 GDPR and, where necessary,
+                additional technical and organisational measures to protect your data.
+            {% endblocktrans %}
+        </p>
+
 
         <p><strong>{% trans "Further information" %}:</strong>
             https://policies.google.com/privacy
@@ -169,6 +204,14 @@
         <p><strong>{% trans "Data transfer" %}:</strong>
             {% blocktrans %}
                 GitHub Inc. is located in the United States. Data may therefore be transferred to servers outside the EU.
+            {% endblocktrans %}
+        </p>
+        <p>
+            {% blocktrans %}
+                Where data is transferred to countries outside the European Union for which no adequacy
+                decision of the European Commission exists, we implement appropriate safeguards such as
+                standard contractual clauses in accordance with Art. 46 GDPR and, where necessary,
+                additional technical and organisational measures to protect your data.
             {% endblocktrans %}
         </p>
 
@@ -257,6 +300,15 @@
                 Data may be transferred to Google LLC in the United States. Google participates in the EU–US Data Privacy Framework.
             {% endblocktrans %}
         </p>
+        <p>
+            {% blocktrans %}
+                Where data is transferred to countries outside the European Union for which no adequacy
+                decision of the European Commission exists, we implement appropriate safeguards such as
+                standard contractual clauses in accordance with Art. 46 GDPR and, where necessary,
+                additional technical and organisational measures to protect your data.
+            {% endblocktrans %}
+        </p>
+
 
         <!-- 5. Betroffenenrechte -->
         <h2>{% trans "Your rights" %}</h2>
@@ -331,10 +383,13 @@
         <p>
             {% blocktrans %}
                 We may update this Privacy Policy from time to time.
-                If material changes are made, we will notify users by a prominent notice on the website.
-                The current version is always available on this page.
+                If material changes are made, we will notify users by a prominent notice on the website
+                and, where appropriate, by email to registered users.
+                The current version is always available on this page; the "Effective date" indicates
+                when the Policy last changed.
             {% endblocktrans %}
         </p>
+
 
         <h2>{% trans "Effective date" %}</h2>
         <p>{% trans "This Privacy Policy is effective as of 16 December 2025." %}</p>
