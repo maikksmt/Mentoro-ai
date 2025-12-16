@@ -8,6 +8,30 @@
 {% block content %}
     <section class="prose max-w-3xl mx-auto py-4">
         <h1>{% trans "Privacy Policy" %}</h1>
+        <div class="rounded-xl border border-base-300 bg-base-200 px-4 py-3 text-sm space-y-1">
+            <p class="font-semibold">
+                {% trans "Privacy at a glance" %}
+            </p>
+            <ul class="list-disc pl-4 space-y-1">
+                <li>
+                    {% blocktrans %}
+                        We collect only the data we need to provide this website, your account and basic analytics.
+                    {% endblocktrans %}
+                </li>
+                <li>
+                    {% blocktrans %}
+                        Cookies for security and language are always active. Analytics cookies are used only with your consent.
+                    {% endblocktrans %}
+                </li>
+                <li>
+                    {% blocktrans %}
+                        You can change your cookie settings at any time and you can delete your account or contact us to exercise your
+                        privacy rights.
+                    {% endblocktrans %}
+                </li>
+            </ul>
+        </div>
+
 
         <!-- 1. Controller -->
         <h2>{% trans "Controller" %}</h2>
