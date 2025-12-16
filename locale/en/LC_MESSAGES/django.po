@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-16 20:16+0100\n"
+"POT-Creation-Date: 2025-12-16 21:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1138,7 +1138,7 @@ msgstr ""
 
 #: templates/account/password_reset.html:33
 #: templates/legal/legal_notice.html:23 templates/legal/legal_notice.html:30
-#: templates/legal/privacy_policy.html:17
+#: templates/legal/privacy_policy.html:41
 msgid "Email"
 msgstr ""
 
@@ -1467,16 +1467,24 @@ msgstr ""
 msgid "Legal notice"
 msgstr ""
 
-#: templates/base.html:244
+#: templates/base.html:244 templates/base.html:262
 msgid "Privacy policy"
 msgstr ""
 
-#: templates/base.html:247 templates/legal/terms_of_use.html:10
+#: templates/base.html:246 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr ""
 
-#: templates/base.html:248
+#: templates/base.html:247
 msgid "Copyright"
+msgstr ""
+
+#: templates/base.html:258
+msgid ""
+"\n"
+"                    We only use your data to run MentoroAI and improve our "
+"content. For full details, see our\n"
+"                "
 msgstr ""
 
 #: templates/catalog/tool_detail.html:28
@@ -2413,7 +2421,7 @@ msgid "No published guides available."
 msgstr ""
 
 #: templates/legal/cookie_policy.html:10
-#: templates/legal/privacy_policy.html:204
+#: templates/legal/privacy_policy.html:271
 msgid "Cookie Policy"
 msgstr ""
 
@@ -2549,8 +2557,7 @@ msgid ""
 "\n"
 "                You can change or withdraw your consent at any time using "
 "the Cookiebot consent dialog\n"
-"                available on this website (for example via the Cookiebot "
-"icon or the link in the footer).\n"
+"                available on this website (via the Cookiebot icon).\n"
 "                In addition, cookies can be blocked or deleted using your "
 "browser settings.\n"
 "            "
@@ -2638,7 +2645,7 @@ msgstr ""
 msgid "Germany"
 msgstr ""
 
-#: templates/legal/legal_notice.html:21 templates/legal/privacy_policy.html:74
+#: templates/legal/legal_notice.html:21 templates/legal/privacy_policy.html:124
 msgid "Contact"
 msgstr ""
 
@@ -2665,24 +2672,53 @@ msgid "Privacy Policy"
 msgstr ""
 
 #: templates/legal/privacy_policy.html:13
+msgid "Privacy at a glance"
+msgstr ""
+
+#: templates/legal/privacy_policy.html:17
+msgid ""
+"\n"
+"                        We collect only the data we need to provide this "
+"website, your account and basic analytics.\n"
+"                    "
+msgstr ""
+
+#: templates/legal/privacy_policy.html:22
+msgid ""
+"\n"
+"                        Cookies for security and language are always active. "
+"Analytics cookies are used only with your consent.\n"
+"                    "
+msgstr ""
+
+#: templates/legal/privacy_policy.html:27
+msgid ""
+"\n"
+"                        You can change your cookie settings at any time and "
+"you can delete your account or contact us to exercise your\n"
+"                        privacy rights.\n"
+"                    "
+msgstr ""
+
+#: templates/legal/privacy_policy.html:37
 msgid "Controller"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:15
+#: templates/legal/privacy_policy.html:39
 msgid "Controller under data protection law, in particular the EU GDPR, is:"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:20
+#: templates/legal/privacy_policy.html:44
 msgid ""
 "A data protection officer has not been appointed, as there is no legal "
 "requirement to do so."
 msgstr ""
 
-#: templates/legal/privacy_policy.html:24
+#: templates/legal/privacy_policy.html:48
 msgid "Overview of data processing"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:26
+#: templates/legal/privacy_policy.html:50
 msgid ""
 "\n"
 "                This Privacy Policy explains what personal data we process "
@@ -2692,57 +2728,98 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:32
+#: templates/legal/privacy_policy.html:56
+msgid ""
+"\n"
+"                MentoroAI is an informational platform that provides guides, "
+"glossaries,\n"
+"                tool overviews and practical examples on the use of AI "
+"tools.\n"
+"                Personal data is processed when you visit the website, "
+"create an account\n"
+"                or interact with these contents.\n"
+"            "
+msgstr ""
+
+#: templates/legal/privacy_policy.html:64
 msgid "Categories of personal data"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:34
+#: templates/legal/privacy_policy.html:66
 msgid "Identification data (name, username)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:35
+#: templates/legal/privacy_policy.html:67
 msgid "Contact data (email address)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:36
+#: templates/legal/privacy_policy.html:68
 msgid "Account data (login credentials, user ID)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:37
+#: templates/legal/privacy_policy.html:69
 msgid "Usage data (visited pages, interactions)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:38
+#: templates/legal/privacy_policy.html:70
 msgid "Technical data (IP address, browser, device information)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:41
+#: templates/legal/privacy_policy.html:72
+msgid "Purposes of data processing"
+msgstr ""
+
+#: templates/legal/privacy_policy.html:74
+msgid "Providing and operating the website and its core functions"
+msgstr ""
+
+#: templates/legal/privacy_policy.html:75
+msgid "Creating and managing user accounts and saved content"
+msgstr ""
+
+#: templates/legal/privacy_policy.html:76
+msgid "Responding to contact requests and communication"
+msgstr ""
+
+#: templates/legal/privacy_policy.html:77
+msgid "Ensuring security and preventing misuse or attacks"
+msgstr ""
+
+#: templates/legal/privacy_policy.html:78
+msgid "Analyzing usage and improving our content and services"
+msgstr ""
+
+#: templates/legal/privacy_policy.html:79
+msgid "Complying with legal obligations (e.g. retention duties)"
+msgstr ""
+
+#: templates/legal/privacy_policy.html:82
 msgid "Sources of personal data"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:43
+#: templates/legal/privacy_policy.html:84
 msgid "Directly from users (registration, contact, content submission)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:44
+#: templates/legal/privacy_policy.html:85
 msgid "Automatically through website usage (server logs, technical data)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:45
+#: templates/legal/privacy_policy.html:86
 msgid "Third-party authentication providers (Google, GitHub)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:46
+#: templates/legal/privacy_policy.html:87
 msgid ""
 "Personal data received from third-party providers (Google, GitHub): name, "
 "email address, external user ID"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:49
+#: templates/legal/privacy_policy.html:90
 msgid "Data retention"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:51
+#: templates/legal/privacy_policy.html:92
 msgid ""
 "\n"
 "                Personal data is stored only for as long as necessary for "
@@ -2750,27 +2827,42 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:56
+#: templates/legal/privacy_policy.html:97
+#: templates/legal/privacy_policy.html:100
 msgid "Server log data (IP address, timestamps): up to 30 days"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:57
+#: templates/legal/privacy_policy.html:98
+#: templates/legal/privacy_policy.html:101
 msgid "Contact requests: up to 12 months after completion"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:58
+#: templates/legal/privacy_policy.html:99
+#: templates/legal/privacy_policy.html:102
 msgid "User account data: for the duration of the account"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:62
+#: templates/legal/privacy_policy.html:104
+msgid ""
+"Analytics data (Google Analytics 4): depending on the configuration, "
+"typically up to 14 months."
+msgstr ""
+
+#: templates/legal/privacy_policy.html:107
+msgid ""
+"Consent logs (Cookiebot): stored for as long as required to prove lawful "
+"consent under applicable law."
+msgstr ""
+
+#: templates/legal/privacy_policy.html:112
 msgid "Processing activities on this website"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:64
+#: templates/legal/privacy_policy.html:114
 msgid "Collection and storage of personal data"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:66
+#: templates/legal/privacy_policy.html:116
 msgid ""
 "\n"
 "                When you visit this website, information sent by your "
@@ -2782,7 +2874,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:76
+#: templates/legal/privacy_policy.html:126
 msgid ""
 "\n"
 "                If you contact us by email, we store your details to process "
@@ -2791,11 +2883,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:82
+#: templates/legal/privacy_policy.html:132
 msgid "Registration / User accounts"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:84
+#: templates/legal/privacy_policy.html:134
 msgid ""
 "\n"
 "                If you create a user account, we process your entered data "
@@ -2804,11 +2896,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:90
+#: templates/legal/privacy_policy.html:140
 msgid "Google Sign-In (Social Login)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:92
+#: templates/legal/privacy_policy.html:142
 msgid ""
 "\n"
 "                On this website you can log in or create an account using "
@@ -2818,12 +2910,12 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:98
-#: templates/legal/privacy_policy.html:143
+#: templates/legal/privacy_policy.html:148
+#: templates/legal/privacy_policy.html:202
 msgid "Data processed"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:99
+#: templates/legal/privacy_policy.html:149
 msgid ""
 "\n"
 "                We receive from Google your name, email address and a unique "
@@ -2833,13 +2925,13 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:105
-#: templates/legal/privacy_policy.html:150
+#: templates/legal/privacy_policy.html:155
+#: templates/legal/privacy_policy.html:209
 msgid "Purpose"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:106
-#: templates/legal/privacy_policy.html:151
+#: templates/legal/privacy_policy.html:156
+#: templates/legal/privacy_policy.html:210
 msgid ""
 "\n"
 "                Providing a convenient and secure login option and managing "
@@ -2847,27 +2939,27 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:111
-#: templates/legal/privacy_policy.html:156
-#: templates/legal/privacy_policy.html:228
-#: templates/legal/privacy_policy.html:252
+#: templates/legal/privacy_policy.html:161
+#: templates/legal/privacy_policy.html:215
+#: templates/legal/privacy_policy.html:295
+#: templates/legal/privacy_policy.html:319
 msgid "Legal basis"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:112
-#: templates/legal/privacy_policy.html:157
+#: templates/legal/privacy_policy.html:162
+#: templates/legal/privacy_policy.html:216
 msgid ""
 "\n"
 "                Your consent according to Art. 6(1)(a) GDPR.\n"
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:117
-#: templates/legal/privacy_policy.html:162
+#: templates/legal/privacy_policy.html:167
+#: templates/legal/privacy_policy.html:221
 msgid "Data storage and deletion"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:118
+#: templates/legal/privacy_policy.html:168
 msgid ""
 "\n"
 "                We store the data received from Google as long as your user "
@@ -2878,30 +2970,46 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:125
-#: templates/legal/privacy_policy.html:169
-#: templates/legal/privacy_policy.html:236
-#: templates/legal/privacy_policy.html:255
+#: templates/legal/privacy_policy.html:175
+#: templates/legal/privacy_policy.html:228
+#: templates/legal/privacy_policy.html:303
+#: templates/legal/privacy_policy.html:322
 msgid "Data transfer"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:126
+#: templates/legal/privacy_policy.html:176
 msgid ""
 "\n"
 "                Data may be transferred to Google LLC (USA).\n"
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:131
-#: templates/legal/privacy_policy.html:175
+#: templates/legal/privacy_policy.html:181
+#: templates/legal/privacy_policy.html:234
+#: templates/legal/privacy_policy.html:328
+msgid ""
+"\n"
+"                Where data is transferred to countries outside the European "
+"Union for which no adequacy\n"
+"                decision of the European Commission exists, we implement "
+"appropriate safeguards such as\n"
+"                standard contractual clauses in accordance with Art. 46 GDPR "
+"and, where necessary,\n"
+"                additional technical and organisational measures to protect "
+"your data.\n"
+"            "
+msgstr ""
+
+#: templates/legal/privacy_policy.html:190
+#: templates/legal/privacy_policy.html:242
 msgid "Further information"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:135
+#: templates/legal/privacy_policy.html:194
 msgid "GitHub Sign-In (Social Login)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:137
+#: templates/legal/privacy_policy.html:196
 msgid ""
 "\n"
 "                You can also log in or create an account using your GitHub "
@@ -2911,7 +3019,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:144
+#: templates/legal/privacy_policy.html:203
 msgid ""
 "\n"
 "                We receive from GitHub your username, email address and a "
@@ -2921,7 +3029,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:163
+#: templates/legal/privacy_policy.html:222
 msgid ""
 "\n"
 "                We store the data received from GitHub as long as your "
@@ -2931,7 +3039,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:170
+#: templates/legal/privacy_policy.html:229
 msgid ""
 "\n"
 "                GitHub Inc. is located in the United States. Data may "
@@ -2939,15 +3047,15 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:180
+#: templates/legal/privacy_policy.html:247
 msgid "Cookies, tracking and consent management"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:182
+#: templates/legal/privacy_policy.html:249
 msgid "Cookies and tracking technologies"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:184
+#: templates/legal/privacy_policy.html:251
 msgid ""
 "\n"
 "                This website uses cookies to ensure technical functionality "
@@ -2963,7 +3071,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:193
+#: templates/legal/privacy_policy.html:260
 msgid ""
 "\n"
 "                Technically necessary cookies include in particular session "
@@ -2981,11 +3089,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:207
+#: templates/legal/privacy_policy.html:274
 msgid "Consent management (Cookiebot)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:209
+#: templates/legal/privacy_policy.html:276
 msgid ""
 "\n"
 "                We use the consent management platform Cookiebot by "
@@ -2997,11 +3105,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:216
+#: templates/legal/privacy_policy.html:283
 msgid "Google Tag Manager"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:218
+#: templates/legal/privacy_policy.html:285
 msgid ""
 "\n"
 "                We use Google Tag Manager to manage and deploy website tags "
@@ -3016,7 +3124,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:229
+#: templates/legal/privacy_policy.html:296
 msgid ""
 "\n"
 "                Legitimate interests under Art. 6(1)(f) GDPR for the use of "
@@ -3026,8 +3134,8 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:237
-#: templates/legal/privacy_policy.html:256
+#: templates/legal/privacy_policy.html:304
+#: templates/legal/privacy_policy.html:323
 msgid ""
 "\n"
 "                Data may be transferred to Google LLC in the United States. "
@@ -3035,11 +3143,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:242
+#: templates/legal/privacy_policy.html:309
 msgid "Google Analytics 4"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:244
+#: templates/legal/privacy_policy.html:311
 msgid ""
 "\n"
 "                If you give your consent to the “Statistics” category, we "
@@ -3052,43 +3160,43 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:252
+#: templates/legal/privacy_policy.html:319
 msgid "Your consent under Art. 6(1)(a) GDPR."
 msgstr ""
 
-#: templates/legal/privacy_policy.html:262
+#: templates/legal/privacy_policy.html:338
 msgid "Your rights"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:264
+#: templates/legal/privacy_policy.html:340
 msgid "Access to your stored data"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:265
+#: templates/legal/privacy_policy.html:341
 msgid "Rectification of inaccurate data"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:266
+#: templates/legal/privacy_policy.html:342
 msgid "Erasure ('right to be forgotten')"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:267
+#: templates/legal/privacy_policy.html:343
 msgid "Restriction of processing"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:268
+#: templates/legal/privacy_policy.html:344
 msgid "Data portability"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:269
+#: templates/legal/privacy_policy.html:345
 msgid "Objection to processing"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:272
+#: templates/legal/privacy_policy.html:348
 msgid "Withdrawal of consent and objection"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:274
+#: templates/legal/privacy_policy.html:350
 msgid ""
 "\n"
 "                You may withdraw your consent at any time with effect for "
@@ -3100,11 +3208,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:281
+#: templates/legal/privacy_policy.html:357
 msgid "Right to lodge a complaint"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:283
+#: templates/legal/privacy_policy.html:359
 msgid ""
 "\n"
 "                You have the right to lodge a complaint with a supervisory "
@@ -3115,11 +3223,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:291
+#: templates/legal/privacy_policy.html:367
 msgid "Data security"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:293
+#: templates/legal/privacy_policy.html:369
 msgid ""
 "\n"
 "                We use technical and organizational measures to protect your "
@@ -3129,7 +3237,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:299
+#: templates/legal/privacy_policy.html:375
 msgid ""
 "\n"
 "                Our servers are hosted within the European Union and are "
@@ -3138,11 +3246,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:305
+#: templates/legal/privacy_policy.html:381
 msgid "Do Not Track signals"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:307
+#: templates/legal/privacy_policy.html:383
 msgid ""
 "\n"
 "                Our website does not currently respond to \"Do Not Track\" "
@@ -3152,11 +3260,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:313
+#: templates/legal/privacy_policy.html:389
 msgid "Automated decision-making"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:315
+#: templates/legal/privacy_policy.html:391
 msgid ""
 "\n"
 "                We do not use automated decision-making or profiling within "
@@ -3164,11 +3272,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:320
+#: templates/legal/privacy_policy.html:396
 msgid "Children"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:322
+#: templates/legal/privacy_policy.html:398
 msgid ""
 "\n"
 "                This website is intended for a general audience.\n"
@@ -3180,25 +3288,28 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:330
+#: templates/legal/privacy_policy.html:406
 msgid "Changes to this Privacy Policy"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:332
+#: templates/legal/privacy_policy.html:408
 msgid ""
 "\n"
 "                We may update this Privacy Policy from time to time.\n"
 "                If material changes are made, we will notify users by a "
-"prominent notice on the website.\n"
-"                The current version is always available on this page.\n"
+"prominent notice on the website\n"
+"                and, where appropriate, by email to registered users.\n"
+"                The current version is always available on this page; the "
+"\"Effective date\" indicates\n"
+"                when the Policy last changed.\n"
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:339
+#: templates/legal/privacy_policy.html:418
 msgid "Effective date"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:340
+#: templates/legal/privacy_policy.html:419
 msgid "This Privacy Policy is effective as of 16 December 2025."
 msgstr ""
 
