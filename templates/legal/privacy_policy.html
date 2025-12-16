@@ -190,6 +190,17 @@
             {% endblocktrans %}
         </p>
         <p>
+            {% blocktrans %}
+                Technically necessary cookies include in particular session and security cookies
+                (such as "sessionid" and "csrftoken") as well as cookies required for navigation,
+                language selection and consent management (for example "django_language",
+                "htmx-current-path-for-history" and "CookieConsent").
+                Preference cookies store your selected theme (for example "preferred_theme").
+                Details on the individual cookies, their purposes, categories and storage periods
+                can be found in our Cookie Policy.
+            {% endblocktrans %}
+        </p>
+        <p>
             <a href="{% url 'legal:cookies' %}">{% trans "Cookie Policy" %}</a>
         </p>
 

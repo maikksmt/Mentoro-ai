@@ -153,8 +153,6 @@
         </ul>
     </div>
     <div class="navbar-end">
-
-
         <!-- Search -->
         <button class="btn btn-ghost btn-circle" aria-label="{% trans "Search" %}">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -294,6 +292,101 @@
     });
 </script>
 
+<script>
+    // --- Theme handling via Swap (cookie-aware, system default) ---
+    (function () {
+        const THEME_COOKIE = 'preferred_theme'; // stores 'mentoroai-light' or 'mentoroai-dark'
+        const COOKIE_MAX_DAYS = 365;
+
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        const systemTheme = () => (mq.matches ? 'mentoroai-dark' : 'mentoroai-light');
+
+        function setRawCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+        }
+
+        function deleteCookie(name) {
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Lax`;
+        }
+
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? decodeURIComponent(match[2]) : null;
+        }
+
+        function hasPreferencesConsent() {
+            // In dev (debug) oder ohne Cookiebot gibt es keine CMP → Cookie ok
+            // Wenn Cookiebot verfügbar ist, nutzen wir dessen Einstellungs-Flag.
+            try {
+                if (typeof Cookiebot === 'undefined' || !Cookiebot.consent) {
+                    return true;
+                }
+                return !!Cookiebot.consent.preferences;
+            } catch (e) {
+                return true;
+            }
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            // sync all swap checkboxes (checked => light)
+            document.querySelectorAll('.theme-swap input[type="checkbox"]').forEach(cb => {
+                cb.checked = (theme === 'mentoroai-light');
+            });
+        }
+
+        function applyAndPersistTheme(theme) {
+            applyTheme(theme);
+            if (hasPreferencesConsent()) {
+                setRawCookie(THEME_COOKIE, theme, COOKIE_MAX_DAYS);
+            } else {
+                // keine Präferenz-Einwilligung -> Cookie löschen, aber Theme weiter anzeigen
+                deleteCookie(THEME_COOKIE);
+            }
+        }
+
+        // Initial: Cookie nur verwenden, wenn Präferenz-Einwilligung vorliegt.
+        const saved = hasPreferencesConsent() ? getCookie(THEME_COOKIE) : null;
+        applyTheme(saved || systemTheme());
+
+        // Auf OS-Theme-Änderungen reagieren, solange kein Cookie gesetzt ist
+        mq.addEventListener?.('change', () => {
+            if (!getCookie(THEME_COOKIE)) {
+                applyTheme(systemTheme());
+            }
+        });
+
+        // Theme-Toggle Buttons
+        document.querySelectorAll('.theme-swap input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                const next = e.currentTarget.checked ? 'mentoroai-light' : 'mentoroai-dark';
+                applyAndPersistTheme(next);
+            });
+        });
+
+        // Auf Cookiebot-Ereignisse reagieren (wenn User Präferenzen nachträglich ändert)
+        function handleCookiebotTheme() {
+            if (!window.Cookiebot || !Cookiebot.consent) return;
+
+            if (!hasPreferencesConsent()) {
+                // Präferenzen abgewählt -> Cookie löschen und auf System-Theme zurück
+                deleteCookie(THEME_COOKIE);
+                applyTheme(systemTheme());
+            } else {
+                // Präferenzen erlaubt -> ggf. gespeichertes Theme wieder anwenden
+                const stored = getCookie(THEME_COOKIE);
+                applyTheme(stored || systemTheme());
+            }
+        }
+
+        window.addEventListener('CookiebotOnConsentReady', handleCookiebotTheme);
+        window.addEventListener('CookiebotOnAccept', handleCookiebotTheme);
+        window.addEventListener('CookiebotOnDecline', handleCookiebotTheme);
+    })();
+</script>
+
 
 <script>
     // --- Drawer open/close + ESC + Backdrop ---
@@ -318,54 +411,6 @@
         backdrop?.addEventListener('click', close);
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') close();
-        });
-    })();
-
-    // --- Theme handling via Swap (cookie-aware, system default) ---
-    (function () {
-        const THEME_COOKIE = 'preferred_theme'; // stores 'mentoroai-light' or 'mentoroai-dark'
-        const COOKIE_MAX_DAYS = 365;
-
-        const mq = window.matchMedia('(prefers-color-scheme: dark)');
-        const systemTheme = () => (mq.matches ? 'mentoroai-dark' : 'mentoroai-light');
-
-        function setCookie(name, value, days) {
-            const d = new Date();
-            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-            document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/;SameSite=Lax`;
-        }
-
-        function getCookie(name) {
-            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-            return match ? decodeURIComponent(match[2]) : null;
-        }
-
-        function applyTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            // sync all swap checkboxes (checked => dark)
-            document.querySelectorAll('.theme-swap input[type="checkbox"]').forEach(cb => {
-                cb.checked = theme === 'mentoroai-light';
-            });
-        }
-
-        // Init: cookie wins, otherwise system
-        const saved = getCookie(THEME_COOKIE);
-        applyTheme(saved || systemTheme());
-
-        // React to OS changes only when no cookie is set
-        mq.addEventListener?.('change', () => {
-            if (!getCookie(THEME_COOKIE)) {
-                applyTheme(systemTheme());
-            }
-        });
-
-        // Wire up both swap controls
-        document.querySelectorAll('.theme-swap input[type="checkbox"]').forEach(cb => {
-            cb.addEventListener('change', (e) => {
-                const next = e.currentTarget.checked ? 'mentoroai-light' : 'mentoroai-dark';
-                applyTheme(next);
-                setCookie(THEME_COOKIE, next, COOKIE_MAX_DAYS);
-            });
         });
     })();
 
