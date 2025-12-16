@@ -235,30 +235,43 @@
 
 <!-- Footer -->
 <footer class="footer footer-center bg-base-300 text-base-content">
-    <div class="max-w-7xl mx-auto p-2 md:p-4 lg:p-6">
-        <nav class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2 text-sm pt-4">
+    <div class="max-w-7xl mx-auto p-3 md:p-4 lg:p-6 space-y-3">
+        <nav class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-2 text-sm pt-2">
             <a href="{% url 'newsletter:subscribe' %}" class="link link-hover p-1 lg:p-2">{% trans "Newsletter" %}</a>
             <a href="{% url 'what-to-find' %}"
                class="link link-hover p-1 lg:p-2">{% trans "What can I find on MentoroAI?" %}</a>
             <a href="{% url 'legal:legal-notice' %}" class="link link-hover p-1 lg:p-2">{% trans "Legal notice" %}</a>
             <a href="{% url 'legal:privacy' %}" class="link link-hover p-1 lg:p-2">{% trans "Privacy policy" %}</a>
             <a href="{% url 'legal:cookies' %}" class="link link-hover p-1 lg:p-2">Cookies</a>
-            {#            <a href="#" class="link link-hover p-1 lg:p-2" onclick="klaro.show(); return false;">{% trans "Cookie-Settings" %}</a>#}
             <a href="{% url 'legal:terms-of-use' %}" class="link link-hover p-1 lg:p-2">{% trans "Terms of Use" %}</a>
             <a href="{% url 'legal:copyright' %}" class="link link-hover p-1 lg:p-2">{% trans "Copyright" %}</a>
             <a href="https://github.com/maikksmt/mentoro-ai" target="_blank" rel="noopener"
-               class="link link-hover p-1 lg:p-2"><img
-                    id="github-logo" alt="GitHub Logo" width="24" height="24"
-                    src="{% static 'img/github-mark-white.png' %}" srcset="{% static 'img/github-mark-white.svg' %}"/>
+               class="flex items-center justify-center p-1 lg:p-2">
+                <img id="github-logo" alt="GitHub Logo" width="24" height="24"
+                     src="{% static 'img/github-mark-white.png' %}"
+                     srcset="{% static 'img/github-mark-white.svg' %}"/>
             </a>
         </nav>
-        <p class="text-xs opacity-80 inline-flex items-center gap-1">
-            © {% now "Y" %} MentoroAI – Made with
-            {% heroicon_solid "heart" size=16 class="text-red-500 inline" %}
-            for coding
-        </p>
+
+        <div class="flex flex-col items-center gap-4 text-xs opacity-80">
+            <p class="text-center md:text-left">
+                {% blocktrans %}
+                    We only use your data to run MentoroAI and improve our content. For full details, see our
+                {% endblocktrans %}
+                <a href="{% url 'legal:privacy' %}" class="link link-hover">
+                    {% trans "Privacy policy" %}.
+                </a>
+            </p>
+
+            <p class="inline-flex items-center gap-1">
+                © {% now "Y" %} MentoroAI – Made with
+                {% heroicon_solid "heart" size=16 class="text-red-500 inline" %}
+                for coding
+            </p>
+        </div>
     </div>
 </footer>
+
 
 {% if messages %}
     <div id="toast-container" class="toast toast-end fixed top-4 right-4 z-[9999] pointer-events-auto">
