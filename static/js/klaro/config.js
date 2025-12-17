@@ -100,6 +100,7 @@ var klaroConfig = {
                 'csrftoken',
                 'sessionid',
                 'htmx-current-path-for-history',
+                'django_language',
             ],
             translations: {
                 zz: {
@@ -119,12 +120,11 @@ var klaroConfig = {
         },
 
         {
-            name: 'ui-preferences',
+            name: 'preferences-cookies',
             onlyOnce: true,
             purposes: ['preferences'],
             cookies: [
                 'preferred_theme',
-                'django_language',
             ],
             translations: {
                 zz: {
@@ -133,20 +133,21 @@ var klaroConfig = {
                 de: {
                     title: 'Benutzerpräferenzen (Theme & Sprache)',
                     description:
-                        'Speichert deine Einstellungen für Design (Hell/Dunkel) und Sprache.',
+                        'Speichert die gewählte Darstellungsvariante (Light/Dark Theme).',
                 },
                 en: {
                     title: 'User preferences (theme & language)',
                     description:
-                        'Stores your choices for theme (light/dark) and language.',
+                        'Saves the selected display variant (Light/Dark Theme).',
                 },
             },
         },
 
         {
-            name: 'google-analytics',
+            name: 'google-analytics-cookies',
             onlyOnce: true,
             purposes: ['statistics'],
+            cookies: [/^_ga(_.+)?$/],
             translations: {
                 zz: {
                     title: 'Google Analytics',
@@ -189,7 +190,7 @@ var klaroConfig = {
                 });
             },
 
-            cookies: [/^_ga(_.+)?$/, /^_gid$/, /^_gat(_.+)?$/],
+
         },
     ]
 

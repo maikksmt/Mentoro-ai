@@ -47,7 +47,7 @@
                 {% trans "stores the current path to keep browser navigation and history working when using HTMX" %}
             </li>
             <li>
-                <strong>CookieConsent</strong> —
+                <strong>klaro</strong> —
                 {% trans "stores your consent state for cookie categories and proves that consent has been obtained" %}
             </li>
         </ul>
@@ -65,10 +65,7 @@
                 <strong>preferred_theme</strong> —
                 {% trans "remembers your selected theme (light/dark) for future visits" %}
             </li>
-            <li>
-                <strong>CookieConsentBulkSetting-*</strong> —
-                {% trans "optionally stores your category choices when you apply the same settings to multiple services" %}
-            </li>
+
         </ul>
 
         <!-- 3. Consent management + GA4 statistics -->
@@ -78,7 +75,7 @@
                 We use Google Analytics 4 to analyze how our website is used and to improve our content.
                 Google Analytics 4 is deployed via Google Tag Manager.
                 Statistics cookies are only activated after you have given explicit consent
-                in the “Statistics” category in the Cookiebot dialog.
+                in the “Statistics” category in the Klaro dialog.
                 Before consent is granted, Google Consent Mode v2 ensures that no Analytics cookies are stored
                 and only anonymized, non-identifying signals may be transmitted.
             {% endblocktrans %}
@@ -97,14 +94,14 @@
         <h2>{% trans "Cookie control" %}</h2>
         <p>
             {% blocktrans %}
-                You can change or withdraw your consent at any time using the Cookiebot consent dialog
-                available on this website (via the Cookiebot icon).
+                You can change or withdraw your consent at any time using the Klaro consent dialog
+                available on this website (via the Klaro Cookie-Settings link at the bottom of the page).
                 In addition, cookies can be blocked or deleted using your browser settings.
             {% endblocktrans %}
         </p>
         <p>
             {% blocktrans %}
-                Cookiebot also controls the execution of tracking technologies managed via Google Tag Manager
+                Klaro also controls the execution of tracking technologies managed via Google Tag Manager
                 based on your selected consent categories. This means that non-essential cookies and tags
                 (such as Google Analytics) are only activated after you have given your consent.
             {% endblocktrans %}

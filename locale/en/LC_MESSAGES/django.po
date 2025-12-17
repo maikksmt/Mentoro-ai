@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-16 21:49+0100\n"
+"POT-Creation-Date: 2025-12-17 19:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -316,8 +316,8 @@ msgid ""
 "weaknesses and special features."
 msgstr ""
 
-#: compare/views.py:88 compare/views.py:217 templates/base.html:127
-#: templates/base.html:151 templates/content/home.html:99
+#: compare/views.py:88 compare/views.py:217 templates/base.html:92
+#: templates/base.html:116 templates/content/home.html:99
 #: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
 msgid "Comparisons"
@@ -582,7 +582,7 @@ msgid "Guide"
 msgstr ""
 
 #: guides/models.py:29 guides/views.py:55 guides/views.py:133
-#: templates/base.html:115 templates/base.html:139
+#: templates/base.html:80 templates/base.html:104
 #: templates/content/home.html:96 templates/content/what-to-find.html:32
 #: templates/guides/guide_list.html:7 templates/partials/_entry_cards.html:19
 msgid "Guides"
@@ -638,7 +638,7 @@ msgstr ""
 msgid "Reason (optional)"
 msgstr ""
 
-#: newsletter/views.py:20 templates/base.html:240
+#: newsletter/views.py:20 templates/base.html:205
 msgid "Newsletter"
 msgstr ""
 
@@ -696,7 +696,7 @@ msgid "Prompt"
 msgstr ""
 
 #: prompts/models.py:30 prompts/views.py:74 prompts/views.py:149
-#: templates/base.html:118 templates/base.html:142
+#: templates/base.html:83 templates/base.html:107
 #: templates/content/home.html:97 templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
 msgid "Prompts"
@@ -1046,7 +1046,7 @@ msgstr ""
 
 #: templates/account/login.html:4 templates/account/login.html:103
 #: templates/account/password_reset_from_key_done.html:23
-#: templates/base.html:182 templates/partials/author_info_card.html:56
+#: templates/base.html:147 templates/partials/author_info_card.html:56
 msgid "Login"
 msgstr ""
 
@@ -1095,7 +1095,7 @@ msgid "Create a free account"
 msgstr ""
 
 #: templates/account/logout.html:4 templates/account/logout.html:20
-#: templates/account/logout.html:32 templates/base.html:179
+#: templates/account/logout.html:32 templates/base.html:144
 msgid "Logout"
 msgstr ""
 
@@ -1406,80 +1406,84 @@ msgstr ""
 msgid "No differences in this language."
 msgstr ""
 
-#: templates/base.html:107
+#: templates/base.html:72
 msgid "Mobile menu"
 msgstr ""
 
-#: templates/base.html:112 templates/base.html:136
+#: templates/base.html:77 templates/base.html:101
 #: templates/content/what-to-find.html:31
 #: templates/partials/_entry_cards.html:11
 msgid "Glossary"
 msgstr ""
 
-#: templates/base.html:121 templates/base.html:145
+#: templates/base.html:86 templates/base.html:110
 #: templates/partials/_entry_cards.html:35
 msgid "Use cases"
 msgstr ""
 
-#: templates/base.html:124 templates/base.html:148
+#: templates/base.html:89 templates/base.html:113
 #: templates/compare/comparison_list.html:73
 #: templates/content/what-to-find.html:35
 #: templates/partials/_entry_cards.html:43
 msgid "Tools"
 msgstr ""
 
-#: templates/base.html:157 templates/catalog/tool_list.html:62
+#: templates/base.html:122 templates/catalog/tool_list.html:62
 #: templates/catalog/tool_list.html:63
 #: templates/compare/comparison_list.html:38
 #: templates/compare/comparison_list.html:39
 msgid "Search"
 msgstr ""
 
-#: templates/base.html:166
+#: templates/base.html:131
 msgid "Toggle theme"
 msgstr ""
 
-#: templates/base.html:189
+#: templates/base.html:154
 msgid "Language select"
 msgstr ""
 
-#: templates/base.html:216
+#: templates/base.html:181
 msgid "Dashboard"
 msgstr ""
 
-#: templates/base.html:219
+#: templates/base.html:184
 msgid "Admin Panel"
 msgstr ""
 
-#: templates/base.html:221 templates/content/editorial/my_content.html:9
+#: templates/base.html:186 templates/content/editorial/my_content.html:9
 msgid "My Content"
 msgstr ""
 
-#: templates/base.html:224
+#: templates/base.html:189
 msgid "Reviews"
 msgstr ""
 
-#: templates/base.html:242 templates/partials/_entry_cards.html:5
+#: templates/base.html:207 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
 msgstr ""
 
-#: templates/base.html:243
+#: templates/base.html:208
 msgid "Legal notice"
 msgstr ""
 
-#: templates/base.html:244 templates/base.html:262
+#: templates/base.html:209 templates/base.html:228
 msgid "Privacy policy"
 msgstr ""
 
-#: templates/base.html:246 templates/legal/terms_of_use.html:10
+#: templates/base.html:211
+msgid "Cookie-Settings"
+msgstr ""
+
+#: templates/base.html:212 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr ""
 
-#: templates/base.html:247
+#: templates/base.html:213
 msgid "Copyright"
 msgstr ""
 
-#: templates/base.html:258
+#: templates/base.html:224
 msgid ""
 "\n"
 "                    We only use your data to run MentoroAI and improve our "
@@ -2510,17 +2514,11 @@ msgstr ""
 msgid "remembers your selected theme (light/dark) for future visits"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:70
-msgid ""
-"optionally stores your category choices when you apply the same settings to "
-"multiple services"
-msgstr ""
-
-#: templates/legal/cookie_policy.html:75
+#: templates/legal/cookie_policy.html:72
 msgid "Statistics cookies (Google Analytics 4)"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:77
+#: templates/legal/cookie_policy.html:74
 msgid ""
 "\n"
 "                We use Google Analytics 4 to analyze how our website is used "
@@ -2528,7 +2526,7 @@ msgid ""
 "                Google Analytics 4 is deployed via Google Tag Manager.\n"
 "                Statistics cookies are only activated after you have given "
 "explicit consent\n"
-"                in the “Statistics” category in the Cookiebot dialog.\n"
+"                in the “Statistics” category in the Klaro dialog.\n"
 "                Before consent is granted, Google Consent Mode v2 ensures "
 "that no Analytics cookies are stored\n"
 "                and only anonymized, non-identifying signals may be "
@@ -2536,38 +2534,39 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/cookie_policy.html:89
+#: templates/legal/cookie_policy.html:86
 msgid ""
 "used to distinguish users and generate anonymous statistics (typically "
 "expires after 2 years)"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:93
+#: templates/legal/cookie_policy.html:90
 msgid ""
 "used to maintain session state for Google Analytics 4 (typically expires "
 "after 1 year)"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:97
+#: templates/legal/cookie_policy.html:94
 msgid "Cookie control"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:99
+#: templates/legal/cookie_policy.html:96
 msgid ""
 "\n"
 "                You can change or withdraw your consent at any time using "
-"the Cookiebot consent dialog\n"
-"                available on this website (via the Cookiebot icon).\n"
+"the Klaro consent dialog\n"
+"                available on this website (via the Klaro Cookie-Settings "
+"link at the bottom of the page).\n"
 "                In addition, cookies can be blocked or deleted using your "
 "browser settings.\n"
 "            "
 msgstr ""
 
-#: templates/legal/cookie_policy.html:106
+#: templates/legal/cookie_policy.html:103
 msgid ""
 "\n"
-"                Cookiebot also controls the execution of tracking "
-"technologies managed via Google Tag Manager\n"
+"                Klaro also controls the execution of tracking technologies "
+"managed via Google Tag Manager\n"
 "                based on your selected consent categories. This means that "
 "non-essential cookies and tags\n"
 "                (such as Google Analytics) are only activated after you have "
@@ -2850,8 +2849,8 @@ msgstr ""
 
 #: templates/legal/privacy_policy.html:107
 msgid ""
-"Consent logs (Cookiebot): stored for as long as required to prove lawful "
-"consent under applicable law."
+"Consent logs (Klaro): stored for as long as required to prove lawful consent "
+"under applicable law."
 msgstr ""
 
 #: templates/legal/privacy_policy.html:112
@@ -3067,7 +3066,7 @@ msgid ""
 "                of our legitimate interest in the secure and stable "
 "operation of the website (Art. 6(1)(f) GDPR).\n"
 "                Consent is managed through the consent management platform "
-"Cookiebot by Usercentrics.\n"
+"Klaro by KIProtect.\n"
 "            "
 msgstr ""
 
@@ -3090,15 +3089,15 @@ msgid ""
 msgstr ""
 
 #: templates/legal/privacy_policy.html:274
-msgid "Consent management (Cookiebot)"
+msgid "Consent management (Klaro)"
 msgstr ""
 
 #: templates/legal/privacy_policy.html:276
 msgid ""
 "\n"
-"                We use the consent management platform Cookiebot by "
-"Usercentrics to obtain and manage legally required\n"
-"                cookie consent. Cookiebot stores cookies that document your "
+"                We use the consent management platform Klaro by KIProtect to "
+"obtain and manage legally required\n"
+"                cookie consent. Klaro stores cookies that document your "
 "consent status and block all non-essential\n"
 "                cookies until you consent. The processing is based on our "
 "legal obligation under Art. 6(1)(c) GDPR.\n"
@@ -3120,7 +3119,7 @@ msgid ""
 "IP address and device information) may be transmitted to\n"
 "                Google.\n"
 "                The execution of non-essential tags is controlled by your "
-"consent via Cookiebot and Google Consent Mode v2.\n"
+"consent via Klaro and Google Consent Mode v2.\n"
 "            "
 msgstr ""
 
@@ -3201,8 +3200,8 @@ msgid ""
 "\n"
 "                You may withdraw your consent at any time with effect for "
 "the future.\n"
-"                You can do so via the Cookiebot consent dialog or by "
-"contacting us by email.\n"
+"                You can do so via the Klaro consent dialog or by contacting "
+"us by email.\n"
 "                The lawfulness of processing carried out before the "
 "withdrawal remains unaffected.\n"
 "            "
