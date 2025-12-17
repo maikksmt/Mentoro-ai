@@ -6,6 +6,22 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0-beta-7] – tbd
+
+### Added
+
+-
+
+### Changed
+
+- replace Cookiebot CMP with Klaro Open Source solution
+
+### Fixed
+
+-
+
+---
+
 ## [1.0.0-beta-6] – 2025-12-14
 
 ### Added
