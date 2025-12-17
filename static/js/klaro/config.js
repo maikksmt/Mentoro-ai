@@ -145,7 +145,6 @@ var klaroConfig = {
 
         {
             name: 'google-analytics-cookies',
-            onlyOnce: true,
             purposes: ['statistics'],
             cookies: [/^_ga(_.+)?$/],
             translations: {
@@ -164,27 +163,13 @@ var klaroConfig = {
                 },
             },
 
-            onAccept: function () {
+            callback: function (consent) {
                 gtag('consent', 'update', {
-                    analytics_storage: 'granted',
+                    analytics_storage: consent ? 'granted' : 'denied',
                     ad_storage: 'denied',
                     ad_user_data: 'denied',
                     ad_personalization: 'denied',
                     functionality_storage: 'granted',
-                    personalization_storage: 'denied',
-                    security_storage: 'granted',
-                });
-                // wird bereits in base.html gesendet
-                // gtag('config', 'G-ECWRCZVFD1', {anonymize_ip: true});
-            },
-
-            onDecline: function () {
-                gtag('consent', 'update', {
-                    analytics_storage: 'denied',
-                    ad_storage: 'denied',
-                    ad_user_data: 'denied',
-                    ad_personalization: 'denied',
-                    functionality_storage: 'denied',
                     personalization_storage: 'denied',
                     security_storage: 'granted',
                 });
