@@ -22,13 +22,6 @@
             crossorigin="anonymous" defer></script>
     {% block extra_head %}{% endblock %}
     {% if not debug %}
-        <script id="Cookiebot"
-                src="https://consent.cookiebot.com/uc.js"
-                data-cbid="9c77a67f-5158-4c03-bad5-725d6ae4ab7e"
-                data-blockingmode="auto"
-                type="text/javascript"
-                async>
-        </script>
 
         <!-- Google Consent Mode v2 Defaults (before loading any Google scripts) -->
         <script>
@@ -49,45 +42,17 @@
             });
             gtag('set', 'ads_data_redaction', true);
         </script>
-        <script>
-            function applyConsentFromCookiebot() {
-                if (!window.Cookiebot || !Cookiebot.consent) return;
-
-                const stats = !!Cookiebot.consent.statistics;
-                const mkt = !!Cookiebot.consent.marketing;
-                const pref = !!Cookiebot.consent.preferences;
-
-                gtag('consent', 'update', {
-                    'analytics_storage': stats ? 'granted' : 'denied',
-                    'ad_storage': mkt ? 'granted' : 'denied',
-                    'functionality_storage': pref ? 'granted' : 'denied',
-                    'personalization_storage': pref ? 'granted' : 'denied',
-                    'security_storage': 'granted',
-                    'ad_personalization': mkt ? 'granted' : 'denied',
-                    'ad_user_data': mkt ? 'granted' : 'denied',
-                });
-            }
-
-            window.addEventListener('CookiebotOnConsentReady', applyConsentFromCookiebot);
-            window.addEventListener('CookiebotOnAccept', applyConsentFromCookiebot);
-            window.addEventListener('CookiebotOnDecline', applyConsentFromCookiebot);
-        </script>
-
-        <!-- Google Tag Manager -->
-        <script>(function (w, d, s, l, i) {
-            w[l] = w[l] || [];
-            w[l].push({
-                'gtm.start':
-                    new Date().getTime(), event: 'gtm.js'
+        {# --- Klaro Config & Script --- #}
+        <script defer type="text/javascript" src="{% static 'js/klaro/config.js' %}"></script>
+        <script defer type="text/javascript" src="https://cdn.kiprotect.com/klaro/v0.7.22/klaro.js"></script>
+        <script defer>
+            // sicherstellen, dass Klaro initialisiert
+            window.addEventListener('load', function () {
+                if (window.klaro && typeof klaro.initialize === 'function') {
+                    klaro.initialize();
+                }
             });
-            var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
-            j.async = true;
-            j.src =
-                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-            f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-TVCTJB6R');</script>
-        <!-- End Google Tag Manager -->
+        </script>
     {% endif %}
 </head>
 <body class="flex flex-col min-h-screen justify-between bg-base-100 text-base-content">
@@ -243,6 +208,7 @@
             <a href="{% url 'legal:legal-notice' %}" class="link link-hover p-1 lg:p-2">{% trans "Legal notice" %}</a>
             <a href="{% url 'legal:privacy' %}" class="link link-hover p-1 lg:p-2">{% trans "Privacy policy" %}</a>
             <a href="{% url 'legal:cookies' %}" class="link link-hover p-1 lg:p-2">Cookies</a>
+            <a href="#" class="link link-hover p-1 lg:p-2" onclick="klaro.show(); return false;">{% trans "Cookie-Settings" %}</a>
             <a href="{% url 'legal:terms-of-use' %}" class="link link-hover p-1 lg:p-2">{% trans "Terms of Use" %}</a>
             <a href="{% url 'legal:copyright' %}" class="link link-hover p-1 lg:p-2">{% trans "Copyright" %}</a>
             <a href="https://github.com/maikksmt/mentoro-ai" target="_blank" rel="noopener"
@@ -330,13 +296,10 @@
         }
 
         function hasPreferencesConsent() {
-            // In dev (debug) oder ohne Cookiebot gibt es keine CMP → Cookie ok
-            // Wenn Cookiebot verfügbar ist, nutzen wir dessen Einstellungs-Flag.
             try {
-                if (typeof Cookiebot === 'undefined' || !Cookiebot.consent) {
-                    return true;
-                }
-                return !!Cookiebot.consent.preferences;
+                if (!window.klaro || typeof klaro.getManager !== 'function') return true; // fallback (z.B. debug)
+                const mgr = klaro.getManager(klaroConfig);
+                return !!mgr.getConsent('preferences-cookies');
             } catch (e) {
                 return true;
             }
@@ -379,24 +342,25 @@
             });
         });
 
-        // Auf Cookiebot-Ereignisse reagieren (wenn User Präferenzen nachträglich ändert)
-        function handleCookiebotTheme() {
-            if (!window.Cookiebot || !Cookiebot.consent) return;
+        (function watchKlaroConsents() {
+            if (!window.klaro || typeof klaro.getManager !== 'function') return;
+            const mgr = klaro.getManager(klaroConfig);
 
-            if (!hasPreferencesConsent()) {
-                // Präferenzen abgewählt -> Cookie löschen und auf System-Theme zurück
-                deleteCookie(THEME_COOKIE);
-                applyTheme(systemTheme());
-            } else {
-                // Präferenzen erlaubt -> ggf. gespeichertes Theme wieder anwenden
-                const stored = getCookie(THEME_COOKIE);
-                applyTheme(stored || systemTheme());
-            }
-        }
+            mgr.watch({
+                update: function (obj, name, data) {
+                    if (name !== 'consents') return;
+                    // gleiche Logik wie bisher: wenn keine Präferenz-Einwilligung -> Cookie löschen + System-Theme
+                    if (!hasPreferencesConsent()) {
+                        deleteCookie(THEME_COOKIE);
+                        applyTheme(systemTheme());
+                    } else {
+                        const stored = getCookie(THEME_COOKIE);
+                        applyTheme(stored || systemTheme());
+                    }
+                }
+            });
+        })();
 
-        window.addEventListener('CookiebotOnConsentReady', handleCookiebotTheme);
-        window.addEventListener('CookiebotOnAccept', handleCookiebotTheme);
-        window.addEventListener('CookiebotOnDecline', handleCookiebotTheme);
     })();
 </script>
 
