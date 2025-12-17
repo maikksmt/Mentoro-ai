@@ -164,6 +164,8 @@ var klaroConfig = {
             },
 
             callback: function (consent) {
+                if (typeof gtag !== 'function') return;
+
                 gtag('consent', 'update', {
                     analytics_storage: consent ? 'granted' : 'denied',
                     ad_storage: 'denied',
@@ -174,8 +176,6 @@ var klaroConfig = {
                     security_storage: 'granted',
                 });
             },
-
-
         },
     ]
 
