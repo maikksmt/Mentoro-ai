@@ -328,7 +328,7 @@ def to_teaser_item(obj, kind: str) -> Dict[str, Any]:
             "title": _t(obj, "title"),
             "teaser": teaser_for_guide(obj),
             "url": reverse("guides:detail", kwargs={"slug": obj.slug}),
-            "date": getattr(obj, "published_at", None),
+            "date": getattr(obj, "updated_at", None),
             "badge": "Guide",
         }
     if kind == "prompt":
@@ -336,7 +336,7 @@ def to_teaser_item(obj, kind: str) -> Dict[str, Any]:
             "title": _t(obj, "title"),
             "teaser": teaser_for_prompt(obj),
             "url": reverse("prompts:detail", kwargs={"slug": obj.slug}),
-            "date": getattr(obj, "published_at", None),
+            "date": getattr(obj, "updated_at", None),
             "badge": "Prompt",
         }
     if kind == "usecase":
@@ -344,7 +344,7 @@ def to_teaser_item(obj, kind: str) -> Dict[str, Any]:
             "title": _t(obj, "title"),
             "teaser": teaser_for_usecase(obj),
             "url": reverse("usecases:detail", kwargs={"slug": obj.slug}),
-            "date": getattr(obj, "published_at", None),
+            "date": getattr(obj, "updated_at", None),
             "badge": "Usecase",
         }
     if kind == "comparison":
@@ -352,7 +352,7 @@ def to_teaser_item(obj, kind: str) -> Dict[str, Any]:
             "title": _t(obj, "title"),
             "teaser": teaser_for_comparison(obj),
             "url": obj.get_absolute_url(),
-            "date": getattr(obj, "published_at", None),
+            "date": getattr(obj, "updated_at", None),
             "badge": "Comparison",
         }
     return {

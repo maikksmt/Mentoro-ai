@@ -34,18 +34,18 @@ var klaroConfig = {
             privacyPolicyUrl: '/de/legal/privacy/',
             privacyPolicy: {
                 name: 'Datenschutzerklärung',
-                text: 'Mehr Informationen findest du in unserer Datenschutzerklärung',
+                text: 'Mehr Informationen finden Sie in unserer Datenschutzerklärung',
                 // text: 'Mehr Informationen findest du in unserer {privacyPolicy}.',
             },
             consentModal: {
                 title: 'Datenschutzeinstellungen',
                 description:
-                    'Hier kannst du auswählen, welche Arten von Cookies und Diensten du zulassen möchtest. Du kannst deine Auswahl später jederzeit ändern.',
+                    'Hier können Sie auswählen, welche Arten von Cookies und Diensten Sie zulassen möchten. Sie können ihre Auswahl später jederzeit ändern.',
             },
             consentNotice: {
-                title: 'Wir respektieren deine Privatsphäre',
+                title: 'Wir respektieren ihre Privatsphäre',
                 description:
-                    'Wir verwenden Cookies für grundlegende Funktionen, Statistik und optionale Dienste. Du kannst deine Auswahl jederzeit anpassen.',
+                    'Wir verwenden Cookies für grundlegende Funktionen, Statistik und optionale Dienste. Sie können ihre Auswahl jederzeit anpassen.',
                 learnMore: 'Einstellungen öffnen',
             },
             purposes: {
@@ -154,7 +154,7 @@ var klaroConfig = {
                 de: {
                     title: 'Google Analytics',
                     description:
-                        'Hilft uns zu verstehen, wie Besucher unsere Website nutzen. Deine IP-Adresse wird anonymisiert.',
+                        'Hilft uns zu verstehen, wie Besucher unsere Website nutzen. Ihre IP-Adresse wird anonymisiert.',
                 },
                 en: {
                     title: 'Google Analytics',

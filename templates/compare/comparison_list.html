@@ -84,7 +84,8 @@
                                 <div class="flex flex-wrap items-center gap-2">
                                     {% if obj.updated_at %}
                                         <time datetime="{{ obj.updated_at|date:'c' }}"
-                                              class="inline-flex items-center gap-1 whitespace-nowrap">
+                                              class="inline-flex items-center gap-1 whitespace-nowrap"
+                                              aria-label="{% trans 'Published or Updated on' %} {{ obj.updated_at|date:'d.m.Y' }}">
                                             {% heroicon_outline "calendar-days" size=16 %}
                                             {{ obj.updated_at|date:"d.m.Y" }}
                                         </time>
