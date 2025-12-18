@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-27 23:53+0100\n"
-"PO-Revision-Date: 2025-12-07 14:16+0100\n"
+"POT-Creation-Date: 2025-12-18 14:22+0100\n"
+"PO-Revision-Date: 2025-12-18 14:24+0100\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: de\n"
@@ -19,393 +19,309 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Translated-Using: django-rosetta 0.10.2\n"
 
-#: static/i18n/intro_strings.js:4
-msgid "What is AI?"
-msgstr "Was ist KI?"
-
-#: static/i18n/intro_strings.js:5
-msgid "Terms and concepts explained clearly."
-msgstr "Begriffe und Konzepte klar erklärt."
-
-#: static/i18n/intro_strings.js:6
-msgid "Prompting fundamentals"
-msgstr "Grundlagen des Promptings"
-
-#: static/i18n/intro_strings.js:7
-msgid "Structured prompts, roles, examples."
-msgstr "Strukturierte Prompts, Rollen und Beispiele."
-
-#: static/i18n/intro_strings.js:8
-msgid "Become more productive with AI"
-msgstr "Werde produktiver mit KI"
-
-#: static/i18n/intro_strings.js:9
-msgid "Workflows for everyday life and work."
-msgstr "Workflows für Alltag und Beruf."
-
-#: static/i18n/intro_strings.js:10
-msgid "Automate with AI tools"
-msgstr "Automatisiere mit KI-Tools"
-
-#: static/i18n/intro_strings.js:11
-msgid "From simple macros to integrations."
-msgstr "Von einfachen Makros bis zu Integrationen."
-
-#: static/i18n/intro_strings.js:12
-msgid "Start your own AI project"
-msgstr "Starte dein eigenes KI-Projekt"
-
-#: static/i18n/intro_strings.js:13
-msgid "Stack, MVP, evaluation."
-msgstr "Stack, MVP, Evaluation."
-
-#: templates/ops/seo_check.html:19
-msgid "SEO Smoke Test"
-msgstr "SEO Smoke Test"
-
-#: templates/ops/seo_check.html:25
-msgid "Path(s) – one path per line (e.g. <code>/de/glossar/</code>)"
-msgstr "Pfad(e) – ein Pfad pro Zeile (z.B. <code>/de/glossar/</code>)"
-
-#: templates/ops/seo_check.html:21
-msgid "Check public pages for basic SEO tags."
-msgstr "Prüfe öffentliche Seiten auf grundlegende SEO-Tags."
-
-#: templates/ops/seo_check.html:28
-msgid "Check"
-msgstr "Prüfen"
-
-#: templates/ops/seo_check.html:38
-msgid "Pfad"
-msgstr "Pfad"
-
-#: templates/ops/seo_check.html:39
-msgid "Status"
-msgstr "Status"
-
-#: templates/ops/seo_check.html:40
-msgid "Titel"
-msgstr "Titel"
-
-#: templates/ops/seo_check.html:41
-msgid "Description"
-msgstr "Beschreibung"
-
-#: templates/ops/seo_check.html:42
-msgid "Canonical"
-msgstr "Canonical"
-
-#: templates/ops/seo_check.html:43
-msgid "OG-Image"
-msgstr "OG-Image"
-
-#: templates/ops/seo_check.html:44
-msgid "Hreflang"
-msgstr "Hreflang"
-
-#: templates/ops/seo_check.html:45
-msgid "Hinweise"
-msgstr "Hinweise"
-
-#: templates/partials/pagination.html:11
-msgid "Seite"
-msgstr "Seite"
-
-#: templates/partials/pagination.html:11
-msgid "of"
-msgstr "of"
-
-#: templates/content/home.html:37
-msgid "Project Github"
-msgstr "Projekt Github"
-
-#: templates/base.html:75
-msgid "Search"
-msgstr "Suche"
-
-#: templates/base.html:24
-msgid "Mobile menu"
-msgstr "Mobiles Menü"
-
-#: templates/base.html:159
-msgid "Close"
-msgstr "Schließen"
-
-#: templates/base.html:154
-msgid "MentoroAI is currently in public beta"
-msgstr "MentoroAI befindet sich derzeit in der öffentlichen Beta"
-
-#: templates/base.html:159
-msgid "Github"
-msgstr "Github"
-
-#: templates/partials/starter_guide_card.html:7
-msgid "Recommended for beginners"
-msgstr "Empfohlen für Anfänger"
-
-#: templates/partials/author_info_card.html:8
-msgid ""
-"Author accounts are in private beta. If you’re interested, please contact us"
-" on GitHub."
-msgstr ""
-"Autorenkonten befinden sich in der privaten Beta. Wenn Sie interessiert "
-"sind, kontaktieren Sie uns bitte auf GitHub."
-
-#: templates/glossary/glossary_list.html:12
-msgid "Search term..."
-msgstr "Suchbegriff..."
-
-#: templates/content/home.html:25
-msgid "Discover AI Tools"
-msgstr "KI-Tools entdecken"
-
-#: templates/content/home.html:22
-msgid "Start with the Starter Guide"
-msgstr "Beginnen Sie mit dem Start-Leitfaden"
-
-#: templates/partials/author_info_card.html:19
-msgid ""
-"You're already registered, but an administrator still needs to activate your account. Please be\n"
-"                        patient."
-msgstr ""
-"Sie sind bereits registriert, aber ein Administrator muss Ihr Konto noch "
-"aktivieren. Bitte haben Sie etwas Geduld."
-
-#: templates/partials/author_info_card.html:25
-msgid "Join for free"
-msgstr "Kostenlos beitreten"
-
-#: templates/partials/author_info_card.html:9
-msgid "Create a free account to start publishing as an author. We are happy."
-msgstr ""
-"Erstellen Sie ein kostenloses Konto, um als Autor zu veröffentlichen. Wir "
-"freuen uns."
-
-#: templates/partials/author_info_card.html:27
-msgid "Access your drafts and continue creating new content."
-msgstr ""
-"Greifen Sie auf Ihre Entwürfe zu und erstellen Sie weiterhin neue Inhalte."
-
-#: templates/partials/author_info_card.html:43
-msgid ""
-"After creating your account, an administrator will review and activate your "
-"author access."
-msgstr ""
-"Nachdem Sie Ihr Konto erstellt haben, wird ein Administrator Ihren "
-"Autorenzugang überprüfen und aktivieren."
-
-#: templates/partials/author_info_card.html:50
-msgid ""
-"We’re currently onboarding new authors manually. Get in touch if you’d like "
-"early access."
-msgstr ""
-"Wir integrieren derzeit neue Autoren manuell. Kontaktieren Sie uns, wenn Sie"
-" einen frühen Zugang möchten."
-
-#: templates/catalog/tool_list.html:56
-msgid "Read details about "
-msgstr "Lesen Sie Details über"
-
-#: templates/catalog/tool_list.html:23
-msgid "Filter"
-msgstr "Filter"
-
-#: templates/glossary/glossary_list.html:24
-msgid "Show all terms"
-msgstr "Alle Begriffe anzeigen"
-
-#: templates/glossary/glossary_list.html:30
-msgid "Show terms with letter "
-msgstr "Begriffe anzeigen mit Buchstabe "
-
-#: templates/content/home.html:79
-msgid "Bewertung"
-msgstr "Bewertung"
-
-#: templates/account/login.html:66
-msgid "Login with GitHub"
-msgstr "Mit GitHub anmelden"
-
-#: templates/account/login.html:52
-msgid "Login with Google"
-msgstr "Mit Google anmelden"
-
-#: templates/account/signup.html:52
-msgid "Sign up with Google"
-msgstr "Mit Google anmelden"
-
-#: templates/account/signup.html:66
-msgid "Sign up with GitHub"
-msgstr "Mit GitHub anmelden"
-
-#: templates/guides/guide_list.html:33
-msgid "Published:"
-msgstr "Veröffentlicht:"
-
-#: templates/catalog/tool_list.html:64
-msgid "Free Tier"
-msgstr "Kostenlos"
-
-#: templates/partials/_teaser_card.html:7
-msgid "Guide"
-msgstr "Leitfaden"
-
-#: templates/partials/_teaser_card.html:9
-msgid "Prompt"
-msgstr "Prompt"
-
-#: templates/partials/_teaser_card.html:11
-msgid "Usecase"
-msgstr "Anwendungsfall"
-
-#: templates/partials/_guideitem_card.html:13
-msgid "Tool"
-msgstr "Tool"
-
-#: templates/partials/_guideitem_card.html:15
-msgid "Comparison"
-msgstr "Vergleich"
-
-#: templates/partials/_guideitem_card.html:17
-msgid "Link"
-msgstr "Link"
-
-#: templates/catalog/tool_list.html:13
-msgid "Categories"
-msgstr "Kategorien"
-
-#: templates/catalog/tool_detail.html:37
-msgid "Visit Vendor website for actual prices in your region"
-msgstr ""
-"Besuchen Sie die Website des Anbieters für die aktuellen Preise in Ihrer "
-"Region"
-
-#: templates/base.html:205
-msgid "Cookie-Settings"
-msgstr "Cookie-Einstellungen"
-
-#: templates/guides/guide_detail.html:38
-msgid "Author:"
-msgstr "Autor:"
-
-#: templates/guides/guide_detail.html:11
-msgid "Reading time:"
-msgstr "Lesezeit:"
-
-#: templates/guides/guide_list.html:46
-msgid "Updated:"
-msgstr "Aktualisiert:"
-
-#: templates/guides/guide_list.html:53
-msgid "from"
-msgstr "Von"
-
-#: templates/content/richtext_layout_examples.html:2
-msgid "Layout templates for rich text"
-msgstr "Layoutvorlagen für Rich Text"
-
-#: templates/content/richtext_layout_examples.html:7
-msgid "Rich text layout templates"
-msgstr "Rich-Text-Layoutvorlagen"
-
-#: templates/content/richtext_layout_examples.html:9
-msgid "Use these examples as copy & paste templates in TinyMCE HTML mode."
-msgstr ""
-"Verwenden Sie diese Beispiele als Copy & Paste-Vorlagen im TinyMCE HTML-"
-"Modus."
-
-#: templates/content/richtext_layout_examples.html:12
-msgid ""
-"\n"
-"                In the editor: switch to <strong>&quot;&lt;&nbsp;&gt;&quot; / &quot;Source Code&quot;</strong>, insert the desired\n"
-"                code, and customize the content (text, icons, images)."
-msgstr ""
-"\n"
-"Im Editor: Wechseln Sie zu <strong>&quot;&lt;&nbsp;&gt;&quot; / &quot;Quellcode&quot;</strong>, fügen Sie den gewünschten\n"
-"Code ein und passen Sie den Inhalt (Text, Symbole, Bilder) an."
-
-#: templates/content/richtext_layout_examples.html:19
-msgid "Image on the left / Text on the right"
-msgstr "Bild links / Text rechts"
-
-#: templates/content/richtext_layout_examples.html:76
-msgid "Image above / Text below"
-msgstr "Bild oben / Text unten"
-
-#: templates/content/richtext_layout_examples.html:48
-msgid "Image on the right / Text on the left"
-msgstr "Bild rechts / Text links"
-
-#: templates/content/richtext_layout_examples.html:52
-msgid "Preview"
-msgstr "Vorschau"
-
-#: templates/content/richtext_layout_examples.html:445
-msgid "Mini-Hero / Subheading"
-msgstr "Mini-Hero / Untertitel"
-
-#: templates/content/richtext_layout_examples.html:368
-msgid "Info boxes: Tip / Example / Key takeaway"
-msgstr "Infoboxen: Tipp / Beispiel / Key takeaway"
-
-#: templates/content/richtext_layout_examples.html:314
-msgid "Icon-List &amp; Checklist"
-msgstr "Icon-Liste &amp; Checkliste"
-
-#: templates/content/richtext_layout_examples.html:237
-msgid "2-/3-/4-column sections"
-msgstr "2-/3-/4-Spalten Abschnitte"
-
-#: templates/content/richtext_layout_examples.html:160
-msgid "Callouts: Tip / Hint / Warning"
-msgstr "Hinweise: Tipp / Hinweis / Warnung"
-
-#: templates/content/richtext_layout_examples.html:132
-msgid "2 cards side by side"
-msgstr "2 Karten nebeneinander"
-
-#: templates/content/richtext_layout_examples.html:18
-msgid "Notice for authors"
-msgstr "Hinweis für Autoren"
-
-#: templates/content/richtext_layout_examples.html:21
-msgid ""
-"\n"
-"                    In TinyMCE, you can work freely with HTML and use all approved TailwindCSS and DaisyUI utilities. Here is an overview of\n"
-"                    the recommended building blocks:"
-msgstr ""
-"\n"
-"In TinyMCE können Sie frei mit HTML arbeiten und alle genehmigten TailwindCSS- und DaisyUI-Elemente verwenden. Hier ist ein Überblick über die empfohlenen Bausteine:"
-
-#: templates/content/richtext_layout_examples.html:41
-msgid "Typography"
-msgstr "Typographie"
-
-#: templates/content/richtext_layout_examples.html:52
-msgid "DaisyUI Components"
-msgstr "DaisyUI-Komponenten"
-
-#: templates/content/richtext_layout_examples.html:54
-msgid "(Notes, tips, warnings)"
-msgstr "(Hinweise, Tipps, Warnungen)"
-
-#: templates/content/richtext_layout_examples.html:55
-msgid "(for structured sections)"
-msgstr "(Für strukturierte Abschnitte)"
-
-#: templates/content/richtext_layout_examples.html:56
-msgid "(small markings)"
-msgstr "(Kleine Markierungen)"
-
-#: templates/content/richtext_layout_examples.html:57
-msgid "(Buttons, rarely used in texts)"
-msgstr "(Schaltflächen, selten in Texten verwendet)"
-
-#: templates/content/richtext_layout_examples.html:65
-msgid ""
-"\n"
-"                    Note: For complex layouts such as image-text combinations, info boxes, or maps, you will find ready-made copy-and-paste\n"
-"                    snippets below."
-msgstr ""
-"\n"
-"Hinweis: Für komplexe Layouts wie Bild-Text-Kombinationen, Info-Boxen oder Karten finden Sie vorgefertigte Copy-and-Paste-Beispiele unten."
+#: static/js/klaro/klaro.js:1
+msgid "RegExp"
+msgstr "RegExp"
+
+#~ msgid "What is AI?"
+#~ msgstr "Was ist KI?"
+
+#~ msgid "Terms and concepts explained clearly."
+#~ msgstr "Begriffe und Konzepte klar erklärt."
+
+#~ msgid "Prompting fundamentals"
+#~ msgstr "Grundlagen des Promptings"
+
+#~ msgid "Structured prompts, roles, examples."
+#~ msgstr "Strukturierte Prompts, Rollen und Beispiele."
+
+#~ msgid "Become more productive with AI"
+#~ msgstr "Werde produktiver mit KI"
+
+#~ msgid "Workflows for everyday life and work."
+#~ msgstr "Workflows für Alltag und Beruf."
+
+#~ msgid "Automate with AI tools"
+#~ msgstr "Automatisiere mit KI-Tools"
+
+#~ msgid "From simple macros to integrations."
+#~ msgstr "Von einfachen Makros bis zu Integrationen."
+
+#~ msgid "Start your own AI project"
+#~ msgstr "Starte dein eigenes KI-Projekt"
+
+#~ msgid "Stack, MVP, evaluation."
+#~ msgstr "Stack, MVP, Evaluation."
+
+#~ msgid "SEO Smoke Test"
+#~ msgstr "SEO Smoke Test"
+
+#~ msgid "Path(s) – one path per line (e.g. <code>/de/glossar/</code>)"
+#~ msgstr "Pfad(e) – ein Pfad pro Zeile (z.B. <code>/de/glossar/</code>)"
+
+#~ msgid "Check public pages for basic SEO tags."
+#~ msgstr "Prüfe öffentliche Seiten auf grundlegende SEO-Tags."
+
+#~ msgid "Check"
+#~ msgstr "Prüfen"
+
+#~ msgid "Pfad"
+#~ msgstr "Pfad"
+
+#~ msgid "Status"
+#~ msgstr "Status"
+
+#~ msgid "Titel"
+#~ msgstr "Titel"
+
+#~ msgid "Description"
+#~ msgstr "Beschreibung"
+
+#~ msgid "Canonical"
+#~ msgstr "Canonical"
+
+#~ msgid "OG-Image"
+#~ msgstr "OG-Image"
+
+#~ msgid "Hreflang"
+#~ msgstr "Hreflang"
+
+#~ msgid "Hinweise"
+#~ msgstr "Hinweise"
+
+#~ msgid "Seite"
+#~ msgstr "Seite"
+
+#~ msgid "of"
+#~ msgstr "of"
+
+#~ msgid "Project Github"
+#~ msgstr "Projekt Github"
+
+#~ msgid "Search"
+#~ msgstr "Suche"
+
+#~ msgid "Mobile menu"
+#~ msgstr "Mobiles Menü"
+
+#~ msgid "Close"
+#~ msgstr "Schließen"
+
+#~ msgid "MentoroAI is currently in public beta"
+#~ msgstr "MentoroAI befindet sich derzeit in der öffentlichen Beta"
+
+#~ msgid "Github"
+#~ msgstr "Github"
+
+#~ msgid "Recommended for beginners"
+#~ msgstr "Empfohlen für Anfänger"
+
+#~ msgid ""
+#~ "Author accounts are in private beta. If you’re interested, please contact us"
+#~ " on GitHub."
+#~ msgstr ""
+#~ "Autorenkonten befinden sich in der privaten Beta. Wenn Sie interessiert "
+#~ "sind, kontaktieren Sie uns bitte auf GitHub."
+
+#~ msgid "Search term..."
+#~ msgstr "Suchbegriff..."
+
+#~ msgid "Discover AI Tools"
+#~ msgstr "KI-Tools entdecken"
+
+#~ msgid "Start with the Starter Guide"
+#~ msgstr "Beginnen Sie mit dem Start-Leitfaden"
+
+#~ msgid ""
+#~ "You're already registered, but an administrator still needs to activate your account. Please be\n"
+#~ "                        patient."
+#~ msgstr ""
+#~ "Sie sind bereits registriert, aber ein Administrator muss Ihr Konto noch "
+#~ "aktivieren. Bitte haben Sie etwas Geduld."
+
+#~ msgid "Join for free"
+#~ msgstr "Kostenlos beitreten"
+
+#~ msgid "Create a free account to start publishing as an author. We are happy."
+#~ msgstr ""
+#~ "Erstellen Sie ein kostenloses Konto, um als Autor zu veröffentlichen. Wir "
+#~ "freuen uns."
+
+#~ msgid "Access your drafts and continue creating new content."
+#~ msgstr ""
+#~ "Greifen Sie auf Ihre Entwürfe zu und erstellen Sie weiterhin neue Inhalte."
+
+#~ msgid ""
+#~ "After creating your account, an administrator will review and activate your "
+#~ "author access."
+#~ msgstr ""
+#~ "Nachdem Sie Ihr Konto erstellt haben, wird ein Administrator Ihren "
+#~ "Autorenzugang überprüfen und aktivieren."
+
+#~ msgid ""
+#~ "We’re currently onboarding new authors manually. Get in touch if you’d like "
+#~ "early access."
+#~ msgstr ""
+#~ "Wir integrieren derzeit neue Autoren manuell. Kontaktieren Sie uns, wenn Sie"
+#~ " einen frühen Zugang möchten."
+
+#~ msgid "Read details about "
+#~ msgstr "Lesen Sie Details über"
+
+#~ msgid "Filter"
+#~ msgstr "Filter"
+
+#~ msgid "Show all terms"
+#~ msgstr "Alle Begriffe anzeigen"
+
+#~ msgid "Show terms with letter "
+#~ msgstr "Begriffe anzeigen mit Buchstabe "
+
+#~ msgid "Bewertung"
+#~ msgstr "Bewertung"
+
+#~ msgid "Login with GitHub"
+#~ msgstr "Mit GitHub anmelden"
+
+#~ msgid "Login with Google"
+#~ msgstr "Mit Google anmelden"
+
+#~ msgid "Sign up with Google"
+#~ msgstr "Mit Google anmelden"
+
+#~ msgid "Sign up with GitHub"
+#~ msgstr "Mit GitHub anmelden"
+
+#~ msgid "Published:"
+#~ msgstr "Veröffentlicht:"
+
+#~ msgid "Free Tier"
+#~ msgstr "Kostenlos"
+
+#~ msgid "Guide"
+#~ msgstr "Leitfaden"
+
+#~ msgid "Prompt"
+#~ msgstr "Prompt"
+
+#~ msgid "Usecase"
+#~ msgstr "Anwendungsfall"
+
+#~ msgid "Tool"
+#~ msgstr "Tool"
+
+#~ msgid "Comparison"
+#~ msgstr "Vergleich"
+
+#~ msgid "Link"
+#~ msgstr "Link"
+
+#~ msgid "Categories"
+#~ msgstr "Kategorien"
+
+#~ msgid "Visit Vendor website for actual prices in your region"
+#~ msgstr ""
+#~ "Besuchen Sie die Website des Anbieters für die aktuellen Preise in Ihrer "
+#~ "Region"
+
+#~ msgid "Cookie-Settings"
+#~ msgstr "Cookie-Einstellungen"
+
+#~ msgid "Author:"
+#~ msgstr "Autor:"
+
+#~ msgid "Reading time:"
+#~ msgstr "Lesezeit:"
+
+#~ msgid "Updated:"
+#~ msgstr "Aktualisiert:"
+
+#~ msgid "from"
+#~ msgstr "Von"
+
+#~ msgid "Layout templates for rich text"
+#~ msgstr "Layoutvorlagen für Rich Text"
+
+#~ msgid "Rich text layout templates"
+#~ msgstr "Rich-Text-Layoutvorlagen"
+
+#~ msgid "Use these examples as copy & paste templates in TinyMCE HTML mode."
+#~ msgstr ""
+#~ "Verwenden Sie diese Beispiele als Copy & Paste-Vorlagen im TinyMCE HTML-"
+#~ "Modus."
+
+#~ msgid ""
+#~ "\n"
+#~ "                In the editor: switch to <strong>&quot;&lt;&nbsp;&gt;&quot; / &quot;Source Code&quot;</strong>, insert the desired\n"
+#~ "                code, and customize the content (text, icons, images)."
+#~ msgstr ""
+#~ "\n"
+#~ "Im Editor: Wechseln Sie zu <strong>&quot;&lt;&nbsp;&gt;&quot; / &quot;Quellcode&quot;</strong>, fügen Sie den gewünschten\n"
+#~ "Code ein und passen Sie den Inhalt (Text, Symbole, Bilder) an."
+
+#~ msgid "Image on the left / Text on the right"
+#~ msgstr "Bild links / Text rechts"
+
+#~ msgid "Image above / Text below"
+#~ msgstr "Bild oben / Text unten"
+
+#~ msgid "Image on the right / Text on the left"
+#~ msgstr "Bild rechts / Text links"
+
+#~ msgid "Preview"
+#~ msgstr "Vorschau"
+
+#~ msgid "Mini-Hero / Subheading"
+#~ msgstr "Mini-Hero / Untertitel"
+
+#~ msgid "Info boxes: Tip / Example / Key takeaway"
+#~ msgstr "Infoboxen: Tipp / Beispiel / Key takeaway"
+
+#~ msgid "Icon-List &amp; Checklist"
+#~ msgstr "Icon-Liste &amp; Checkliste"
+
+#~ msgid "2-/3-/4-column sections"
+#~ msgstr "2-/3-/4-Spalten Abschnitte"
+
+#~ msgid "Callouts: Tip / Hint / Warning"
+#~ msgstr "Hinweise: Tipp / Hinweis / Warnung"
+
+#~ msgid "2 cards side by side"
+#~ msgstr "2 Karten nebeneinander"
+
+#~ msgid "Notice for authors"
+#~ msgstr "Hinweis für Autoren"
+
+#~ msgid ""
+#~ "\n"
+#~ "                    In TinyMCE, you can work freely with HTML and use all approved TailwindCSS and DaisyUI utilities. Here is an overview of\n"
+#~ "                    the recommended building blocks:"
+#~ msgstr ""
+#~ "\n"
+#~ "In TinyMCE können Sie frei mit HTML arbeiten und alle genehmigten TailwindCSS- und DaisyUI-Elemente verwenden. Hier ist ein Überblick über die empfohlenen Bausteine:"
+
+#~ msgid "Typography"
+#~ msgstr "Typographie"
+
+#~ msgid "DaisyUI Components"
+#~ msgstr "DaisyUI-Komponenten"
+
+#~ msgid "(Notes, tips, warnings)"
+#~ msgstr "(Hinweise, Tipps, Warnungen)"
+
+#~ msgid "(for structured sections)"
+#~ msgstr "(Für strukturierte Abschnitte)"
+
+#~ msgid "(small markings)"
+#~ msgstr "(Kleine Markierungen)"
+
+#~ msgid "(Buttons, rarely used in texts)"
+#~ msgstr "(Schaltflächen, selten in Texten verwendet)"
+
+#~ msgid ""
+#~ "\n"
+#~ "                    Note: For complex layouts such as image-text combinations, info boxes, or maps, you will find ready-made copy-and-paste\n"
+#~ "                    snippets below."
+#~ msgstr ""
+#~ "\n"
+#~ "Hinweis: Für komplexe Layouts wie Bild-Text-Kombinationen, Info-Boxen oder Karten finden Sie vorgefertigte Copy-and-Paste-Beispiele unten."

@@ -6,8 +6,6 @@ from catalog.models import Tool
 from core.seo.utils import absolute_url, localized_alternates, get_og_image
 from core.services import (
     get_latest_items,
-    related_guides,
-    to_teaser_item,
 )
 from core.views import SeoMixin
 from guides.models import Guide
@@ -46,6 +44,12 @@ class HomePageView(SeoMixin, TemplateView):
         description = _(
             "MentoroAI offers AI tutorials, guides, prompts, tool comparisons, use cases and a glossary to help you navigate the modern AI world."
         )
+        # anchor = Guide.published.order_by("-published_at").first()
+        # recommended_items = (
+        #     [to_teaser_item(g, "guide") for g in related_guides(anchor, limit=3)]
+        #     if anchor
+        #     else []
+        # )
         json_ld = {
             "@context": "https://schema.org",
             "@type": "WebSite",
@@ -71,10 +75,6 @@ class HomePageView(SeoMixin, TemplateView):
         ctx["featured_tools"] = Tool.objects.filter(is_featured=True).order_by(
             "-published_at"
         )[:6]
-        anchor = Guide.published.order_by("-published_at").first()
-        ctx["recommended_items"] = (
-            [to_teaser_item(g, "guide") for g in related_guides(anchor, limit=3)]
-            if anchor
-            else []
-        )
+
+        # ctx["recommended_items"] = recommended_items
         return ctx
