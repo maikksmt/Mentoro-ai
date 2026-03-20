@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-18 14:24+0100\n"
+"POT-Creation-Date: 2026-03-20 07:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -360,11 +360,11 @@ msgstr ""
 msgid "You are not allowed to perform this transition."
 msgstr ""
 
-#: content/views/home.py:45
+#: content/views/home.py:43
 msgid "AI tools, guides & usecases for beginners and professionals"
 msgstr ""
 
-#: content/views/home.py:47
+#: content/views/home.py:45
 msgid ""
 "MentoroAI offers AI tutorials, guides, prompts, tool comparisons, use cases "
 "and a glossary to help you navigate the modern AI world."
@@ -630,49 +630,62 @@ msgid ""
 "tools in everyday life and work."
 msgstr ""
 
-#: newsletter/forms.py:7 newsletter/forms.py:23
+#: newsletter/forms.py:10 newsletter/forms.py:64
 msgid "email"
 msgstr ""
 
-#: newsletter/forms.py:33
+#: newsletter/forms.py:51 newsletter/forms.py:57
+msgid "Invalid submission."
+msgstr ""
+
+#: newsletter/forms.py:74
 msgid "Reason (optional)"
 msgstr ""
 
-#: newsletter/views.py:20 templates/base.html:219
+#: newsletter/views.py:21 templates/base.html:219
 msgid "Newsletter"
 msgstr ""
 
-#: newsletter/views.py:23
+#: newsletter/views.py:24
 msgid ""
 "Compact updates on AI trends, tools, and developments delivered via email "
 "for beginners, professionals, and anyone staying informed."
 msgstr ""
 
-#: newsletter/views.py:37
-msgid "Please check your inbox to confirm your subscription."
+#: newsletter/views.py:36
+msgid "If the address is eligible, a confirmation email will be sent shortly."
 msgstr ""
 
-#: newsletter/views.py:39
+#: newsletter/views.py:42 newsletter/views.py:55
+msgid ""
+"The confirmation email could not be sent right now. Please try again later."
+msgstr ""
+
+#: newsletter/views.py:47
 msgid "You are already subscribed."
 msgstr ""
 
-#: newsletter/views.py:53
+#: newsletter/views.py:61
+msgid "Please check your inbox to confirm your subscription."
+msgstr ""
+
+#: newsletter/views.py:76
 msgid "Confirm newsletter subscription"
 msgstr ""
 
-#: newsletter/views.py:63
+#: newsletter/views.py:86
 msgid "This confirmation link is invalid or has already been used."
 msgstr ""
 
-#: newsletter/views.py:82
+#: newsletter/views.py:105
 msgid "No active subscription found for this email."
 msgstr ""
 
-#: newsletter/views.py:86
+#: newsletter/views.py:109
 msgid "This email is already unsubscribed."
 msgstr ""
 
-#: newsletter/views.py:90
+#: newsletter/views.py:113
 msgid "You have been unsubscribed."
 msgstr ""
 
@@ -3456,11 +3469,11 @@ msgstr ""
 msgid "Subscribe to Newsletter"
 msgstr ""
 
-#: templates/newsletter/subscribe.html:40
+#: templates/newsletter/subscribe.html:44
 msgid "Subscribe"
 msgstr ""
 
-#: templates/newsletter/subscribe.html:45
+#: templates/newsletter/subscribe.html:49
 msgid "Unsubscribe from newsletter"
 msgstr ""
 

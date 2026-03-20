@@ -32,6 +32,10 @@
                 <label class="form-control w-full">
                     <span class="label-text">{{ form.email.label }}</span>
                     {{ form.email }}
+                    <div class="hidden" aria-hidden="true">
+                        {{ form.company }}
+                    </div>
+                    {{ form.form_rendered_at }}
                     {% if form.email.errors %}
                         <span class="text-error text-sm">{{ form.email.errors|join:', ' }}</span>
                     {% endif %}
