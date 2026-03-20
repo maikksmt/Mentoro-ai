@@ -7,6 +7,7 @@ from django.views.generic import FormView, TemplateView
 
 from .forms import SubscriptionForm, UnsubscribeForm
 from .models import Subscriber
+from .security import enforce_subscribe_limits, NewsletterAbuseError, NewsletterEmailTemporarilyUnavailable
 from .services import send_double_opt_in_email
 
 
@@ -26,17 +27,39 @@ class SubscribeView(FormView):
 
     def form_valid(self, form):
         email = form.cleaned_data["email"]
+        try:
+            enforce_subscribe_limits(self.request, email)
+        except NewsletterAbuseError:
+            # bewusst generisch, um Bots und Enumeration nicht zu helfen
+            messages.info(
+                self.request,
+                gettext("If the address is eligible, a confirmation email will be sent shortly."),
+            )
+            return super().form_valid(form)
+        except NewsletterEmailTemporarilyUnavailable:
+            messages.warning(
+                self.request,
+                gettext("The confirmation email could not be sent right now. Please try again later."),
+            )
+            return super().form_valid(form)
         subscriber, created = Subscriber.objects.get_or_create(email=email)
-        if subscriber.unsubscribed_at:
-            subscriber.unsubscribed_at = None
-            subscriber.unsubscribed_reason = ""
-            subscriber.save(update_fields=["unsubscribed_at", "unsubscribed_reason"])
-
-        if not subscriber.is_subscribed:
-            send_double_opt_in_email(subscriber, self.request)
-            messages.info(self.request, gettext("Please check your inbox to confirm your subscription."))
-        else:
+        if subscriber.is_subscribed:
             messages.success(self.request, gettext("You are already subscribed."))
+            return super().form_valid(form)
+
+        try:
+            send_double_opt_in_email(subscriber, self.request)
+        except NewsletterEmailTemporarilyUnavailable:
+            messages.warning(
+                self.request,
+                gettext("The confirmation email could not be sent right now. Please try again later."),
+            )
+            return super().form_valid(form)
+
+        messages.info(
+            self.request,
+            gettext("Please check your inbox to confirm your subscription."),
+        )
         return super().form_valid(form)
 
 

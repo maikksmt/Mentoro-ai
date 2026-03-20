@@ -15,10 +15,13 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - replace Cookiebot CMP with Klaro Open Source solution
+- minor UI improvements 
+- removing recommended_items from home view
 
 ### Fixed
 
--
+- minor fixes and improvements
+- update Klaro Cookiebanner texts
 
 ---
 
