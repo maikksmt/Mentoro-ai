@@ -62,6 +62,12 @@ class SubscribeView(FormView):
         )
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning("Newsletter form invalid", extra={"errors": form.errors.as_json()})
+        return super().form_invalid(form)
+
 
 class ConfirmSubscriptionView(TemplateView):
     template_name_success = "newsletter/confirm_success.html"
