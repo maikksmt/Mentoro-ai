@@ -382,7 +382,7 @@ SOCIALACCOUNT_PROVIDERS = {
     "google": {"VERIFIED_EMAIL": True},
     "github": {"VERIFIED_EMAIL": True, "EMAIL_REQUIRED": True},
 }
-ACCOUNT_SIGNUP_ENABLED = True
+ACCOUNT_SIGNUP_ENABLED = False
 ACCOUNT_ADAPTER = "accounts.adapters.ToggleSignupAccountAdapter"
 
 # Editorial
@@ -425,7 +425,11 @@ LOGGING = {
         "django": {
             "handlers": ["console"],
             "level": DJANGO_LOG_LEVEL,
-        }
+        },
+        "newsletter": {
+            "handlers": ["console"],
+            "level": DJANGO_LOG_LEVEL,
+        },
     },
 }
 

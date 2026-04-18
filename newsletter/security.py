@@ -54,7 +54,9 @@ def _email_hash(email: str) -> str:
 
 
 def enforce_subscribe_limits(request, email: str) -> None:
+    logger.warning("Newsletter security entered")
     ip = get_client_ip(request)
+    logger.debug("Checking newsletter limits", extra={"ip": ip, "email": email})
     email_digest = _email_hash(email)
 
     ip_key = f"newsletter:ip:{ip}"
