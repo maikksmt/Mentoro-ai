@@ -1,7 +1,11 @@
+import os
+
 from .base import *  # noqa: F403,F401
 from .base import INSTALLED_APPS, DATABASES  # noqa: F403,F401
 
 DEBUG = True
+
+DJANGO_LOG_LEVEL = os.getenv("DJANGO_LOG_LEVEL", "DEBUG")
 
 SECRET_KEY = "dev-unsafe-change-me"
 
@@ -16,12 +20,6 @@ INSTALLED_APPS += [
 
 # Rosetta
 ROSETTA_MESSAGES_PER_PAGE = 20
-
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
-    }
-}
 
 # mentoroai/settings/development.py  (nur für TESTS)
 DATABASES["default"]["TEST"] = {"NAME": "test_mentoroai"}
