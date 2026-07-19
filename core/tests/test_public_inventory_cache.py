@@ -134,17 +134,27 @@ class PublicInventoryCacheVersionBumpTests(TestCase):
     strictly language-isolated), so any pre-existing v1 cache entry holds a
     now-wrong value. Bumping the cache key version (v1 -> v2) guarantees a
     stale v1 entry is never served again, without a blanket cache.clear().
+
+    Beta 8.9: the comparisons count's semantics changed the same way
+    (v2 -> v3), for the same reason - see visible_in_language() on
+    ComparisonQuerySet.
+
+    Beta 8.9a: the usecases count's semantics changed the same way
+    (v3 -> v4) - UseCaseListView now uses UseCase.objects.visible_in_language()
+    instead of the fallback-permissive .published.active_translations().
+    guides_count is unaffected (GuideListView unchanged in this slice), so no
+    guides-specific staleness case is needed.
     """
 
     def setUp(self):
         cache.clear()
 
-    def test_cache_key_uses_v2(self):
-        self.assertEqual(PUBLIC_INVENTORY_CACHE_VERSION, "v2")
+    def test_cache_key_uses_v4(self):
+        self.assertEqual(PUBLIC_INVENTORY_CACHE_VERSION, "v4")
 
-    def test_new_value_is_stored_under_the_v2_key(self):
+    def test_new_value_is_stored_under_the_v4_key(self):
         get_public_inventory("en")
-        self.assertIsNotNone(cache.get("mentoroai:public-inventory:v2:en"))
+        self.assertIsNotNone(cache.get("mentoroai:public-inventory:v4:en"))
 
     def test_stale_v1_entry_is_never_read(self):
         # Simulate a stale pre-deployment cache entry holding the old,
@@ -162,3 +172,37 @@ class PublicInventoryCacheVersionBumpTests(TestCase):
         self.assertNotEqual(data["counts"]["prompts"], 999)
         # The stale v1 entry is left untouched (no blanket cache.clear()).
         self.assertEqual(cache.get("mentoroai:public-inventory:v1:en"), stale_v1_value)
+
+    def test_stale_v2_entry_is_never_read(self):
+        # Simulate a stale pre-Beta-8.9 cache entry holding the old,
+        # semantically wrong (language-independent) comparisons count.
+        stale_v2_value = {
+            "counts": {"tools": 0, "categories": 0, "guides": 0, "prompts": 0,
+                       "usecases": 0, "comparisons": 999},
+            "top_categories": [],
+            "starter_guide": None,
+        }
+        cache.set("mentoroai:public-inventory:v2:en", stale_v2_value, timeout=300)
+
+        data = get_public_inventory("en")
+
+        self.assertNotEqual(data["counts"]["comparisons"], 999)
+        # The stale v2 entry is left untouched (no blanket cache.clear()).
+        self.assertEqual(cache.get("mentoroai:public-inventory:v2:en"), stale_v2_value)
+
+    def test_stale_v3_entry_is_never_read(self):
+        # Simulate a stale pre-Beta-8.9a cache entry holding the old,
+        # semantically wrong (fallback-inclusive) usecases count.
+        stale_v3_value = {
+            "counts": {"tools": 0, "categories": 0, "guides": 0, "prompts": 0,
+                       "usecases": 999, "comparisons": 0},
+            "top_categories": [],
+            "starter_guide": None,
+        }
+        cache.set("mentoroai:public-inventory:v3:en", stale_v3_value, timeout=300)
+
+        data = get_public_inventory("en")
+
+        self.assertNotEqual(data["counts"]["usecases"], 999)
+        # The stale v3 entry is left untouched (no blanket cache.clear()).
+        self.assertEqual(cache.get("mentoroai:public-inventory:v3:en"), stale_v3_value)

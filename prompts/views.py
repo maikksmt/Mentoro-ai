@@ -151,7 +151,7 @@ class PromptDetailView(SeoMixin, DetailView):
         ctx.setdefault("display_body", obj.display_body)
         ctx.setdefault("display_outro", obj.display_outro)
 
-        rel_qs = related_prompts(obj, limit=3)
+        rel_qs = related_prompts(obj, limit=3, language_code=lang)
         ctx["more"] = [to_teaser_item(p, "prompt") for p in rel_qs]
 
         ctx["crumbs"] = [

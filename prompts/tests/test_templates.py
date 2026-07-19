@@ -18,13 +18,20 @@ COPY_MARKERS = (
 class PromptTemplateTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.p_en = Prompt.objects.create(
-            title="Copy Me",
-            slug="copy-me",
-            body="Use this",
-            status="published",
-            published_at=timezone.now(),
-        )
+        # Explicit language context: Prompt.objects.create() with translated
+        # kwargs creates the translation in whatever Django's *ambient*
+        # active language happens to be at call time. setUpTestData() runs
+        # outside any per-test override(), so without this it silently
+        # depends on test execution order (e.g. an earlier test's real
+        # /de/... request leaving the ambient language activated to 'de').
+        with translation.override("en"):
+            cls.p_en = Prompt.objects.create(
+                title="Copy Me",
+                slug="copy-me",
+                body="Use this",
+                status="published",
+                published_at=timezone.now(),
+            )
 
     def _has_any_copy_marker(self, html: str) -> bool:
         return any(m in html for m in COPY_MARKERS)
@@ -62,13 +69,15 @@ class PromptBlockStructureTests(TestCase):
     def setUpTestData(cls):
         cls.long_marker = "END-OF-PROMPT-MARKER-1234567890"
         cls.long_body = "<p>" + ("This is a very long prompt line. " * 200) + cls.long_marker + "</p>"
-        cls.prompt = Prompt.objects.create(
-            title="Long Prompt",
-            slug="long-prompt",
-            body=cls.long_body,
-            status="published",
-            published_at=timezone.now(),
-        )
+        # See PromptTemplateTests.setUpTestData for why this must be explicit.
+        with translation.override("en"):
+            cls.prompt = Prompt.objects.create(
+                title="Long Prompt",
+                slug="long-prompt",
+                body=cls.long_body,
+                status="published",
+                published_at=timezone.now(),
+            )
 
     def _get_detail_html(self) -> str:
         with translation.override("en"):

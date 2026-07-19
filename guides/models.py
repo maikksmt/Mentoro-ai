@@ -23,6 +23,23 @@ class GuideQuerySet(EditorialQuerySet):
             )
         ).order_by("_starter_rank", "-updated_at", "-published_at", "-pk")
 
+    def visible_in_language(self, language_code):
+        """
+        Public guides that have an actual translation in language_code -
+        never a fallback from another language (mirrors
+        Prompt.objects.visible_in_language() from Beta 8.8). Used by
+        get_latest_items() ("Aktuelle Inhalte") only - Beta 8.9a's scope is
+        limited to the homepage teaser leak; GuideListView/GuideDetailView
+        keep their existing active_translations()-based fallback unchanged
+        (not named in this slice's confirmed goals).
+
+        Status rule intentionally matches GuideListView's current status
+        rule (visible_on_site(), not the stricter published()) - this only
+        tightens the language filter, it does not narrow which statuses are
+        publicly visible.
+        """
+        return self.visible_on_site().translated(language_code).language(language_code).distinct()
+
 
 GuideManager = EditorialManager.from_queryset(GuideQuerySet)
 

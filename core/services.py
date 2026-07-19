@@ -22,53 +22,77 @@ from prompts.models import Prompt
 from usecases.models import UseCase
 
 
-def get_latest_items(limit: int = 6, mix: Tuple[int, int, int, int] = (4, 3, 2, 1)) -> List[Dict[str, Any]]:
+def get_latest_items(limit: int = 6, mix: Tuple[int, int, int, int] = (4, 3, 2, 1),
+                      language_code: str | None = None) -> List[Dict[str, Any]]:
     """
-    Returns a balanced, recency-sorted mix of Guides/Prompts/UseCases based on mix;
-    includes robust fallbacks when a type has too few items.
+    Returns a balanced, recency-sorted mix of Guides/Prompts/UseCases/
+    Comparisons based on mix; includes robust fallbacks when a type has too
+    few items.
+
+    Language handling (Beta 8.9a): all four types now use the strict,
+    explicit-language visible_in_language(lang) (no cross-language fallback).
+    Guide/UseCase were confirmed via empirical testing (Beta 8.9a) to leak
+    EN-only content onto the DE homepage (and vice versa) under their
+    previous .published manager (ambient-language active_translations()
+    fallback) - the generated link did not 404, it silently rendered the
+    wrong language under the active prefix. GuideQuerySet/UseCaseQuerySet's
+    visible_in_language() is used here only for this homepage-teaser leak;
+    GuideListView/GuideDetailView keep their existing behavior unchanged
+    (UseCaseListView/UseCaseDetailView were separately hardened for their
+    own, related persona-crash fix - see related_usecases()).
     """
+    lang = language_code or get_language()
     g_need, p_need, u_need, c_need = mix
 
-    g_qs: QuerySet = _safe_order_by_published(Guide.published)
-    p_qs: QuerySet = _safe_order_by_published(Prompt.published)
-    u_qs: QuerySet = _safe_order_by_published(UseCase.published)
-    c_qs: QuerySet = _safe_order_by_published(Comparison.published)
+    # Wrapped in override(lang): to_teaser_item()'s reverse() calls resolve
+    # the i18n_patterns URL prefix from Django's *ambient* active language,
+    # not from an explicit parameter - this guarantees the generated links
+    # match `lang` even when called with a language_code that differs from
+    # whatever happens to be ambient (harmless in real request handling,
+    # where the caller's language_code is always derived from get_language()
+    # in the first place, but required for this function to be reliably
+    # testable/reusable with an explicit language_code).
+    with override(lang):
+        g_qs: QuerySet = _safe_order_by_published(Guide.objects.visible_in_language(lang))
+        p_qs: QuerySet = _safe_order_by_published(Prompt.objects.visible_in_language(lang))
+        u_qs: QuerySet = _safe_order_by_published(UseCase.objects.visible_in_language(lang))
+        c_qs: QuerySet = _safe_order_by_published(Comparison.objects.visible_in_language(lang))
 
-    items: List[Dict[str, Any]] = []
+        items: List[Dict[str, Any]] = []
 
-    g_pick = list(g_qs[:g_need])
-    p_pick = list(p_qs[:p_need])
-    u_pick = list(u_qs[:u_need])
-    c_pick = list(c_qs[:c_need])
+        g_pick = list(g_qs[:g_need])
+        p_pick = list(p_qs[:p_need])
+        u_pick = list(u_qs[:u_need])
+        c_pick = list(c_qs[:c_need])
 
-    items.extend([to_teaser_item(g, "guide") for g in g_pick])
-    items.extend([to_teaser_item(p, "prompt") for p in p_pick])
-    items.extend([to_teaser_item(u, "usecase") for u in u_pick])
-    items.extend([to_teaser_item(c, "comparison") for c in c_pick])
+        items.extend([to_teaser_item(g, "guide") for g in g_pick])
+        items.extend([to_teaser_item(p, "prompt") for p in p_pick])
+        items.extend([to_teaser_item(u, "usecase") for u in u_pick])
+        items.extend([to_teaser_item(c, "comparison") for c in c_pick])
 
-    # Fill remaining slots with the most recent leftover items (all types together)
-    deficit = max(0, limit - len(items))
-    if deficit:
-        taken_ids = {
-            *[("guide", g.pk) for g in g_pick],
-            *[("prompt", p.pk) for p in p_pick],
-            *[("usecase", u.pk) for u in u_pick],
-            *[("comparison", c.pk) for c in c_pick],
-        }
+        # Fill remaining slots with the most recent leftover items (all types together)
+        deficit = max(0, limit - len(items))
+        if deficit:
+            taken_ids = {
+                *[("guide", g.pk) for g in g_pick],
+                *[("prompt", p.pk) for p in p_pick],
+                *[("usecase", u.pk) for u in u_pick],
+                *[("comparison", c.pk) for c in c_pick],
+            }
 
-        def rest(qs, kind):
-            for obj in qs:
-                key = (kind, obj.pk)
-                if key not in taken_ids:
-                    yield to_teaser_item(obj, kind)
+            def rest(qs, kind):
+                for obj in qs:
+                    key = (kind, obj.pk)
+                    if key not in taken_ids:
+                        yield to_teaser_item(obj, kind)
 
-        merged = []
-        merged.extend(list(rest(g_qs[g_need: g_need + limit * 2], "guide")))
-        merged.extend(list(rest(p_qs[p_need: p_need + limit * 2], "prompt")))
-        merged.extend(list(rest(u_qs[u_need: u_need + limit * 2], "usecase")))
-        merged.extend(list(rest(c_qs[c_need: c_need + limit * 2], "comparison")))
-        merged.sort(key=lambda x: (x.get("date") or 0), reverse=True)
-        items.extend(merged[:deficit])
+            merged = []
+            merged.extend(list(rest(g_qs[g_need: g_need + limit * 2], "guide")))
+            merged.extend(list(rest(p_qs[p_need: p_need + limit * 2], "prompt")))
+            merged.extend(list(rest(u_qs[u_need: u_need + limit * 2], "usecase")))
+            merged.extend(list(rest(c_qs[c_need: c_need + limit * 2], "comparison")))
+            merged.sort(key=lambda x: (x.get("date") or 0), reverse=True)
+            items.extend(merged[:deficit])
 
     items.sort(key=lambda x: (x.get("date") or 0), reverse=True)
     return items[:limit]
@@ -115,15 +139,22 @@ def related_guides(guide, limit=6):
     return items[:limit]
 
 
-def related_prompts(prompt, limit=6):
+def related_prompts(prompt, limit=6, language_code: str | None = None):
     """
     Like related_guides but for Prompts: ranks by overlapping categories/tools;
     uses a time-based fallback if relations are missing.
+
+    Beta 8.9: uses visible_in_language() (strict, explicit language, no
+    cross-language fallback) instead of the .published manager, so "Related
+    Prompts" on a detail page can never link to a translation-less prompt
+    that would 404 under the active language (see Beta 8.8's strict
+    PromptDetailView resolution).
     """
+    lang = language_code or get_language()
     tag_ids = _ids(prompt.tags.all()) if hasattr(prompt, "tags") else []
     tool_ids = _ids(prompt.tools.all()) if hasattr(prompt, "tools") else []
 
-    qs = Prompt.published.exclude(pk=prompt.pk).prefetch_related("tags", "tools__translations")
+    qs = Prompt.objects.visible_in_language(lang).exclude(pk=prompt.pk).prefetch_related("tags", "tools__translations")
 
     if tag_ids or tool_ids:
         qs = (
@@ -141,27 +172,40 @@ def related_prompts(prompt, limit=6):
 
     items = list(qs[:limit])
     if len(items) < limit:
-        fallback = Prompt.published.exclude(
+        fallback = Prompt.objects.visible_in_language(lang).exclude(
             pk__in=[p.pk for p in items] + [prompt.pk]
         ).order_by("-published_at")[: limit - len(items)]
         items.extend(fallback)
     return items[:limit]
 
 
-def related_usecases(usecase, limit=6):
+def related_usecases(usecase, limit=6, language_code: str | None = None):
     """
     Like above for UseCases;
     ensures “something useful” is returned even for fresh entries with little metadata.
+
+    Beta 8.9a: fixes a pre-existing FieldError - `persona` lives on the
+    UseCaseTranslation model, not on UseCase itself, so it must be looked up
+    via `translations__persona` (guarded by translations__language_code=lang
+    so a candidate is only persona-matched via its OWN active-language
+    translation row, never a different language's translation that happens
+    to share the same text). Also switches the base visibility queryset from
+    the .published manager (ambient-language, fallback-inclusive) to
+    visible_in_language(lang) (strict, explicit language, no cross-language
+    fallback), so a related use case can never render the wrong language
+    under the active prefix. Ranking weights/order and the persona-vs-tool
+    priority are unchanged; only the field path, base visibility, language
+    filter and duplicate-avoidance were touched.
     """
-    lang = get_language() or "en"
+    lang = language_code or get_language() or "en"
     persona = usecase.safe_translation_getter("persona", any_language=False)
     tool_ids = _ids(usecase.tools.all()) if hasattr(usecase, "tools") else []
 
-    qs = UseCase.published.exclude(pk=usecase.pk).prefetch_related("tools")
+    qs = UseCase.objects.visible_in_language(lang).exclude(pk=usecase.pk).prefetch_related("tools")
 
     persona_q = Q()
     if persona:
-        persona_q = Q(persona__iexact=persona)
+        persona_q = Q(translations__language_code=lang, translations__persona__iexact=persona)
 
     if persona or tool_ids:
         qs = (
@@ -171,13 +215,14 @@ def related_usecases(usecase, limit=6):
                 tool_matches=Count("tools", filter=Q(tools__in=tool_ids), distinct=True),
             )
             .order_by("-persona_match", "-tool_matches", "-published_at")
+            .distinct()
         )
     else:
         qs = qs.order_by("-published_at")
 
     items = list(qs[:limit])
     if len(items) < limit:
-        fallback = UseCase.published.exclude(
+        fallback = UseCase.objects.visible_in_language(lang).exclude(
             pk__in=[u.pk for u in items] + [usecase.pk]
         ).order_by("-published_at")[: limit - len(items)]
         items.extend(fallback)
@@ -234,11 +279,15 @@ def related_comparisons(comparison: Comparison, limit: int = 6) -> List[Dict[str
 
 # ---------- Public inventory (Beta 8.7) ----------
 
-PUBLIC_INVENTORY_CACHE_VERSION = "v2"  # v1 -> v2 (Beta 8.8): prompts_count is
+PUBLIC_INVENTORY_CACHE_VERSION = "v4"  # v1 -> v2 (Beta 8.8): prompts_count is
 # now language-strict (visible_in_language), so any v1 cache entry holds a
 # semantically wrong (language-independent) prompt count and must never be
 # served again after deployment - bumping the version key achieves that
-# without a blanket cache.clear().
+# without a blanket cache.clear(). v2 -> v3 (Beta 8.9): comparisons_count is
+# now language-strict (visible_in_language) too, for the same reason.
+# v3 -> v4 (Beta 8.9a): usecases_count is now language-strict
+# (visible_in_language) too, matching UseCaseListView's hardened query -
+# guides_count is unaffected (GuideListView unchanged in this slice).
 PUBLIC_INVENTORY_CACHE_TIMEOUT = 300  # seconds; see docstring on get_public_inventory
 PUBLIC_INVENTORY_TOP_CATEGORIES_LIMIT = 6
 
@@ -314,15 +363,21 @@ def _compute_public_inventory(lang: str) -> Dict[str, Any]:
             for cat in categories_qs[:PUBLIC_INVENTORY_TOP_CATEGORIES_LIMIT]
         ]
 
-        # Guides/UseCases: same status+language rules as their public ListViews.
+        # Guides: same status+language rules as GuideListView (unchanged in
+        # Beta 8.9a - active_translations() fallback is a deliberate,
+        # unfixed-in-this-slice decision scoped only to get_latest_items()).
         guides_count = (
             Guide.objects.visible_on_site().active_translations(lang).distinct().count()
         )
         # Prompts (Beta 8.8): same query PromptListView now uses - strict,
-        # no cross-language fallback (unlike Guide/UseCase's active_translations).
+        # no cross-language fallback (unlike Guide's active_translations).
         prompts_count = Prompt.objects.visible_in_language(lang).count()
-        usecases_count = UseCase.published.active_translations(lang).distinct().count()
-        comparisons_count = Comparison.published.distinct().count()
+        # UseCases (Beta 8.9a): same strict query UseCaseListView now uses -
+        # every counted use case's detail URL is reachable in lang.
+        usecases_count = UseCase.objects.visible_in_language(lang).count()
+        # Comparisons (Beta 8.9): same strict query ComparisonListView now
+        # uses - every counted comparison's detail URL is reachable in lang.
+        comparisons_count = Comparison.objects.visible_in_language(lang).count()
 
         starter_guide = resolve_public_starter_guide(lang)
 

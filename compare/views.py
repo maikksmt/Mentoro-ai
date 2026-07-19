@@ -21,8 +21,13 @@ class ComparisonListView(SeoMixin, ListView):
         lang = get_language()
         q = self.request.GET.get("q") or ""
 
+        # Beta 8.9: visible_in_language() (strict, no cross-language
+        # fallback) instead of the .published manager's active_translations()
+        # fallback - every card's detail URL must actually resolve under
+        # the active language (see ComparisonDetailView's strict slug match
+        # from Beta 8.8).
         qs = (
-            Comparison.published.language(lang)
+            Comparison.objects.visible_in_language(lang)
             .prefetch_related("tools", "tools__categories")
             .distinct()
         )
