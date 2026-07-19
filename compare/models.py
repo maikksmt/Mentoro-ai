@@ -6,7 +6,28 @@ from parler.models import TranslatableModel, TranslatedFields
 from parler.utils.context import switch_language
 
 from catalog.models import Tool
-from core.models.editorial import EditorialWorkflowMixin
+from core.models.editorial import EditorialManager, EditorialQuerySet, EditorialWorkflowMixin
+
+
+class ComparisonQuerySet(EditorialQuerySet):
+    def visible_in_language(self, language_code):
+        """
+        Public comparisons that have an actual translation in language_code -
+        never a fallback from another language (mirrors
+        Prompt.objects.visible_in_language() from Beta 8.8). Unlike the
+        .published manager's active_translations()-based fallback, this
+        guarantees every resulting object's detail URL is reachable under
+        language_code's strict ComparisonDetailView resolution.
+
+        Status rule intentionally matches the existing .published manager
+        (strict published() only, not the broader visible_on_site() that
+        Guide/Prompt use) - this only tightens the language filter, it does
+        not widen which statuses are publicly visible.
+        """
+        return self.published().translated(language_code).language(language_code).distinct()
+
+
+ComparisonManager = EditorialManager.from_queryset(ComparisonQuerySet)
 
 
 class Comparison(EditorialWorkflowMixin, TranslatableModel):
@@ -27,6 +48,8 @@ class Comparison(EditorialWorkflowMixin, TranslatableModel):
         ),
     )
     tools = models.ManyToManyField(Tool, through="ComparisonToolEntry", related_name="comparisons", blank=True)
+
+    objects = ComparisonManager()
 
     class Meta:
         verbose_name = _("Tool comparison")

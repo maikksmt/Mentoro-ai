@@ -149,20 +149,18 @@ class EditorialCountTests(InventoryTestCase):
         make_editorial(Comparison, slug="draft-cmp", status=EditorialWorkflowMixin.STATUS_DRAFT, published_at=None)
         self.assertEqual(self._inv("en")["counts"]["comparisons"], 1)
 
-    def test_guide_missing_active_translation_but_present_via_fallback_is_counted(self):
-        # GuideListView uses .active_translations(lang), which includes the
-        # 'en' fallback (hide_untranslated=False, PARLER_DEFAULT_LANGUAGE_CODE
-        # ='en'). An EN-only guide therefore still appears - via fallback -
-        # on the DE guide list (fallback only flows towards the default
-        # language, not the other way around).
+    def test_guide_count_is_strictly_language_isolated(self):
+        # Beta 8.10: GuideListView (and guides_count) now use
+        # visible_in_language(), which never falls back across languages
+        # (previously .active_translations(lang) included the 'en' fallback,
+        # so an EN-only guide leaked into the DE count too).
         make_editorial(Guide, slug="en-only-guide", languages=("en",))
-        self.assertEqual(self._inv("de")["counts"]["guides"], 1)
+        self.assertEqual(self._inv("de")["counts"]["guides"], 0)
+        self.assertEqual(self._inv("en")["counts"]["guides"], 1)
 
-    def test_guide_with_neither_active_nor_fallback_translation_not_counted(self):
-        # Only en/de exist project-wide, so this can only be demonstrated by
-        # a guide that has no en translation at all: it must be absent from
-        # the EN list (en is both the requested and the fallback language,
-        # so there is nothing left to fall back to).
+    def test_guide_with_no_active_translation_not_counted(self):
+        # Beta 8.10: strict visible_in_language() - a DE-only guide must be
+        # absent from the EN count (no cross-language fallback at all now).
         make_editorial(Guide, slug="de-only-guide", languages=("de",))
         self.assertEqual(self._inv("en")["counts"]["guides"], 0)
 

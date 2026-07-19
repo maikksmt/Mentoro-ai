@@ -61,7 +61,7 @@ class HomePageView(SeoMixin, TemplateView):
             json_ld=json_ld,
         )
         ctx["start_guide_url"] = resolve_starter_guide_url(lang)
-        ctx["latest_items"] = get_latest_items(limit=6)
+        ctx["latest_items"] = get_latest_items(limit=6, language_code=lang)
         ctx["featured_tools"] = Tool.objects.filter(is_featured=True).order_by(
             "-published_at"
         )[:6]

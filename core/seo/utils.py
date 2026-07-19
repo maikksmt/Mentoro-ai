@@ -2,8 +2,9 @@
 from html import unescape
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.templatetags.static import static
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django.utils.html import strip_tags
 from django.utils.translation import override
 
@@ -24,25 +25,35 @@ def localized_alternates(
         obj: object | None = None,
 ) -> list[dict]:
     """
-    Erzeugt hreflang-Alternates.
+    Erzeugt hreflang-Alternates - nur für Sprachen, in denen das Ziel
+    tatsächlich öffentlich erreichbar ist.
 
     - Wenn `obj` ein TranslatableModel mit `get_absolute_url(language=...)` ist,
-      werden pro Sprache die sprachspezifischen URLs benutzt.
-    - Fallback: `reverse(url_name, kwargs=...)` wie vorher.
+      werden pro Sprache die sprachspezifischen URLs benutzt. Fehlt eine
+      Übersetzung für eine Sprache, wird diese Sprache übersprungen - es wird
+      nicht auf `reverse(url_name, ...)` zurückgefallen, da das ohne den zum
+      Objekt gehörigen Slug ohnehin keine gültige URL ergäbe.
+    - Nur wenn kein `obj` übergeben wurde, wird `reverse(url_name, kwargs=...)`
+      pro Sprache verwendet (Listen-/Index-Seiten ohne Objektbezug).
     """
     alts: list[AltHref] = []
+    obj_aware = obj is not None and hasattr(obj, "get_absolute_url")
 
     for code, lang_name in settings.LANGUAGES:
         url: str | None = None
 
-        if obj is not None and hasattr(obj, "get_absolute_url"):
+        if obj_aware:
+            has_translation = getattr(obj, "has_translation", None)
+            if callable(has_translation) and not has_translation(code):
+                continue
             with override(code):
                 try:
                     url = obj.get_absolute_url(language=code)
                 except TypeError:
                     url = obj.get_absolute_url()  # type: ignore[call-arg]
-
-        if url is None and url_name is not None:
+                except (ObjectDoesNotExist, NoReverseMatch):
+                    continue
+        elif url_name is not None:
             with override(code):
                 url = reverse(url_name, kwargs=kwargs or {})
 

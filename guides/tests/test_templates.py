@@ -42,8 +42,16 @@ class GuideTemplateContextTests(TestCase):
         self.assertIn("Guides", html)
 
     def test_detail_template_context_and_meta(self):
+        # self.pub.slug (the raw Parler property) reflects whatever language
+        # was last active on this in-memory instance (from make_pub()'s
+        # final create_translation("de", ...) call), not the "en" override
+        # below - translation.override() only affects Django's ambient
+        # language, not Parler's per-object current-language state. Use the
+        # explicit-language getter instead so this test targets the actual
+        # EN slug under the EN prefix.
+        en_slug = self.pub.safe_translation_getter("slug", language_code="en")
         with translation.override("en"):
-            url = reverse("guides:detail", kwargs={"slug": self.pub.slug})
+            url = reverse("guides:detail", kwargs={"slug": en_slug})
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         html = resp.content.decode("utf-8")

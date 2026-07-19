@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from django import template
-from django.urls import reverse
+from django.core.exceptions import ObjectDoesNotExist
+from django.urls import NoReverseMatch, reverse
 from django.utils.translation import override as lang_override
 from parler.utils.context import switch_language
 
@@ -22,7 +23,19 @@ def _translated_slug_from_live(obj, lang: str) -> str | None:
 def _translated_slug_from_parler(obj, lang: str) -> str | None:
     """
     Fallback via Parler translations (safe_translation_getter).
+
+    Beta 8.10: guarded by has_translation(lang) first - safe_translation_getter()
+    under switch_language() silently returns the PARLER_LANGUAGES fallback
+    translation's value (not None) when `lang` itself has no translation, so
+    without this guard an EN-only object would produce a slug that belongs to
+    a different language, combined with a lang_override(lang) URL prefix in
+    _detail_url_for() - e.g. "/de/guides/<en-slug>/", a target that 404s
+    under any strict language-aware detail view. Confirmed via reproduction
+    for both Guide and Prompt.
     """
+    has_translation = getattr(obj, "has_translation", None)
+    if callable(has_translation) and not has_translation(lang):
+        return None
     with switch_language(obj, lang):
         get = getattr(obj, "safe_translation_getter", None)
         if callable(get):
@@ -102,6 +115,12 @@ def i18n_next(context, language_code: str) -> str:
             except TypeError:
                 with lang_override(language_code):
                     return obj.get_absolute_url()
+            except (ObjectDoesNotExist, NoReverseMatch):
+                # No translation in language_code (e.g. Comparison/UseCase,
+                # whose get_absolute_url() raises rather than returning "#"
+                # like Guide/Prompt do) - fall through to the generic
+                # prefix-swap below instead of crashing the whole page.
+                pass
 
     path = request.get_full_path()
     parts = path.split("/", 2)  # ["", "de", "rest..."]

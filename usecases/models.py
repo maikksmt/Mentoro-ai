@@ -6,7 +6,28 @@ from parler.models import TranslatableModel, TranslatedFields
 from parler.utils.context import switch_language
 
 from catalog.models import Tool
-from core.models.editorial import EditorialWorkflowMixin
+from core.models.editorial import EditorialManager, EditorialQuerySet, EditorialWorkflowMixin
+
+
+class UseCaseQuerySet(EditorialQuerySet):
+    def visible_in_language(self, language_code):
+        """
+        Public use cases that have an actual translation in language_code -
+        never a fallback from another language (mirrors
+        Prompt.objects.visible_in_language() from Beta 8.8). Unlike the
+        .published manager's active_translations()-based fallback, this
+        never lets an EN-only use case leak onto the DE list/homepage/detail
+        resolution or vice versa.
+
+        Status rule intentionally matches the existing .published manager
+        (strict published() only, matching UseCaseListView's current status
+        rule) - this only tightens the language filter, it does not widen
+        which statuses are publicly visible.
+        """
+        return self.published().translated(language_code).language(language_code).distinct()
+
+
+UseCaseManager = EditorialManager.from_queryset(UseCaseQuerySet)
 
 
 class UseCase(EditorialWorkflowMixin, TranslatableModel):
@@ -23,6 +44,8 @@ class UseCase(EditorialWorkflowMixin, TranslatableModel):
     )
 
     tools = models.ManyToManyField(Tool, related_name="usecases", blank=True)
+
+    objects = UseCaseManager()
 
     class Meta:
         verbose_name = _("Usecase")

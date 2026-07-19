@@ -13,9 +13,17 @@ from core.views import SeoMixin
 from .models import UseCase
 
 
-def _resolve_by_slug(qs: QuerySet[UseCase], slug: str) -> Optional[UseCase]:
+def _resolve_by_slug(qs: QuerySet[UseCase], slug: str, language_code: str) -> Optional[UseCase]:
+    """
+    Matches slug against the language_code translation specifically - not
+    just any translation on the object - so a bilingual use case's English
+    slug can never resolve under a German URL prefix (or vice versa).
+    """
     obj = (
-        qs.filter(Q(translations__public_slug=slug) | Q(translations__slug=slug))
+        qs.filter(
+            Q(translations__language_code=language_code, translations__public_slug=slug)
+            | Q(translations__language_code=language_code, translations__slug=slug)
+        )
         .distinct()
         .first()
     )
@@ -23,10 +31,9 @@ def _resolve_by_slug(qs: QuerySet[UseCase], slug: str) -> Optional[UseCase]:
         return obj
 
     for u in qs:
-        live = (u.live_i18n or {})
-        for data in live.values():
-            if data.get("public_slug") == slug or data.get("slug") == slug:
-                return u
+        live = (getattr(u, "live_i18n", None) or {}).get(language_code) or {}
+        if live.get("public_slug") == slug or live.get("slug") == slug:
+            return u
     return None
 
 
@@ -37,12 +44,14 @@ class UseCaseListView(SeoMixin, ListView):
 
     def get_queryset(self) -> QuerySet[UseCase]:
         lang = get_language()
+        # Beta 8.9a: visible_in_language() (strict, no cross-language
+        # fallback) instead of .published.active_translations() - every
+        # card's detail URL must actually resolve under the active language
+        # (see UseCaseDetailView's strict slug match, hardened alongside this).
         return (
-            UseCase.published
-            .active_translations(lang)
+            UseCase.objects.visible_in_language(lang)
             .select_related("author", "reviewed_by")
             .prefetch_related("tools")
-            .distinct()
             .order_by("-published_at", "-updated_at")
         )
 
@@ -81,14 +90,22 @@ class UseCaseDetailView(SeoMixin, DetailView):
     context_object_name = "object"
 
     def get_queryset(self) -> QuerySet[UseCase]:
-        return UseCase.objects.all().select_related("author", "reviewed_by").prefetch_related("tools")
+        # Beta 8.9a: visible_in_language() (strict, no cross-language
+        # fallback, published-only) instead of the completely unguarded
+        # UseCase.objects.all() - the old query had neither a status filter
+        # (drafts were publicly resolvable by slug) nor a language filter
+        # (an EN-only use case rendered its English content under a /de/
+        # URL, confirmed empirically rather than 404ing).
+        lang = get_language()
+        return UseCase.objects.visible_in_language(lang).select_related("author", "reviewed_by").prefetch_related("tools")
 
     def get_object(self, queryset: Optional[QuerySet[UseCase]] = None) -> UseCase:
         slug = self.kwargs.get("slug")
         if not slug:
             raise Http404("Missing slug.")
+        lang = get_language()
         qs = queryset or self.get_queryset()
-        obj = _resolve_by_slug(qs, slug)
+        obj = _resolve_by_slug(qs, slug, lang)
         if not obj:
             raise Http404("UseCase not found.")
         return obj
@@ -151,7 +168,7 @@ class UseCaseDetailView(SeoMixin, DetailView):
         ctx.setdefault("display_body", obj.display_body)
         ctx.setdefault("display_outro", obj.display_outro)
         ctx.setdefault("display_persona", obj.display_persona)
-        rel_qs = related_usecases(obj, limit=3)
+        rel_qs = related_usecases(obj, limit=3, language_code=lang)
         ctx["similar"] = [to_teaser_item(u, "usecase") for u in rel_qs]
         ctx["crumbs"] = [
             (_("Usecases"), reverse("usecases:list")),
