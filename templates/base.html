@@ -133,7 +133,8 @@
     </div>
     <div class="navbar-end">
         <!-- Search -->
-        <button class="btn btn-ghost btn-circle" aria-label="{% trans "Search" %}">
+        <button type="button" id="search-open" class="btn btn-ghost btn-circle" aria-haspopup="dialog"
+                aria-controls="searchmodal" aria-label="{% trans "Search" %}">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -188,6 +189,7 @@
         </form>
     </div>
 </div>
+{% include "partials/search_open.html" %}
 <!-- Admin NAV -->
 {% if request.user.is_authenticated %}
     <div class="w-full flex justify-end items-center gap-2 px-4 pt-2 text-sm">
@@ -466,21 +468,38 @@
             const btn = e.target.closest('button .copy-label, button')?.closest('button');
             if (!btn) return;
 
-            const wrapper = btn.closest('.relative');
+            const wrapper = btn.closest('.copy-block');
             const source = wrapper?.querySelector('[data-copy-source]');
             if (!source) return;
 
             const text = htmlToPrettyText(source);
-            const original = btn.querySelector('.copy-label')?.textContent || 'Copy';
+            const label = btn.querySelector('.copy-label');
+            const defaultLabel = btn.dataset.copyDefaultLabel || (label ? label.textContent : 'Copy');
+            const successLabel = btn.dataset.copySuccess || defaultLabel;
+            const errorLabel = btn.dataset.copyError || defaultLabel;
             const ok = await copy(text);
 
-            const label = btn.querySelector('.copy-label');
-            if (label) label.textContent = ok ? 'Kopiert' : 'Fehler';
+            if (label) label.textContent = ok ? successLabel : errorLabel;
             btn.classList.add(ok ? 'text-success' : 'text-error');
             setTimeout(() => {
-                if (label) label.textContent = original;
+                if (label) label.textContent = defaultLabel;
                 btn.classList.remove('text-success', 'text-error');
             }, 1400);
+        });
+    })();
+
+    // --- Search placeholder dialog: open + focus restore ---
+    (function () {
+        const openBtn = document.getElementById('search-open');
+        const dialog = document.getElementById('searchmodal');
+        if (!openBtn || !dialog) return;
+
+        openBtn.addEventListener('click', () => {
+            dialog.showModal();
+        });
+
+        dialog.addEventListener('close', () => {
+            openBtn.focus();
         });
     })();
 </script>
