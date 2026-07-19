@@ -27,6 +27,16 @@
                             {% blocktrans %}Discover AI Tools{% endblocktrans %}
                         </a>
                     </div>
+                    <p class="mt-6 text-sm text-base-content/70 flex flex-wrap justify-center items-center gap-x-5 gap-y-2">
+                        <span>{% blocktrans count counter=public_inventory.counts.tools %}{{ counter }} AI tool{% plural %}{{ counter }} AI
+                            tools{% endblocktrans %}</span>
+                        <span aria-hidden="true" class="opacity-50 px-2">&middot;</span>
+                        <span>{% blocktrans count counter=public_inventory.counts.guides %}{{ counter }} guide{% plural %}{{ counter }}
+                            guides{% endblocktrans %}</span>
+                        <span aria-hidden="true" class="opacity-50 px-2">&middot;</span>
+                        <span>{% blocktrans count counter=public_inventory.counts.categories %}{{ counter }} category
+                            {% plural %}{{ counter }} categories{% endblocktrans %}</span>
+                    </p>
                 </div>
             </div>
         </div>

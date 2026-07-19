@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-19 15:52+0200\n"
+"POT-Creation-Date: 2026-07-19 17:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -317,9 +317,9 @@ msgid ""
 msgstr ""
 
 #: compare/views.py:88 compare/views.py:217 templates/base.html:139
-#: templates/base.html:171 templates/content/home.html:101
-#: templates/content/what-to-find.html:36
-#: templates/partials/_entry_cards.html:51
+#: templates/base.html:171 templates/base.html:269
+#: templates/content/home.html:108 templates/content/what-to-find.html:36
+#: templates/partials/_entry_cards.html:55
 msgid "Comparisons"
 msgstr ""
 
@@ -360,11 +360,11 @@ msgstr ""
 msgid "You are not allowed to perform this transition."
 msgstr ""
 
-#: content/views/home.py:38
+#: content/views/home.py:33
 msgid "AI tools, guides & usecases for beginners and professionals"
 msgstr ""
 
-#: content/views/home.py:40
+#: content/views/home.py:35
 msgid ""
 "MentoroAI offers AI tutorials, guides, prompts, tool comparisons, use cases "
 "and a glossary to help you navigate the modern AI world."
@@ -595,8 +595,8 @@ msgid "Guide"
 msgstr ""
 
 #: guides/models.py:52 guides/views.py:54 guides/views.py:132
-#: templates/base.html:123 templates/base.html:155
-#: templates/content/home.html:98 templates/content/what-to-find.html:32
+#: templates/base.html:123 templates/base.html:155 templates/base.html:266
+#: templates/content/home.html:105 templates/content/what-to-find.html:32
 #: templates/guides/guide_list.html:7 templates/partials/_entry_cards.html:19
 msgid "Guides"
 msgstr ""
@@ -659,7 +659,7 @@ msgstr ""
 msgid "Reason (optional)"
 msgstr ""
 
-#: newsletter/views.py:21 templates/base.html:262
+#: newsletter/views.py:21 templates/base.html:315
 msgid "Newsletter"
 msgstr ""
 
@@ -726,9 +726,9 @@ msgid "Prompt"
 msgstr ""
 
 #: prompts/models.py:30 prompts/views.py:74 prompts/views.py:149
-#: templates/base.html:127 templates/base.html:159
-#: templates/content/home.html:99 templates/content/what-to-find.html:33
-#: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
+#: templates/base.html:127 templates/base.html:159 templates/base.html:267
+#: templates/content/home.html:106 templates/content/what-to-find.html:33
+#: templates/partials/_entry_cards.html:28 templates/prompts/prompt_list.html:6
 msgid "Prompts"
 msgstr ""
 
@@ -1444,21 +1444,21 @@ msgstr ""
 msgid "Mobile menu"
 msgstr ""
 
-#: templates/base.html:119 templates/base.html:151
+#: templates/base.html:119 templates/base.html:151 templates/base.html:270
 #: templates/content/what-to-find.html:31
 #: templates/partials/_entry_cards.html:11
 msgid "Glossary"
 msgstr ""
 
-#: templates/base.html:131 templates/base.html:163
-#: templates/partials/_entry_cards.html:35
+#: templates/base.html:131 templates/base.html:163 templates/base.html:268
+#: templates/partials/_entry_cards.html:37
 msgid "Use cases"
 msgstr ""
 
-#: templates/base.html:135 templates/base.html:167
+#: templates/base.html:135 templates/base.html:167 templates/base.html:265
 #: templates/compare/comparison_list.html:73
 #: templates/content/what-to-find.html:35
-#: templates/partials/_entry_cards.html:43
+#: templates/partials/_entry_cards.html:46
 msgid "Tools"
 msgstr ""
 
@@ -1493,31 +1493,47 @@ msgstr ""
 msgid "Reviews"
 msgstr ""
 
-#: templates/base.html:264 templates/partials/_entry_cards.html:5
+#: templates/base.html:263
+msgid "Explore"
+msgstr ""
+
+#: templates/base.html:276
+msgid "Browse categories"
+msgstr ""
+
+#: templates/base.html:286 templates/guides/guide_list.html:20
+msgid "Start here"
+msgstr ""
+
+#: templates/base.html:295 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
 msgstr ""
 
-#: templates/base.html:265
+#: templates/base.html:300
+msgid "Legal"
+msgstr ""
+
+#: templates/base.html:302
 msgid "Legal notice"
 msgstr ""
 
-#: templates/base.html:266 templates/base.html:286
+#: templates/base.html:303 templates/base.html:328
 msgid "Privacy policy"
 msgstr ""
 
-#: templates/base.html:269
+#: templates/base.html:306
 msgid "Cookie-Settings"
 msgstr ""
 
-#: templates/base.html:270 templates/legal/terms_of_use.html:10
+#: templates/base.html:307 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr ""
 
-#: templates/base.html:271
+#: templates/base.html:308
 msgid "Copyright"
 msgstr ""
 
-#: templates/base.html:282
+#: templates/base.html:324
 msgid ""
 "\n"
 "                    We only use your data to run MentoroAI and improve our "
@@ -1621,13 +1637,13 @@ msgstr ""
 msgid "Similar tools"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:182 templates/content/home.html:72
+#: templates/catalog/tool_detail.html:182 templates/content/home.html:79
 #: templates/prompts/prompt_detail.html:82 templates/usecases/detail.html:88
 msgid "Rating"
 msgstr ""
 
 #: templates/catalog/tool_detail.html:185 templates/catalog/tool_list.html:204
-#: templates/content/home.html:74 templates/prompts/prompt_detail.html:85
+#: templates/content/home.html:81 templates/prompts/prompt_detail.html:85
 #: templates/usecases/detail.html:91
 msgid "Details"
 msgstr ""
@@ -1855,28 +1871,49 @@ msgstr ""
 msgid "Discover AI Tools"
 msgstr ""
 
-#: templates/content/home.html:41
+#: templates/content/home.html:31 templates/partials/_entry_cards.html:48
+#, python-format
+msgid "%(counter)s AI tool"
+msgid_plural "%(counter)s AI tools"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/content/home.html:33 templates/partials/_entry_cards.html:21
+#, python-format
+msgid "%(counter)s guide"
+msgid_plural "%(counter)s guides"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/content/home.html:35
+#, python-format
+msgid "%(counter)s category"
+msgid_plural "%(counter)s categories"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/content/home.html:48
 msgid "Featured Tools"
 msgstr ""
 
-#: templates/content/home.html:85
+#: templates/content/home.html:92
 msgid "Recommended for you"
 msgstr ""
 
-#: templates/content/home.html:96
+#: templates/content/home.html:103
 msgid "Current content"
 msgstr ""
 
-#: templates/content/home.html:100 templates/usecases/list.html:8
+#: templates/content/home.html:107 templates/usecases/list.html:8
 #: usecases/models.py:29 usecases/views.py:74 usecases/views.py:157
 msgid "Usecases"
 msgstr ""
 
-#: templates/content/home.html:111
+#: templates/content/home.html:118
 msgid "No published content yet."
 msgstr ""
 
-#: templates/content/home.html:120
+#: templates/content/home.html:127
 msgid "View roadmap"
 msgstr ""
 
@@ -2462,10 +2499,6 @@ msgstr ""
 
 #: templates/guides/guide_list.html:9
 msgid "Step-by-step instructions on AI topics – understandable and practical."
-msgstr ""
-
-#: templates/guides/guide_list.html:20
-msgid "Start here"
 msgstr ""
 
 #: templates/guides/guide_list.html:60
@@ -3624,59 +3657,80 @@ msgid ""
 "Step-by-step instructions for using AI safely in everyday life or at work."
 msgstr ""
 
-#: templates/partials/_entry_cards.html:21
+#: templates/partials/_entry_cards.html:22
 msgid "To the guides"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:25
+#: templates/partials/_entry_cards.html:26
 msgid "Go to Prompts list"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:28
+#: templates/partials/_entry_cards.html:29
 msgid ""
 "Ready-made input templates for ChatGPT & Co. - simply copy and get started."
 msgstr ""
 
-#: templates/partials/_entry_cards.html:29
+#: templates/partials/_entry_cards.html:30
+#, python-format
+msgid "%(counter)s prompt"
+msgid_plural "%(counter)s prompts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/partials/_entry_cards.html:31
 msgid "To the prompts"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:33
+#: templates/partials/_entry_cards.html:35
 msgid "Go to Usecases list"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:36
+#: templates/partials/_entry_cards.html:38
 msgid ""
 "Others are already using AI - real-world examples from everyday life and "
 "work."
 msgstr ""
 
-#: templates/partials/_entry_cards.html:37
+#: templates/partials/_entry_cards.html:39
+#, python-format
+msgid "%(counter)s use case"
+msgid_plural "%(counter)s use cases"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/partials/_entry_cards.html:40
 msgid "To the use cases"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:41
+#: templates/partials/_entry_cards.html:44
 msgid "Go to Tools list"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:44
+#: templates/partials/_entry_cards.html:47
 msgid ""
 "AI tools and platforms presented - with features and areas of application."
 msgstr ""
 
-#: templates/partials/_entry_cards.html:45
+#: templates/partials/_entry_cards.html:49
 msgid "To the tools"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:49
+#: templates/partials/_entry_cards.html:53
 msgid "Go to Comparisons list"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:52
+#: templates/partials/_entry_cards.html:56
 msgid "Find out which AI tool or model best suits your needs."
 msgstr ""
 
-#: templates/partials/_entry_cards.html:53
+#: templates/partials/_entry_cards.html:57
+#, python-format
+msgid "%(counter)s comparison"
+msgid_plural "%(counter)s comparisons"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/partials/_entry_cards.html:58
 msgid "To the comparisons"
 msgstr ""
 

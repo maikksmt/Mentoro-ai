@@ -256,28 +256,74 @@
 
 
 <!-- Footer -->
-<footer class="footer footer-center bg-base-300 text-base-content">
-    <div class="max-w-7xl mx-auto p-3 md:p-4 lg:p-6 space-y-3">
-        <nav class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-2 text-sm pt-2">
-            <a href="{% url 'newsletter:subscribe' %}" class="link link-hover p-1 lg:p-2">{% trans "Newsletter" %}</a>
-            <a href="{% url 'what-to-find' %}"
-               class="link link-hover p-1 lg:p-2">{% trans "What can I find on MentoroAI?" %}</a>
-            <a href="{% url 'legal:legal-notice' %}" class="link link-hover p-1 lg:p-2">{% trans "Legal notice" %}</a>
-            <a href="{% url 'legal:privacy' %}" class="link link-hover p-1 lg:p-2">{% trans "Privacy policy" %}</a>
-            <a href="{% url 'legal:cookies' %}" class="link link-hover p-1 lg:p-2">Cookies</a>
-            <a href="#" class="link link-hover p-1 lg:p-2"
-               onclick="klaro.show(klaroConfig, true); return false;">{% trans "Cookie-Settings" %}</a>
-            <a href="{% url 'legal:terms-of-use' %}" class="link link-hover p-1 lg:p-2">{% trans "Terms of Use" %}</a>
-            <a href="{% url 'legal:copyright' %}" class="link link-hover p-1 lg:p-2">{% trans "Copyright" %}</a>
-            <a href="https://github.com/maikksmt/mentoro-ai" target="_blank" rel="noopener"
-               class="flex items-center justify-center p-1 lg:p-2">
-                <img id="github-logo" alt="GitHub Logo" width="24" height="24"
-                     src="{% static 'img/github-mark-white.png' %}"
-                     srcset="{% static 'img/github-mark-white.svg' %}"/>
-            </a>
-        </nav>
+<footer class="bg-base-300 text-base-content">
+    <div class="max-w-7xl mx-auto p-3 md:p-4 lg:p-6 space-y-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10 text-sm pt-2">
+            <nav aria-labelledby="footer-explore-heading">
+                <h2 id="footer-explore-heading"
+                    class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Explore" %}</h2>
+                <ul class="space-y-2.5 mb-3">
+                    <li><a href="{% url 'catalog:list' %}" class="link link-hover">{% trans "Tools" %}</a></li>
+                    <li><a href="{% url 'guides:list' %}" class="link link-hover">{% trans "Guides" %}</a></li>
+                    <li><a href="{% url 'prompts:list' %}" class="link link-hover">{% trans "Prompts" %}</a></li>
+                    <li><a href="{% url 'usecases:list' %}" class="link link-hover">{% trans "Use cases" %}</a></li>
+                    <li><a href="{% url 'compare:index' %}" class="link link-hover">{% trans "Comparisons" %}</a></li>
+                    <li><a href="{% url 'glossary:list' %}" class="link link-hover">{% trans "Glossary" %}</a></li>
+                </ul>
+            </nav>
 
-        <div class="flex flex-col items-center gap-4 text-xs opacity-80">
+            {% if public_inventory.top_categories %}
+                <nav aria-labelledby="footer-categories-heading">
+                    <h2 id="footer-categories-heading"
+                        class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Browse categories" %}</h2>
+                    <ul class="space-y-2.5 mb-3">
+                        {% for cat in public_inventory.top_categories %}
+                            <li><a href="{{ cat.url }}" class="link link-hover">{{ cat.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            {% endif %}
+
+            <nav aria-labelledby="footer-starter-heading">
+                <h2 id="footer-starter-heading"
+                    class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Start here" %}</h2>
+                <ul class="space-y-2.5 mb-3">
+                    {% if public_inventory.starter_guide %}
+                        <li>
+                            <a href="{{ public_inventory.starter_guide.url }}"
+                               class="link link-hover">{{ public_inventory.starter_guide.title }}</a>
+                        </li>
+                    {% endif %}
+                    <li><a href="{% url 'what-to-find' %}"
+                           class="link link-hover">{% trans "What can I find on MentoroAI?" %}</a></li>
+                </ul>
+            </nav>
+
+            <nav aria-labelledby="footer-legal-heading">
+                <h2 id="footer-legal-heading"
+                    class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Legal" %}</h2>
+                <ul class="space-y-2.5 mb-3">
+                    <li><a href="{% url 'legal:legal-notice' %}" class="link link-hover">{% trans "Legal notice" %}</a></li>
+                    <li><a href="{% url 'legal:privacy' %}" class="link link-hover">{% trans "Privacy policy" %}</a></li>
+                    <li><a href="{% url 'legal:cookies' %}" class="link link-hover">Cookies</a></li>
+                    <li><a href="#" class="link link-hover"
+                           onclick="klaro.show(klaroConfig, true); return false;">{% trans "Cookie-Settings" %}</a></li>
+                    <li><a href="{% url 'legal:terms-of-use' %}" class="link link-hover">{% trans "Terms of Use" %}</a></li>
+                    <li><a href="{% url 'legal:copyright' %}" class="link link-hover">{% trans "Copyright" %}</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="flex flex-col items-center gap-4 text-xs opacity-80 border-t border-base-content/10 pt-6">
+            <div class="flex items-center gap-4">
+                <a href="{% url 'newsletter:subscribe' %}" class="link link-hover">{% trans "Newsletter" %}</a>
+                <a href="https://github.com/maikksmt/mentoro-ai" target="_blank" rel="noopener"
+                   class="flex items-center justify-center">
+                    <img id="github-logo" alt="GitHub Logo" width="24" height="24"
+                         src="{% static 'img/github-mark-white.png' %}"
+                         srcset="{% static 'img/github-mark-white.svg' %}"/>
+                </a>
+            </div>
             <p class="text-center md:text-left">
                 {% blocktrans %}
                     We only use your data to run MentoroAI and improve our content. For full details, see our

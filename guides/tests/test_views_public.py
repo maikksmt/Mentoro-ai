@@ -94,8 +94,10 @@ class GuideListStarterOrderingTests(TestCase):
     def test_start_here_badge_only_on_starter(self):
         create_guide(slug="badge-starter", en_title="Starter", is_starter=True)
         create_guide(slug="badge-plain", en_title="Plain")
-        html = self._list().content.decode()
-        self.assertEqual(html.count("Start here"), 1)
+        # Beta 8.7 footer also has a "Start here" nav heading; scope to the
+        # main content (before <footer) so only the guide-card badge counts.
+        main_html = self._list().content.decode().split("<footer", 1)[0]
+        self.assertEqual(main_html.count("Start here"), 1)
 
     def test_remaining_guides_ordered_by_updated_at_then_published_at(self):
         now = timezone.now()
@@ -132,10 +134,12 @@ class GuideListStarterOrderingTests(TestCase):
 
     def test_legacy_slug_alone_does_not_make_a_guide_the_starter(self):
         create_guide(slug="start-guide", en_title="Legacy slug", is_starter=False)
-        html = self._list().content.decode()
-        self.assertNotIn("Start here", html)
+        # Beta 8.7 footer also has a "Start here" nav heading; scope to the
+        # main content (before <footer) so only the guide-card badge counts.
+        main_html = self._list().content.decode().split("<footer", 1)[0]
+        self.assertNotIn("Start here", main_html)
 
     def test_is_starter_works_with_any_slug(self):
         create_guide(slug="arbitrary-name", en_title="Arbitrary", is_starter=True)
-        html = self._list().content.decode()
-        self.assertIn("Start here", html)
+        main_html = self._list().content.decode().split("<footer", 1)[0]
+        self.assertIn("Start here", main_html)
