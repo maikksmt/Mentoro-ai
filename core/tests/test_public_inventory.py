@@ -166,13 +166,34 @@ class EditorialCountTests(InventoryTestCase):
         make_editorial(Guide, slug="de-only-guide", languages=("de",))
         self.assertEqual(self._inv("en")["counts"]["guides"], 0)
 
-    def test_prompt_count_is_language_independent(self):
-        # PromptListView.get_queryset() applies no translation filter at
-        # all (pre-existing inconsistency vs. Guide/UseCase, documented in
-        # core/services.py and the Beta 8.7 report, not fixed here).
+    def test_prompt_count_is_strictly_language_isolated(self):
+        # Beta 8.8: PromptListView now uses visible_in_language(), which
+        # never falls back across languages (unlike Guide/UseCase's
+        # active_translations()). A DE-only prompt must not be counted in
+        # the EN inventory, and vice versa.
         make_editorial(Prompt, slug="de-only-prompt", languages=("de",))
+        self.assertEqual(self._inv("en")["counts"]["prompts"], 0)
+        self.assertEqual(self._inv("de")["counts"]["prompts"], 1)
+
+    def test_prompt_count_en_only_absent_from_german_inventory(self):
+        make_editorial(Prompt, slug="en-only-prompt", languages=("en",))
+        self.assertEqual(self._inv("de")["counts"]["prompts"], 0)
+        self.assertEqual(self._inv("en")["counts"]["prompts"], 1)
+
+    def test_bilingual_prompt_counted_once_per_language(self):
+        make_editorial(Prompt, slug="bilingual-prompt", languages=("en", "de"))
         self.assertEqual(self._inv("en")["counts"]["prompts"], 1)
         self.assertEqual(self._inv("de")["counts"]["prompts"], 1)
+
+    def test_prompt_inventory_count_matches_list_queryset(self):
+        make_editorial(Prompt, slug="match-en", languages=("en",))
+        make_editorial(Prompt, slug="match-de", languages=("de",))
+        make_editorial(Prompt, slug="match-both", languages=("en", "de"))
+        for lang in ("en", "de"):
+            self.assertEqual(
+                self._inv(lang)["counts"]["prompts"],
+                Prompt.objects.visible_in_language(lang).count(),
+            )
 
 
 class TopCategoriesTests(InventoryTestCase):

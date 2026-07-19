@@ -234,7 +234,11 @@ def related_comparisons(comparison: Comparison, limit: int = 6) -> List[Dict[str
 
 # ---------- Public inventory (Beta 8.7) ----------
 
-PUBLIC_INVENTORY_CACHE_VERSION = "v1"
+PUBLIC_INVENTORY_CACHE_VERSION = "v2"  # v1 -> v2 (Beta 8.8): prompts_count is
+# now language-strict (visible_in_language), so any v1 cache entry holds a
+# semantically wrong (language-independent) prompt count and must never be
+# served again after deployment - bumping the version key achieves that
+# without a blanket cache.clear().
 PUBLIC_INVENTORY_CACHE_TIMEOUT = 300  # seconds; see docstring on get_public_inventory
 PUBLIC_INVENTORY_TOP_CATEGORIES_LIMIT = 6
 
@@ -314,9 +318,9 @@ def _compute_public_inventory(lang: str) -> Dict[str, Any]:
         guides_count = (
             Guide.objects.visible_on_site().active_translations(lang).distinct().count()
         )
-        # Prompts: PromptListView applies no translation filter (pre-existing
-        # behavior, documented as out-of-scope inconsistency - not fixed here).
-        prompts_count = Prompt.objects.visible_on_site().count()
+        # Prompts (Beta 8.8): same query PromptListView now uses - strict,
+        # no cross-language fallback (unlike Guide/UseCase's active_translations).
+        prompts_count = Prompt.objects.visible_in_language(lang).count()
         usecases_count = UseCase.published.active_translations(lang).distinct().count()
         comparisons_count = Comparison.published.distinct().count()
 

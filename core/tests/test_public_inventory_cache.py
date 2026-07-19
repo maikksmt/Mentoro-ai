@@ -1,5 +1,6 @@
 """
-Beta 8.7: cache behaviour of core.services.get_public_inventory.
+Beta 8.7/8.8: cache behaviour of core.services.get_public_inventory,
+including the Beta 8.8 v1 -> v2 cache key version bump.
 """
 import pickle
 
@@ -125,3 +126,39 @@ class PublicInventoryCacheTests(TestCase):
             cache.clear()
             data = get_public_inventory("en")
             self.assertIn("counts", data)
+
+
+class PublicInventoryCacheVersionBumpTests(TestCase):
+    """
+    Beta 8.8: the prompt count's semantics changed (language-independent ->
+    strictly language-isolated), so any pre-existing v1 cache entry holds a
+    now-wrong value. Bumping the cache key version (v1 -> v2) guarantees a
+    stale v1 entry is never served again, without a blanket cache.clear().
+    """
+
+    def setUp(self):
+        cache.clear()
+
+    def test_cache_key_uses_v2(self):
+        self.assertEqual(PUBLIC_INVENTORY_CACHE_VERSION, "v2")
+
+    def test_new_value_is_stored_under_the_v2_key(self):
+        get_public_inventory("en")
+        self.assertIsNotNone(cache.get("mentoroai:public-inventory:v2:en"))
+
+    def test_stale_v1_entry_is_never_read(self):
+        # Simulate a stale pre-deployment cache entry holding the old,
+        # semantically wrong (language-independent) prompt count.
+        stale_v1_value = {
+            "counts": {"tools": 0, "categories": 0, "guides": 0, "prompts": 999,
+                       "usecases": 0, "comparisons": 0},
+            "top_categories": [],
+            "starter_guide": None,
+        }
+        cache.set("mentoroai:public-inventory:v1:en", stale_v1_value, timeout=300)
+
+        data = get_public_inventory("en")
+
+        self.assertNotEqual(data["counts"]["prompts"], 999)
+        # The stale v1 entry is left untouched (no blanket cache.clear()).
+        self.assertEqual(cache.get("mentoroai:public-inventory:v1:en"), stale_v1_value)

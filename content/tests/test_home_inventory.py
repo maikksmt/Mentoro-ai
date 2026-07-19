@@ -10,6 +10,7 @@ from django.utils import timezone
 from catalog.models import Category, Tool
 from core.models.editorial import EditorialWorkflowMixin
 from guides.models import Guide
+from prompts.models import Prompt
 
 
 def make_guide(*, slug, status=EditorialWorkflowMixin.STATUS_PUBLISHED, published_at=None, languages=("en",)):
@@ -149,3 +150,36 @@ class HomeInventoryLanguageIsolationTests(TestCase):
         # fallback behavior).
         self.assertEqual(en_resp.context["public_inventory"]["counts"]["guides"], 1)
         self.assertEqual(de_resp.context["public_inventory"]["counts"]["guides"], 1)
+
+
+class PromptCountLanguageIsolationTests(TestCase):
+    """Beta 8.8: the corrected, strictly language-isolated prompt count
+    reaches the homepage/footer context via public_inventory, with no
+    template or footer regressions."""
+
+    def setUp(self):
+        cache.clear()
+
+    def _make_prompt(self, *, slug, languages):
+        p = Prompt.objects.create(status=EditorialWorkflowMixin.STATUS_PUBLISHED, published_at=timezone.now())
+        for lang in languages:
+            p.create_translation(lang, title="Prompt", intro="i", body="b", slug=f"{slug}-{lang}")
+        return p
+
+    def test_homepage_prompt_count_is_language_isolated(self):
+        self._make_prompt(slug="en-only-prompt", languages=("en",))
+        cache.clear()
+
+        en_resp = self.client.get("/en/")
+        de_resp = self.client.get("/de/")
+
+        self.assertEqual(en_resp.context["public_inventory"]["counts"]["prompts"], 1)
+        self.assertEqual(de_resp.context["public_inventory"]["counts"]["prompts"], 0)
+
+    def test_public_inventory_still_present_and_footer_renders_without_error(self):
+        resp = self.client.get("/en/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("public_inventory", resp.context)
+        html = resp.content.decode()
+        self.assertIn("<!-- Footer -->", html)
+        self.assertNotIn('href=""', html)

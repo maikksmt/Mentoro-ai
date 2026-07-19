@@ -12,21 +12,27 @@ from core.views import SeoMixin
 from .models import Prompt
 
 
-def _resolve_by_slug(qs: QuerySet[Prompt], slug: str) -> Optional[Prompt]:
+def _resolve_by_slug(qs: QuerySet[Prompt], slug: str, language_code: str) -> Optional[Prompt]:
+    """
+    Matches slug against the language_code translation specifically - not
+    just any translation on the object - so a bilingual prompt's English
+    slug can never resolve under a German URL prefix (or vice versa).
+    """
     obj = (
-        qs.filter(Q(translations__public_slug=slug) | Q(translations__slug=slug))
+        qs.filter(
+            Q(translations__language_code=language_code, translations__public_slug=slug)
+            | Q(translations__language_code=language_code, translations__slug=slug)
+        )
         .distinct()
         .first()
     )
     if obj:
         return obj
 
-    live_keysets = (p for p in qs)
-    for p in live_keysets:
-        live = getattr(p, "live_i18n", None) or {}
-        for data in live.values():
-            if data.get("public_slug") == slug or data.get("slug") == slug:
-                return p
+    for p in qs:
+        live = (getattr(p, "live_i18n", None) or {}).get(language_code) or {}
+        if live.get("public_slug") == slug or live.get("slug") == slug:
+            return p
     return None
 
 
@@ -37,9 +43,10 @@ class PromptListView(SeoMixin, ListView):
     paginate_by = 15
 
     def get_queryset(self) -> QuerySet[Prompt]:
+        lang = get_language()
         qs = (
             Prompt.objects
-            .visible_on_site()
+            .visible_in_language(lang)
             .select_related("author", "reviewed_by")
         )
         if not qs.ordered:
@@ -82,14 +89,16 @@ class PromptDetailView(SeoMixin, DetailView):
     context_object_name = "object"
 
     def get_queryset(self) -> QuerySet[Prompt]:
-        return Prompt.objects.all().select_related("author", "reviewed_by")
+        lang = get_language()
+        return Prompt.objects.visible_in_language(lang).select_related("author", "reviewed_by")
 
     def get_object(self, queryset: Optional[QuerySet[Prompt]] = None) -> Prompt:
         slug = self.kwargs.get("slug")
         if not slug:
             raise Http404("Missing slug.")
+        lang = get_language()
         qs = queryset or self.get_queryset()
-        obj = _resolve_by_slug(qs, slug)
+        obj = _resolve_by_slug(qs, slug, lang)
         if not obj:
             raise Http404("Prompt not found.")
         return obj
