@@ -23,7 +23,19 @@ def _translated_slug_from_live(obj, lang: str) -> str | None:
 def _translated_slug_from_parler(obj, lang: str) -> str | None:
     """
     Fallback via Parler translations (safe_translation_getter).
+
+    Beta 8.10: guarded by has_translation(lang) first - safe_translation_getter()
+    under switch_language() silently returns the PARLER_LANGUAGES fallback
+    translation's value (not None) when `lang` itself has no translation, so
+    without this guard an EN-only object would produce a slug that belongs to
+    a different language, combined with a lang_override(lang) URL prefix in
+    _detail_url_for() - e.g. "/de/guides/<en-slug>/", a target that 404s
+    under any strict language-aware detail view. Confirmed via reproduction
+    for both Guide and Prompt.
     """
+    has_translation = getattr(obj, "has_translation", None)
+    if callable(has_translation) and not has_translation(lang):
+        return None
     with switch_language(obj, lang):
         get = getattr(obj, "safe_translation_getter", None)
         if callable(get):

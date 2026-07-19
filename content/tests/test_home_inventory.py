@@ -142,14 +142,11 @@ class HomeInventoryLanguageIsolationTests(TestCase):
         en_resp = self.client.get("/en/")
         de_resp = self.client.get("/de/")
 
-        # Assert on the underlying context data rather than the rendered
-        # label text: the label's language depends on translation-workflow
-        # state (fuzzy vs. confirmed msgstr), but the count itself must be
-        # 1 either way - the EN-only guide is still visible on DE via
-        # fallback (matches GuideListView's own active_translations()
-        # fallback behavior).
+        # Beta 8.10: GuideListView (and guides_count) now use
+        # visible_in_language() - strict, no cross-language fallback - so
+        # an EN-only guide is counted only under EN, not DE.
         self.assertEqual(en_resp.context["public_inventory"]["counts"]["guides"], 1)
-        self.assertEqual(de_resp.context["public_inventory"]["counts"]["guides"], 1)
+        self.assertEqual(de_resp.context["public_inventory"]["counts"]["guides"], 0)
 
 
 class PromptCountLanguageIsolationTests(TestCase):

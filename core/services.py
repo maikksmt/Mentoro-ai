@@ -98,21 +98,32 @@ def get_latest_items(limit: int = 6, mix: Tuple[int, int, int, int] = (4, 3, 2, 
     return items[:limit]
 
 
-def related_guides(guide, limit=6):
+def related_guides(guide, limit=6, language_code: str | None = None):
     """
     Finds relevant Guides by shared categories and tools;
     falls back to temporally close Guides when metadata is sparse;
     excludes the current item.
+
+    Beta 8.10: uses visible_in_language(lang) (strict, explicit language, no
+    cross-language fallback) instead of the .published manager's ambient,
+    fallback-inclusive active_translations() - empirically confirmed an
+    EN-only guide could rank as the top "related" result under a German
+    guide's page. Status rule widens from the .published manager's strict
+    published() to visible_on_site() (matching GuideListView/GuideDetailView),
+    so a guide with a live revision recommends from - and can be recommended
+    from - the same publicly-visible pool as the page it's shown on. Ranking
+    weights, order, and limit are unchanged.
     """
 
     if guide is None:
         return Guide.objects.none()
+    lang = language_code or get_language()
     cat_ids = _ids(guide.categories.all()) if hasattr(guide, "categories") else []
     tool_ids = (
         _ids(guide.tools.all()) if hasattr(guide, "tools") else []
     )
 
-    qs = Guide.published.exclude(pk=guide.pk).prefetch_related(
+    qs = Guide.objects.visible_in_language(lang).exclude(pk=guide.pk).prefetch_related(
         "categories", "tools__translations"
     )
 
@@ -128,11 +139,12 @@ def related_guides(guide, limit=6):
         )
         .annotate(score=Count("id"))
         .order_by("-cat_matches", "-tool_matches", "-published_at")
+        .distinct()
     )
 
     items = list(qs[:limit])
     if len(items) < limit:
-        fallback = Guide.published.exclude(
+        fallback = Guide.objects.visible_in_language(lang).exclude(
             pk__in=[g.pk for g in items] + [guide.pk]
         ).order_by("-published_at")[: limit - len(items)]
         items.extend(fallback)
@@ -279,15 +291,16 @@ def related_comparisons(comparison: Comparison, limit: int = 6) -> List[Dict[str
 
 # ---------- Public inventory (Beta 8.7) ----------
 
-PUBLIC_INVENTORY_CACHE_VERSION = "v4"  # v1 -> v2 (Beta 8.8): prompts_count is
+PUBLIC_INVENTORY_CACHE_VERSION = "v5"  # v1 -> v2 (Beta 8.8): prompts_count is
 # now language-strict (visible_in_language), so any v1 cache entry holds a
 # semantically wrong (language-independent) prompt count and must never be
 # served again after deployment - bumping the version key achieves that
 # without a blanket cache.clear(). v2 -> v3 (Beta 8.9): comparisons_count is
 # now language-strict (visible_in_language) too, for the same reason.
 # v3 -> v4 (Beta 8.9a): usecases_count is now language-strict
-# (visible_in_language) too, matching UseCaseListView's hardened query -
-# guides_count is unaffected (GuideListView unchanged in this slice).
+# (visible_in_language) too, matching UseCaseListView's hardened query.
+# v4 -> v5 (Beta 8.10): guides_count is now language-strict
+# (visible_in_language) too, matching GuideListView's hardened query.
 PUBLIC_INVENTORY_CACHE_TIMEOUT = 300  # seconds; see docstring on get_public_inventory
 PUBLIC_INVENTORY_TOP_CATEGORIES_LIMIT = 6
 
@@ -363,12 +376,9 @@ def _compute_public_inventory(lang: str) -> Dict[str, Any]:
             for cat in categories_qs[:PUBLIC_INVENTORY_TOP_CATEGORIES_LIMIT]
         ]
 
-        # Guides: same status+language rules as GuideListView (unchanged in
-        # Beta 8.9a - active_translations() fallback is a deliberate,
-        # unfixed-in-this-slice decision scoped only to get_latest_items()).
-        guides_count = (
-            Guide.objects.visible_on_site().active_translations(lang).distinct().count()
-        )
+        # Guides (Beta 8.10): same strict query GuideListView now uses -
+        # every counted guide's detail URL is reachable in lang.
+        guides_count = Guide.objects.visible_in_language(lang).count()
         # Prompts (Beta 8.8): same query PromptListView now uses - strict,
         # no cross-language fallback (unlike Guide's active_translations).
         prompts_count = Prompt.objects.visible_in_language(lang).count()
@@ -439,20 +449,95 @@ def _first(seq):
         return ""
 
 
-def teaser_for_guide(g: Guide, limit: int = 160) -> str:
+def _public_teaser_value(obj, field: str, language_code: str | None = None) -> str:
+    """
+    Beta 8.10a: returns the public, live-revision-safe value for a
+    translated field ("title", "intro", "body", ...) - never the raw,
+    possibly draft-in-progress translation.
+
+    Reads live_i18n[language_code] directly rather than delegating to the
+    model's own get_live_value()/get_display_value(): those have their own
+    cross-language fallback (silently returning ANOTHER language's live
+    snapshot value if language_code's own entry is missing), which is the
+    right behavior for their existing callers but not for a language-
+    explicit public teaser. Uniform across all four editorial models this
+    way, including Comparison, which has no get_display_value()/display_*
+    properties at all (a separate, documented, unfixed model gap - see
+    Beta 8.10a report).
+
+    A missing live snapshot only falls back to the current translation if
+    that translation genuinely exists in language_code (has_translation()
+    guard, called with an explicit safe_translation_getter(language_code=)
+    rather than switch_language(), since Parler's own use_fallback=True
+    default would otherwise silently substitute a different language).
+    """
+    lang = language_code or get_language()
+
+    live = getattr(obj, "live_i18n", None) or {}
+    live_value = (live.get(lang) or {}).get(field)
+    if live_value:
+        return live_value
+
+    has_translation = getattr(obj, "has_translation", None)
+    if callable(has_translation) and not has_translation(lang):
+        return ""
+    getter = getattr(obj, "safe_translation_getter", None)
+    if callable(getter):
+        return getter(field, language_code=lang) or ""
+    return getattr(obj, field, "") or ""
+
+
+def _public_teaser_url(obj, kind: str, language_code: str | None = None) -> str:
+    """
+    Beta 8.10a: returns a live-revision-safe public URL for a teaser card.
+
+    Guide/Prompt/UseCase's own get_absolute_url() already checks the
+    live_i18n snapshot before the current translation - delegating to it
+    directly (instead of reversing obj.slug, the raw current-translation
+    value) closes the same draft-slug leak fixed in
+    guides/views.py::_resolve_guide_by_slug().
+
+    Comparison.get_absolute_url() does not consult live_i18n at all (a
+    separate, documented, out-of-scope model gap); its own method is
+    intentionally left unchanged (it is used elsewhere too, e.g. the
+    detail page's own canonical URL) and can raise parler.models.DoesNotExist
+    for an object with no translation at all in language_code and no
+    fallback available - guarded here with has_translation() before ever
+    calling it, rather than a broad try/except. For the teaser
+    specifically, the live snapshot slug is reversed directly here when
+    present, so this one call site stays safe without touching
+    compare/models.py.
+    """
+    lang = language_code or get_language()
+
+    if kind == "comparison":
+        live = getattr(obj, "live_i18n", None) or {}
+        snap = live.get(lang) or {}
+        live_slug = snap.get("public_slug") or snap.get("slug")
+        if live_slug:
+            with override(lang):
+                return reverse("compare:detail", kwargs={"slug": live_slug})
+        has_translation = getattr(obj, "has_translation", None)
+        if callable(has_translation) and not has_translation(lang):
+            return "#"
+        return obj.get_absolute_url(language=lang)
+
+    return obj.get_absolute_url(language=lang)
+
+
+def teaser_for_guide(g: Guide, limit: int = 160, language_code: str | None = None) -> str:
     """
     Builds a compact teaser dict (title, short text, URL, date, meta) for a Guide;
     normalizes text (strip HTML) for consistent list UIs.
     """
-    getter = getattr(g, "safe_translation_getter", None)
-    if callable(getter):
-        src = getter("intro", any_language=True) or getter("body", any_language=True) or ""
-    else:
-        src = getattr(g, "intro", None) or getattr(g, "body", "") or ""
+    src = (
+        _public_teaser_value(g, "intro", language_code)
+        or _public_teaser_value(g, "body", language_code)
+    )
     return (strip_tags(src) or "")[:limit]
 
 
-def teaser_for_prompt(p: Prompt, limit: int = 160) -> str:
+def teaser_for_prompt(p: Prompt, limit: int = 160, language_code: str | None = None) -> str:
     """
     Teaser builder for a Prompt;
     generates a concise, HTML-safe summary suitable for cards and feeds.
@@ -464,87 +549,75 @@ def teaser_for_prompt(p: Prompt, limit: int = 160) -> str:
     elif isinstance(examples, str):
         ex = examples
 
-    getter = getattr(p, "safe_translation_getter", None)
-    if callable(getter):
-        body = getter("intro", any_language=True) or getattr(p, "body", "") or ""
-    else:
-        body = getattr(p, "intro", None) or getattr(p, "body", "") or ""
+    body = (
+        _public_teaser_value(p, "intro", language_code)
+        or _public_teaser_value(p, "body", language_code)
+    )
 
     src = ex or body
     return (strip_tags(src) or "")[:limit]
 
 
-def teaser_for_usecase(u: UseCase, limit: int = 160) -> str:
+def teaser_for_usecase(u: UseCase, limit: int = 160, language_code: str | None = None) -> str:
     """
     Teaser builder for a UseCase;
     aligns the structure with Guides/Prompts so frontends can render all three uniformly.
     """
-    intro = getattr(u, "safe_translation_getter", None)
-    if callable(intro):
-        src = u.safe_translation_getter("intro", any_language=True) or ""
-    else:
-        src = getattr(u, "intro", "") or ""
-
+    src = _public_teaser_value(u, "intro", language_code)
     return (strip_tags(src) or "")[:limit]
 
 
-def teaser_for_comparison(c: Comparison, limit: int = 160) -> str:
+def teaser_for_comparison(c: Comparison, limit: int = 160, language_code: str | None = None) -> str:
     """
     Builds a compact teaser text for a Comparison.
     """
-    getter = getattr(c, "safe_translation_getter", None)
-    if callable(getter):
-        src = getter("intro", any_language=True) or getter("body", any_language=True) or ""
-    else:
-        src = getattr(c, "intro", None) or getattr(c, "body", "") or ""
+    src = (
+        _public_teaser_value(c, "intro", language_code)
+        or _public_teaser_value(c, "body", language_code)
+    )
     return (strip_tags(src) or "")[:limit]
 
 
-def _t(obj, field):
-    """
-    Returns a translated attribute using Parler’s safe_translation_getter with any_language=True fallback,
-    else reads the attribute directly; avoids None/missing values.
-    """
-    getter = getattr(obj, "safe_translation_getter", None)
-    if callable(getter):
-        return getter(field, any_language=True) or ""
-    return getattr(obj, field, "") or ""
-
-
-def to_teaser_item(obj, kind: str) -> Dict[str, Any]:
+def to_teaser_item(obj, kind: str, language_code: str | None = None) -> Dict[str, Any]:
     """
     Factory that converts any supported object into the unified teaser dict
     based on kind to simplify front-end consumption.
+
+    Beta 8.10a: title/teaser/url all go through the live-revision-safe
+    _public_teaser_value()/_public_teaser_url() helpers - a guide (or
+    prompt/use case/comparison) mid-revision must only ever surface its
+    last published live title, intro/body and URL here, never the current
+    draft translation or a draft slug.
     """
     if kind == "guide":
         return {
-            "title": _t(obj, "title"),
-            "teaser": teaser_for_guide(obj),
-            "url": reverse("guides:detail", kwargs={"slug": obj.slug}),
+            "title": _public_teaser_value(obj, "title", language_code),
+            "teaser": teaser_for_guide(obj, language_code=language_code),
+            "url": _public_teaser_url(obj, kind, language_code),
             "date": getattr(obj, "updated_at", None),
             "badge": "Guide",
         }
     if kind == "prompt":
         return {
-            "title": _t(obj, "title"),
-            "teaser": teaser_for_prompt(obj),
-            "url": reverse("prompts:detail", kwargs={"slug": obj.slug}),
+            "title": _public_teaser_value(obj, "title", language_code),
+            "teaser": teaser_for_prompt(obj, language_code=language_code),
+            "url": _public_teaser_url(obj, kind, language_code),
             "date": getattr(obj, "updated_at", None),
             "badge": "Prompt",
         }
     if kind == "usecase":
         return {
-            "title": _t(obj, "title"),
-            "teaser": teaser_for_usecase(obj),
-            "url": reverse("usecases:detail", kwargs={"slug": obj.slug}),
+            "title": _public_teaser_value(obj, "title", language_code),
+            "teaser": teaser_for_usecase(obj, language_code=language_code),
+            "url": _public_teaser_url(obj, kind, language_code),
             "date": getattr(obj, "updated_at", None),
             "badge": "Usecase",
         }
     if kind == "comparison":
         return {
-            "title": _t(obj, "title"),
-            "teaser": teaser_for_comparison(obj),
-            "url": obj.get_absolute_url(),
+            "title": _public_teaser_value(obj, "title", language_code),
+            "teaser": teaser_for_comparison(obj, language_code=language_code),
+            "url": _public_teaser_url(obj, kind, language_code),
             "date": getattr(obj, "updated_at", None),
             "badge": "Comparison",
         }
