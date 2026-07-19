@@ -46,8 +46,8 @@
                                 <div class="avatar">
                                     {% if t.logo %}
                                         <div class="w-10 h-10 rounded-full">
-                                            <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" width="40"
-                                                 height="40">
+                                            <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" decoding="async"
+                                                 width="40" height="40">
                                         </div>
                                     {% else %}
                                         <div class="w-10 h-10 rounded-full ring-1 ring-base-300">
@@ -113,8 +113,9 @@
     </section>
     <!-- Open the modal using ID.showModal() method -->
     <div class="fab">
-        <button class="btn btn-lg md:btn-xl btn-circle btn-info" onclick="featuresmodal.showModal()"
-                aria-label="Information Button">
+        <button type="button" class="btn btn-lg md:btn-xl btn-circle btn-info" onclick="featuresmodal.showModal()"
+                aria-haspopup="dialog" aria-controls="featuresmodal"
+                aria-label="{% trans "View roadmap" %}">
             {% heroicon_outline "light-bulb" size=32 %}
         </button>
     </div>

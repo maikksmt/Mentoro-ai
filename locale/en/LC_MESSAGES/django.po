@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-19 10:51+0200\n"
+"POT-Creation-Date: 2026-07-19 11:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -316,8 +316,8 @@ msgid ""
 "weaknesses and special features."
 msgstr ""
 
-#: compare/views.py:88 compare/views.py:217 templates/base.html:135
-#: templates/base.html:167 templates/content/home.html:99
+#: compare/views.py:88 compare/views.py:217 templates/base.html:139
+#: templates/base.html:171 templates/content/home.html:99
 #: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
 msgid "Comparisons"
@@ -582,7 +582,7 @@ msgid "Guide"
 msgstr ""
 
 #: guides/models.py:29 guides/views.py:55 guides/views.py:133
-#: templates/base.html:119 templates/base.html:151
+#: templates/base.html:123 templates/base.html:155
 #: templates/content/home.html:96 templates/content/what-to-find.html:32
 #: templates/guides/guide_list.html:7 templates/partials/_entry_cards.html:19
 msgid "Guides"
@@ -642,7 +642,7 @@ msgstr ""
 msgid "Reason (optional)"
 msgstr ""
 
-#: newsletter/views.py:21 templates/base.html:258
+#: newsletter/views.py:21 templates/base.html:262
 msgid "Newsletter"
 msgstr ""
 
@@ -709,7 +709,7 @@ msgid "Prompt"
 msgstr ""
 
 #: prompts/models.py:30 prompts/views.py:74 prompts/views.py:149
-#: templates/base.html:123 templates/base.html:155
+#: templates/base.html:127 templates/base.html:159
 #: templates/content/home.html:97 templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
 msgid "Prompts"
@@ -1059,7 +1059,7 @@ msgstr ""
 
 #: templates/account/login.html:4 templates/account/login.html:103
 #: templates/account/password_reset_from_key_done.html:23
-#: templates/base.html:199 templates/partials/author_info_card.html:56
+#: templates/base.html:203 templates/partials/author_info_card.html:56
 msgid "Login"
 msgstr ""
 
@@ -1108,7 +1108,7 @@ msgid "Create a free account"
 msgstr ""
 
 #: templates/account/logout.html:4 templates/account/logout.html:20
-#: templates/account/logout.html:32 templates/base.html:196
+#: templates/account/logout.html:32 templates/base.html:200
 msgid "Logout"
 msgstr ""
 
@@ -1419,84 +1419,88 @@ msgstr ""
 msgid "No differences in this language."
 msgstr ""
 
-#: templates/base.html:108
+#: templates/base.html:95
+msgid "Skip to main content"
+msgstr ""
+
+#: templates/base.html:112
 msgid "Mobile menu"
 msgstr ""
 
-#: templates/base.html:115 templates/base.html:147
+#: templates/base.html:119 templates/base.html:151
 #: templates/content/what-to-find.html:31
 #: templates/partials/_entry_cards.html:11
 msgid "Glossary"
 msgstr ""
 
-#: templates/base.html:127 templates/base.html:159
+#: templates/base.html:131 templates/base.html:163
 #: templates/partials/_entry_cards.html:35
 msgid "Use cases"
 msgstr ""
 
-#: templates/base.html:131 templates/base.html:163
+#: templates/base.html:135 templates/base.html:167
 #: templates/compare/comparison_list.html:73
 #: templates/content/what-to-find.html:35
 #: templates/partials/_entry_cards.html:43
 msgid "Tools"
 msgstr ""
 
-#: templates/base.html:174 templates/catalog/tool_list.html:62
+#: templates/base.html:178 templates/catalog/tool_list.html:62
 #: templates/catalog/tool_list.html:63
 #: templates/compare/comparison_list.html:38
 #: templates/compare/comparison_list.html:39
 msgid "Search"
 msgstr ""
 
-#: templates/base.html:183
+#: templates/base.html:187
 msgid "Toggle theme"
 msgstr ""
 
-#: templates/base.html:206
+#: templates/base.html:210
 msgid "Language select"
 msgstr ""
 
-#: templates/base.html:234
+#: templates/base.html:238
 msgid "Dashboard"
 msgstr ""
 
-#: templates/base.html:237
+#: templates/base.html:241
 msgid "Admin Panel"
 msgstr ""
 
-#: templates/base.html:239 templates/content/editorial/my_content.html:9
+#: templates/base.html:243 templates/content/editorial/my_content.html:9
 msgid "My Content"
 msgstr ""
 
-#: templates/base.html:242
+#: templates/base.html:246
 msgid "Reviews"
 msgstr ""
 
-#: templates/base.html:260 templates/partials/_entry_cards.html:5
+#: templates/base.html:264 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
 msgstr ""
 
-#: templates/base.html:261
+#: templates/base.html:265
 msgid "Legal notice"
 msgstr ""
 
-#: templates/base.html:262 templates/base.html:282
+#: templates/base.html:266 templates/base.html:286
 msgid "Privacy policy"
 msgstr ""
 
-#: templates/base.html:265
+#: templates/base.html:269
 msgid "Cookie-Settings"
 msgstr ""
 
-#: templates/base.html:266 templates/legal/terms_of_use.html:10
+#: templates/base.html:270 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr ""
 
-#: templates/base.html:267
+#: templates/base.html:271
 msgid "Copyright"
 msgstr ""
 
-#: templates/base.html:278
+#: templates/base.html:282
 msgid ""
 "\n"
 "                    We only use your data to run MentoroAI and improve our "
@@ -1853,6 +1857,10 @@ msgstr ""
 
 #: templates/content/home.html:109
 msgid "No published content yet."
+msgstr ""
+
+#: templates/content/home.html:118
+msgid "View roadmap"
 msgstr ""
 
 #: templates/content/richtext_layout_examples.html:3

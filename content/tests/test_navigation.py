@@ -115,7 +115,7 @@ class ActiveNavSectionTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         html = resp.content.decode()
 
-        all_sections = ("home", "catalog", "guides", "prompts", "usecases", "compare", "glossary")
+        all_sections = ("catalog", "guides", "prompts", "usecases", "compare", "glossary")
         self.assertIn(section, all_sections)
 
         # btn-active is exclusive to nav links (breadcrumbs use aria-current
@@ -124,11 +124,6 @@ class ActiveNavSectionTests(TestCase):
         self.assertEqual(html.count("btn-active"), expected_count, html)
         active_links = re.findall(r'aria-current="page"[^>]*btn-active', html)
         self.assertEqual(len(active_links), expected_count, html)
-
-    def test_home_page_marks_home(self):
-        # Home has a single nav-equivalent link (the brand logo), not one
-        # per nav instance like the other sections.
-        self._assert_only_section_active(_get("content:home"), "home", expected_count=1)
 
     def test_catalog_list_marks_catalog(self):
         self._assert_only_section_active(_get("catalog:list"), "catalog")

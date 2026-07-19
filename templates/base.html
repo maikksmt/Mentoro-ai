@@ -90,6 +90,10 @@
     {% endif %}
 </head>
 <body class="flex flex-col min-h-screen justify-between bg-base-100 text-base-content">
+<a href="#main-content"
+   class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:btn focus:btn-primary">
+    {% trans "Skip to main content" %}
+</a>
 {% if not debug %}
     <!-- Google Tag Manager (noscript) -->
     <noscript>
@@ -246,7 +250,7 @@
 {% endif %}
 
 <!-- Page container -->
-<main class="p-4 w-full max-w-7xl mx-auto mb-auto">
+<main id="main-content" tabindex="-1" class="p-4 w-full max-w-7xl mx-auto mb-auto">
     {% block content %}{% endblock %}
 </main>
 
