@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-19 07:57+0200\n"
+"POT-Creation-Date: 2026-07-19 10:51+0200\n"
 "PO-Revision-Date: 2026-07-19 07:43+0200\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -332,8 +332,8 @@ msgstr ""
 "Side-by-Side-Vergleiche von KI-Tools, die Ihnen helfen, Stärken, Schwächen "
 "und Besonderheiten zu verstehen."
 
-#: compare/views.py:88 compare/views.py:217 templates/base.html:106
-#: templates/base.html:130 templates/content/home.html:99
+#: compare/views.py:88 compare/views.py:217 templates/base.html:135
+#: templates/base.html:167 templates/content/home.html:99
 #: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
 msgid "Comparisons"
@@ -617,7 +617,7 @@ msgid "Guide"
 msgstr "Leitfaden"
 
 #: guides/models.py:29 guides/views.py:55 guides/views.py:133
-#: templates/base.html:94 templates/base.html:118
+#: templates/base.html:119 templates/base.html:151
 #: templates/content/home.html:96 templates/content/what-to-find.html:32
 #: templates/guides/guide_list.html:7 templates/partials/_entry_cards.html:19
 msgid "Guides"
@@ -680,7 +680,7 @@ msgstr "Ungültige Anfrage."
 msgid "Reason (optional)"
 msgstr "Grund (optional)"
 
-#: newsletter/views.py:21 templates/base.html:221
+#: newsletter/views.py:21 templates/base.html:258
 msgid "Newsletter"
 msgstr "Newsletter"
 
@@ -753,7 +753,7 @@ msgid "Prompt"
 msgstr "Prompt"
 
 #: prompts/models.py:30 prompts/views.py:74 prompts/views.py:149
-#: templates/base.html:97 templates/base.html:121
+#: templates/base.html:123 templates/base.html:155
 #: templates/content/home.html:97 templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
 msgid "Prompts"
@@ -1140,7 +1140,7 @@ msgstr "E-Mail-Adressen verwalten"
 
 #: templates/account/login.html:4 templates/account/login.html:103
 #: templates/account/password_reset_from_key_done.html:23
-#: templates/base.html:162 templates/partials/author_info_card.html:56
+#: templates/base.html:199 templates/partials/author_info_card.html:56
 msgid "Login"
 msgstr "Login"
 
@@ -1191,7 +1191,7 @@ msgid "Create a free account"
 msgstr "Erstellen Sie ein kostenloses Konto"
 
 #: templates/account/logout.html:4 templates/account/logout.html:20
-#: templates/account/logout.html:32 templates/base.html:159
+#: templates/account/logout.html:32 templates/base.html:196
 msgid "Logout"
 msgstr "Logout"
 
@@ -1530,84 +1530,84 @@ msgstr "Entwurf vs. Live"
 msgid "No differences in this language."
 msgstr "Keine Unterschiede in dieser Sprache."
 
-#: templates/base.html:86
+#: templates/base.html:108
 msgid "Mobile menu"
 msgstr "Mobiles Menü"
 
-#: templates/base.html:91 templates/base.html:115
+#: templates/base.html:115 templates/base.html:147
 #: templates/content/what-to-find.html:31
 #: templates/partials/_entry_cards.html:11
 msgid "Glossary"
 msgstr "Glossar"
 
-#: templates/base.html:100 templates/base.html:124
+#: templates/base.html:127 templates/base.html:159
 #: templates/partials/_entry_cards.html:35
 msgid "Use cases"
 msgstr "Anwendungsfälle"
 
-#: templates/base.html:103 templates/base.html:127
+#: templates/base.html:131 templates/base.html:163
 #: templates/compare/comparison_list.html:73
 #: templates/content/what-to-find.html:35
 #: templates/partials/_entry_cards.html:43
 msgid "Tools"
 msgstr "Tools"
 
-#: templates/base.html:137 templates/catalog/tool_list.html:62
+#: templates/base.html:174 templates/catalog/tool_list.html:62
 #: templates/catalog/tool_list.html:63
 #: templates/compare/comparison_list.html:38
 #: templates/compare/comparison_list.html:39
 msgid "Search"
 msgstr "Suche"
 
-#: templates/base.html:146
+#: templates/base.html:183
 msgid "Toggle theme"
 msgstr "Farbschema wechseln"
 
-#: templates/base.html:169
+#: templates/base.html:206
 msgid "Language select"
 msgstr "Sprachauswahl"
 
-#: templates/base.html:197
+#: templates/base.html:234
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: templates/base.html:200
+#: templates/base.html:237
 msgid "Admin Panel"
 msgstr "Admin-Panel"
 
-#: templates/base.html:202 templates/content/editorial/my_content.html:9
+#: templates/base.html:239 templates/content/editorial/my_content.html:9
 msgid "My Content"
 msgstr "Meine Inhalte"
 
-#: templates/base.html:205
+#: templates/base.html:242
 msgid "Reviews"
 msgstr "Reviews"
 
-#: templates/base.html:223 templates/partials/_entry_cards.html:5
+#: templates/base.html:260 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
 msgstr "Was kann ich auf MentoroAI finden?"
 
-#: templates/base.html:224
+#: templates/base.html:261
 msgid "Legal notice"
 msgstr "Impressum"
 
-#: templates/base.html:225 templates/base.html:245
+#: templates/base.html:262 templates/base.html:282
 msgid "Privacy policy"
 msgstr "Datenschutzerklärung"
 
-#: templates/base.html:228
+#: templates/base.html:265
 msgid "Cookie-Settings"
 msgstr "Cookie-Einstellungen"
 
-#: templates/base.html:229 templates/legal/terms_of_use.html:10
+#: templates/base.html:266 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr "Nutzungsbedingungen"
 
-#: templates/base.html:230
+#: templates/base.html:267
 msgid "Copyright"
 msgstr "Urheberrecht"
 
-#: templates/base.html:241
+#: templates/base.html:278
 msgid ""
 "\n"
 "                    We only use your data to run MentoroAI and improve our "
@@ -2620,7 +2620,7 @@ msgid "No published guides available."
 msgstr "Keine veröffentlichten Leitfäden verfügbar."
 
 #: templates/legal/cookie_policy.html:10
-#: templates/legal/privacy_policy.html:271
+#: templates/legal/privacy_policy.html:272
 msgid "Cookie Policy"
 msgstr "Cookie-Richtlinie"
 
@@ -2713,33 +2713,34 @@ msgstr ""
 "die Zustimmung eingeholt wurde"
 
 #: templates/legal/cookie_policy.html:56
-msgid "Preference cookies"
-msgstr "Präferenz-Cookies"
+msgid "Local theme preference"
+msgstr ""
 
 #: templates/legal/cookie_policy.html:58
 msgid ""
 "\n"
-"                Preference cookies allow the website to remember information "
-"that changes the way the\n"
-"                website behaves or looks, for example your selected light/"
-"dark theme.\n"
+"                MentoroAI stores your selected light or dark theme locally "
+"in your browser using\n"
+"                localStorage rather than a cookie. This value is not sent to "
+"MentoroAI and is not\n"
+"                used for tracking or analytics. It stays in your browser "
+"until you change the\n"
+"                theme again or remove the website data in your browser "
+"settings.\n"
 "            "
 msgstr ""
-"\n"
-"Präferenz-Cookies ermöglichen es der Website, Informationen zu speichern, "
-"die das Verhalten oder Aussehen der Website verändern, beispielsweise das "
-"von Ihnen gewählte helle/dunkle Design."
 
-#: templates/legal/cookie_policy.html:66
-msgid "remembers your selected theme (light/dark) for future visits"
+#: templates/legal/cookie_policy.html:68
+msgid ""
+"localStorage entry that remembers your selected theme (mentoroai-light or "
+"mentoroai-dark)"
 msgstr ""
-"merkt sich Ihr ausgewähltes Design (hell/dunkel) für zukünftige Besuche"
 
-#: templates/legal/cookie_policy.html:72
+#: templates/legal/cookie_policy.html:74
 msgid "Statistics cookies (Google Analytics 4)"
 msgstr "Statistik-Cookies (Google Analytics 4)"
 
-#: templates/legal/cookie_policy.html:74
+#: templates/legal/cookie_policy.html:76
 msgid ""
 "\n"
 "                We use Google Analytics 4 to analyze how our website is used "
@@ -2766,7 +2767,7 @@ msgstr ""
 "und nur anonymisierte, nicht identifizierende Signale übertragen werden "
 "dürfen."
 
-#: templates/legal/cookie_policy.html:86
+#: templates/legal/cookie_policy.html:88
 msgid ""
 "used to distinguish users and generate anonymous statistics (typically "
 "expires after 2 years)"
@@ -2774,7 +2775,7 @@ msgstr ""
 "Dient zur Unterscheidung von Benutzern und zur Erstellung anonymer "
 "Statistiken (läuft in der Regel nach 2 Jahren ab)"
 
-#: templates/legal/cookie_policy.html:90
+#: templates/legal/cookie_policy.html:92
 msgid ""
 "used to maintain session state for Google Analytics 4 (typically expires "
 "after 1 year)"
@@ -2782,11 +2783,11 @@ msgstr ""
 "Wird verwendet, um den Sitzungsstatus für Google Analytics 4 "
 "aufrechtzuerhalten (läuft in der Regel nach einem Jahr ab)."
 
-#: templates/legal/cookie_policy.html:94
+#: templates/legal/cookie_policy.html:96
 msgid "Cookie control"
 msgstr "Cookie-Steuerung"
 
-#: templates/legal/cookie_policy.html:96
+#: templates/legal/cookie_policy.html:98
 msgid ""
 "\n"
 "                You can change or withdraw your consent at any time using "
@@ -2804,7 +2805,7 @@ msgstr ""
 "Darüber hinaus können Cookies über Ihre Browsereinstellungen blockiert oder "
 "gelöscht werden."
 
-#: templates/legal/cookie_policy.html:103
+#: templates/legal/cookie_policy.html:105
 msgid ""
 "\n"
 "                Klaro also controls the execution of tracking technologies "
@@ -3268,8 +3269,8 @@ msgstr ""
 
 #: templates/legal/privacy_policy.html:161
 #: templates/legal/privacy_policy.html:215
-#: templates/legal/privacy_policy.html:295
-#: templates/legal/privacy_policy.html:319
+#: templates/legal/privacy_policy.html:296
+#: templates/legal/privacy_policy.html:320
 msgid "Legal basis"
 msgstr "Rechtsgrundlage"
 
@@ -3306,8 +3307,8 @@ msgstr ""
 
 #: templates/legal/privacy_policy.html:175
 #: templates/legal/privacy_policy.html:228
-#: templates/legal/privacy_policy.html:303
-#: templates/legal/privacy_policy.html:322
+#: templates/legal/privacy_policy.html:304
+#: templates/legal/privacy_policy.html:323
 msgid "Data transfer"
 msgstr "Datenübermittlung"
 
@@ -3322,7 +3323,7 @@ msgstr ""
 
 #: templates/legal/privacy_policy.html:181
 #: templates/legal/privacy_policy.html:234
-#: templates/legal/privacy_policy.html:328
+#: templates/legal/privacy_policy.html:329
 msgid ""
 "\n"
 "                Where data is transferred to countries outside the European "
@@ -3445,6 +3446,23 @@ msgstr ""
 "KIProtect verwaltet."
 
 #: templates/legal/privacy_policy.html:260
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "                Technically necessary cookies include in particular "
+#| "session and security cookies\n"
+#| "                (such as \"sessionid\" and \"csrftoken\") as well as "
+#| "cookies required for navigation,\n"
+#| "                language selection and consent management (for example "
+#| "\"django_language\",\n"
+#| "                \"htmx-current-path-for-history\" and "
+#| "\"CookieConsent\").\n"
+#| "                Preference cookies store your selected theme (for example "
+#| "\"preferred_theme\").\n"
+#| "                Details on the individual cookies, their purposes, "
+#| "categories and storage periods\n"
+#| "                can be found in our Cookie Policy.\n"
+#| "            "
 msgid ""
 "\n"
 "                Technically necessary cookies include in particular session "
@@ -3454,8 +3472,10 @@ msgid ""
 "                language selection and consent management (for example "
 "\"django_language\",\n"
 "                \"htmx-current-path-for-history\" and \"CookieConsent\").\n"
-"                Preference cookies store your selected theme (for example "
-"\"preferred_theme\").\n"
+"                Your selected light or dark theme is not stored in a cookie "
+"but locally in your\n"
+"                browser via localStorage (key \"mentoroai-theme\") and is "
+"not transmitted to us.\n"
 "                Details on the individual cookies, their purposes, "
 "categories and storage periods\n"
 "                can be found in our Cookie Policy.\n"
@@ -3474,11 +3494,11 @@ msgstr ""
 "Speicherdauern\n"
 "finden Sie in unserer Cookie-Richtlinie."
 
-#: templates/legal/privacy_policy.html:274
+#: templates/legal/privacy_policy.html:275
 msgid "Consent management (Klaro)"
 msgstr "Einwilligungsmanagement (Klaro)"
 
-#: templates/legal/privacy_policy.html:276
+#: templates/legal/privacy_policy.html:277
 msgid ""
 "\n"
 "                We use the consent management platform Klaro by KIProtect to "
@@ -3497,11 +3517,11 @@ msgstr ""
 "erteilen. Die Verarbeitung erfolgt auf Grundlage unserer rechtlichen "
 "Verpflichtung gemäß Art. 6 Abs. 1 lit. c DSGVO."
 
-#: templates/legal/privacy_policy.html:283
+#: templates/legal/privacy_policy.html:284
 msgid "Google Tag Manager"
 msgstr "Google Tag Manager"
 
-#: templates/legal/privacy_policy.html:285
+#: templates/legal/privacy_policy.html:286
 msgid ""
 "\n"
 "                We use Google Tag Manager to manage and deploy website tags "
@@ -3525,7 +3545,7 @@ msgstr ""
 "Die Ausführung nicht essenzieller Tags wird durch Ihre Zustimmung über Klaro "
 "und Google Consent Mode v2 gesteuert."
 
-#: templates/legal/privacy_policy.html:296
+#: templates/legal/privacy_policy.html:297
 msgid ""
 "\n"
 "                Legitimate interests under Art. 6(1)(f) GDPR for the use of "
@@ -3540,8 +3560,8 @@ msgstr ""
 "Die Verarbeitung zu Analysezwecken erfolgt nur mit Ihrer Einwilligung gemäß "
 "Art. 6 Abs. 1 lit. a DSGVO."
 
-#: templates/legal/privacy_policy.html:304
-#: templates/legal/privacy_policy.html:323
+#: templates/legal/privacy_policy.html:305
+#: templates/legal/privacy_policy.html:324
 msgid ""
 "\n"
 "                Data may be transferred to Google LLC in the United States. "
@@ -3552,11 +3572,11 @@ msgstr ""
 "Daten können an Google LLC in den Vereinigten Staaten übertragen werden. "
 "Google beteiligt sich am EU-US-Datenschutzrahmen."
 
-#: templates/legal/privacy_policy.html:309
+#: templates/legal/privacy_policy.html:310
 msgid "Google Analytics 4"
 msgstr "Google Analytics 4"
 
-#: templates/legal/privacy_policy.html:311
+#: templates/legal/privacy_policy.html:312
 msgid ""
 "\n"
 "                If you give your consent to the “Statistics” category, we "
@@ -3577,43 +3597,43 @@ msgstr ""
 "Der Google Consent Mode v2 stellt sicher, dass vor der Einwilligung keine "
 "Analytics-Cookies gesetzt werden."
 
-#: templates/legal/privacy_policy.html:319
+#: templates/legal/privacy_policy.html:320
 msgid "Your consent under Art. 6(1)(a) GDPR."
 msgstr "Ihre Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO."
 
-#: templates/legal/privacy_policy.html:338
+#: templates/legal/privacy_policy.html:339
 msgid "Your rights"
 msgstr "Ihre Rechte"
 
-#: templates/legal/privacy_policy.html:340
+#: templates/legal/privacy_policy.html:341
 msgid "Access to your stored data"
 msgstr "Auskunft über deine gespeicherten Daten"
 
-#: templates/legal/privacy_policy.html:341
+#: templates/legal/privacy_policy.html:342
 msgid "Rectification of inaccurate data"
 msgstr "Berichtigung unrichtiger Daten"
 
-#: templates/legal/privacy_policy.html:342
+#: templates/legal/privacy_policy.html:343
 msgid "Erasure ('right to be forgotten')"
 msgstr "Löschung ('Recht, vergessen zu werden')"
 
-#: templates/legal/privacy_policy.html:343
+#: templates/legal/privacy_policy.html:344
 msgid "Restriction of processing"
 msgstr "Einschränkung der Verarbeitung"
 
-#: templates/legal/privacy_policy.html:344
+#: templates/legal/privacy_policy.html:345
 msgid "Data portability"
 msgstr "Datenübertragbarkeit"
 
-#: templates/legal/privacy_policy.html:345
+#: templates/legal/privacy_policy.html:346
 msgid "Objection to processing"
 msgstr "Widerspruch gegen die Verarbeitung"
 
-#: templates/legal/privacy_policy.html:348
+#: templates/legal/privacy_policy.html:349
 msgid "Withdrawal of consent and objection"
 msgstr "Widerruf der Einwilligung und des Widerspruchs"
 
-#: templates/legal/privacy_policy.html:350
+#: templates/legal/privacy_policy.html:351
 msgid ""
 "\n"
 "                You may withdraw your consent at any time with effect for "
@@ -3632,11 +3652,11 @@ msgstr ""
 "Die Rechtmäßigkeit der vor dem Widerruf erfolgten Verarbeitung bleibt davon "
 "unberührt."
 
-#: templates/legal/privacy_policy.html:357
+#: templates/legal/privacy_policy.html:358
 msgid "Right to lodge a complaint"
 msgstr "Recht auf Beschwerde"
 
-#: templates/legal/privacy_policy.html:359
+#: templates/legal/privacy_policy.html:360
 msgid ""
 "\n"
 "                You have the right to lodge a complaint with a supervisory "
@@ -3651,11 +3671,11 @@ msgstr ""
 "insbesondere in dem EU-Mitgliedstaat Ihres gewöhnlichen Aufenthalts,\n"
 "Ihres Arbeitsplatzes oder des Ortes der mutmaßlichen Rechtsverletzung."
 
-#: templates/legal/privacy_policy.html:367
+#: templates/legal/privacy_policy.html:368
 msgid "Data security"
 msgstr "Datensicherheit"
 
-#: templates/legal/privacy_policy.html:369
+#: templates/legal/privacy_policy.html:370
 msgid ""
 "\n"
 "                We use technical and organizational measures to protect your "
@@ -3670,7 +3690,7 @@ msgstr ""
 "Diese Maßnahmen werden fortlaufend an die technologischen Entwicklungen "
 "angepasst."
 
-#: templates/legal/privacy_policy.html:375
+#: templates/legal/privacy_policy.html:376
 msgid ""
 "\n"
 "                Our servers are hosted within the European Union and are "
@@ -3683,11 +3703,11 @@ msgstr ""
 "durch moderne Sicherheitsmaßnahmen geschützt wie Verschlüsselung, Firewalls "
 "und Zugriffskontrollen."
 
-#: templates/legal/privacy_policy.html:381
+#: templates/legal/privacy_policy.html:382
 msgid "Do Not Track signals"
 msgstr "Signale nicht verfolgen"
 
-#: templates/legal/privacy_policy.html:383
+#: templates/legal/privacy_policy.html:384
 msgid ""
 "\n"
 "                Our website does not currently respond to \"Do Not Track\" "
@@ -3701,11 +3721,11 @@ msgstr ""
 "Tracking-Technologien werden ausschließlich mit ausdrücklicher Zustimmung "
 "des Nutzers gesteuert."
 
-#: templates/legal/privacy_policy.html:389
+#: templates/legal/privacy_policy.html:390
 msgid "Automated decision-making"
 msgstr "Automatisierte Entscheidungsfindung"
 
-#: templates/legal/privacy_policy.html:391
+#: templates/legal/privacy_policy.html:392
 msgid ""
 "\n"
 "                We do not use automated decision-making or profiling within "
@@ -3716,11 +3736,11 @@ msgstr ""
 "Wir verwenden keine automatisierte Entscheidungsfindung oder Profiling im "
 "Sinne von Art. 22 DSGVO."
 
-#: templates/legal/privacy_policy.html:396
+#: templates/legal/privacy_policy.html:397
 msgid "Children"
 msgstr "Minderjährige"
 
-#: templates/legal/privacy_policy.html:398
+#: templates/legal/privacy_policy.html:399
 msgid ""
 "\n"
 "                This website is intended for a general audience.\n"
@@ -3738,11 +3758,11 @@ msgstr ""
 "Wenn Sie glauben, dass ein Kind uns personenbezogene Daten zur Verfügung "
 "gestellt hat, kontaktieren Sie uns bitte."
 
-#: templates/legal/privacy_policy.html:406
+#: templates/legal/privacy_policy.html:407
 msgid "Changes to this Privacy Policy"
 msgstr "Änderungen an dieser Datenschutzrichtlinie"
 
-#: templates/legal/privacy_policy.html:408
+#: templates/legal/privacy_policy.html:409
 msgid ""
 "\n"
 "                We may update this Privacy Policy from time to time.\n"
@@ -3762,11 +3782,11 @@ msgstr ""
 "Die aktuelle Version ist immer auf dieser Seite verfügbar; das „Datum des "
 "Inkrafttretens” gibt an, wann die Erklärung zuletzt geändert wurde."
 
-#: templates/legal/privacy_policy.html:418
+#: templates/legal/privacy_policy.html:419
 msgid "Effective date"
 msgstr "Datum des Inkrafttretens"
 
-#: templates/legal/privacy_policy.html:419
+#: templates/legal/privacy_policy.html:420
 msgid "This Privacy Policy is effective as of 16 December 2025."
 msgstr "Diese Datenschutzrichtlinie tritt am 16. Dezember 2025 in Kraft."
 
@@ -4540,6 +4560,26 @@ msgid ""
 msgstr ""
 "Praktische KI-Anwendungsfälle mit klaren Beispielen, Vorteilen und "
 "Anleitungen für geschäftliche Aufgaben, Forschung und kreative Arbeit."
+
+#~ msgid "Preference cookies"
+#~ msgstr "Präferenz-Cookies"
+
+#~ msgid ""
+#~ "\n"
+#~ "                Preference cookies allow the website to remember "
+#~ "information that changes the way the\n"
+#~ "                website behaves or looks, for example your selected light/"
+#~ "dark theme.\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "Präferenz-Cookies ermöglichen es der Website, Informationen zu speichern, "
+#~ "die das Verhalten oder Aussehen der Website verändern, beispielsweise das "
+#~ "von Ihnen gewählte helle/dunkle Design."
+
+#~ msgid "remembers your selected theme (light/dark) for future visits"
+#~ msgstr ""
+#~ "merkt sich Ihr ausgewähltes Design (hell/dunkel) für zukünftige Besuche"
 
 #~ msgid "Copy text block"
 #~ msgstr "Textblock kopieren"
