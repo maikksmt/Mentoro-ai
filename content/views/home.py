@@ -13,23 +13,18 @@ from mentoroai import settings
 
 
 def resolve_starter_guide_url(lang: str) -> str | None:
-    slugs = getattr(settings, "START_GUIDE_PUBLIC_SLUGS", {
-        "de": "start-guide-de",
-        "en": "start-guide-en",
-    })
-    want = slugs.get(lang) or slugs.get("en")
-
-    if not want:
+    """
+    Finds the published Guide flagged is_starter=True and returns its URL in
+    `lang`, or None if there is no starter or it has no translation in `lang`
+    (a fallback-language translation must never be linked as if it were `lang`).
+    """
+    guide = Guide.objects.published().filter(is_starter=True).order_by("-published_at", "-pk").first()
+    if guide is None:
+        return None
+    if not guide.has_translation(lang):
         return None
 
-    qs = Guide.objects.active_translations(lang)
-    g = qs.filter(translations__public_slug=want).first()
-    if not g:
-        g = qs.filter(translations__slug=want).first()
-    if not g or g.status == g.STATUS_ARCHIVED:
-        return None
-
-    return g.get_absolute_url(language=lang)
+    return guide.get_absolute_url(language=lang)
 
 
 class HomePageView(SeoMixin, TemplateView):

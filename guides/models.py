@@ -1,14 +1,30 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, Value, When
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, get_language
 from parler.models import TranslatableModel, TranslatedFields
 from parler.utils.context import switch_language
 
 from catalog.models import Category, Tool
-from core.models.editorial import EditorialWorkflowMixin
+from core.models.editorial import EditorialManager, EditorialQuerySet, EditorialWorkflowMixin
+
+
+class GuideQuerySet(EditorialQuerySet):
+    def ordered_for_listing(self):
+        # Starter first, then by recency: last edited, then last published, then pk.
+        return self.annotate(
+            _starter_rank=Case(
+                When(is_starter=True, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            )
+        ).order_by("_starter_rank", "-updated_at", "-published_at", "-pk")
+
+
+GuideManager = EditorialManager.from_queryset(GuideQuerySet)
 
 
 class Guide(EditorialWorkflowMixin, TranslatableModel):
@@ -23,13 +39,46 @@ class Guide(EditorialWorkflowMixin, TranslatableModel):
     )
     categories = models.ManyToManyField(Category, blank=True)
     tools = models.ManyToManyField(Tool, blank=True)
+    is_starter = models.BooleanField(
+        _("Starter guide"),
+        default=False,
+        help_text=_("Shown first in the guide list and used as the homepage starter CTA."),
+    )
+
+    objects = GuideManager()
 
     class Meta:
         verbose_name = _("Guide")
         verbose_name_plural = _("Guides")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["is_starter"],
+                condition=Q(is_starter=True, status=EditorialWorkflowMixin.STATUS_PUBLISHED),
+                name="guide_single_published_starter",
+                violation_error_message=_("Another guide is already published as the starter guide."),
+            ),
+        ]
 
     def __str__(self):
         return self.safe_translation_getter("title", any_language=True) or f"Guide #{self.pk}"
+
+    def clean(self):
+        super().clean()
+        # Mirrors guide_single_published_starter without relying on Django's
+        # constraint.validate(): that mechanism silently no-ops whenever its
+        # condition references a field excluded from full_clean() (here:
+        # "status", which GuideAdmin marks readonly and therefore excludes),
+        # so it never actually surfaces this conflict in the admin form.
+        if self.is_starter and self.status == EditorialWorkflowMixin.STATUS_PUBLISHED:
+            conflict_exists = (
+                Guide.objects.filter(is_starter=True, status=EditorialWorkflowMixin.STATUS_PUBLISHED)
+                .exclude(pk=self.pk)
+                .exists()
+            )
+            if conflict_exists:
+                raise ValidationError(
+                    {"is_starter": _("Another guide is already published as the starter guide.")}
+                )
 
     def _current_values_for(self, lang: str) -> dict:
         """Liest die aktuellen (Draft/DB) Werte sicher in einer Sprache aus."""

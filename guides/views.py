@@ -21,11 +21,10 @@ class GuideListView(SeoMixin, ListView):
             Guide.objects
             .visible_on_site()
             .active_translations(lang)
-            .exclude(translations__slug__startswith="start-guide")
             .select_related("author", "reviewed_by")
             .prefetch_related("categories__translations", "tools__translations")
             .distinct()
-            .order_by("-published_at", "-updated_at")
+            .ordered_for_listing()
         )
 
     def get_context_data(self, **kwargs):

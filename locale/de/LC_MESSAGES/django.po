@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-19 12:33+0200\n"
-"PO-Revision-Date: 2026-07-19 12:28+0200\n"
+"POT-Creation-Date: 2026-07-19 16:12+0200\n"
+"PO-Revision-Date: 2026-07-19 16:11+0200\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -73,7 +73,7 @@ msgid "Meta"
 msgstr "Meta"
 
 #: catalog/models.py:15 catalog/models.py:45 compare/models.py:19
-#: glossary/models.py:11 guides/models.py:21 prompts/models.py:21
+#: glossary/models.py:11 guides/models.py:37 prompts/models.py:21
 #: usecases/models.py:20
 msgid "Slug"
 msgstr "Slug"
@@ -196,9 +196,9 @@ msgstr "Zeitstempel"
 msgid "[Tools] Overview"
 msgstr "[Tools] Übersicht"
 
-#: compare/admin.py:145 compare/models.py:16 guides/admin.py:132
-#: guides/admin.py:136 guides/models.py:18 guides/models.py:119
-#: guides/models.py:204 prompts/admin.py:109 prompts/models.py:17
+#: compare/admin.py:145 compare/models.py:16 guides/admin.py:133
+#: guides/admin.py:137 guides/models.py:34 guides/models.py:168
+#: guides/models.py:253 prompts/admin.py:109 prompts/models.py:17
 #: templates/content/editorial/review_queue.html:14
 #: templates/ops/seo_check.html:41 usecases/admin.py:99 usecases/models.py:16
 msgid "Title"
@@ -225,7 +225,7 @@ msgstr "Veröffentlicht"
 msgid "Status"
 msgstr "Status"
 
-#: compare/models.py:17 guides/models.py:19 prompts/models.py:18
+#: compare/models.py:17 guides/models.py:35 prompts/models.py:18
 #: usecases/models.py:17
 msgid "Intro"
 msgstr "Intro"
@@ -234,7 +234,7 @@ msgstr "Intro"
 msgid "Short introduction shown in lists and above the comparison."
 msgstr "Kurze Einführung in Listen und über dem Vergleich."
 
-#: compare/models.py:18 guides/models.py:20 guides/models.py:120
+#: compare/models.py:18 guides/models.py:36 guides/models.py:169
 #: prompts/models.py:19 usecases/models.py:18
 msgid "Body"
 msgstr "Body"
@@ -248,7 +248,7 @@ msgstr ""
 msgid "Internal slug, used for the default detail URL."
 msgstr "Interner Slug, der für die Standarddetail-URL verwendet wird."
 
-#: compare/models.py:21 guides/models.py:22 prompts/models.py:22
+#: compare/models.py:21 guides/models.py:38 prompts/models.py:22
 #: usecases/models.py:21
 msgid "Public slug"
 msgstr "Public slug"
@@ -333,7 +333,7 @@ msgstr ""
 "und Besonderheiten zu verstehen."
 
 #: compare/views.py:88 compare/views.py:217 templates/base.html:139
-#: templates/base.html:171 templates/content/home.html:99
+#: templates/base.html:171 templates/content/home.html:101
 #: templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:51
 msgid "Comparisons"
@@ -376,11 +376,11 @@ msgstr "Status aktualisiert."
 msgid "You are not allowed to perform this transition."
 msgstr "Sie dürfen diese Aktion nicht durchführen."
 
-#: content/views/home.py:43
+#: content/views/home.py:38
 msgid "AI tools, guides & usecases for beginners and professionals"
 msgstr "KI-Tools, Leitfäden und Anwendungsfälle für Anfänger und Profis"
 
-#: content/views/home.py:45
+#: content/views/home.py:40
 msgid ""
 "MentoroAI offers AI tutorials, guides, prompts, tool comparisons, use cases "
 "and a glossary to help you navigate the modern AI world."
@@ -474,7 +474,7 @@ msgstr "Übergang 'Zum Review senden' nicht ausführbar"
 msgid "%(n)d item(s) → Review."
 msgstr "%(n)d Artikel → Review."
 
-#: core/admin.py:377 core/admin.py:469 core/admin.py:518
+#: core/admin.py:377 core/admin.py:469 core/admin.py:524
 #, python-format
 msgid "%(n)d skipped: %(detail)s"
 msgstr "%(n)d übersprungen: %(detail)s"
@@ -483,7 +483,7 @@ msgstr "%(n)d übersprungen: %(detail)s"
 msgid "Request changes (→ Rework)"
 msgstr "Änderungen anfordern (→ Nacharbeiten)"
 
-#: core/admin.py:391 core/admin.py:532 core/admin.py:572
+#: core/admin.py:391 core/admin.py:538 core/admin.py:578
 msgid "You are not authorized to perform this action."
 msgstr "Du bist nicht berechtigt, diese Aktion auszuführen."
 
@@ -513,37 +513,42 @@ msgstr "%(n)d Artikel genehmigt."
 msgid "Publish selected item(s)"
 msgstr "Ausgewählte Objekte veröffentlichen"
 
-#: core/admin.py:505
+#: core/admin.py:501
+#, python-format
+msgid "Could not publish: %(error)s"
+msgstr "Konnte nicht veröffentlicht werden: %(error)s"
+
+#: core/admin.py:511
 msgid "Transition 'publish' not executable"
 msgstr "Übergang 'Veröffentlichen' nicht ausführbar"
 
-#: core/admin.py:511
+#: core/admin.py:517
 #, python-format
 msgid "%(n)d item(s) published."
 msgstr "%(n)d Artikel veröffentlicht."
 
-#: core/admin.py:522
+#: core/admin.py:528
 msgid "Archive (Soft Delete)"
 msgstr "Archivieren (Soft Delete)"
 
-#: core/admin.py:540
+#: core/admin.py:546
 msgid "Transition 'archive' not executable"
 msgstr "Übergang 'Archivieren' nicht ausführbar"
 
-#: core/admin.py:558
+#: core/admin.py:564
 #, python-format
 msgid "%(n)d item(s) archived."
 msgstr "%(n)d Artikel archiviert."
 
-#: core/admin.py:562
+#: core/admin.py:568
 msgid "Restore (→ Draft)"
 msgstr "Wiederherstellen (→ Entwurf)"
 
-#: core/admin.py:580
+#: core/admin.py:586
 msgid "Transition 'restore' not executable"
 msgstr "Übergang 'Wiederherstellen' nicht ausführbar"
 
-#: core/admin.py:598
+#: core/admin.py:604
 #, python-format
 msgid "%(n)d item(s) restored (draft)."
 msgstr "%(n)d Artikel wiederhergestellt (Entwurf)"
@@ -594,56 +599,71 @@ msgstr ""
 "Verstehen Sie Schlüsselbegriffe in KI, maschinellem Lernen und "
 "Datenwissenschaft mit klaren, anfängerfreundlichen Definitionen."
 
-#: guides/admin.py:87
+#: guides/admin.py:88
 msgid "Relations"
 msgstr "Beziehungen"
 
-#: guides/admin.py:90 prompts/admin.py:61 usecases/admin.py:60
+#: guides/admin.py:91 prompts/admin.py:61 usecases/admin.py:60
 msgid "Routing"
 msgstr "Routing"
 
-#: guides/admin.py:93 prompts/admin.py:64 usecases/admin.py:63
+#: guides/admin.py:94 prompts/admin.py:64 usecases/admin.py:63
 msgid "Content (translated)"
 msgstr "Inhalt (übersetzt)"
 
-#: guides/admin.py:95 prompts/admin.py:66 usecases/admin.py:66
+#: guides/admin.py:96 prompts/admin.py:66 usecases/admin.py:66
 msgid "These fields are language-specific. Use the language tabs above."
 msgstr ""
 "Diese Felder sind sprachspezifisch. Verwende die Sprachregisterkarten oben."
 
-#: guides/models.py:28 templates/partials/_guideitem_card.html:7
+#: guides/models.py:43
+msgid "Starter guide"
+msgstr "Starter Leitfaden"
+
+#: guides/models.py:45
+msgid "Shown first in the guide list and used as the homepage starter CTA."
+msgstr ""
+"Wird in der Leitfaden-Liste zuerst angezeigt und als Start-CTA auf der "
+"Homepage verwendet."
+
+#: guides/models.py:51 templates/partials/_guideitem_card.html:7
 #: templates/partials/_teaser_card.html:7
 msgid "Guide"
 msgstr "Leitfaden"
 
-#: guides/models.py:29 guides/views.py:55 guides/views.py:133
+#: guides/models.py:52 guides/views.py:54 guides/views.py:132
 #: templates/base.html:123 templates/base.html:155
-#: templates/content/home.html:96 templates/content/what-to-find.html:32
+#: templates/content/home.html:98 templates/content/what-to-find.html:32
 #: templates/guides/guide_list.html:7 templates/partials/_entry_cards.html:19
 msgid "Guides"
 msgstr "Leitfäden"
 
-#: guides/models.py:125
+#: guides/models.py:58 guides/models.py:80
+msgid "Another guide is already published as the starter guide."
+msgstr ""
+"Ein weiterer Leitfaden wurde bereits als Einstiegsleitfaden veröffentlicht."
+
+#: guides/models.py:174
 msgid "Guide Section"
 msgstr "Leitfaden-Abschnitt"
 
-#: guides/models.py:126
+#: guides/models.py:175
 msgid "Guide Sections"
 msgstr "Leitfaden Abschnitte"
 
-#: guides/models.py:205
+#: guides/models.py:254
 msgid "Teaser"
 msgstr "Teaser"
 
-#: guides/models.py:213
+#: guides/models.py:262
 msgid "Guide Item"
 msgstr "Leitfaden Item"
 
-#: guides/models.py:214
+#: guides/models.py:263
 msgid "Guide Items"
 msgstr "Leitfaden Items"
 
-#: guides/models.py:250
+#: guides/models.py:299
 msgid "Either content_object (content_type + object_id) OR a URL."
 msgstr ""
 "Entweder content_object (content_type + object_id) ODER eine URL angeben."
@@ -656,11 +676,11 @@ msgstr "Auto: Änderung an GuideSection (speichern)"
 msgid "Auto: Change to GuideSection (delete)"
 msgstr "Auto: Änderung an GuideSection (löschen)"
 
-#: guides/views.py:35
+#: guides/views.py:34
 msgid "AI guides · MentoroAI"
 msgstr "KI Leitfäden · MentoroAI"
 
-#: guides/views.py:37
+#: guides/views.py:36
 msgid ""
 "Browse practical AI guides and tutorials to learn step by step how to use AI "
 "tools in everyday life and work."
@@ -754,7 +774,7 @@ msgstr "Prompt"
 
 #: prompts/models.py:30 prompts/views.py:74 prompts/views.py:149
 #: templates/base.html:127 templates/base.html:159
-#: templates/content/home.html:97 templates/content/what-to-find.html:33
+#: templates/content/home.html:99 templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
 msgid "Prompts"
 msgstr "Prompts"
@@ -1718,13 +1738,13 @@ msgstr "Was dieses Tool kann"
 msgid "Similar tools"
 msgstr "Ähnliche Tools"
 
-#: templates/catalog/tool_detail.html:182 templates/content/home.html:70
+#: templates/catalog/tool_detail.html:182 templates/content/home.html:72
 #: templates/prompts/prompt_detail.html:82 templates/usecases/detail.html:88
 msgid "Rating"
 msgstr "Bewertung"
 
 #: templates/catalog/tool_detail.html:185 templates/catalog/tool_list.html:204
-#: templates/content/home.html:72 templates/prompts/prompt_detail.html:85
+#: templates/content/home.html:74 templates/prompts/prompt_detail.html:85
 #: templates/usecases/detail.html:91
 msgid "Details"
 msgstr "Details"
@@ -1826,7 +1846,7 @@ msgstr "Suche Vergleiche..."
 
 #: templates/compare/comparison_list.html:62
 #: templates/glossary/glossary_results.html:7
-#: templates/guides/guide_list.html:18 templates/guides/guide_list.html:48
+#: templates/guides/guide_list.html:18 templates/guides/guide_list.html:51
 #: templates/partials/_guideitem_card.html:22
 #: templates/partials/_guideitem_card.html:29
 #: templates/partials/_teaser_card.html:27
@@ -1837,13 +1857,13 @@ msgid "Read details about "
 msgstr "Lesen Sie Details über"
 
 #: templates/compare/comparison_list.html:88
-#: templates/guides/guide_list.html:32 templates/partials/_teaser_card.html:19
+#: templates/guides/guide_list.html:35 templates/partials/_teaser_card.html:19
 #: templates/prompts/prompt_list.html:30 templates/usecases/list.html:35
 msgid "Published or Updated on"
 msgstr "Veröffentlicht oder Aktualisiert am"
 
 #: templates/compare/comparison_list.html:97
-#: templates/guides/guide_list.html:41 templates/prompts/prompt_list.html:39
+#: templates/guides/guide_list.html:44 templates/prompts/prompt_list.html:39
 #: templates/usecases/list.html:44
 msgid "from"
 msgstr "Von"
@@ -1853,7 +1873,7 @@ msgid "Read more about "
 msgstr "Lesen Sie mehr über"
 
 #: templates/compare/comparison_list.html:105
-#: templates/guides/guide_list.html:49 templates/prompts/prompt_list.html:45
+#: templates/guides/guide_list.html:52 templates/prompts/prompt_list.html:45
 #: templates/usecases/list.html:50
 msgid "Read more"
 msgstr "Weiterlesen"
@@ -1947,36 +1967,36 @@ msgstr ""
 "folgen Sie praktischen Anleitungen und Hinweisen, um KI sicher im Alltag "
 "anzuwenden."
 
-#: templates/content/home.html:20 templates/content/home.html:21
+#: templates/content/home.html:21 templates/content/home.html:22
 msgid "Begin with the Starter Guide"
 msgstr "Beginne mit dem Start-Leitfaden"
 
-#: templates/content/home.html:24 templates/content/home.html:25
+#: templates/content/home.html:26 templates/content/home.html:27
 msgid "Discover AI Tools"
 msgstr "KI-Tools entdecken"
 
-#: templates/content/home.html:39
+#: templates/content/home.html:41
 msgid "Featured Tools"
 msgstr "Ausgewählte Tools"
 
-#: templates/content/home.html:83
+#: templates/content/home.html:85
 msgid "Recommended for you"
 msgstr "Empfohlen für dich"
 
-#: templates/content/home.html:94
+#: templates/content/home.html:96
 msgid "Current content"
 msgstr "Aktuelle Inhalte"
 
-#: templates/content/home.html:98 templates/usecases/list.html:8
+#: templates/content/home.html:100 templates/usecases/list.html:8
 #: usecases/models.py:29 usecases/views.py:74 usecases/views.py:157
 msgid "Usecases"
 msgstr "Anwendungsfälle"
 
-#: templates/content/home.html:109
+#: templates/content/home.html:111
 msgid "No published content yet."
 msgstr "Noch keine veröffentlichten Inhalte."
 
-#: templates/content/home.html:118
+#: templates/content/home.html:120
 msgid "View roadmap"
 msgstr "Roadmap anzeigen"
 
@@ -2623,7 +2643,11 @@ msgid "Step-by-step instructions on AI topics – understandable and practical."
 msgstr ""
 "Schritt-für-Schritt-Anleitungen zu KI Themen – verständlich und praxisnah."
 
-#: templates/guides/guide_list.html:57
+#: templates/guides/guide_list.html:20
+msgid "Start here"
+msgstr "Starte hier"
+
+#: templates/guides/guide_list.html:60
 msgid "No published guides available."
 msgstr "Keine veröffentlichten Leitfäden verfügbar."
 
@@ -5327,9 +5351,6 @@ msgstr ""
 #~ msgstr ""
 #~ "Beantworte drei Fragen, um Vorschläge für deinen Einstieg zu erhalten. "
 #~ "Deine Antworten werden nur lokal in deinem Browser gespeichert."
-
-#~ msgid "Starter"
-#~ msgstr "Starter"
 
 #~ msgid "Advanced"
 #~ msgstr "Fortgeschritten"

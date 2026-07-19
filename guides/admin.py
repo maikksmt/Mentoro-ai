@@ -54,9 +54,9 @@ class GuideSectionInline(TranslatableTinyMCEInlineMixin, TranslatableStackedInli
 class GuideAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, VersionAdmin):
     tinymce_fields = ("intro", "body")
     list_display = (
-        "display_title", "pk", "status", "is_published", "author", "reviewed_by", "published_fmt",
+        "display_title", "pk", "status", "is_starter", "is_published", "author", "reviewed_by", "published_fmt",
         "updated_fmt")
-    list_filter = ("status", "categories", "author", "reviewed_by")
+    list_filter = ("status", "is_starter", "categories", "author", "reviewed_by")
     search_fields = ("translations__title", "translations__intro", "slug")
     ordering = ("-published_at", "-updated_at")
     date_hierarchy = "published_at"
@@ -76,6 +76,7 @@ class GuideAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, VersionA
         }),
         (_("Meta"), {
             "fields": (
+                "is_starter",
                 "is_published",
                 "published_at",
                 "updated_at",
