@@ -82,52 +82,69 @@
 <!-- Navbar -->
 <div class="navbar bg-base-100 shadow-sm z-100">
     <div class="navbar-start">
-        <div class="dropdown">
-            <div tabindex="0" role="button" class="btn btn-ghost lg:hidden" aria-label="{% trans "Mobile menu" %}">
+        <div id="mobile-nav-dropdown" class="dropdown">
+            <button type="button" id="mobile-nav-trigger" class="btn btn-ghost lg:hidden"
+                    aria-controls="mobile-nav-menu" aria-expanded="false"
+                    aria-label="{% trans "Mobile menu" %}">
                 {% heroicon_solid "bars-3" size=28 %}{% heroicon_solid "chevron-down" size=18 %}
-            </div>
-            <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+            </button>
+            <ul id="mobile-nav-menu" tabindex="-1"
+                class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
                 <li class="my-1"><a href="{% url 'glossary:list' %}"
-                                    class="btn btn-glossary btn-soft btn-xl text-base-content text-lg">{% trans "Glossary" %}</a>
+                                    {% if nav_active_section == "glossary" %}aria-current="page"{% endif %}
+                                    class="btn btn-glossary btn-soft btn-xl text-base-content text-lg{% if nav_active_section == "glossary" %} btn-active{% endif %}">{% trans "Glossary" %}</a>
                 </li>
                 <li class="my-1"><a href="{% url 'guides:list' %}"
-                                    class="btn btn-guide btn-soft btn-xl text-base-content text-lg">{% trans "Guides" %}</a>
+                                    {% if nav_active_section == "guides" %}aria-current="page"{% endif %}
+                                    class="btn btn-guide btn-soft btn-xl text-base-content text-lg{% if nav_active_section == "guides" %} btn-active{% endif %}">{% trans "Guides" %}</a>
                 </li>
                 <li class="my-1"><a href="{% url 'prompts:list' %}"
-                                    class="btn btn-prompt btn-soft btn-xl text-base-content text-lg">{% trans "Prompts" %}</a>
+                                    {% if nav_active_section == "prompts" %}aria-current="page"{% endif %}
+                                    class="btn btn-prompt btn-soft btn-xl text-base-content text-lg{% if nav_active_section == "prompts" %} btn-active{% endif %}">{% trans "Prompts" %}</a>
                 </li>
                 <li class="my-1"><a href="{% url 'usecases:list' %}"
-                                    class="btn btn-usecase btn-soft btn-xl text-base-content text-lg">{% trans "Use cases" %}</a>
+                                    {% if nav_active_section == "usecases" %}aria-current="page"{% endif %}
+                                    class="btn btn-usecase btn-soft btn-xl text-base-content text-lg{% if nav_active_section == "usecases" %} btn-active{% endif %}">{% trans "Use cases" %}</a>
                 </li>
                 <li class="my-1"><a href="{% url 'catalog:list' %}"
-                                    class="btn btn-tool btn-soft btn-xl text-base-content text-lg">{% trans "Tools" %}</a>
+                                    {% if nav_active_section == "catalog" %}aria-current="page"{% endif %}
+                                    class="btn btn-tool btn-soft btn-xl text-base-content text-lg{% if nav_active_section == "catalog" %} btn-active{% endif %}">{% trans "Tools" %}</a>
                 </li>
                 <li class="my-1"><a href="{% url 'compare:index' %}"
-                                    class="btn btn-compare btn-soft btn-xl text-base-content text-lg">{% trans "Comparisons" %}</a>
+                                    {% if nav_active_section == "compare" %}aria-current="page"{% endif %}
+                                    class="btn btn-compare btn-soft btn-xl text-base-content text-lg{% if nav_active_section == "compare" %} btn-active{% endif %}">{% trans "Comparisons" %}</a>
                 </li>
             </ul>
         </div>
-        <a href="{% url 'content:home' %}" class="btn btn-ghost text-xl font-bold">MentoroAI</a>
+        <a href="{% url 'content:home' %}"
+           {% if nav_active_section == "home" %}aria-current="page"{% endif %}
+           class="btn btn-ghost text-xl font-bold{% if nav_active_section == "home" %} btn-active{% endif %}">MentoroAI</a>
     </div>
     <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
             <li class="mx-1"><a href="{% url 'glossary:list' %}"
-                                class="btn btn-sm xl:btn-md btn-glossary btn-soft text-base-content">{% trans "Glossary" %}</a>
+                                {% if nav_active_section == "glossary" %}aria-current="page"{% endif %}
+                                class="btn btn-sm xl:btn-md btn-glossary btn-soft text-base-content{% if nav_active_section == "glossary" %} btn-active{% endif %}">{% trans "Glossary" %}</a>
             </li>
             <li class="mx-1"><a href="{% url 'guides:list' %}"
-                                class="btn btn-sm xl:btn-md btn-guide btn-soft text-base-content">{% trans "Guides" %}</a>
+                                {% if nav_active_section == "guides" %}aria-current="page"{% endif %}
+                                class="btn btn-sm xl:btn-md btn-guide btn-soft text-base-content{% if nav_active_section == "guides" %} btn-active{% endif %}">{% trans "Guides" %}</a>
             </li>
             <li class="mx-1"><a href="{% url 'prompts:list' %}"
-                                class="btn btn-sm xl:btn-md btn-prompt btn-soft text-base-content">{% trans "Prompts" %}</a>
+                                {% if nav_active_section == "prompts" %}aria-current="page"{% endif %}
+                                class="btn btn-sm xl:btn-md btn-prompt btn-soft text-base-content{% if nav_active_section == "prompts" %} btn-active{% endif %}">{% trans "Prompts" %}</a>
             </li>
             <li class="mx-1"><a href="{% url 'usecases:list' %}"
-                                class="btn btn-sm xl:btn-md btn-usecase btn-soft text-base-content">{% trans "Use cases" %}</a>
+                                {% if nav_active_section == "usecases" %}aria-current="page"{% endif %}
+                                class="btn btn-sm xl:btn-md btn-usecase btn-soft text-base-content{% if nav_active_section == "usecases" %} btn-active{% endif %}">{% trans "Use cases" %}</a>
             </li>
             <li class="mx-1"><a href="{% url 'catalog:list' %}"
-                                class="btn btn-sm xl:btn-md btn-tool btn-soft text-base-content">{% trans "Tools" %}</a>
+                                {% if nav_active_section == "catalog" %}aria-current="page"{% endif %}
+                                class="btn btn-sm xl:btn-md btn-tool btn-soft text-base-content{% if nav_active_section == "catalog" %} btn-active{% endif %}">{% trans "Tools" %}</a>
             </li>
             <li class="mx-1"><a href="{% url 'compare:index' %}"
-                                class="btn btn-sm xl:btn-md btn-compare btn-soft text-base-content">{% trans "Comparisons" %}</a>
+                                {% if nav_active_section == "compare" %}aria-current="page"{% endif %}
+                                class="btn btn-sm xl:btn-md btn-compare btn-soft text-base-content{% if nav_active_section == "compare" %} btn-active{% endif %}">{% trans "Comparisons" %}</a>
             </li>
         </ul>
     </div>
@@ -383,28 +400,49 @@
 
 
 <script>
-    // --- Drawer open/close + ESC + Backdrop ---
+    // --- Mobile nav dropdown: click/keyboard toggle, outside click, Escape ---
     (function () {
-        const drawer = document.getElementById('mobile-drawer');
-        const openBtn = document.getElementById('menu-open');
-        const closeBtn = document.getElementById('menu-close');
-        const backdrop = document.getElementById('mobile-backdrop');
+        const container = document.getElementById('mobile-nav-dropdown');
+        const trigger = document.getElementById('mobile-nav-trigger');
+        const content = document.getElementById('mobile-nav-menu');
+        if (!container || !trigger || !content) return;
 
-        function open() {
-            drawer.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+        function isMenuOpen() {
+            return trigger.getAttribute('aria-expanded') === 'true';
         }
 
-        function close() {
-            drawer.classList.add('hidden');
-            document.body.style.overflow = '';
+        function openMenu() {
+            container.classList.remove('dropdown-close');
+            container.classList.add('dropdown-open');
+            trigger.setAttribute('aria-expanded', 'true');
         }
 
-        openBtn?.addEventListener('click', open);
-        closeBtn?.addEventListener('click', close);
-        backdrop?.addEventListener('click', close);
+        function closeMenu({focusTrigger = false} = {}) {
+            container.classList.remove('dropdown-open');
+            container.classList.add('dropdown-close');
+            trigger.setAttribute('aria-expanded', 'false');
+            if (focusTrigger) trigger.focus();
+        }
+
+        function toggleMenu() {
+            if (isMenuOpen()) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        }
+
+        trigger.addEventListener('click', toggleMenu);
+
+        document.addEventListener('click', (e) => {
+            if (!isMenuOpen()) return;
+            if (container.contains(e.target)) return;
+            closeMenu();
+        });
+
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') close();
+            if (e.key !== 'Escape' || !isMenuOpen()) return;
+            closeMenu({focusTrigger: true});
         });
     })();
 

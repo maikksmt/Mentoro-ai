@@ -145,6 +145,7 @@ TEMPLATES = [
                 "core.seo.context_processor.context_processor",
                 "django.template.context_processors.i18n",
                 "core.context_processors.account_signup_settings",
+                "core.context_processors.nav_active_section",
             ],
             "builtins": [
                 "heroicons.templatetags.heroicons",
