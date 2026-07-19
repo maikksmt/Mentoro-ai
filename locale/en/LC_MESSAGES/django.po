@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-20 07:55+0100\n"
+"POT-Creation-Date: 2026-07-19 07:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -642,7 +642,7 @@ msgstr ""
 msgid "Reason (optional)"
 msgstr ""
 
-#: newsletter/views.py:21 templates/base.html:219
+#: newsletter/views.py:21 templates/base.html:221
 msgid "Newsletter"
 msgstr ""
 
@@ -669,23 +669,23 @@ msgstr ""
 msgid "Please check your inbox to confirm your subscription."
 msgstr ""
 
-#: newsletter/views.py:76
+#: newsletter/views.py:82
 msgid "Confirm newsletter subscription"
 msgstr ""
 
-#: newsletter/views.py:86
+#: newsletter/views.py:92
 msgid "This confirmation link is invalid or has already been used."
 msgstr ""
 
-#: newsletter/views.py:105
+#: newsletter/views.py:111
 msgid "No active subscription found for this email."
 msgstr ""
 
-#: newsletter/views.py:109
+#: newsletter/views.py:115
 msgid "This email is already unsubscribed."
 msgstr ""
 
-#: newsletter/views.py:113
+#: newsletter/views.py:119
 msgid "You have been unsubscribed."
 msgstr ""
 
@@ -1059,7 +1059,7 @@ msgstr ""
 
 #: templates/account/login.html:4 templates/account/login.html:103
 #: templates/account/password_reset_from_key_done.html:23
-#: templates/base.html:161 templates/partials/author_info_card.html:56
+#: templates/base.html:162 templates/partials/author_info_card.html:56
 msgid "Login"
 msgstr ""
 
@@ -1108,7 +1108,7 @@ msgid "Create a free account"
 msgstr ""
 
 #: templates/account/logout.html:4 templates/account/logout.html:20
-#: templates/account/logout.html:32 templates/base.html:158
+#: templates/account/logout.html:32 templates/base.html:159
 msgid "Logout"
 msgstr ""
 
@@ -1441,62 +1441,62 @@ msgstr ""
 msgid "Tools"
 msgstr ""
 
-#: templates/base.html:136 templates/catalog/tool_list.html:62
+#: templates/base.html:137 templates/catalog/tool_list.html:62
 #: templates/catalog/tool_list.html:63
 #: templates/compare/comparison_list.html:38
 #: templates/compare/comparison_list.html:39
 msgid "Search"
 msgstr ""
 
-#: templates/base.html:145
+#: templates/base.html:146
 msgid "Toggle theme"
 msgstr ""
 
-#: templates/base.html:168
+#: templates/base.html:169
 msgid "Language select"
 msgstr ""
 
-#: templates/base.html:195
+#: templates/base.html:197
 msgid "Dashboard"
 msgstr ""
 
-#: templates/base.html:198
+#: templates/base.html:200
 msgid "Admin Panel"
 msgstr ""
 
-#: templates/base.html:200 templates/content/editorial/my_content.html:9
+#: templates/base.html:202 templates/content/editorial/my_content.html:9
 msgid "My Content"
 msgstr ""
 
-#: templates/base.html:203
+#: templates/base.html:205
 msgid "Reviews"
 msgstr ""
 
-#: templates/base.html:221 templates/partials/_entry_cards.html:5
+#: templates/base.html:223 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
 msgstr ""
 
-#: templates/base.html:222
+#: templates/base.html:224
 msgid "Legal notice"
 msgstr ""
 
-#: templates/base.html:223 templates/base.html:243
+#: templates/base.html:225 templates/base.html:245
 msgid "Privacy policy"
 msgstr ""
 
-#: templates/base.html:226
+#: templates/base.html:228
 msgid "Cookie-Settings"
 msgstr ""
 
-#: templates/base.html:227 templates/legal/terms_of_use.html:10
+#: templates/base.html:229 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr ""
 
-#: templates/base.html:228
+#: templates/base.html:230
 msgid "Copyright"
 msgstr ""
 
-#: templates/base.html:239
+#: templates/base.html:241
 msgid ""
 "\n"
 "                    We only use your data to run MentoroAI and improve our "
@@ -1601,12 +1601,12 @@ msgid "Similar tools"
 msgstr ""
 
 #: templates/catalog/tool_detail.html:182 templates/content/home.html:70
-#: templates/prompts/prompt_detail.html:81 templates/usecases/detail.html:88
+#: templates/prompts/prompt_detail.html:82 templates/usecases/detail.html:88
 msgid "Rating"
 msgstr ""
 
 #: templates/catalog/tool_detail.html:185 templates/catalog/tool_list.html:204
-#: templates/content/home.html:72 templates/prompts/prompt_detail.html:84
+#: templates/content/home.html:72 templates/prompts/prompt_detail.html:85
 #: templates/usecases/detail.html:91
 msgid "Details"
 msgstr ""
@@ -3752,12 +3752,16 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
-#: templates/partials/copy_block.html:18
-msgid "Copy text block"
+#: templates/partials/copy_block.html:3
+msgid "Copy"
 msgstr ""
 
-#: templates/partials/copy_block.html:21
-msgid "Copy"
+#: templates/partials/copy_block.html:4
+msgid "Copied"
+msgstr ""
+
+#: templates/partials/copy_block.html:5
+msgid "Error"
 msgstr ""
 
 #: templates/partials/features_open.html:5
@@ -3871,11 +3875,23 @@ msgid ""
 msgstr ""
 
 #: templates/partials/features_open.html:69
+#: templates/partials/search_open.html:11
 msgid "Close"
 msgstr ""
 
 #: templates/partials/features_open.html:77
+#: templates/partials/search_open.html:16
 msgid "Close modal"
+msgstr ""
+
+#: templates/partials/search_open.html:5
+msgid "Search is coming soon"
+msgstr ""
+
+#: templates/partials/search_open.html:7
+msgid ""
+"We're preparing a unified search across tools, guides, prompts, use cases, "
+"and comparisons."
 msgstr ""
 
 #: templates/partials/starter_guide_card.html:7
@@ -3900,15 +3916,19 @@ msgstr ""
 msgid "Browse beginner-friendly tools"
 msgstr ""
 
-#: templates/prompts/prompt_detail.html:51
+#: templates/prompts/prompt_detail.html:42
+msgid "Copy prompt"
+msgstr ""
+
+#: templates/prompts/prompt_detail.html:52
 msgid "Suitable tools"
 msgstr ""
 
-#: templates/prompts/prompt_detail.html:89
+#: templates/prompts/prompt_detail.html:90
 msgid "No tools linked."
 msgstr ""
 
-#: templates/prompts/prompt_detail.html:98
+#: templates/prompts/prompt_detail.html:99
 msgid "More Prompts"
 msgstr ""
 

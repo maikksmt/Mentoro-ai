@@ -1,3 +1,5 @@
+import re
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone, translation
@@ -50,3 +52,60 @@ class PromptTemplateTests(TestCase):
         else:
             self.assertIn(self.p_en.title, html)
             self.assertIn("Use this", html)
+
+
+class PromptBlockStructureTests(TestCase):
+    """Covers Beta 8.1: full prompt visibility, no internal scroll area,
+    non-overlapping copy button, and i18n-driven copy feedback."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.long_marker = "END-OF-PROMPT-MARKER-1234567890"
+        cls.long_body = "<p>" + ("This is a very long prompt line. " * 200) + cls.long_marker + "</p>"
+        cls.prompt = Prompt.objects.create(
+            title="Long Prompt",
+            slug="long-prompt",
+            body=cls.long_body,
+            status="published",
+            published_at=timezone.now(),
+        )
+
+    def _get_detail_html(self) -> str:
+        with translation.override("en"):
+            url = reverse("prompts:detail", kwargs={"slug": self.prompt.slug})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        return resp.content.decode()
+
+    def test_full_prompt_body_is_rendered_without_truncation(self):
+        html = self._get_detail_html()
+        self.assertIn(self.long_marker, html)
+        self.assertNotIn("truncat", html.lower())
+
+    def test_no_fixed_max_height_or_internal_scroll_area(self):
+        html = self._get_detail_html()
+        self.assertNotIn("max-h-[70vh]", html)
+        self.assertNotIn("overflow-auto", html)
+        self.assertNotIn("overflow-scroll", html)
+
+    def test_copy_button_is_not_absolutely_positioned_over_content(self):
+        html = self._get_detail_html()
+        match = re.search(r'<button[^>]*class="([^"]*copy-btn[^"]*)"', html)
+        self.assertIsNotNone(match, "copy button not found")
+        button_classes = match.group(1)
+        self.assertNotIn("absolute", button_classes)
+
+    def test_header_contains_prompt_label(self):
+        html = self._get_detail_html()
+        self.assertIn(">Prompt<", html)
+
+    def test_copy_button_exposes_i18n_status_data_attributes(self):
+        html = self._get_detail_html()
+        self.assertIn("data-copy-default-label=", html)
+        self.assertIn("data-copy-success=", html)
+        self.assertIn("data-copy-error=", html)
+
+    def test_visible_and_copy_source_content_are_the_same_node(self):
+        html = self._get_detail_html()
+        self.assertEqual(html.count('data-copy-source>'), 1)
+        self.assertIn(self.long_marker, html)
