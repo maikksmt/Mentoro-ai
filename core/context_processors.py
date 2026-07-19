@@ -1,5 +1,8 @@
 # core/context_processors.py
 from django.conf import settings
+from django.utils.translation import get_language
+
+from core.services import get_public_inventory
 
 NAV_SECTION_BY_APP = {
     "catalog": "catalog",
@@ -29,3 +32,10 @@ def nav_active_section(request):
 
     top_level_app = resolver_match.app_names[0] if resolver_match.app_names else None
     return {"nav_active_section": NAV_SECTION_BY_APP.get(top_level_app)}
+
+
+def public_inventory(request):
+    """Exposes cached, language-isolated public inventory counts and
+    highlights (see core.services.get_public_inventory) to every public
+    template - homepage fact line and global footer in particular."""
+    return {"public_inventory": get_public_inventory(get_language())}

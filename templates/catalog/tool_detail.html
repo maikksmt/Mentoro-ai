@@ -11,7 +11,7 @@
                     <div class="avatar">
                         <div class="w-16 h-16 rounded-xl ring ring-base-300 ring-offset-base-100 ring-offset-2">
                             {% if object.logo %}
-                                <img src="{{ object.logo.url }}" alt="{{ object.name }}">
+                                <img src="{{ object.logo.url }}" alt="{{ object.name }}" width="64" height="64" decoding="async">
                             {% else %}
                                 <div class="flex h-full w-full items-center justify-center bg-base-200 text-3xl font-semibold">
                                     {{ object.name|first|upper }}
@@ -159,7 +159,7 @@
                                         <div class="avatar">
                                             {% if t.logo %}
                                                 <div class="w-10 h-10 rounded-full">
-                                                    <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" width="40" height="40">
+                                                    <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" decoding="async" width="40" height="40">
                                                 </div>
                                             {% else %}
                                                 <div class="w-10 h-10 rounded-full ring-1 ring-base-300">

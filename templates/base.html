@@ -5,6 +5,26 @@
     {% load static auth_extras i18n i18n_next %}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <script>
+        // --- Early theme init: set data-theme before first paint to avoid a FOUC flash ---
+        (function () {
+            var THEME_STORAGE_KEY = 'mentoroai-theme';
+            var VALID_THEMES = ['mentoroai-light', 'mentoroai-dark'];
+
+            var stored = null;
+            try {
+                stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+            } catch (e) {
+                stored = null;
+            }
+
+            var systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'mentoroai-dark'
+                : 'mentoroai-light';
+
+            document.documentElement.dataset.theme = VALID_THEMES.indexOf(stored) !== -1 ? stored : systemTheme;
+        })();
+    </script>
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/apple-touch-icon-180.png' %}">
     <link rel="apple-touch-icon" sizes="152x152" href="{% static 'img/apple-touch-icon-152.png' %}">
     <link rel="apple-touch-icon" sizes="120x120" href="{% static 'img/apple-touch-icon-120.png' %}">
@@ -70,6 +90,10 @@
     {% endif %}
 </head>
 <body class="flex flex-col min-h-screen justify-between bg-base-100 text-base-content">
+<a href="#main-content"
+   class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:btn focus:btn-primary">
+    {% trans "Skip to main content" %}
+</a>
 {% if not debug %}
     <!-- Google Tag Manager (noscript) -->
     <noscript>
@@ -118,7 +142,7 @@
         </div>
         <a href="{% url 'content:home' %}"
            {% if nav_active_section == "home" %}aria-current="page"{% endif %}
-           class="btn btn-ghost text-xl font-bold{% if nav_active_section == "home" %} btn-active{% endif %}">MentoroAI</a>
+           class="btn btn-ghost text-xl font-bold">MentoroAI</a>
     </div>
     <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
@@ -226,34 +250,80 @@
 {% endif %}
 
 <!-- Page container -->
-<main class="p-4 w-full max-w-7xl mx-auto mb-auto">
+<main id="main-content" tabindex="-1" class="p-4 w-full max-w-7xl mx-auto mb-auto">
     {% block content %}{% endblock %}
 </main>
 
 
 <!-- Footer -->
-<footer class="footer footer-center bg-base-300 text-base-content">
-    <div class="max-w-7xl mx-auto p-3 md:p-4 lg:p-6 space-y-3">
-        <nav class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-2 text-sm pt-2">
-            <a href="{% url 'newsletter:subscribe' %}" class="link link-hover p-1 lg:p-2">{% trans "Newsletter" %}</a>
-            <a href="{% url 'what-to-find' %}"
-               class="link link-hover p-1 lg:p-2">{% trans "What can I find on MentoroAI?" %}</a>
-            <a href="{% url 'legal:legal-notice' %}" class="link link-hover p-1 lg:p-2">{% trans "Legal notice" %}</a>
-            <a href="{% url 'legal:privacy' %}" class="link link-hover p-1 lg:p-2">{% trans "Privacy policy" %}</a>
-            <a href="{% url 'legal:cookies' %}" class="link link-hover p-1 lg:p-2">Cookies</a>
-            <a href="#" class="link link-hover p-1 lg:p-2"
-               onclick="klaro.show(klaroConfig, true); return false;">{% trans "Cookie-Settings" %}</a>
-            <a href="{% url 'legal:terms-of-use' %}" class="link link-hover p-1 lg:p-2">{% trans "Terms of Use" %}</a>
-            <a href="{% url 'legal:copyright' %}" class="link link-hover p-1 lg:p-2">{% trans "Copyright" %}</a>
-            <a href="https://github.com/maikksmt/mentoro-ai" target="_blank" rel="noopener"
-               class="flex items-center justify-center p-1 lg:p-2">
-                <img id="github-logo" alt="GitHub Logo" width="24" height="24"
-                     src="{% static 'img/github-mark-white.png' %}"
-                     srcset="{% static 'img/github-mark-white.svg' %}"/>
-            </a>
-        </nav>
+<footer class="bg-base-300 text-base-content">
+    <div class="max-w-7xl mx-auto p-3 md:p-4 lg:p-6 space-y-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10 text-sm pt-2">
+            <nav aria-labelledby="footer-explore-heading">
+                <h2 id="footer-explore-heading"
+                    class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Explore" %}</h2>
+                <ul class="space-y-2.5 mb-3">
+                    <li><a href="{% url 'catalog:list' %}" class="link link-hover">{% trans "Tools" %}</a></li>
+                    <li><a href="{% url 'guides:list' %}" class="link link-hover">{% trans "Guides" %}</a></li>
+                    <li><a href="{% url 'prompts:list' %}" class="link link-hover">{% trans "Prompts" %}</a></li>
+                    <li><a href="{% url 'usecases:list' %}" class="link link-hover">{% trans "Use cases" %}</a></li>
+                    <li><a href="{% url 'compare:index' %}" class="link link-hover">{% trans "Comparisons" %}</a></li>
+                    <li><a href="{% url 'glossary:list' %}" class="link link-hover">{% trans "Glossary" %}</a></li>
+                </ul>
+            </nav>
 
-        <div class="flex flex-col items-center gap-4 text-xs opacity-80">
+            {% if public_inventory.top_categories %}
+                <nav aria-labelledby="footer-categories-heading">
+                    <h2 id="footer-categories-heading"
+                        class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Browse categories" %}</h2>
+                    <ul class="space-y-2.5 mb-3">
+                        {% for cat in public_inventory.top_categories %}
+                            <li><a href="{{ cat.url }}" class="link link-hover">{{ cat.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            {% endif %}
+
+            <nav aria-labelledby="footer-starter-heading">
+                <h2 id="footer-starter-heading"
+                    class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Start here" %}</h2>
+                <ul class="space-y-2.5 mb-3">
+                    {% if public_inventory.starter_guide %}
+                        <li>
+                            <a href="{{ public_inventory.starter_guide.url }}"
+                               class="link link-hover">{{ public_inventory.starter_guide.title }}</a>
+                        </li>
+                    {% endif %}
+                    <li><a href="{% url 'what-to-find' %}"
+                           class="link link-hover">{% trans "What can I find on MentoroAI?" %}</a></li>
+                </ul>
+            </nav>
+
+            <nav aria-labelledby="footer-legal-heading">
+                <h2 id="footer-legal-heading"
+                    class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Legal" %}</h2>
+                <ul class="space-y-2.5 mb-3">
+                    <li><a href="{% url 'legal:legal-notice' %}" class="link link-hover">{% trans "Legal notice" %}</a></li>
+                    <li><a href="{% url 'legal:privacy' %}" class="link link-hover">{% trans "Privacy policy" %}</a></li>
+                    <li><a href="{% url 'legal:cookies' %}" class="link link-hover">Cookies</a></li>
+                    <li><a href="#" class="link link-hover"
+                           onclick="klaro.show(klaroConfig, true); return false;">{% trans "Cookie-Settings" %}</a></li>
+                    <li><a href="{% url 'legal:terms-of-use' %}" class="link link-hover">{% trans "Terms of Use" %}</a></li>
+                    <li><a href="{% url 'legal:copyright' %}" class="link link-hover">{% trans "Copyright" %}</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="flex flex-col items-center gap-4 text-xs opacity-80 border-t border-base-content/10 pt-6">
+            <div class="flex items-center gap-4">
+                <a href="{% url 'newsletter:subscribe' %}" class="link link-hover">{% trans "Newsletter" %}</a>
+                <a href="https://github.com/maikksmt/mentoro-ai" target="_blank" rel="noopener"
+                   class="flex items-center justify-center">
+                    <img id="github-logo" alt="GitHub Logo" width="24" height="24"
+                         src="{% static 'img/github-mark-white.png' %}"
+                         srcset="{% static 'img/github-mark-white.svg' %}"/>
+                </a>
+            </div>
             <p class="text-center md:text-left">
                 {% blocktrans %}
                     We only use your data to run MentoroAI and improve our content. For full details, see our
@@ -306,95 +376,42 @@
 </script>
 
 <script>
-    // --- Theme handling via Swap (cookie-aware, system default) ---
+    // --- Theme toggle: syncs the switch to the theme the early head script already
+    // applied, and persists manual choices in localStorage (no cookie, no consent gate). ---
     (function () {
-        const THEME_COOKIE = 'preferred_theme'; // stores 'mentoroai-light' or 'mentoroai-dark'
-        const COOKIE_MAX_DAYS = 365;
+        const THEME_STORAGE_KEY = 'mentoroai-theme';
+        const VALID_THEMES = ['mentoroai-light', 'mentoroai-dark'];
 
-        const mq = window.matchMedia('(prefers-color-scheme: dark)');
-        const systemTheme = () => (mq.matches ? 'mentoroai-dark' : 'mentoroai-light');
-
-        function setRawCookie(name, value, days) {
-            const d = new Date();
-            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-            document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+        function isValidTheme(value) {
+            return VALID_THEMES.indexOf(value) !== -1;
         }
 
-        function deleteCookie(name) {
-            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Lax`;
-        }
-
-        function getCookie(name) {
-            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-            return match ? decodeURIComponent(match[2]) : null;
-        }
-
-        function hasPreferencesConsent() {
+        function storeTheme(theme) {
             try {
-                if (!window.klaro || typeof klaro.getManager !== 'function') return true; // fallback (z.B. debug)
-                const mgr = klaro.getManager(klaroConfig);
-                return !!mgr.getConsent('preferences-cookies');
+                window.localStorage.setItem(THEME_STORAGE_KEY, theme);
             } catch (e) {
-                return true;
+                // Storage unavailable (private mode, blocked, ...) - theme still applies for this page view.
             }
         }
 
         function applyTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            // sync all swap checkboxes (checked => light)
+            document.documentElement.dataset.theme = theme;
             document.querySelectorAll('.theme-swap input[type="checkbox"]').forEach(cb => {
                 cb.checked = (theme === 'mentoroai-light');
             });
         }
 
-        function applyAndPersistTheme(theme) {
-            applyTheme(theme);
-            if (hasPreferencesConsent()) {
-                setRawCookie(THEME_COOKIE, theme, COOKIE_MAX_DAYS);
-            } else {
-                // keine Präferenz-Einwilligung -> Cookie löschen, aber Theme weiter anzeigen
-                deleteCookie(THEME_COOKIE);
-            }
-        }
+        // The early head script already set data-theme before first paint; just sync the switch to it.
+        const current = document.documentElement.dataset.theme;
+        applyTheme(isValidTheme(current) ? current : 'mentoroai-light');
 
-        // Initial: Cookie nur verwenden, wenn Präferenz-Einwilligung vorliegt.
-        const saved = hasPreferencesConsent() ? getCookie(THEME_COOKIE) : null;
-        applyTheme(saved || systemTheme());
-
-        // Auf OS-Theme-Änderungen reagieren, solange kein Cookie gesetzt ist
-        mq.addEventListener?.('change', () => {
-            if (!getCookie(THEME_COOKIE)) {
-                applyTheme(systemTheme());
-            }
-        });
-
-        // Theme-Toggle Buttons
         document.querySelectorAll('.theme-swap input[type="checkbox"]').forEach(cb => {
             cb.addEventListener('change', (e) => {
                 const next = e.currentTarget.checked ? 'mentoroai-light' : 'mentoroai-dark';
-                applyAndPersistTheme(next);
+                applyTheme(next);
+                storeTheme(next);
             });
         });
-
-        (function watchKlaroConsents() {
-            if (!window.klaro || typeof klaro.getManager !== 'function') return;
-            const mgr = klaro.getManager(klaroConfig);
-
-            mgr.watch({
-                update: function (obj, name, data) {
-                    if (name !== 'consents') return;
-                    // gleiche Logik wie bisher: wenn keine Präferenz-Einwilligung -> Cookie löschen + System-Theme
-                    if (!hasPreferencesConsent()) {
-                        deleteCookie(THEME_COOKIE);
-                        applyTheme(systemTheme());
-                    } else {
-                        const stored = getCookie(THEME_COOKIE);
-                        applyTheme(stored || systemTheme());
-                    }
-                }
-            });
-        })();
-
     })();
 </script>
 

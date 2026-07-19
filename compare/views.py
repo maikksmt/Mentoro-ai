@@ -112,10 +112,15 @@ class ComparisonDetailView(SeoMixin, DetailView):
             .distinct()
         )
 
+        # Beta 8.8: match the slug on the active-language translation
+        # specifically - qs already requires *some* (possibly fallback)
+        # translation via Comparison.published, but an unqualified slug
+        # match could otherwise hit a different language's row on the same
+        # object, silently serving e.g. an English page under /de/.
         try:
-            return qs.get(translations__public_slug=slug)
+            return qs.get(translations__language_code=lang, translations__public_slug=slug)
         except Comparison.DoesNotExist:
-            return get_object_or_404(qs, translations__slug=slug)
+            return get_object_or_404(qs, translations__language_code=lang, translations__slug=slug)
 
     def _categories_for_object(self, obj: Comparison):
         """

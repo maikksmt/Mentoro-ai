@@ -16,6 +16,9 @@
                     <h2 class="card-title">
                         <a href="{{ obj.get_absolute_url }}" class="link link-hover" aria-label="
                                 {% trans "Read details about " %}{{ obj.display_title }}">{{ obj.display_title }}</a>
+                        {% if obj.is_starter %}
+                            <span class="badge badge-primary badge-sm whitespace-nowrap shrink-0">{% trans "Start here" %}</span>
+                        {% endif %}
                     </h2>
                     {% if obj.display_intro %}
                         <p class="line-clamp-3">{{ obj.display_intro|richtext|safe|truncatewords_html:30 }}</p>

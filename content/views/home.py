@@ -6,30 +6,20 @@ from catalog.models import Tool
 from core.seo.utils import absolute_url, localized_alternates, get_og_image
 from core.services import (
     get_latest_items,
+    resolve_public_starter_guide,
 )
 from core.views import SeoMixin
-from guides.models import Guide
 from mentoroai import settings
 
 
 def resolve_starter_guide_url(lang: str) -> str | None:
-    slugs = getattr(settings, "START_GUIDE_PUBLIC_SLUGS", {
-        "de": "start-guide-de",
-        "en": "start-guide-en",
-    })
-    want = slugs.get(lang) or slugs.get("en")
-
-    if not want:
-        return None
-
-    qs = Guide.objects.active_translations(lang)
-    g = qs.filter(translations__public_slug=want).first()
-    if not g:
-        g = qs.filter(translations__slug=want).first()
-    if not g or g.status == g.STATUS_ARCHIVED:
-        return None
-
-    return g.get_absolute_url(language=lang)
+    """
+    Thin wrapper around the shared starter-guide resolution (also used by the
+    global footer via get_public_inventory) that keeps this view's existing
+    public function name/signature stable.
+    """
+    starter = resolve_public_starter_guide(lang)
+    return starter["url"] if starter else None
 
 
 class HomePageView(SeoMixin, TemplateView):

@@ -5,13 +5,17 @@ import re
 from html import escape
 from typing import Any, Dict, List, Tuple, Optional, Iterable
 
+from django.conf import settings
+from django.core.cache import cache
 from django.db.models import Count, Q, QuerySet
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import strip_tags
-from django.utils.translation import get_language
+from django.utils.translation import get_language, override
 from parler.utils.context import switch_language
 from reversion.models import Version
 
+from catalog.models import Category, Tool
 from compare.models import Comparison
 from guides.models import Guide
 from prompts.models import Prompt
@@ -226,6 +230,140 @@ def related_comparisons(comparison: Comparison, limit: int = 6) -> List[Dict[str
         items.extend(fallback)
 
     return items[:limit]
+
+
+# ---------- Public inventory (Beta 8.7) ----------
+
+PUBLIC_INVENTORY_CACHE_VERSION = "v2"  # v1 -> v2 (Beta 8.8): prompts_count is
+# now language-strict (visible_in_language), so any v1 cache entry holds a
+# semantically wrong (language-independent) prompt count and must never be
+# served again after deployment - bumping the version key achieves that
+# without a blanket cache.clear().
+PUBLIC_INVENTORY_CACHE_TIMEOUT = 300  # seconds; see docstring on get_public_inventory
+PUBLIC_INVENTORY_TOP_CATEGORIES_LIMIT = 6
+
+
+def _normalize_language_code(language_code: str | None) -> str:
+    """
+    Resolves a supported project language code: the given code if valid,
+    otherwise the current Django language, otherwise LANGUAGE_CODE.
+    """
+    supported = {code for code, _label in settings.LANGUAGES}
+    candidate = (language_code or get_language() or settings.LANGUAGE_CODE or "en")[:2]
+    return candidate if candidate in supported else settings.LANGUAGE_CODE
+
+
+def resolve_public_starter_guide(language_code: str) -> Dict[str, str] | None:
+    """
+    Resolves the public starter guide (is_starter=True, published, with an
+    active translation in language_code) as primitive data - no historical
+    slug convention involved. Returns None if there is no published starter
+    or it has no translation in language_code (a fallback-language
+    translation must never be linked as if it were language_code).
+    """
+    guide = (
+        Guide.objects.published()
+        .filter(is_starter=True)
+        .order_by("-published_at", "-pk")
+        .first()
+    )
+    if guide is None:
+        return None
+    if not guide.has_translation(language_code):
+        return None
+
+    return {
+        "title": guide.safe_translation_getter("title", language_code=language_code) or "",
+        "url": guide.get_absolute_url(language=language_code),
+    }
+
+
+def _visible_tool_count_filter(now) -> Q:
+    return Q(tools__published_at__isnull=False, tools__published_at__lte=now)
+
+
+def _compute_public_inventory(lang: str) -> Dict[str, Any]:
+    """
+    Builds the fully-evaluated, cache-ready public inventory for one language.
+    Reuses the same public visibility rules as the corresponding public list
+    views instead of re-deriving status/language logic here.
+    """
+    with override(lang):
+        now = timezone.now()
+
+        tools_count = Tool.objects.filter(
+            published_at__isnull=False, published_at__lte=now
+        ).count()
+
+        categories_qs = (
+            Category.objects.translated(lang)
+            .annotate(visible_tool_count=Count("tools", filter=_visible_tool_count_filter(now), distinct=True))
+            .filter(visible_tool_count__gt=0)
+            .order_by("-visible_tool_count", "translations__name", "pk")
+        )
+        categories_count = categories_qs.count()
+
+        catalog_list_url = reverse("catalog:list")
+        top_categories = [
+            {
+                "name": cat.safe_translation_getter("name", language_code=lang) or "",
+                "slug": cat.safe_translation_getter("slug", language_code=lang) or "",
+                "tool_count": cat.visible_tool_count,
+                "url": f"{catalog_list_url}?category={cat.safe_translation_getter('slug', language_code=lang)}",
+            }
+            for cat in categories_qs[:PUBLIC_INVENTORY_TOP_CATEGORIES_LIMIT]
+        ]
+
+        # Guides/UseCases: same status+language rules as their public ListViews.
+        guides_count = (
+            Guide.objects.visible_on_site().active_translations(lang).distinct().count()
+        )
+        # Prompts (Beta 8.8): same query PromptListView now uses - strict,
+        # no cross-language fallback (unlike Guide/UseCase's active_translations).
+        prompts_count = Prompt.objects.visible_in_language(lang).count()
+        usecases_count = UseCase.published.active_translations(lang).distinct().count()
+        comparisons_count = Comparison.published.distinct().count()
+
+        starter_guide = resolve_public_starter_guide(lang)
+
+    return {
+        "counts": {
+            "tools": tools_count,
+            "categories": categories_count,
+            "guides": guides_count,
+            "prompts": prompts_count,
+            "usecases": usecases_count,
+            "comparisons": comparisons_count,
+        },
+        "top_categories": top_categories,
+        "starter_guide": starter_guide,
+    }
+
+
+def get_public_inventory(language_code: str | None = None) -> Dict[str, Any]:
+    """
+    Returns cached, language-isolated public inventory counts and highlights
+    (tool/category/guide/prompt/usecase/comparison counts, up to 6 well-
+    stocked categories, the public starter guide) for the homepage and
+    global footer.
+
+    Cache: language-specific key, PUBLIC_INVENTORY_CACHE_TIMEOUT (300s)
+    timeout. Editorial changes become visible after at most that many
+    seconds (eventual consistency) rather than through signal-based
+    invalidation. The returned dict contains only primitive values - no
+    QuerySets or model instances - and is safe to store in any cache
+    backend.
+    """
+    lang = _normalize_language_code(language_code)
+    cache_key = f"mentoroai:public-inventory:{PUBLIC_INVENTORY_CACHE_VERSION}:{lang}"
+
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    data = _compute_public_inventory(lang)
+    cache.set(cache_key, data, timeout=PUBLIC_INVENTORY_CACHE_TIMEOUT)
+    return data
 
 
 # ---------- Helpers ----------

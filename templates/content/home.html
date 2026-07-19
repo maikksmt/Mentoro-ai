@@ -16,15 +16,27 @@
                             and prompts to apply AI confidently in everyday life.{% endblocktrans %}
                     </p>
                     <div class="flex flex-wrap gap-3 mt-6 justify-center items-center">
-                        <a href="{{ start_guide_url }}" class="btn btn-primary btn-lg" role="button"
-                           aria-pressed="false" aria-label="{% trans "Begin with the Starter Guide" %}">
-                            {% blocktrans %}Begin with the Starter Guide{% endblocktrans %}
-                        </a>
+                        {% if start_guide_url %}
+                            <a href="{{ start_guide_url }}" class="btn btn-primary btn-lg" role="button"
+                               aria-pressed="false" aria-label="{% trans "Begin with the Starter Guide" %}">
+                                {% blocktrans %}Begin with the Starter Guide{% endblocktrans %}
+                            </a>
+                        {% endif %}
                         <a href="{% url 'catalog:list' %}" class="btn btn-lg btn-outline" role="button" aria-pressed="false"
                            aria-label="{% trans "Discover AI Tools" %}">
                             {% blocktrans %}Discover AI Tools{% endblocktrans %}
                         </a>
                     </div>
+                    <p class="mt-6 text-sm text-base-content/70 flex flex-wrap justify-center items-center gap-x-5 gap-y-2">
+                        <span>{% blocktrans count counter=public_inventory.counts.tools %}{{ counter }} AI tool{% plural %}{{ counter }} AI
+                            tools{% endblocktrans %}</span>
+                        <span aria-hidden="true" class="opacity-50 px-2">&middot;</span>
+                        <span>{% blocktrans count counter=public_inventory.counts.guides %}{{ counter }} guide{% plural %}{{ counter }}
+                            guides{% endblocktrans %}</span>
+                        <span aria-hidden="true" class="opacity-50 px-2">&middot;</span>
+                        <span>{% blocktrans count counter=public_inventory.counts.categories %}{{ counter }} category
+                            {% plural %}{{ counter }} categories{% endblocktrans %}</span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -46,8 +58,8 @@
                                 <div class="avatar">
                                     {% if t.logo %}
                                         <div class="w-10 h-10 rounded-full">
-                                            <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" width="40"
-                                                 height="40">
+                                            <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" decoding="async"
+                                                 width="40" height="40">
                                         </div>
                                     {% else %}
                                         <div class="w-10 h-10 rounded-full ring-1 ring-base-300">
@@ -113,8 +125,9 @@
     </section>
     <!-- Open the modal using ID.showModal() method -->
     <div class="fab">
-        <button class="btn btn-lg md:btn-xl btn-circle btn-info" onclick="featuresmodal.showModal()"
-                aria-label="Information Button">
+        <button type="button" class="btn btn-lg md:btn-xl btn-circle btn-info" onclick="featuresmodal.showModal()"
+                aria-haspopup="dialog" aria-controls="featuresmodal"
+                aria-label="{% trans "View roadmap" %}">
             {% heroicon_outline "light-bulb" size=32 %}
         </button>
     </div>

@@ -1,7 +1,7 @@
 import reversion
 from django.conf import settings
 from django.contrib import admin, messages
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.utils.translation import gettext_lazy as _
 from django_fsm import can_proceed
 from parler.admin import TranslatableAdmin
@@ -494,7 +494,13 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
                         except TypeError:
                             transition()
 
-                        obj.save()
+                        try:
+                            with transaction.atomic():
+                                obj.save()
+                        except IntegrityError as exc:
+                            skipped.append((obj.pk, _("Could not publish: %(error)s") % {"error": exc}))
+                            continue
+
                         set_last_published_revision(obj)
                         self._save_with_fields(
                             obj, "last_published_revision_id"
