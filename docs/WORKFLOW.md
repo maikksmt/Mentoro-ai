@@ -82,6 +82,25 @@ Before merging a feature branch:
 ## Release Process
 
 1. Ensure `development` is stable (tests + manual check passed)
+
+   Minimum pre-release checks:
+
+   ```bash
+   make test                                        # full suite
+   ruff check .
+   python manage.py check
+   python manage.py check --deploy                  # see note below
+   python manage.py makemigrations --check --dry-run
+   ```
+
+   > `check --deploy` reports SSL/cookie/HSTS/DEBUG warnings when run against
+   > the local development settings. Those settings are set correctly in
+   > `mentoroai/settings/production.py`; only warnings that also appear with
+   > the production settings are release-relevant.
+
+   Deployment prerequisite: the `DatabaseCache` table must exist on the target
+   host (`python manage.py createcachetable`) — see `README.md`.
+
 2. Create PR → `development → main`
 3. Title: `release: vX.Y.Z`
 4. Merge method: **Create Merge Commit**

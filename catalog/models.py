@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import get_language, override
 from django.utils.translation import gettext_lazy as _
-from parler.managers import TranslatableManager
+from parler.managers import TranslatableManager, TranslatableQuerySet
 from parler.models import TranslatableModel, TranslatedFields
 from taggit.managers import TaggableManager
 
@@ -41,6 +41,40 @@ PRICING_MODEL_CHOICES = [
 ]
 
 
+class ToolQuerySet(TranslatableQuerySet):
+    """
+    Beta 8.14a: the single source of truth for a Tool's *temporal* public
+    visibility.
+
+    Tool has no editorial status/workflow field at all - `published_at`
+    (DateTimeField, default=timezone.now, NOT NULL at DB level) is the only
+    thing that decides whether a tool is public, and it doubles as the
+    scheduled-publishing date. The rule is therefore simply:
+
+        published_at <= now  -> public
+        published_at >  now  -> not public (scheduled for later)
+
+    A NULL published_at cannot exist (the column is NOT NULL; creating one
+    raises IntegrityError), so no null-handling is needed - and `__lte`
+    would exclude a NULL anyway, since SQL comparisons against NULL are
+    never true.
+
+    This deliberately covers ONLY temporal visibility. Tool's cross-language
+    fallback (slug is a shared, non-translated field; PARLER_LANGUAGES has
+    hide_untranslated=False, so an EN-only tool intentionally stays visible
+    on the German catalog) is a separate, unchanged layer - see
+    catalog/tests/test_language_fallback.py.
+
+    Chainable, imposes no ordering, and does all filtering in SQL.
+    """
+
+    def public(self, at=None):
+        return self.filter(published_at__lte=at or timezone.now())
+
+
+ToolManager = TranslatableManager.from_queryset(ToolQuerySet)
+
+
 class Tool(TranslatableModel):
     slug = models.SlugField(_("Slug"), max_length=220, unique=True)
     vendor = models.CharField(max_length=150, blank=True)
@@ -65,7 +99,7 @@ class Tool(TranslatableModel):
         short_description=models.TextField(blank=True),
         long_description=models.TextField(blank=True),
     )
-    objects = TranslatableManager()
+    objects = ToolManager()
     ordering = ["id"]
 
     class Meta:

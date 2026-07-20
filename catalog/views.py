@@ -1,7 +1,6 @@
 from django.db.models import Q
 from django.http import Http404
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext as _, get_language
 from django.views.generic import ListView, DetailView
 
@@ -22,10 +21,11 @@ class ToolListView(SeoMixin, ListView):
         free = self.request.GET.get("free") or ""
         category_slug = self.request.GET.get("category") or ""
 
+        # Beta 8.14a: same rule as before, now via the central
+        # ToolQuerySet.public() instead of an inline copy of the time filter.
         qs = (
-            Tool.objects.all().language(lang)
+            Tool.objects.public().language(lang)
             .prefetch_related("categories", "translations", "categories__translations")
-            .filter(published_at__isnull=False, published_at__lte=timezone.now())
         )
 
         if q:
@@ -114,19 +114,23 @@ class ToolDetailView(SeoMixin, DetailView):
 
     def _related_tools(self, obj: Tool):
         lang = get_language()
-        qs = Tool.objects.language(lang).exclude(pk=obj.pk)
-        qs = qs.filter(
-            published_at__isnull=False,
-            published_at__lte=timezone.now(),
-            categories__in=obj.categories.all(),
-        )
+        qs = Tool.objects.public().language(lang).exclude(pk=obj.pk)
+        qs = qs.filter(categories__in=obj.categories.all())
         return qs.distinct()[:3]
 
     def get_object(self, queryset=None):
         slug = self.kwargs["slug"]
         lang = get_language()
+        # Beta 8.14a: .public() - this resolver previously had NO temporal
+        # filter at all (unlike ToolListView/_related_tools/the inventory
+        # count), so a tool scheduled for a future published_at was already
+        # reachable under its public detail URL and returned HTTP 200.
+        # Confirmed by reproduction before the fix. The language handling
+        # below is untouched: slug is a shared field and the cross-language
+        # fallback stays intentional (see test_language_fallback.py).
         obj = (
             Tool.objects
+            .public()
             .language(lang)
             .filter(slug=slug)
             .distinct()

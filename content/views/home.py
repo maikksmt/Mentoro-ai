@@ -62,7 +62,11 @@ class HomePageView(SeoMixin, TemplateView):
         )
         ctx["start_guide_url"] = resolve_starter_guide_url(lang)
         ctx["latest_items"] = get_latest_items(limit=6, language_code=lang)
-        ctx["featured_tools"] = Tool.objects.filter(is_featured=True).order_by(
+        # Beta 8.14a: .public() - the featured-tools row on the homepage had
+        # no temporal filter, so a tool flagged is_featured with a future
+        # published_at was rendered (and linked) on the public homepage.
+        # Ordering and limit are unchanged.
+        ctx["featured_tools"] = Tool.objects.public().filter(is_featured=True).order_by(
             "-published_at"
         )[:6]
 
