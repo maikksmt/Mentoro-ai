@@ -63,6 +63,18 @@ class ComparisonListLanguageIsolationTests(TestCase):
         self.assertFalse(self._queryset_for("de").filter(pk=c.pk).exists())
 
     def test_every_listed_comparisons_detail_url_is_reachable(self):
+        # Beta 8.12: self.client.get() below runs each request through the
+        # real middleware stack, including LocaleMiddleware, which calls
+        # translation.activate() for the resolved language and - unlike
+        # translation.override() - never undoes that afterward (correct in
+        # production, where every subsequent real request re-activates its
+        # own language before dispatch). In a shared test process this
+        # left German active after this test's last ("de") iteration,
+        # confirmed to break an unrelated test in a different module
+        # purely through run order (core.tests.test_context_processors).
+        # This restores whatever was active before this test ran, so this
+        # test does not leak language state to whatever runs after it.
+        self.addCleanup(translation.deactivate_all)
         make_comparison(slug="reachable-en", languages=("en",))
         make_comparison(slug="reachable-de", languages=("de",))
         make_comparison(slug="reachable-both", languages=("en", "de"))

@@ -1,14 +1,62 @@
-from django.db.models import Q
-from django.shortcuts import get_object_or_404
+from django.db.models import Q, QuerySet
+from django.http import Http404
 from django.urls import reverse
 from django.utils.translation import gettext as _, get_language
 from django.views.generic import ListView, DetailView
 
 from catalog.models import Category
+from core.models.editorial import EditorialWorkflowMixin
 from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
 from core.services import related_comparisons, to_teaser_item
 from core.views import SeoMixin
 from .models import Comparison
+
+
+def _resolve_by_slug(qs: QuerySet[Comparison], slug: str, language_code: str) -> Comparison | None:
+    """
+    Beta 8.11: mirrors guides/views.py::_resolve_guide_by_slug() and the
+    identical Prompt/UseCase fixes - once a comparison has a live_i18n
+    snapshot for language_code, that snapshot's slug is the SOLE public
+    slug for that language; the current translation slug is not tried at
+    all. Previously this resolver only ever matched the CURRENT
+    translation's slug/public_slug with no live_i18n check whatsoever - so
+    a translation slug diverging from its own live_i18n snapshot (while
+    status stayed PUBLISHED) resolved the diverged slug instead of the live
+    one. Confirmed via reproduction in
+    compare/tests/test_url_language_safety.py.
+
+    The narrow backward-compatibility fallback to the current translation's
+    public_slug/slug applies ONLY to comparisons that are strictly
+    `published` AND have no live_i18n entry for this language at all (a
+    historical record predating the live-snapshot mechanism).
+
+    Language matching is scoped throughout (translations__language_code=
+    language_code), so a bilingual comparison's slug in the other language
+    can never resolve under this prefix either.
+    """
+    live_match = (
+        qs.filter(
+            Q(**{f"live_i18n__{language_code}__public_slug": slug})
+            | Q(**{f"live_i18n__{language_code}__slug": slug})
+        )
+        .distinct()
+        .first()
+    )
+    if live_match:
+        return live_match
+
+    compat_qs = (
+        qs.filter(status=EditorialWorkflowMixin.STATUS_PUBLISHED)
+        .exclude(**{"live_i18n__has_key": language_code})
+    )
+    return (
+        compat_qs.filter(
+            Q(translations__language_code=language_code, translations__public_slug=slug)
+            | Q(translations__language_code=language_code, translations__slug=slug)
+        )
+        .distinct()
+        .first()
+    )
 
 
 class ComparisonListView(SeoMixin, ListView):
@@ -104,28 +152,32 @@ class ComparisonDetailView(SeoMixin, DetailView):
     context_object_name = "obj"
 
     def get_object(self, queryset=None):
+        # Beta 8.11: visible_in_language(lang) (strict, explicit language,
+        # no cross-language fallback) instead of Comparison.published.language(lang) -
+        # PublishedOnlyManager's own active_translations(lang) call uses
+        # hide_untranslated=False's fallback, so it does not actually
+        # restrict the queryset to objects with a genuine `lang` translation;
+        # .language(lang) chained after it only sets the iteration language,
+        # it filters nothing. The explicit translations__language_code=lang
+        # match below already prevented this from serving the wrong
+        # language, but visible_in_language() makes that guarantee explicit
+        # at the queryset level too, matching ComparisonListView.
         lang = get_language()
         slug = self.kwargs["slug"]
 
         qs = (
-            Comparison.published.language(lang)
+            Comparison.objects.visible_in_language(lang)
             .prefetch_related(
                 "tools",
                 "tool_entries",
                 "tool_entries__tool",
             )
-            .distinct()
         )
 
-        # Beta 8.8: match the slug on the active-language translation
-        # specifically - qs already requires *some* (possibly fallback)
-        # translation via Comparison.published, but an unqualified slug
-        # match could otherwise hit a different language's row on the same
-        # object, silently serving e.g. an English page under /de/.
-        try:
-            return qs.get(translations__language_code=lang, translations__public_slug=slug)
-        except Comparison.DoesNotExist:
-            return get_object_or_404(qs, translations__language_code=lang, translations__slug=slug)
+        obj = _resolve_by_slug(qs, slug, lang)
+        if not obj:
+            raise Http404("Comparison not found.")
+        return obj
 
     def _categories_for_object(self, obj: Comparison):
         """
@@ -137,26 +189,6 @@ class ComparisonDetailView(SeoMixin, DetailView):
             .order_by("translations__name")
         )
         return cats
-
-    def _related(self, obj: Comparison, limit: int = 4):
-        """
-        Simple related comparisons: share at least one tool or category.
-        """
-        lang = get_language()
-
-        tools = obj.tools.all()
-        categories = self._categories_for_object(obj)
-
-        qs = (
-            Comparison.published.language(lang)
-            .exclude(pk=obj.pk)
-            .filter(
-                Q(tools__in=tools)
-                | Q(tools__categories__in=categories)
-            )
-            .distinct()
-        )
-        return qs[:limit]
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -220,7 +252,10 @@ class ComparisonDetailView(SeoMixin, DetailView):
         ctx["tools_list"] = [entry.tool for entry in entries]
 
         ctx["categories"] = self._categories_for_object(obj)
-        rel_qs = related_comparisons(obj, limit=3)
+        # Beta 8.11a: explicit language_code, matching related_guides()/
+        # related_prompts()/related_usecases()' callers - see
+        # related_comparisons()'s docstring for the leak this closes.
+        rel_qs = related_comparisons(obj, limit=3, language_code=lang)
         ctx["related_comparisons"] = [to_teaser_item(c, "comparison") for c in rel_qs]
 
         ctx["crumbs"] = [
