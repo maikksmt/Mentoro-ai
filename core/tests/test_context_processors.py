@@ -15,12 +15,41 @@ class NavActiveSectionContextProcessorTests(TestCase):
     """Beta 8.2: the active primary nav section is derived from
     request.resolver_match, not from fragile request.path substrings."""
 
-    def _section_for(self, url_name, **kwargs):
-        with translation.override("en"):
+    def _section_for(self, url_name, language_code="en", **kwargs):
+        """
+        Beta 8.12: reverse() and resolve() must run under the exact same
+        explicit language context. i18n_patterns() builds a single
+        URLResolver whose prefix regex ("^en/" vs "^de/") is computed
+        lazily from translation.get_language() at *access* time (see
+        django.urls.resolvers.LocaleRegexDescriptor) - it is not derived
+        from the path string itself. Previously only reverse() ran inside
+        override("en"); resolve() ran afterwards under whatever the
+        ambient active language happened to be, which - in a shared test
+        process - is whatever the last translation.activate() call left
+        it as. That is exactly what LocaleMiddleware does for every
+        self.client.get() request and never undoes afterward (correct in
+        production: every subsequent real request re-activates its own
+        language before dispatch), so a RequestFactory()-built request
+        outside that middleware chain cannot assume the ambient language
+        matches the path it just built. Confirmed via reproduction: a
+        prior test process leaving German active (e.g. the last
+        self.client.get("/de/...") call in
+        compare/tests/test_views_public.py::ComparisonListLanguageIsolationTests::
+        test_every_listed_comparisons_detail_url_is_reachable) made
+        resolve("en/...") raise Resolver404 here, in a completely
+        different test module, purely because of test run order.
+
+        Wrapping the whole reverse()+resolve() pair in one override()
+        makes every call self-sufficient regardless of ambient state left
+        by other tests, and override() itself restores whatever was
+        active before this method was entered once the `with` block
+        exits - so this helper does not leak state either.
+        """
+        with translation.override(language_code):
             path = reverse(url_name, kwargs=kwargs or None)
-        request = RequestFactory().get(path)
-        request.resolver_match = resolve(path)
-        return nav_active_section(request)["nav_active_section"]
+            request = RequestFactory().get(path)
+            request.resolver_match = resolve(path)
+            return nav_active_section(request)["nav_active_section"]
 
     def test_no_resolver_match_returns_none(self):
         request = RequestFactory().get("/")
@@ -66,6 +95,54 @@ class NavActiveSectionContextProcessorTests(TestCase):
 
     def test_editorial_subpage_does_not_mark_home(self):
         self.assertIsNone(self._section_for("content:editorial:layout_examples"))
+
+
+class NavActiveSectionHelperLanguageIsolationTests(TestCase):
+    """
+    Beta 8.12: _section_for() must resolve correctly regardless of
+    whatever language was active before it was called, and must not
+    leak its own language activation to whatever runs after it - see
+    _section_for()'s docstring for the confirmed Resolver404 this
+    closes (reproduced via compare/tests/test_views_public.py leaving
+    German active through a self.client.get() call with no matching
+    deactivate()).
+    """
+
+    def test_ambient_german_target_english_resolves(self):
+        with translation.override("de"):
+            self.assertEqual(
+                NavActiveSectionContextProcessorTests()._section_for("prompts:list", language_code="en"),
+                "prompts",
+            )
+
+    def test_ambient_english_target_german_resolves(self):
+        with translation.override("en"):
+            self.assertEqual(
+                NavActiveSectionContextProcessorTests()._section_for("guides:list", language_code="de"),
+                "guides",
+            )
+
+    def test_helper_does_not_change_active_language_after_returning(self):
+        with translation.override("de"):
+            NavActiveSectionContextProcessorTests()._section_for("compare:index", language_code="en")
+            self.assertEqual(translation.get_language(), "de")
+
+    def test_helper_is_correct_even_with_no_ambient_language_activated_via_override(self):
+        """
+        Direct replay of the confirmed leak: translation.activate() (what
+        LocaleMiddleware does per-request, and what self.client.get()
+        therefore triggers) is not undone the way translation.override()
+        undoes itself - simulate that leaked state directly instead of
+        relying on another test file happening to run first.
+        """
+        translation.activate("de")
+        try:
+            self.assertEqual(
+                NavActiveSectionContextProcessorTests()._section_for("usecases:list"),
+                "usecases",
+            )
+        finally:
+            translation.deactivate_all()
 
 
 class PublicInventoryContextProcessorTests(TestCase):

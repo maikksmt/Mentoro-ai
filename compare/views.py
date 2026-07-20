@@ -190,26 +190,6 @@ class ComparisonDetailView(SeoMixin, DetailView):
         )
         return cats
 
-    def _related(self, obj: Comparison, limit: int = 4):
-        """
-        Simple related comparisons: share at least one tool or category.
-        """
-        lang = get_language()
-
-        tools = obj.tools.all()
-        categories = self._categories_for_object(obj)
-
-        qs = (
-            Comparison.published.language(lang)
-            .exclude(pk=obj.pk)
-            .filter(
-                Q(tools__in=tools)
-                | Q(tools__categories__in=categories)
-            )
-            .distinct()
-        )
-        return qs[:limit]
-
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         request = self.request
