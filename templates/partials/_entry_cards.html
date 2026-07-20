@@ -18,7 +18,7 @@
         <a href="{% url 'glossary:list' %}" class="home-entry-card btn-glossary"
            aria-label="{% trans "Go to Glossary list" %}">
             <div class="home-entry-card-body">
-                <h3 class="home-entry-card-title">🧠 {% trans "Glossary" %}</h3>
+                <h3 class="home-entry-card-title flex items-center gap-2">{% heroicon_solid "language" size=20 %}{% trans "Glossary" %}</h3>
                 <p class="home-entry-card-desc">{% trans "AI terms explained simply - understandable, concise and with examples." %}</p>
                 <div class="home-entry-card-meta">
                     <span class="home-entry-card-action">{% trans "To glossary" %} &rarr;</span>
@@ -30,7 +30,7 @@
            class="home-entry-card btn-guide{% if not public_inventory.counts.guides %} home-entry-card-muted{% endif %}"
            aria-label="{% trans "Go to Guides list" %}">
             <div class="home-entry-card-body">
-                <h3 class="home-entry-card-title">📖 {% trans "Guides" %}</h3>
+                <h3 class="home-entry-card-title flex items-center gap-2">{% heroicon_solid "book-open" size=20 %}{% trans "Guides" %}</h3>
                 <p class="home-entry-card-desc">{% trans "Step-by-step instructions for using AI safely in everyday life or at work." %}</p>
                 <div class="home-entry-card-meta">
                     <p>{% blocktrans count counter=public_inventory.counts.guides %}{{ counter }} guide{% plural %}{{ counter }} guides{% endblocktrans %}</p>
@@ -43,7 +43,7 @@
            class="home-entry-card btn-prompt{% if not public_inventory.counts.prompts %} home-entry-card-muted{% endif %}"
            aria-label="{% trans "Go to Prompts list" %}">
             <div class="home-entry-card-body">
-                <h3 class="home-entry-card-title">💬 {% trans "Prompts" %}</h3>
+                <h3 class="home-entry-card-title flex items-center gap-2">{% heroicon_solid "chat-bubble-left-right" size=20 %}{% trans "Prompts" %}</h3>
                 <p class="home-entry-card-desc">{% trans "Ready-made input templates for ChatGPT & Co. - simply copy and get started." %}</p>
                 <div class="home-entry-card-meta">
                     <p>{% blocktrans count counter=public_inventory.counts.prompts %}{{ counter }} prompt{% plural %}{{ counter }} prompts{% endblocktrans %}</p>
@@ -56,7 +56,7 @@
            class="home-entry-card btn-usecase{% if not public_inventory.counts.usecases %} home-entry-card-muted{% endif %}"
            aria-label="{% trans "Go to Usecases list" %}">
             <div class="home-entry-card-body">
-                <h3 class="home-entry-card-title">💡 {% trans "Use cases" %}</h3>
+                <h3 class="home-entry-card-title flex items-center gap-2">{% heroicon_solid "light-bulb" size=20 %}{% trans "Use cases" %}</h3>
                 <p class="home-entry-card-desc">{% trans "Others are already using AI - real-world examples from everyday life and work." %}</p>
                 <div class="home-entry-card-meta">
                     <p>{% blocktrans count counter=public_inventory.counts.usecases %}{{ counter }} use case{% plural %}{{ counter }} use cases{% endblocktrans %}</p>
@@ -69,7 +69,7 @@
            class="home-entry-card btn-tool{% if not public_inventory.counts.tools %} home-entry-card-muted{% endif %}"
            aria-label="{% trans "Go to Tools list" %}">
             <div class="home-entry-card-body">
-                <h3 class="home-entry-card-title">🧰 {% trans "Tools" %}</h3>
+                <h3 class="home-entry-card-title flex items-center gap-2">{% heroicon_solid "wrench-screwdriver" size=20 %}{% trans "Tools" %}</h3>
                 <p class="home-entry-card-desc">{% trans "AI tools and platforms presented - with features and areas of application." %}</p>
                 <div class="home-entry-card-meta">
                     <p>{% blocktrans count counter=public_inventory.counts.tools %}{{ counter }} AI tool{% plural %}{{ counter }} AI tools{% endblocktrans %}</p>
@@ -82,7 +82,7 @@
            class="home-entry-card btn-compare{% if not public_inventory.counts.comparisons %} home-entry-card-muted{% endif %}"
            aria-label="{% trans "Go to Comparisons list" %}">
             <div class="home-entry-card-body">
-                <h3 class="home-entry-card-title">⚖️ {% trans "Comparisons" %}</h3>
+                <h3 class="home-entry-card-title flex items-center gap-2">{% heroicon_solid "scale" size=20 %}{% trans "Comparisons" %}</h3>
                 <p class="home-entry-card-desc">{% trans "Find out which AI tool or model best suits your needs." %}</p>
                 <div class="home-entry-card-meta">
                     <p>{% blocktrans count counter=public_inventory.counts.comparisons %}{{ counter }} comparison{% plural %}{{ counter }} comparisons{% endblocktrans %}</p>

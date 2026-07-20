@@ -1109,6 +1109,7 @@ html[data-theme='mentoroai-dark'] #github-logo[srcset] {
     flex: 0 0 auto;
     flex-direction: row;
     align-items: center;
+    min-height: 2.5rem;
     cursor: pointer;
 }
 
@@ -1209,6 +1210,25 @@ html[data-theme='mentoroai-dark'] #github-logo[srcset] {
 .pagination-disabled {
     pointer-events: none;
     opacity: 0.5;
+}
+
+/* ===========================================================
+   Beta 9.9 - Mobile touch targets
+
+   Same min-height/min-width pattern as `.pagination-link`/
+   `.pagination-current` above, generalized into a reusable utility:
+   box-model min-height/min-width always wins over a smaller fixed
+   height from DaisyUI's `.btn-sm`, so this reliably lifts a control's
+   tappable area to ~40px without editing `.btn-sm`/`.btn`/`a` itself
+   or swapping any template's existing size modifier. Applied only to
+   the specific controls identified in the Beta 9.9 mobile-usability
+   audit (header login/logout, glossary letter nav and pagination,
+   tool-card Website link, catalog/comparison filter Search & Reset,
+   prompt copy button) - never as a blanket rule on inline text links,
+   breadcrumbs or compact metadata badges. */
+.touch-target {
+    min-height: 2.5rem;
+    min-width: 2.5rem;
 }
 
 @keyframes fade-in {

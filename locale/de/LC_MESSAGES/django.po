@@ -3612,6 +3612,11 @@ msgstr "Hinweise"
 msgid "Read more"
 msgstr "Weiterlesen"
 
+#: templates/partials/_editorial_card.html:68
+#, python-format
+msgid "about %(title)s"
+msgstr "über %(title)s"
+
 #: templates/partials/_editorial_card.html:11 usecases/models.py:51
 #: usecases/views.py:201
 msgid "Usecase"

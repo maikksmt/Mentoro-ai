@@ -183,8 +183,14 @@ class HomeEntryCardStructureTests(TestCase):
         glossary = next(c for c in cards if "Go to Glossary list" in c)
         guides = next(c for c in cards if "Go to Guides list" in c)
 
-        self.assertEqual(glossary.count("<p"), 1, "glossary must have no count line")
-        self.assertEqual(guides.count("<p"), 2, "counted areas keep their count line")
+        # `<p` alone also matches `<path` (Beta 9.9 added a heroicon SVG,
+        # which is a `<path>` element, to the card title) - match only real
+        # `<p>` tag openings instead.
+        def count_p(html):
+            return len(re.findall(r"<p[ >]", html))
+
+        self.assertEqual(count_p(glossary), 1, "glossary must have no count line")
+        self.assertEqual(count_p(guides), 2, "counted areas keep their count line")
 
 
 class HomeEmptyAreaTests(TestCase):
