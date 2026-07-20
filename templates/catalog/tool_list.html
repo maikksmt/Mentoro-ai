@@ -8,71 +8,94 @@
             {% trans "Quickly find the right AI tools for your tasks." %}
         </p>
     </header>
-    {% if categories %}
-        <details class="collapse collapse-arrow bg-base-100 border-base-300 border">
-            <summary class="collapse-title font-semibold">{% trans "Filter: " %}
-                <span class="badge badge-primary">
-                    {% if not active_cat %}
+    <section class="catalog-filter-panel">
+        {% if categories %}
+            <details class="collapse collapse-arrow bg-base-100 border-base-300 border">
+                <summary class="collapse-title font-semibold">{% trans "Filter: " %}
+                    <span class="badge badge-primary">
+                        {% if not active_cat %}
+                            {% trans "All categories" %}
+                        {% else %}
+                            {{ active_cat.name }}
+                        {% endif %}
+                    </span>
+                </summary>
+                <div class="collapse-content flex flex-wrap gap-2">
+                    <a href="?{% if q %}q={{ q|urlencode }}{% endif %}{% if free %}{% if q %}&{% endif %}free=1{% endif %}"
+                       class="badge badge-primary {% if category %}badge-outline{% endif %}">
                         {% trans "All categories" %}
-                    {% else %}
-                        {{ active_cat.name }}
-                    {% endif %}
-                </span>
-            </summary>
-            <div class="collapse-content flex flex-wrap gap-2">
-                <a href="?{% if q %}q={{ q|urlencode }}{% endif %}{% if free %}{% if q %}&{% endif %}free=1{% endif %}"
-                   class="badge badge-primary {% if category %}badge-outline{% endif %}">
-                    {% trans "All categories" %}
-                </a>
-                {% for cat in categories %}
-                    <a href="?category={{ cat.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if free %}&free=1{% endif %}"
-                       class="badge {% if active_cat.slug == cat.slug %}badge-primary {% else %} badge-tool {% endif %}">
-                        {{ cat.name }}
                     </a>
-                {% endfor %}
-            </div>
-        </details>
-
-    {% endif %}
-    <form method="get" class="py-2 md:py-4 flex flex-wrap items-center gap-3 md:gap-4">
-
-        {% if category %}
-            <input type="hidden" name="category" value="{{ category }}">
+                    {% for cat in categories %}
+                        <a href="?category={{ cat.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if free %}&free=1{% endif %}"
+                           class="badge {% if active_cat.slug == cat.slug %}badge-primary {% else %} badge-tool {% endif %}">
+                            {{ cat.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </details>
         {% endif %}
-        <div class="flex-1 min-w-[220px]">
-            <label class="input w-full">
-                {% heroicon_solid "magnifying-glass" class="opacity-70" %}
-                <input type="search"
-                       name="q"
-                       value="{{ q|default_if_none:'' }}"
-                       placeholder="{% trans 'Search tools …' %}"
-                       class="grow"/>
-            </label>
-        </div>
-        <label class="inline-flex items-center gap-2 cursor-pointer text-sm">
-            <input type="checkbox"
-                   class="checkbox checkbox-sm"
-                   name="free"
-                   value="1"
-                   {% if free %}checked{% endif %}/>
-            <span class="label-text">{% trans "Only with Free-Tier" %}</span>
-        </label>
-        <div class="flex items-center gap-2 ml-auto">
-            <button class="btn btn-primary btn-sm md:btn-md"
-                    aria-label="{% trans 'Search' %}">
-                {% trans "Search" %}
-            </button>
-            {% if q or free or category %}
-                <a href="."
-                   class="btn btn-ghost btn-sm md:btn-md"
-                   role="button"
-                   aria-pressed="false"
-                   aria-label="{% trans "Reset filters" %}">
-                    {% trans "Reset" %}
-                </a>
+
+        <form method="get" class="catalog-filter-grid">
+            {% if category %}
+                <input type="hidden" name="category" value="{{ category }}">
             {% endif %}
-        </div>
-    </form>
+            <div class="catalog-filter-field catalog-filter-field-search">
+                <label for="catalog-search-input" class="catalog-filter-label">{% trans "Search" %}</label>
+                <div class="input w-full">
+                    {% heroicon_solid "magnifying-glass" class="opacity-70" %}
+                    <input type="search"
+                           id="catalog-search-input"
+                           name="q"
+                           value="{{ q|default_if_none:'' }}"
+                           placeholder="{% trans 'Search tools …' %}"
+                           class="grow"/>
+                </div>
+            </div>
+            <label class="catalog-filter-field catalog-filter-field-checkbox" for="catalog-free-tier">
+                <input type="checkbox"
+                       id="catalog-free-tier"
+                       class="checkbox checkbox-sm"
+                       name="free"
+                       value="1"
+                       {% if free %}checked{% endif %}/>
+                <span class="label-text">{% trans "Only with Free-Tier" %}</span>
+            </label>
+            <div class="catalog-filter-actions">
+                <button class="btn btn-primary btn-sm md:btn-md"
+                        aria-label="{% trans 'Search' %}">
+                    {% trans "Search" %}
+                </button>
+                {% if q or free or category %}
+                    <a href="."
+                       class="catalog-filter-reset"
+                       aria-label="{% trans "Reset filters" %}">
+                        {% trans "Reset" %}
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if q or free or category %}
+            <div class="active-filter-list">
+                <span class="active-filter-label">{% trans "Active filters:" %}</span>
+                {% if q %}
+                    <span class="active-filter-chip">{% trans "Search:" %} {{ q }}</span>
+                {% endif %}
+                {% if active_cat %}
+                    <span class="active-filter-chip">{% trans "Category:" %} {{ active_cat.name }}</span>
+                {% endif %}
+                {% if free %}
+                    <span class="active-filter-chip">{% trans "Only with Free-Tier" %}</span>
+                {% endif %}
+                <a href="." class="active-filter-clear">{% trans "Clear all" %}</a>
+            </div>
+        {% endif %}
+    </section>
+
+    <p class="catalog-results-summary">
+        {% blocktrans count counter=page_obj.paginator.count %}{{ counter }} tool found{% plural %}{{ counter }} tools found{% endblocktrans %}
+    </p>
+
     <div class="grid gap-2 lg:gap-6 md:grid-cols-2 lg:grid-cols-3">
         {% for t in object_list %}
             <article class="card bg-base-100 shadow-sm hover:shadow-lg transition border border-base-200 flex flex-col">
@@ -208,8 +231,13 @@
                 </div>
             </article>
         {% empty %}
-            <div class="col-span-full alert">
-                <span>{% trans "No tools found." %}</span>
+            <div class="catalog-empty-state col-span-full">
+                {% if q or free or category %}
+                    <p>{% trans "No tools match your current search or filters." %}</p>
+                    <a href="." class="active-filter-clear">{% trans "Clear filters and see all tools" %}</a>
+                {% else %}
+                    <p>{% trans "No tools found." %}</p>
+                {% endif %}
             </div>
         {% endfor %}
     </div>

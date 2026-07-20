@@ -1066,6 +1066,151 @@ html[data-theme='mentoroai-dark'] #github-logo[srcset] {
     font-weight: 400;
 }
 
+/* ===========================================================
+   Beta 9.8 - Catalog filter panel & shared pagination UX
+
+   Scoped to the catalog-, active-filter- and pagination-prefixed classes
+   below - none of these selectors touch .card, .input, .select, .btn or
+   .join themselves, only wrap/space around them, so tool cards, other
+   DaisyUI components and the Beta 9.6 editorial-card family are
+   unaffected. Unlayered for the same cascade-layers reason documented
+   throughout this file: this build keeps @layer blocks as real layers
+   and DaisyUI's own rules behave unlayered. */
+
+.catalog-filter-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    margin-block: 1rem;
+    border: 1px solid var(--color-base-300);
+    border-radius: var(--radius-box);
+    background-color: var(--color-base-100);
+}
+
+.catalog-filter-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem 1rem;
+}
+
+.catalog-filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.catalog-filter-field-search {
+    flex: 2 1 260px;
+}
+
+.catalog-filter-field-checkbox {
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
+    cursor: pointer;
+}
+
+.catalog-filter-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+}
+
+.catalog-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-inline-start: auto;
+}
+
+.catalog-filter-reset {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: color-mix(in oklab, var(--color-base-content) 75%, transparent);
+    transition: color 0.15s ease;
+}
+
+.catalog-filter-reset:hover,
+.catalog-filter-reset:focus-visible {
+    color: var(--color-primary);
+}
+
+.active-filter-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-base-300);
+    font-size: 0.875rem;
+}
+
+.active-filter-label {
+    font-weight: 600;
+    color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+}
+
+.active-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 0.625rem;
+    padding-block: 0.25rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-base-300);
+    background-color: var(--color-base-200);
+    color: var(--color-base-content);
+}
+
+.active-filter-clear {
+    font-weight: 500;
+    color: var(--color-primary);
+    margin-inline-start: 0.25rem;
+}
+
+.catalog-results-summary {
+    font-size: 0.875rem;
+    color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+    margin-block: 0.75rem;
+}
+
+.catalog-empty-state {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 1.5rem;
+    border: 1px solid var(--color-base-300);
+    border-radius: var(--radius-box);
+    background-color: var(--color-base-200);
+}
+
+/* Pagination: shared partial used by the catalog and every paginated
+   editorial list (guides/prompts/usecases/comparisons). min-height/
+   min-width always win over a conflicting fixed height from DaisyUI's
+   .btn-sm (CSS box-model rule, not a cascade/specificity question), so
+   this reliably lifts touch targets to ~40px without editing .btn-sm
+   itself or swapping template classes. */
+.pagination-shell {
+    display: flex;
+    justify-content: center;
+    margin-block: 1.5rem;
+}
+
+.pagination-link,
+.pagination-current {
+    min-height: 2.5rem;
+    min-width: 2.5rem;
+}
+
+.pagination-disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
 @keyframes fade-in {
     0% {
         opacity: 0;
