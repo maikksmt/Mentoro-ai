@@ -1,15 +1,15 @@
-from django.db.models import Q, QuerySet
+from django.db.models import Exists, OuterRef, Q, QuerySet
 from django.http import Http404
 from django.urls import reverse
 from django.utils.translation import gettext as _, get_language
 from django.views.generic import ListView, DetailView
 
-from catalog.models import Category
+from catalog.models import Category, ToolTranslation
 from core.models.editorial import EditorialWorkflowMixin
 from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
 from core.services import related_comparisons, to_teaser_item
 from core.views import SeoMixin
-from .models import Comparison
+from .models import Comparison, ComparisonTranslation
 
 
 def _resolve_by_slug(qs: QuerySet[Comparison], slug: str, language_code: str) -> Comparison | None:
@@ -59,6 +59,71 @@ def _resolve_by_slug(qs: QuerySet[Comparison], slug: str, language_code: str) ->
     )
 
 
+def _filter_comparisons_by_query(
+    queryset: QuerySet[Comparison],
+    *,
+    query: str,
+    language_code: str,
+) -> QuerySet[Comparison]:
+    """
+    Beta 10.2: restricts `queryset` to comparisons whose own translated text
+    OR whose linked tools' names match `query` **in language_code only**.
+
+    Previously this was expressed as extra lookups chained onto the already
+    language-filtered queryset:
+
+        qs.filter(
+            Q(translations__title__icontains=q)
+            | ... | Q(tools__translations__name__icontains=q)
+        )
+
+    Django opens a SEPARATE join for every filter() call spanning a
+    multi-valued relation, so visible_in_language()'s language_code
+    condition applied to the *visibility* join only, while the search join
+    (and the whole tools -> tool_translation chain) stayed language-
+    unbounded. The generated SQL contained exactly one language_code
+    condition in total. A bilingual comparison whose search term occurred
+    only in its English text therefore matched the German search and was
+    then rendered with its German title - a title not containing the search
+    term at all. The same applied to linked tool names, and symmetrically
+    in the other direction. Confirmed by reproduction in
+    compare/tests/test_search_language_safety.py.
+
+    Using Exists() subqueries binds the language *inside* each subquery, so
+    it cannot become detached from the text lookup by a later filter() call.
+    It also keeps the outer query free of search joins entirely: the search
+    can no longer multiply rows, and the resulting SQL has one language_code
+    condition per searched relation instead of one in total.
+
+    `language_code` is a required keyword argument on purpose - the search
+    language must be passed explicitly rather than re-read from Django's
+    ambient active language inside this helper.
+
+    Deliberately unchanged: which fields are searched, the icontains
+    semantics, the caller's visibility queryset, ordering and pagination.
+    Tool rows are matched regardless of the tool's own published_at, exactly
+    as before.
+    """
+    own_text_match = Exists(
+        ComparisonTranslation.objects.filter(
+            master_id=OuterRef("pk"),
+            language_code=language_code,
+        ).filter(
+            Q(title__icontains=query)
+            | Q(intro__icontains=query)
+            | Q(body__icontains=query)
+        )
+    )
+    tool_name_match = Exists(
+        ToolTranslation.objects.filter(
+            master__comparisons=OuterRef("pk"),
+            language_code=language_code,
+            name__icontains=query,
+        )
+    )
+    return queryset.filter(own_text_match | tool_name_match)
+
+
 class ComparisonListView(SeoMixin, ListView):
     model = Comparison
     template_name = "compare/comparison_list.html"
@@ -88,12 +153,10 @@ class ComparisonListView(SeoMixin, ListView):
             ).distinct()
 
         if q:
-            qs = qs.filter(
-                Q(translations__title__icontains=q)
-                | Q(translations__intro__icontains=q)
-                | Q(translations__body__icontains=q)
-                | Q(tools__translations__name__icontains=q)
-            ).distinct()
+            # Beta 10.2: the search language is resolved once here and then
+            # passed explicitly - see _filter_comparisons_by_query() for the
+            # cross-language match leak this closes.
+            qs = _filter_comparisons_by_query(qs, query=q, language_code=lang)
 
         return qs
 
