@@ -121,22 +121,24 @@ class I18nNextGuideMissingTranslationTests(TestCase):
 
 class I18nNextMissingTranslationDoesNotCrashTests(TestCase):
     def test_comparison_en_only_no_crash_on_de_switch(self):
-        # Beta 8.10 finding (documented, NOT fixed - compare/models.py is
-        # explicitly out of scope): Comparison.get_absolute_url() calls
-        # reverse() *inside* switch_language(self, lang), and switch_language
-        # activates Django's language too - so for an EN-only comparison the
-        # URL prefix becomes "de" (from the activated language) while the
-        # slug still falls back to the EN translation via Parler's own
-        # fallback, producing "/de/compare/<en-slug>/" - a target that 404s
-        # under ComparisonDetailView's strict Beta 8.8 resolution. This is
-        # confirmed pre-existing (unrelated to the Beta 8.10 Guide work) and
-        # not touched here; only asserting no crash, not a working target.
+        # Beta 8.10 finding, fixed in Beta 8.11: Comparison.get_absolute_url()
+        # used to call reverse() *inside* switch_language(self, lang) with a
+        # plain `self.slug` attribute access - parler's use_fallback=True
+        # descriptor silently substituted the EN translation's slug for a
+        # missing "de" translation, and reverse() picked up the requested
+        # "de" prefix, producing "/de/compare/<en-slug>/" - a target that
+        # 404s under ComparisonDetailView's strict resolution. Fixed by
+        # checking live_i18n directly and has_translation(lang) before ever
+        # reading the translation, returning "#" (matching Guide/Prompt's
+        # existing placeholder convention) instead of a broken cross-
+        # language URL.
         c = make_comparison(slug="en-only-switch", languages=("en",))
         try:
             url = i18n_next(_ctx(c), "de")
         except Exception as exc:  # noqa: BLE001 - explicit assertion, not prod code
             self.fail(f"i18n_next() raised {exc!r} for a comparison with no DE translation")
-        self.assertTrue(url.startswith("/de/"))
+        self.assertFalse(url.startswith("/de/"))
+        self.assertEqual(url, "#")
 
     def test_usecase_en_only_no_crash_on_de_switch(self):
         # Beta 8.10: UseCase.get_absolute_url() calls reverse() *outside*
@@ -157,7 +159,11 @@ class I18nNextMissingTranslationDoesNotCrashTests(TestCase):
         make_comparison(slug="page-render-check", languages=("en",))
         resp = self.client.get("/en/compare/page-render-check-en/")
         self.assertEqual(resp.status_code, 200)
-        self.assertIn('data-next="/de/', resp.content.decode())
+        # Beta 8.11: the "de" switcher option must be the safe placeholder,
+        # never a broken "/de/compare/<en-slug>/" target (see Beta 8.11 fix
+        # to Comparison.get_absolute_url()).
+        self.assertIn('data-next="#"', resp.content.decode())
+        self.assertNotIn('data-next="/de/', resp.content.decode())
 
 
 class I18nNextNoRequestFallbackTests(TestCase):

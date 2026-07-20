@@ -241,15 +241,32 @@ def related_usecases(usecase, limit=6, language_code: str | None = None):
     return items[:limit]
 
 
-def related_comparisons(comparison: Comparison, limit: int = 6) -> List[Dict[str, Any]]:
+def related_comparisons(comparison: Comparison, limit: int = 6, language_code: str | None = None) -> List[Comparison]:
     """
     Finds related Comparisons by overlapping tools (and tool categories as a secondary signal).
-    Returns teaser dicts compatible with templates/partials/_teaser_card.html
-    via to_teaser_item(..., "comparison").
+    Returns Comparison instances; callers convert via to_teaser_item(..., "comparison"),
+    matching related_guides()/related_prompts()/related_usecases().
+
+    Beta 8.11a: uses visible_in_language(lang) (strict, explicit language, no
+    cross-language fallback) instead of the .published manager - Comparison.
+    published's own active_translations(get_language()) call does not
+    actually restrict the queryset to objects with a genuine translation in
+    the active language (PARLER_LANGUAGES' hide_untranslated=False lets
+    fallback-translated objects through), so an EN-only comparison could be
+    selected as a "related" card on a German comparison's detail page.
+    Beta 8.11's snapshot-safe teaser resolver (_public_teaser_value(),
+    Comparison.get_absolute_url()) correctly refuses to substitute another
+    language's title/slug for such an object, but that only means the
+    resulting card had title="" and url="#" - it was never excluded from
+    the list itself. Confirmed via reproduction in
+    compare/tests/test_related_comparisons_language_safety.py. Ranking
+    weights, order, and limit are unchanged; only the base visibility/
+    language filter (here and in the fallback-fill query) was touched.
     """
 
     if comparison is None:
         return []
+    lang = language_code or get_language()
 
     tool_ids = _ids(comparison.tools.all()) if hasattr(comparison, "tools") else []
 
@@ -258,9 +275,9 @@ def related_comparisons(comparison: Comparison, limit: int = 6) -> List[Dict[str
     ) if tool_ids else []
 
     qs = (
-        Comparison.published.exclude(pk=comparison.pk)
+        Comparison.objects.visible_in_language(lang)
+        .exclude(pk=comparison.pk)
         .prefetch_related("tools", "tools__categories")
-        .distinct()
     )
 
     if tool_ids or cat_ids:
@@ -281,7 +298,7 @@ def related_comparisons(comparison: Comparison, limit: int = 6) -> List[Dict[str
 
     # fallback: always return something useful
     if len(items) < limit:
-        fallback = Comparison.published.exclude(
+        fallback = Comparison.objects.visible_in_language(lang).exclude(
             pk__in=[c.pk for c in items] + [comparison.pk]
         ).order_by("-published_at")[: limit - len(items)]
         items.extend(fallback)
@@ -497,31 +514,14 @@ def _public_teaser_url(obj, kind: str, language_code: str | None = None) -> str:
     value) closes the same draft-slug leak fixed in
     guides/views.py::_resolve_guide_by_slug().
 
-    Comparison.get_absolute_url() does not consult live_i18n at all (a
-    separate, documented, out-of-scope model gap); its own method is
-    intentionally left unchanged (it is used elsewhere too, e.g. the
-    detail page's own canonical URL) and can raise parler.models.DoesNotExist
-    for an object with no translation at all in language_code and no
-    fallback available - guarded here with has_translation() before ever
-    calling it, rather than a broad try/except. For the teaser
-    specifically, the live snapshot slug is reversed directly here when
-    present, so this one call site stays safe without touching
-    compare/models.py.
+    Beta 8.11: Comparison.get_absolute_url() now does the same (live_i18n
+    first, has_translation()-guarded translation fallback, "#" instead of
+    raising for a missing translation) - the former comparison-specific
+    branch here (which duplicated that same logic at this one call site
+    because the model method didn't do it yet) is gone; every kind now
+    goes through the same, single code path.
     """
     lang = language_code or get_language()
-
-    if kind == "comparison":
-        live = getattr(obj, "live_i18n", None) or {}
-        snap = live.get(lang) or {}
-        live_slug = snap.get("public_slug") or snap.get("slug")
-        if live_slug:
-            with override(lang):
-                return reverse("compare:detail", kwargs={"slug": live_slug})
-        has_translation = getattr(obj, "has_translation", None)
-        if callable(has_translation) and not has_translation(lang):
-            return "#"
-        return obj.get_absolute_url(language=lang)
-
     return obj.get_absolute_url(language=lang)
 
 

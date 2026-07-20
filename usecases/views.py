@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _, get_language
 from django.views.generic import ListView, DetailView
 
+from core.models.editorial import EditorialWorkflowMixin
 from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
 from core.services import related_usecases, to_teaser_item
 from core.views import SeoMixin
@@ -15,26 +16,51 @@ from .models import UseCase
 
 def _resolve_by_slug(qs: QuerySet[UseCase], slug: str, language_code: str) -> Optional[UseCase]:
     """
-    Matches slug against the language_code translation specifically - not
-    just any translation on the object - so a bilingual use case's English
-    slug can never resolve under a German URL prefix (or vice versa).
+    Beta 8.11: mirrors guides/views.py::_resolve_guide_by_slug() and the
+    identical fix in prompts/views.py - once a use case has a live_i18n
+    snapshot for language_code, that snapshot's slug is the SOLE public
+    slug for that language; the current translation slug is not tried at
+    all. This use case's own visible_in_language() stays strict
+    (.published() only, not the broader visible_on_site() Guide/Prompt
+    use), so in practice a status=review/approved use case is already
+    excluded from `qs` entirely - but a status=PUBLISHED record whose
+    translation slug has diverged from its own live_i18n snapshot (e.g. via
+    a direct DB write bypassing the admin's auto-review guard) must still
+    resolve only the live slug, never the diverged one - confirmed via
+    reproduction in usecases/tests/test_draft_slug_leak.py.
+
+    The narrow backward-compatibility fallback to the current translation's
+    public_slug/slug applies ONLY to use cases that are strictly `published`
+    AND have no live_i18n entry for this language at all (a historical
+    record predating the live-snapshot mechanism).
+
+    Language matching is scoped throughout (translations__language_code=
+    language_code), so a bilingual use case's slug in the other language
+    can never resolve under this prefix either.
     """
-    obj = (
+    live_match = (
         qs.filter(
+            Q(**{f"live_i18n__{language_code}__public_slug": slug})
+            | Q(**{f"live_i18n__{language_code}__slug": slug})
+        )
+        .distinct()
+        .first()
+    )
+    if live_match:
+        return live_match
+
+    compat_qs = (
+        qs.filter(status=EditorialWorkflowMixin.STATUS_PUBLISHED)
+        .exclude(**{"live_i18n__has_key": language_code})
+    )
+    return (
+        compat_qs.filter(
             Q(translations__language_code=language_code, translations__public_slug=slug)
             | Q(translations__language_code=language_code, translations__slug=slug)
         )
         .distinct()
         .first()
     )
-    if obj:
-        return obj
-
-    for u in qs:
-        live = (getattr(u, "live_i18n", None) or {}).get(language_code) or {}
-        if live.get("public_slug") == slug or live.get("slug") == slug:
-            return u
-    return None
 
 
 class UseCaseListView(SeoMixin, ListView):
