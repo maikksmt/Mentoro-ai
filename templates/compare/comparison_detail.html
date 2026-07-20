@@ -116,7 +116,7 @@
                     <h2 class="section-title mb-4">{% trans "Related Comparisons" %}</h2>
                     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {% for item in related_comparisons %}
-                            {% include "partials/_teaser_card.html" with item=item %}
+                            {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
                         {% endfor %}
                     </div>
                 </section>
