@@ -6,7 +6,7 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [1.0.0-beta-8] – tbd
+## [1.0.0-beta-8] – 2026-07-20
 
 ### Added
 
@@ -22,7 +22,8 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - mobile navigation now uses the DaisyUI dropdown; dead drawer JavaScript removed
 - accessibility basics: skip link, `#main-content` landmark, dialog focus handling
-- public guides, prompts, use cases and comparisons are filtered strictly by language — no cross-language fallback on lists, detail pages, related content or counts
+- public guides, prompts, use cases and comparisons are filtered strictly by language — no cross-language fallback on lists, detail pages,
+  related content or counts
 - public URLs, titles, intros, bodies and teasers are resolved from the live snapshot instead of the current (possibly draft) translation
 - related guides/prompts/use cases/comparisons are language-safe
 - related use case persona ranking is case-insensitive, explicitly language-scoped and no longer awards a point for two empty personas
@@ -37,17 +38,22 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - broken comparison language-switcher targets
 - empty related comparison cards
 - order-dependent navigation/context-processor tests
-- sitemaps were language-independent while their URLs were generated under the active language prefix, so single-language content was listed in both `/en/sitemap.xml` and `/de/sitemap.xml` — producing 404 targets (foreign-language slug under the wrong prefix) and malformed `<loc>` entries (`https://<domain>#`) for content without a translation in that language
-- aligned scheduled tool visibility across catalog, detail pages, category counts, inventory and sitemaps: a tool with a future `published_at` was correctly hidden from the catalog list and the counts, but was still reachable under its detail URL, shown in the homepage featured-tools row, and listed in both sitemaps
+- sitemaps were language-independent while their URLs were generated under the active language prefix, so single-language content was listed
+  in both `/en/sitemap.xml` and `/de/sitemap.xml` — producing 404 targets (foreign-language slug under the wrong prefix) and
+  malformed `<loc>` entries (`https://<domain>#`) for content without a translation in that language
+- aligned scheduled tool visibility across catalog, detail pages, category counts, inventory and sitemaps: a tool with a
+  future `published_at` was correctly hidden from the catalog list and the counts, but was still reachable under its detail URL, shown in
+  the homepage featured-tools row, and listed in both sitemaps
 
 ### Deployment / Operations
 
-- production uses `DatabaseCache` with the table `mentoroai_cache_table`; the table must exist before first use — Django only creates it automatically in the test setup, so `python manage.py createcachetable` is required on deploy (idempotent)
+- production uses `DatabaseCache` with the table `mentoroai_cache_table`; the table must exist before first use — Django only creates it
+  automatically in the test setup, so `python manage.py createcachetable` is required on deploy (idempotent)
 - no migrations and no new dependencies in this release cycle
 
 ---
 
-## [1.0.0-beta-7] – tbd
+## [1.0.0-beta-7] – 2026-07-18
 
 ### Added
 
@@ -56,7 +62,7 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - replace Cookiebot CMP with Klaro Open Source solution
-- minor UI improvements 
+- minor UI improvements
 - removing recommended_items from home view
 
 ### Fixed
