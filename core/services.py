@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple, Optional, Iterable
 
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Count, Q, QuerySet
+from django.db.models import Count, IntegerField, Q, QuerySet, Value
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -208,9 +208,61 @@ def related_usecases(usecase, limit=6, language_code: str | None = None):
     under the active prefix. Ranking weights/order and the persona-vs-tool
     priority are unchanged; only the field path, base visibility, language
     filter and duplicate-avoidance were touched.
+
+    Beta 8.13: the persona_match ranking annotation used a case-SENSITIVE
+    comparison (translations__persona=persona) while the candidate filter
+    above it already used a case-insensitive one (translations__persona__iexact
+    =persona) - a candidate whose persona differed from the current use
+    case's only in case (e.g. "founder" vs "Founder") passed the filter
+    (so it was included in the related pool) but scored persona_match=0 in
+    the ranking, the same as a candidate with a genuinely different
+    persona, instead of tying with an exact-case match. The annotation now
+    uses the same __iexact lookup, same translations__language_code=lang
+    guard, as the filter above it (no substring/icontains semantics), so
+    the filter and the ranking can never disagree on case again. Weights,
+    order_by field order, limit and fallback-fill are unchanged.
+
+    Beta 8.13a: two follow-ups confirmed via reproduction.
+
+    1. The source persona used to be read via
+       usecase.safe_translation_getter("persona", any_language=False) with
+       no explicit language_code - that reads whichever language happens
+       to be the object instance's OWN current parler language
+       (usecase.get_current_language()), not necessarily `lang`. A use
+       case instance whose current language is "en" but ranked here with
+       language_code="de" would silently rank against its EN persona text
+       while every candidate is matched against its own DE translation -
+       so a genuinely matching DE candidate never scored a point. Fixed by
+       reading the persona from `lang` explicitly, guarded by
+       has_translation(lang): safe_translation_getter(language_code=lang)
+       alone is not enough, because parler's own internal fallback lookup
+       (triggered whenever language_code differs from the instance's
+       current language) always passes use_fallback=True regardless of
+       any_language - it would silently substitute PARLER_LANGUAGES'
+       fallback language's persona text for a missing `lang` translation.
+       has_translation(lang) first guarantees persona is only ever read
+       from `lang` itself, with no cross-language substitution; a missing
+       translation in `lang` now correctly yields persona="". Neither
+       usecase.get_current_language() nor Django's active language is
+       touched by this lookup (has_translation() and
+       safe_translation_getter(language_code=...) both read via the
+       instance's translation cache/DB without calling
+       set_current_language()/translation.activate()).
+
+    2. persona_match could be 1 for two use cases that both simply have no
+       persona set at all, whenever they also shared a tool (the
+       persona_q used for that candidate was unconditionally built as
+       Q(translations__persona__iexact="") in that case, matching any
+       other candidate with an equally empty persona). An empty/missing
+       source persona now short-circuits persona_match to a constant
+       Value(0) - no query is added, no candidate can score a persona
+       point from two absent personas. Tool-based candidate selection and
+       tool_matches ranking are unaffected either way.
     """
     lang = language_code or get_language() or "en"
-    persona = usecase.safe_translation_getter("persona", any_language=False)
+    persona = ""
+    if usecase.has_translation(lang):
+        persona = usecase.safe_translation_getter("persona", default="", language_code=lang) or ""
     tool_ids = _ids(usecase.tools.all()) if hasattr(usecase, "tools") else []
 
     qs = UseCase.objects.visible_in_language(lang).exclude(pk=usecase.pk).prefetch_related("tools")
@@ -220,10 +272,14 @@ def related_usecases(usecase, limit=6, language_code: str | None = None):
         persona_q = Q(translations__language_code=lang, translations__persona__iexact=persona)
 
     if persona or tool_ids:
+        if persona:
+            persona_match_annotation = Count("id", filter=persona_q)
+        else:
+            persona_match_annotation = Value(0, output_field=IntegerField())
         qs = (
             qs.filter(persona_q | Q(tools__in=tool_ids))
             .annotate(
-                persona_match=Count("id", filter=Q(translations__language_code=lang, translations__persona=persona)),
+                persona_match=persona_match_annotation,
                 tool_matches=Count("tools", filter=Q(tools__in=tool_ids), distinct=True),
             )
             .order_by("-persona_match", "-tool_matches", "-published_at")
