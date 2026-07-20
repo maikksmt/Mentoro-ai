@@ -8,7 +8,7 @@
         <div class="hero min-h-[40vh]">
             <div class="hero-content text-center">
                 <div class="max-w-2xl mx-auto">
-                    <h1 class="text-3xl md:text-4xl font-bold pb-4">
+                    <h1 class="page-title pb-4">
                         MentoroAI - {% trans "Understand AI tools and use them effectively" %}
                     </h1>
                     <p class="text-base md:text-lg opacity-80">
@@ -95,7 +95,7 @@
             <h2 class="text-xl font-semibold mb-4">{% trans "Recommended for you" %}</h2>
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {% for item in recommended_items %}
-                    {% include "partials/_teaser_card.html" with item=item %}
+                    {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
                 {% endfor %}
             </div>
         </section>
@@ -114,7 +114,7 @@
         </div>
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {% for item in latest_items %}
-                {% include "partials/_teaser_card.html" with item=item %}
+                {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
             {% empty %}
                 <div class="alert">
                     {% heroicon_solid "information-circle" size=20 class="mr-2" %}

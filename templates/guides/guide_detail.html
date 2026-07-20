@@ -1,10 +1,12 @@
 {% extends "base.html" %} {% load i18n static richtext %}
 {% block content %}
     <div class="max-w-5xl mx-auto">
-        {% include "partials/breadcrumbs.html" %}
-        <article class="prose max-w-none">
+        <div class="detail-reading-header">
+            {% include "partials/breadcrumbs.html" %}
+        </div>
+        <article class="prose reading-column">
             <header class="mb-6">
-                <h1 class="text-3xl font-bold">{{ display_title }}</h1>
+                <h1 class="page-title">{{ display_title }}</h1>
                 <div class="mt-2 flex flex-wrap items-center gap-3 text-sm text-base-content/80">
                     {% if object.reading_time %}
                         <span class="inline-flex items-center gap-1">
@@ -34,7 +36,7 @@
             </header>
 
             {% if display_intro %}
-                <div class="prose max-w-none">{{ display_intro|richtext|safe }}</div>
+                <div class="page-lead">{{ display_intro|richtext|safe }}</div>
                 <div class="divider"></div>
             {% endif %}
             <div class="content">
@@ -51,24 +53,22 @@
                 <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {% for item in section.items.all %}
                         {% if item.is_published %}
-                            {% include "partials/_guideitem_card.html" with item=item %}
+                            {% include "partials/_editorial_card.html" with url=item.get_url title=item.get_title kind=item.kind intro=item.get_teaser|richtext|safe|truncatewords_html:30 %}
                         {% endif %}
                     {% endfor %}
                 </div>
 
             {% endfor %}
         </article>
+        {% if related_guides %}
+            <section class="mt-10">
+                <h2 class="section-title mb-4">{% trans "Related Guides" %}</h2>
+                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {% for item in related_guides %}
+                        {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
     </div>
-    {% if related_guides %}
-        <section class="mt-10">
-            <h2 class="text-2xl font-semibold mb-4">{% trans "Related Guides" %}</h2>
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {% for item in related_guides %}
-                    {% include "partials/_teaser_card.html" with item=item %}
-                {% endfor %}
-            </div>
-        </section>
-    {% endif %}
-
-
 {% endblock %}

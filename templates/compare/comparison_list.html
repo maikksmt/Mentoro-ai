@@ -3,8 +3,8 @@
 {% block content %}
     {% include "partials/breadcrumbs.html" %}
     <header class="mb-3 card-header-compare">
-        <h1 class="text-3xl font-bold">{% trans "AI tool comparisons" %}</h1>
-        <p class="text-base-content/80 mt-2">
+        <h1 class="page-title">{% trans "AI tool comparisons" %}</h1>
+        <p class="page-lead text-base-content/80 mt-2">
             {% trans "Side-by-side comparisons of AI tools to help you understand strengths, weaknesses and special features." %}
         </p>
     </header>
@@ -52,62 +52,9 @@
     </form>
 
     {% if objects %}
-        <div class="grid gap-2 lg:gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div class="grid gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-3">
             {% for obj in objects %}
-                <article class="card bg-base-100 shadow-md hover:shadow-lg transition">
-                    <div class="card-body">
-
-                        <h2 class="card-title">
-                            <a href="{{ obj.get_absolute_url }}" class="link link-hover"
-                               aria-label="{% trans "Read details about " %}{{ obj.title }}">
-                                {{ obj.title }}
-                            </a>
-                        </h2>
-
-                        {% if obj.intro %}
-                            <p class="line-clamp-3">{{ obj.intro|richtext|safe|truncatewords_html:30 }}</p>
-                        {% else %}
-                            <p class="line-clamp-3">{{ obj.body|richtext|safe|truncatewords_html:30 }}</p>
-                        {% endif %}
-                        <div class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/70">
-                            {% trans "Tools" %}
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            {% for tool in obj.tools.all %}
-                                <a href="{% url 'catalog:detail' slug=tool.slug %}" class="badge badge-sm badge-compare">
-                                    {{ tool.name }}
-                                </a>
-                            {% endfor %}
-                        </div>
-                        <div class="card-actions justify-between mt-4">
-                            <div class="flex flex-col gap-1 text-sm text-base-content/80">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    {% if obj.updated_at %}
-                                        <time datetime="{{ obj.updated_at|date:'c' }}"
-                                              class="inline-flex items-center gap-1 whitespace-nowrap"
-                                              aria-label="{% trans 'Published or Updated on' %} {{ obj.updated_at|date:'d.m.Y' }}">
-                                            {% heroicon_outline "calendar-days" size=16 %}
-                                            {{ obj.updated_at|date:"d.m.Y" }}
-                                        </time>
-                                    {% endif %}
-                                </div>
-                                {% if obj.author %}
-                                    <div class="text-xs text-base-content/80 inline-flex items-center gap-1">
-                                        {% heroicon_outline "user" size=14 %}
-                                        <span> {% trans "from" %} {{ obj.author.get_full_name|default:obj.author.username }}</span>
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <a href="{{ obj.get_absolute_url }}" class="btn btn-primary" role="button"
-                               aria-pressed="false"
-                               aria-label="{% trans "Read more about " %}{{ obj.title }}">
-                                {% trans "Read more" %}
-                            </a>
-                        </div>
-                    </div>
-
-                </article>
+                {% include "partials/_editorial_card.html" with url=obj.get_absolute_url title=obj.title kind="comparison" tools=obj.tools.all date=obj.updated_at author=obj.author intro=obj.intro|default:obj.body|richtext|safe|truncatewords_html:30 %}
             {% endfor %}
         </div>
 

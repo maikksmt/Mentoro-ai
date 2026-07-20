@@ -10,13 +10,13 @@
     color-scheme: "light";
     --color-base-100: oklch(100% 0 0);
     --color-base-200: oklch(93% 0 0);
-    --color-base-300: oklch(86% 0 0);
+    --color-base-300: oklch(87% 0 0);
     --color-base-content: oklch(22.389% 0.031 278.072);
-    --color-primary: oklch(58% 0.158 241.966);
+    --color-primary: oklch(48% 0.17 241.966);
     --color-primary-content: oklch(100% 0 0);
     --color-secondary: oklch(55% 0.046 257.417);
     --color-secondary-content: oklch(100% 0 0);
-    --color-accent: oklch(60% 0.118 184.704);
+    --color-accent: oklch(48% 0.14 184.704);
     --color-accent-content: oklch(100% 0 0);
     --color-neutral: oklch(0% 0 0);
     --color-neutral-content: oklch(100% 0 0);
@@ -28,9 +28,9 @@
     --color-warning-content: oklch(0% 0 0);
     --color-error: oklch(70% 0.191 22.216);
     --color-error-content: oklch(0% 0 0);
-    --radius-selector: 0.25rem;
-    --radius-field: 0.25rem;
-    --radius-box: 0.25rem;
+    --radius-selector: 0.5rem;
+    --radius-field: 0.5rem;
+    --radius-box: 0.75rem;
     --size-selector: 0.25rem;
     --size-field: 0.25rem;
     --border: 1px;
@@ -45,15 +45,15 @@
     prefersdark: false;
     color-scheme: "dark";
     --color-base-100: oklch(24.353% 0 0);
-    --color-base-200: oklch(22.648% 0 0);
-    --color-base-300: oklch(20.944% 0 0);
+    --color-base-200: oklch(17% 0 0);
+    --color-base-300: oklch(9% 0 0);
     --color-base-content: oklch(84.87% 0 0);
-    --color-primary: oklch(41.703% 0.099 251.473);
-    --color-primary-content: oklch(88.34% 0.019 251.473);
+    --color-primary: oklch(60% 0.17 241.966);
+    --color-primary-content: oklch(16% 0.05 241.966);
     --color-secondary: oklch(64.092% 0.027 229.389);
     --color-secondary-content: oklch(12.818% 0.005 229.389);
-    --color-accent: oklch(67.271% 0.167 35.791);
-    --color-accent-content: oklch(13.454% 0.033 35.791);
+    --color-accent: oklch(55% 0.16 184.704);
+    --color-accent-content: oklch(14% 0.04 184.704);
     --color-neutral: oklch(27.441% 0.013 253.041);
     --color-neutral-content: oklch(85.488% 0.002 253.041);
     --color-info: oklch(62.616% 0.143 240.033);
@@ -64,9 +64,9 @@
     --color-warning-content: oklch(15.496% 0.023 81.519);
     --color-error: oklch(51.61% 0.146 29.674);
     --color-error-content: oklch(90.322% 0.029 29.674);
-    --radius-selector: 0.25rem;
-    --radius-field: 0.25rem;
-    --radius-box: 0.25rem;
+    --radius-selector: 0.5rem;
+    --radius-field: 0.5rem;
+    --radius-box: 0.75rem;
     --size-selector: 0.25rem;
     --size-field: 0.25rem;
     --border: 1px;
@@ -202,6 +202,171 @@
     }
 }
 
+/* ===========================================================
+   Beta 9.4 – Typography hierarchy & reading column
+   Small semantic classes, not a blind h1-h6 override: card-title,
+   footer-title, modal titles and nav text are untouched because
+   none of them carry these classes. `.prose :where(h2/h3)` only
+   resizes headings that are actually inside a `.prose` scope
+   (editorial richtext), using the same zero-specificity :where()
+   trick Tailwind Typography itself uses, so it never fights a
+   directly-applied utility class outside that scope.
+
+   Deliberately NOT wrapped in `@layer components`: this build's
+   compiled output keeps @layer blocks as real CSS cascade layers,
+   and @tailwindcss/typography's own `.prose` rules (e.g. its
+   `max-width: 65ch`) are unlayered. Per the cascade-layers spec,
+   ANY unlayered rule beats ANY layered rule regardless of
+   specificity - a layered `.reading-column.prose` selector still
+   lost to unlayered `.prose` even with higher specificity. Keeping
+   this block unlayered (like the DaisyUI/Typography output it has
+   to compete with) was verified in-browser to be the only way to
+   reliably win the cascade, not just read correctly from source. */
+.page-title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.875rem; /* 30px */
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+}
+
+@media (min-width: 768px) {
+    .page-title {
+        font-size: 2.5rem; /* 40px */
+        line-height: 1.1;
+    }
+}
+
+/* Intro/lead paragraph directly under a page or detail title.
+   Sits between the title and the long-form body: a bit larger
+   than body text, but clearly not body text itself. */
+.page-lead {
+    font-size: 1.0625rem; /* 17px */
+    line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+    .page-lead {
+        font-size: 1.1875rem; /* 19px */
+    }
+}
+
+/* Section-level H2 used by template-authored headings that sit
+   outside the prose scope: Related/Similar/Suitable-tools/
+   Detailed-comparison section headings. Matched 1:1 to the
+   .prose h2 size below so a page never shows two different
+   "H2 sizes" depending on whether a heading came from richtext
+   or from the template. */
+.section-title {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1.5rem; /* 24px */
+    line-height: 1.25;
+}
+
+@media (min-width: 768px) {
+    .section-title {
+        font-size: 1.75rem; /* 28px */
+    }
+}
+
+/* Reading column: the actual long-form text measure. Width only
+   (no color/spacing side effects) so it composes with .prose
+   instead of replacing it. ch is font-relative on purpose - no
+   hard pixel value - so it stays correct if body copy ever
+   changes size.
+
+   Beta 9.5 fix: this rule always said "centered .detail-shell parent"
+   in the comment above but never actually added the margin that
+   centers it - .reading-column only ever constrained the width, so a
+   block element with a max-width and no margin sits flush at the
+   *start* of its container by default. Inside the wider max-w-5xl
+   shell that left the whole article hugging the left edge with a
+   large empty gap on the right - confirmed from a real screenshot of
+   the German guide detail page in dark mode. margin-inline: auto
+   centers the block; it does not touch text-align, so text inside
+   stays left-aligned exactly as required.
+
+   Written as .reading-column.prose (not .reading-column alone) so
+   its specificity (two classes) beats plain `.prose` should the two
+   ever tie on layer; see the file-level note above for why staying
+   unlayered is what actually makes it win here.
+
+   55ch, not 70ch: the `ch` unit is defined by the width of the "0"
+   glyph, which in Inter is noticeably wider than the average
+   running-text character. Measured against real article text at
+   the actual rendered font, 70ch produced ~84 characters/line -
+   short of the ~68-72 target - while 55ch lands at ~70. Verified
+   at both the 16px mobile and 17px desktop body size. */
+.reading-column {
+    margin-inline: auto;
+}
+
+.reading-column.prose {
+    max-width: 55ch;
+}
+
+/* Beta 9.5: breadcrumb/title/meta/lead sit above the prose article on
+   Guide, Prompt and Use Case (breadcrumbs are a sibling of <article>,
+   not inside it) and, on Comparison, the whole header is outside the
+   narrowed intro/body blocks. .detail-reading-header gives that
+   content the same width and centering as .reading-column so
+   breadcrumb, title and meta land on the same visual axis as the
+   body below them, without pulling in .prose's typography/color
+   overrides (breadcrumbs and the comparison header are plain nav/
+   heading markup, not richtext). The desktop font-size bump matches
+   .reading-column.prose's so both resolve the same `ch` width at the
+   same viewport - without it the two would be computed against
+   different ambient font sizes (16px vs 17px) and drift a few
+   percent apart, reintroducing a small version of the same
+   misalignment this slice fixes. */
+.detail-reading-header {
+    max-width: 55ch;
+    margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+    .detail-reading-header {
+        font-size: 1.0625rem;
+    }
+}
+
+/* Heading sizes for headings that render *inside* a .prose scope -
+   both author-written richtext headings (TinyMCE h2/h3) and bare
+   template headings like "What this tool can do". Low-specificity
+   :where() means this never overrides a directly-applied utility
+   class on a heading that sits outside .prose (e.g. the
+   .section-title headings above, which are not inside .prose). */
+.prose :where(h2):not(:where([class~="not-prose"] *)) {
+    font-size: 1.5rem; /* 24px, matches .section-title */
+    line-height: 1.25;
+}
+
+.prose :where(h3):not(:where([class~="not-prose"] *)) {
+    font-size: 1.25rem; /* 20px */
+    line-height: 1.25;
+}
+
+@media (min-width: 768px) {
+    .prose :where(h2):not(:where([class~="not-prose"] *)) {
+        font-size: 1.75rem; /* 28px */
+    }
+
+    .prose :where(h3):not(:where([class~="not-prose"] *)) {
+        font-size: 1.375rem; /* 22px */
+    }
+}
+
+/* Long-form body copy reads slightly larger on bigger screens. Set
+   on the reading column's own font-size (not body/html) so only
+   article copy grows - nav, cards and footer are untouched, and
+   .prose's own em-based children (p, li, ...) scale with it. */
+@media (min-width: 768px) {
+    .reading-column.prose {
+        font-size: 1.0625rem; /* 17px */
+    }
+}
+
 
 /*!* -------------------------------------*/
 /*   4) TYPE SCALE — Utility-like classes*/
@@ -257,10 +422,6 @@
 /*    }*/
 /*}*/
 
-
-@font-face {
-    font-display: swap;
-}
 
 /* -----------------------------------------
    Richtext / TinyMCE specific
@@ -343,17 +504,92 @@ html {
     font-size: var(--font-size-root);
 }
 
-/* Smartphones: global kleiner */
-@media (max-width: 640px) {
-    :root {
-        --font-size-root: 13px;
-    }
-}
-
 @media (hover: none) {
     .copy-btn {
         opacity: 0.8 !important;
     }
+}
+
+/* Beta 9.3: restoring the 16px root baseline means the navbar's six controls
+   (hamburger, brand logo, search, theme toggle, login, language select)
+   together need ~456px - more than fits on any phone in portrait mode, not
+   just the narrowest ones. Two problems compound this below 640px:
+   1) .navbar-start/.navbar-end are DaisyUI defaults fixed at width:50% each,
+      so the hamburger+logo overflowed their 50% share into .navbar-end,
+      visually overlapping the search icon. Sizing both to their content
+      instead (with the row's own space-between) keeps start-content flush
+      left and end-content flush right.
+   2) Even content-sized, the combined row is still wider than the viewport
+      on phones. Letting the row wrap wraps navbar-end onto its own line
+      below navbar-start - every control stays fully visible and reachable,
+      no control is removed or resized, and nothing is redesigned.
+   Desktop (>640px) is untouched - DaisyUI's 50/50 split already fits there
+   and was never affected by the mobile root override. */
+@media (max-width: 640px) {
+    .navbar {
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .navbar-start,
+    .navbar-end {
+        width: auto;
+    }
+}
+
+/* ===========================================================
+   Beta 9.5 - Unified navigation, mobile surface, footer
+   =========================================================== */
+
+/* Global nav item: the six primary-nav links previously used
+   btn-{category} btn-soft, so every link was a full-color surface
+   (six competing hues visible at once). This slice removes those two
+   classes from the nav templates and adds .global-nav-item alongside
+   the DaisyUI btn-ghost variant instead - inactive links get
+   btn-ghost's own neutral hover for free, and only the *active* link
+   gets a calm, single-brand-color treatment.
+
+   Deliberately unlayered (not @layer components), same reasoning as
+   the .reading-column fix above: DaisyUI's own .btn-active rule sets
+   --btn-bg directly, and this needs to reliably win regardless of
+   which cascade layer DaisyUI's compiled output happens to occupy -
+   verified in-browser, not assumed from source.
+
+   .btn-active itself is left exactly where the existing markup and
+   tests expect it (content/tests/test_navigation.py,
+   test_sticky_navbar.py both assert on the literal "btn-active"
+   string and its position relative to aria-current="page") - this
+   only restyles what that combination looks like for nav items.
+   Category classes/variables are untouched; cards, badges and
+   card-headers elsewhere still use them exactly as before. */
+.global-nav-item.btn-active {
+    background-color: color-mix(in oklab, var(--color-primary) 16%, transparent);
+    color: var(--color-primary);
+}
+
+/* Mobile dropdown surface: a visible border turns the menu into a
+   clearly bordered panel instead of relying on shadow alone. */
+#mobile-nav-menu {
+    border: 1px solid var(--color-base-300);
+}
+
+/* Scrim behind the open mobile menu. Sits above ordinary page content
+   but below the sticky navbar (z-100) and *far* below dropdown-content
+   (DaisyUI's z-999) - the trigger stays reachable and native <dialog>s
+   (search/roadmap render in the browser's top layer regardless of any
+   z-index) are unaffected either way. Visibility is toggled by the
+   existing mobile-nav script adding/removing one class - no new
+   animation dependency, same 0.2s ease already used for toasts. */
+#mobile-nav-scrim {
+    z-index: 90;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+#mobile-nav-scrim.mobile-nav-scrim-visible {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 
@@ -574,6 +810,100 @@ html[data-theme='mentoroai-dark'] #github-logo[srcset] {
    <div class="card card-usecase"><div class="card-header-usecase">...</div></div>
    <span class="badge badge-prompt">Prompt</span>
    =========================================================== */
+
+/* ===========================================================
+   Beta 9.6 - Unified editorial card family
+
+   One shared visual frame for every redactional teaser/list card
+   (guides, prompts, use cases, comparisons - list pages, homepage
+   latest content, and all four related-content sections), replacing
+   the previous _teaser_card.html/_guideitem_card.html duplicates and
+   four near-identical inline card blocks. Deliberately does not reuse
+   DaisyUI's own `.card`/`.card-body` classes (a fresh, dedicated name
+   avoids ever matching the existing `.card[class*="card-"]` category-
+   color selector above, which requires the literal `.card` class to
+   apply - these elements never carry it).
+
+   Rest state has a visible border and no shadow; hover/focus adds a
+   small, color-only elevation (no transform/scale) - matches the
+   "ruhig" rest / "kleine Elevation" hover pairing from Beta 9.6's
+   design brief. Tool cards, filters and category chips are untouched. */
+.editorial-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid var(--color-base-300);
+    border-radius: var(--radius-box);
+    background-color: var(--color-base-100);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.editorial-card:hover,
+.editorial-card:focus-within {
+    border-color: color-mix(in oklab, var(--color-primary) 35%, var(--color-base-300));
+    box-shadow: 0 6px 16px -8px color-mix(in oklab, var(--color-base-content) 35%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .editorial-card {
+        transition: none;
+    }
+}
+
+.editorial-card-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    padding: 1.25rem;
+}
+
+.editorial-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem 0.5rem;
+    font-size: 0.875rem; /* 14px */
+    color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+    margin-bottom: 0.5rem;
+}
+
+/* 18px matches the card-title size already established in Beta 9.4;
+   kept as an explicit rule here since this card no longer uses
+   DaisyUI's own `.card-title`. */
+.editorial-card-title {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1.125rem;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+}
+
+.editorial-card-intro {
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.5;
+    color: color-mix(in oklab, var(--color-base-content) 85%, transparent);
+    margin-bottom: 0.75rem;
+}
+
+.editorial-card-extra {
+    font-size: 0.8125rem; /* 13px */
+    color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+    margin-bottom: 0.75rem;
+}
+
+/* Pushes the CTA to the bottom of the flex column regardless of how
+   short the card's content is, so short cards never grow an empty gap
+   above a floating CTA and tall cards in the same grid row still line
+   up their CTAs on one baseline. */
+.editorial-card-action {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    display: flex;
+    justify-content: flex-end;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-primary);
+}
 
 @keyframes fade-in {
     0% {
