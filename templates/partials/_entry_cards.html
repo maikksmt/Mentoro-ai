@@ -1,62 +1,95 @@
 {% load i18n %}
-
-<section class="container mx-auto mt-4 md:mt-8">
-    <div class="mx-auto text-center mb-4 lg:mb-8">
-        <h2 class="text-2xl font-semibold mb-4">{% trans "What can I find on MentoroAI?" %}</h2>
+{% comment %}
+    Beta 9.7: all six entry cards share one structure. The whole card is the
+    single link target, so the former nested <button> inside <a> (invalid
+    interactive nesting, present on every card) is now a non-interactive
+    <span>. Category color is reduced to the thin .home-entry-card::before
+    accent via --intent, instead of a full-color button surface. Cards whose
+    public_inventory count is 0 render the muted variant - generic, driven by
+    the existing count only.
+{% endcomment %}
+<section class="container mx-auto home-section">
+    <div class="mx-auto text-center mb-6 lg:mb-8">
+        <h2 class="home-section-heading">{% trans "What can I find on MentoroAI?" %}</h2>
         <p class="text-lg text-base-content/90">{% trans "Our areas of expertise at a glance - from definitions to practical examples." %}</p>
     </div>
-    <div class="grid gap-2 lg:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <a href="{% url 'glossary:list' %}" class="card shadow-md" aria-label="{% trans "Go to Glossary list" %}">
-            <div class="prose card-body">
-                <h3 class="card-title">🧠 {% trans "Glossary" %}</h3>
-                <p>{% trans "AI terms explained simply - understandable, concise and with examples." %}</p>
-                <button class="btn btn-glossary text-base">{% trans "To glossary" %}</button>
+    <div class="grid gap-4 lg:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+        <a href="{% url 'glossary:list' %}" class="home-entry-card btn-glossary"
+           aria-label="{% trans "Go to Glossary list" %}">
+            <div class="home-entry-card-body">
+                <h3 class="home-entry-card-title">🧠 {% trans "Glossary" %}</h3>
+                <p class="home-entry-card-desc">{% trans "AI terms explained simply - understandable, concise and with examples." %}</p>
+                <div class="home-entry-card-meta">
+                    <span class="home-entry-card-action">{% trans "To glossary" %} &rarr;</span>
+                </div>
             </div>
         </a>
-        <a href="{% url 'guides:list' %}" class="card bg-base-100 shadow-md"
+
+        <a href="{% url 'guides:list' %}"
+           class="home-entry-card btn-guide{% if not public_inventory.counts.guides %} home-entry-card-muted{% endif %}"
            aria-label="{% trans "Go to Guides list" %}">
-            <div class="prose card-body">
-                <h3 class="card-title">📖 {% trans "Guides" %}</h3>
-                <p>{% trans "Step-by-step instructions for using AI safely in everyday life or at work." %}</p>
-                <p class="text-sm opacity-70">{% blocktrans count counter=public_inventory.counts.guides %}{{ counter }} guide{% plural %}{{ counter }} guides{% endblocktrans %}</p>
-                <button class="btn btn-guide text-base">{% trans "To the guides" %} </button>
+            <div class="home-entry-card-body">
+                <h3 class="home-entry-card-title">📖 {% trans "Guides" %}</h3>
+                <p class="home-entry-card-desc">{% trans "Step-by-step instructions for using AI safely in everyday life or at work." %}</p>
+                <div class="home-entry-card-meta">
+                    <p>{% blocktrans count counter=public_inventory.counts.guides %}{{ counter }} guide{% plural %}{{ counter }} guides{% endblocktrans %}</p>
+                    <span class="home-entry-card-action">{% trans "To the guides" %} &rarr;</span>
+                </div>
             </div>
         </a>
-        <a href="{% url 'prompts:list' %}" class="card bg-base-100 shadow-md"
+
+        <a href="{% url 'prompts:list' %}"
+           class="home-entry-card btn-prompt{% if not public_inventory.counts.prompts %} home-entry-card-muted{% endif %}"
            aria-label="{% trans "Go to Prompts list" %}">
-            <div class="prose card-body">
-                <h3 class="card-title">💬 {% trans "Prompts" %}</h3>
-                <p>{% trans "Ready-made input templates for ChatGPT & Co. - simply copy and get started." %}</p>
-                <p class="text-sm opacity-70">{% blocktrans count counter=public_inventory.counts.prompts %}{{ counter }} prompt{% plural %}{{ counter }} prompts{% endblocktrans %}</p>
-                <button class="btn btn-prompt text-base">{% trans "To the prompts" %}</button>
+            <div class="home-entry-card-body">
+                <h3 class="home-entry-card-title">💬 {% trans "Prompts" %}</h3>
+                <p class="home-entry-card-desc">{% trans "Ready-made input templates for ChatGPT & Co. - simply copy and get started." %}</p>
+                <div class="home-entry-card-meta">
+                    <p>{% blocktrans count counter=public_inventory.counts.prompts %}{{ counter }} prompt{% plural %}{{ counter }} prompts{% endblocktrans %}</p>
+                    <span class="home-entry-card-action">{% trans "To the prompts" %} &rarr;</span>
+                </div>
             </div>
         </a>
-        <a href="{% url 'usecases:list' %}" class="card bg-base-100 shadow-md"
+
+        <a href="{% url 'usecases:list' %}"
+           class="home-entry-card btn-usecase{% if not public_inventory.counts.usecases %} home-entry-card-muted{% endif %}"
            aria-label="{% trans "Go to Usecases list" %}">
-            <div class="prose card-body">
-                <h3 class="card-title">💡 {% trans "Use cases" %}</h3>
-                <p>{% trans "Others are already using AI - real-world examples from everyday life and work." %} </p>
-                <p class="text-sm opacity-70">{% blocktrans count counter=public_inventory.counts.usecases %}{{ counter }} use case{% plural %}{{ counter }} use cases{% endblocktrans %}</p>
-                <button class="btn btn-usecase text-base">{% trans "To the use cases" %} </button>
+            <div class="home-entry-card-body">
+                <h3 class="home-entry-card-title">💡 {% trans "Use cases" %}</h3>
+                <p class="home-entry-card-desc">{% trans "Others are already using AI - real-world examples from everyday life and work." %}</p>
+                <div class="home-entry-card-meta">
+                    <p>{% blocktrans count counter=public_inventory.counts.usecases %}{{ counter }} use case{% plural %}{{ counter }} use cases{% endblocktrans %}</p>
+                    <span class="home-entry-card-action">{% trans "To the use cases" %} &rarr;</span>
+                </div>
             </div>
         </a>
-        <a href="{% url 'catalog:list' %}" class="card bg-base-100 shadow-md"
+
+        <a href="{% url 'catalog:list' %}"
+           class="home-entry-card btn-tool{% if not public_inventory.counts.tools %} home-entry-card-muted{% endif %}"
            aria-label="{% trans "Go to Tools list" %}">
-            <div class="prose card-body">
-                <h3 class="card-title">🧰 {% trans "Tools" %}</h3>
-                <p>{% trans "AI tools and platforms presented - with features and areas of application." %} </p>
-                <p class="text-sm opacity-70">{% blocktrans count counter=public_inventory.counts.tools %}{{ counter }} AI tool{% plural %}{{ counter }} AI tools{% endblocktrans %}</p>
-                <button class="btn btn-tool text-base">{% trans "To the tools" %}</button>
+            <div class="home-entry-card-body">
+                <h3 class="home-entry-card-title">🧰 {% trans "Tools" %}</h3>
+                <p class="home-entry-card-desc">{% trans "AI tools and platforms presented - with features and areas of application." %}</p>
+                <div class="home-entry-card-meta">
+                    <p>{% blocktrans count counter=public_inventory.counts.tools %}{{ counter }} AI tool{% plural %}{{ counter }} AI tools{% endblocktrans %}</p>
+                    <span class="home-entry-card-action">{% trans "To the tools" %} &rarr;</span>
+                </div>
             </div>
         </a>
-        <a href="{% url 'compare:index' %}" class="card bg-base-100 shadow-md"
+
+        <a href="{% url 'compare:index' %}"
+           class="home-entry-card btn-compare{% if not public_inventory.counts.comparisons %} home-entry-card-muted{% endif %}"
            aria-label="{% trans "Go to Comparisons list" %}">
-            <div class="prose card-body">
-                <h3 class="card-title">⚖️ {% trans "Comparisons" %}</h3>
-                <p>{% trans "Find out which AI tool or model best suits your needs." %}</p>
-                <p class="text-sm opacity-70">{% blocktrans count counter=public_inventory.counts.comparisons %}{{ counter }} comparison{% plural %}{{ counter }} comparisons{% endblocktrans %}</p>
-                <button class="btn btn-compare text-base">{% trans "To the comparisons" %}</button>
+            <div class="home-entry-card-body">
+                <h3 class="home-entry-card-title">⚖️ {% trans "Comparisons" %}</h3>
+                <p class="home-entry-card-desc">{% trans "Find out which AI tool or model best suits your needs." %}</p>
+                <div class="home-entry-card-meta">
+                    <p>{% blocktrans count counter=public_inventory.counts.comparisons %}{{ counter }} comparison{% plural %}{{ counter }} comparisons{% endblocktrans %}</p>
+                    <span class="home-entry-card-action">{% trans "To the comparisons" %} &rarr;</span>
+                </div>
             </div>
         </a>
+
     </div>
 </section>

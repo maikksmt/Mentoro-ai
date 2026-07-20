@@ -3,53 +3,91 @@
 {% load i18n static richtext %}
 
 {% block content %}
+    {% comment %}
+        Beta 9.7 section order (returning users first):
+        Hero -> Current content -> Discover areas -> Featured Tools -> Author.
+        Only the order and presentation changed; every query, limit and
+        ordering behind these sections is untouched.
+    {% endcomment %}
+
     <!-- Hero / Intro -->
-    <section class="container mx-auto">
-        <div class="hero min-h-[40vh]">
-            <div class="hero-content text-center">
-                <div class="max-w-2xl mx-auto">
-                    <h1 class="page-title pb-4">
-                        MentoroAI - {% trans "Understand AI tools and use them effectively" %}
-                    </h1>
-                    <p class="text-base md:text-lg opacity-80">
-                        {% blocktrans %} Find the right tools, compare real alternatives, and follow practical guides
-                            and prompts to apply AI confidently in everyday life.{% endblocktrans %}
-                    </p>
-                    <div class="flex flex-wrap gap-3 mt-6 justify-center items-center">
-                        {% if start_guide_url %}
-                            <a href="{{ start_guide_url }}" class="btn btn-primary btn-lg" role="button"
-                               aria-pressed="false" aria-label="{% trans "Begin with the Starter Guide" %}">
-                                {% blocktrans %}Begin with the Starter Guide{% endblocktrans %}
-                            </a>
-                        {% endif %}
-                        <a href="{% url 'catalog:list' %}" class="btn btn-lg btn-outline" role="button" aria-pressed="false"
-                           aria-label="{% trans "Discover AI Tools" %}">
-                            {% blocktrans %}Discover AI Tools{% endblocktrans %}
-                        </a>
-                    </div>
-                    <p class="mt-6 text-sm text-base-content/70 flex flex-wrap justify-center items-center gap-x-5 gap-y-2">
-                        <span>{% blocktrans count counter=public_inventory.counts.tools %}{{ counter }} AI tool{% plural %}{{ counter }} AI
-                            tools{% endblocktrans %}</span>
-                        <span aria-hidden="true" class="opacity-50 px-1">&middot;</span>
-                        <span>{% blocktrans count counter=public_inventory.counts.guides %}{{ counter }} guide{% plural %}{{ counter }}
-                            guides{% endblocktrans %}</span>
-                        <span aria-hidden="true" class="opacity-50 px-1">&middot;</span>
-                        <span>{% blocktrans count counter=public_inventory.counts.categories %}{{ counter }} category
-                            {% plural %}{{ counter }} categories {% endblocktrans %}</span>
-                    </p>
-                </div>
+    <section class="container mx-auto home-hero">
+        <div class="max-w-2xl mx-auto">
+            <h1 class="page-title pb-4">
+                MentoroAI - {% trans "Understand AI tools and use them effectively" %}
+            </h1>
+            <p class="text-base md:text-lg opacity-80">
+                {% blocktrans %} Find the right tools, compare real alternatives, and follow practical guides
+                    and prompts to apply AI confidently in everyday life.{% endblocktrans %}
+            </p>
+            <div class="flex flex-wrap gap-3 mt-6 justify-center items-center">
+                {% if start_guide_url %}
+                    <a href="{{ start_guide_url }}" class="btn btn-primary btn-lg"
+                       aria-label="{% trans "Begin with the Starter Guide" %}">
+                        {% blocktrans %}Begin with the Starter Guide{% endblocktrans %}
+                    </a>
+                {% endif %}
+                <a href="{% url 'catalog:list' %}" class="btn btn-lg btn-outline"
+                   aria-label="{% trans "Discover AI Tools" %}">
+                    {% blocktrans %}Discover AI Tools{% endblocktrans %}
+                </a>
             </div>
+            <p class="mt-6 text-sm text-base-content/70 flex flex-wrap justify-center items-center gap-x-5 gap-y-2">
+                <span>{% blocktrans count counter=public_inventory.counts.tools %}{{ counter }} AI tool{% plural %}{{ counter }} AI
+                    tools{% endblocktrans %}</span>
+                <span aria-hidden="true" class="opacity-50 px-1">&middot;</span>
+                <span>{% blocktrans count counter=public_inventory.counts.guides %}{{ counter }} guide{% plural %}{{ counter }}
+                    guides{% endblocktrans %}</span>
+                <span aria-hidden="true" class="opacity-50 px-1">&middot;</span>
+                <span>{% blocktrans count counter=public_inventory.counts.categories %}{{ counter }} category
+                    {% plural %}{{ counter }} categories {% endblocktrans %}</span>
+            </p>
         </div>
     </section>
-    {% include "partials/_entry_cards.html" with card=c %}
-    <section class="container mx-auto mt-4">
-        {% include "partials/author_info_card.html" %}
+
+    <!-- New Content -->
+    <section class="container mx-auto home-section">
+        <div class="flex items-baseline justify-between mb-4">
+            <h2 class="home-section-heading">{% trans "Current content" %}
+                <span class="opacity-80 text-sm font-normal">
+                    <a class="link link-hover ml-2" href="{% url 'guides:list' %}">{% trans "Guides" %}</a> •
+                    <a class="link link-hover" href="{% url 'prompts:list' %}">{% trans "Prompts" %}</a> •
+                    <a class="link link-hover" href="{% url 'usecases:list' %}">{% trans "Usecases" %}</a> •
+                    <a class="link link-hover" href="{% url 'compare:index' %}">{% trans "Comparisons" %}</a>
+                </span>
+            </h2>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {% for item in latest_items %}
+                {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
+            {% empty %}
+                <div class="alert">
+                    {% heroicon_solid "information-circle" size=20 class="mr-2" %}
+                    <span>{% trans "No published content yet." %}</span>
+                </div>
+            {% endfor %}
+        </div>
     </section>
+
+    <!-- Personalized recommendations -->
+    {% if recommended_items %}
+        <section class="container mx-auto home-section">
+            <h2 class="home-section-heading">{% trans "Recommended for you" %}</h2>
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {% for item in recommended_items %}
+                    {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% include "partials/_entry_cards.html" with card=c %}
+
     <!-- Featured Tools -->
     {% if featured_tools %}
-        <section class="container mx-auto mt-8">
-            <h2 class="text-xl font-semibold pb-4">{% trans "Featured Tools" %}</h2>
-            <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+        <section class="container mx-auto home-section">
+            <h2 class="home-section-heading">{% trans "Featured Tools" %}</h2>
+            <div class="grid gap-4 grid-cols-2 md:grid-cols-4">
                 {% for t in featured_tools %}
                     <a href="{% url 'catalog:detail' slug=t.slug %}"
                        class="card border rounded-md hover:shadow-xl transition-shadow h-full">
@@ -89,40 +127,11 @@
             </div>
         </section>
     {% endif %}
-    <!-- Personalized recommendations -->
-    {% if recommended_items %}
-        <section class="container mx-auto mt-8">
-            <h2 class="text-xl font-semibold mb-4">{% trans "Recommended for you" %}</h2>
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {% for item in recommended_items %}
-                    {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
-                {% endfor %}
-            </div>
-        </section>
-    {% endif %}
-    <!-- New Content -->
-    <section class="container mx-auto mt-8">
-        <div class="flex items-baseline justify-between mb-4">
-            <h2 class="text-xl font-semibold">{% trans "Current content" %}
-                <span class="opacity-80 text-sm">
-                    <a class="link link-hover ml-2" href="{% url 'guides:list' %}">{% trans "Guides" %}</a> •
-                    <a class="link link-hover" href="{% url 'prompts:list' %}">{% trans "Prompts" %}</a> •
-                    <a class="link link-hover" href="{% url 'usecases:list' %}">{% trans "Usecases" %}</a> •
-                    <a class="link link-hover" href="{% url 'compare:index' %}">{% trans "Comparisons" %}</a>
-                </span>
-            </h2>
-        </div>
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {% for item in latest_items %}
-                {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
-            {% empty %}
-                <div class="alert">
-                    {% heroicon_solid "information-circle" size=20 class="mr-2" %}
-                    <span>{% trans "No published content yet." %}</span>
-                </div>
-            {% endfor %}
-        </div>
+
+    <section class="container mx-auto home-section">
+        {% include "partials/author_info_card.html" %}
     </section>
+
     <!-- Open the modal using ID.showModal() method -->
     <div class="fab">
         <button type="button" class="btn btn-lg md:btn-xl btn-circle btn-info" onclick="featuresmodal.showModal()"

@@ -41,8 +41,6 @@
             {% if q or category %}
                 <a href="."
                    class="btn btn-ghost btn-sm md:btn-md"
-                   role="button"
-                   aria-pressed="false"
                    aria-label="{% trans "Reset filters" %}">
                     {% trans "Reset" %}
                 </a>
@@ -58,7 +56,7 @@
             {% endfor %}
         </div>
 
-        {% include "partials/pagination.html" %}
+        {% include "partials/pagination.html" with query=q %}
 
     {% else %}
         <p>

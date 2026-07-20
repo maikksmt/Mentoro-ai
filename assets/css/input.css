@@ -303,7 +303,7 @@
 }
 
 .reading-column.prose {
-    max-width: 55ch;
+    max-width: 70ch;
 }
 
 /* Beta 9.5: breadcrumb/title/meta/lead sit above the prose article on
@@ -903,6 +903,312 @@ html[data-theme='mentoroai-dark'] #github-logo[srcset] {
     font-size: 0.9375rem;
     font-weight: 500;
     color: var(--color-primary);
+}
+
+/* ===========================================================
+   Beta 9.7 - Homepage priorities for returning users
+
+   Scoped strictly to the homepage (every selector starts with
+   .home-*), so nothing here can reach list pages, detail pages,
+   tool cards or the Beta 9.6 editorial-card family. Unlayered for
+   the same reason as the Beta 9.4/9.5/9.6 blocks above: this
+   build keeps @layer blocks as real cascade layers and DaisyUI's
+   own component rules behave as unlayered, so a layered override
+   would lose regardless of specificity. */
+
+/* Hero: the previous `hero min-h-[40vh]` grew its empty space with
+   the viewport - 360px of hero at 1440x900 but 432px at 1920x1080 -
+   which pushed "Current content" (the section returning users
+   actually come for) to ~2 viewport heights down on desktop and
+   ~4.3 on mobile. Fixed, responsive padding decouples hero height
+   from viewport height entirely: the hero now costs the same
+   vertical budget on a 1080p monitor as on a laptop. */
+.home-hero {
+    padding-block: 2rem;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .home-hero {
+        padding-block: 2.5rem;
+    }
+}
+
+/* Consistent vertical rhythm between homepage sections, replacing
+   the ad-hoc mt-4/mt-8 mix. Homepage-only - the global section
+   spacing used by list and detail pages is untouched. */
+.home-section {
+    margin-top: 3rem;
+}
+
+@media (min-width: 768px) {
+    .home-section {
+        margin-top: 4rem;
+    }
+}
+
+.home-section-heading {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1.5rem;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    .home-section-heading {
+        font-size: 1.75rem;
+    }
+}
+
+/* Entry cards ("What can I find on MentoroAI?").
+
+   Before: six full-bleed category-colored buttons (btn-glossary,
+   btn-guide, ...) inside DaisyUI `.card` surfaces - visually the
+   loudest band on the page, louder than the actual content it was
+   supposed to point at. Now a calm, neutral surface shared by all
+   six, with the category color reduced to a thin top accent bar.
+   The global category tokens themselves are untouched and still
+   drive badges/headers everywhere else. */
+.home-entry-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--color-base-300);
+    border-radius: var(--radius-box);
+    background-color: var(--color-base-100);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Thin category accent instead of a full-color button surface. */
+.home-entry-card::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    height: 3px;
+    background-color: var(--intent, var(--color-primary));
+}
+
+.home-entry-card:hover,
+.home-entry-card:focus-visible {
+    border-color: color-mix(in oklab, var(--color-primary) 35%, var(--color-base-300));
+    box-shadow: 0 6px 16px -8px color-mix(in oklab, var(--color-base-content) 35%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-entry-card {
+        transition: none;
+    }
+}
+
+.home-entry-card-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    padding: 1.25rem;
+}
+
+.home-entry-card-title {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1.125rem;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+}
+
+.home-entry-card-desc {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: color-mix(in oklab, var(--color-base-content) 85%, transparent);
+}
+
+/* margin-top:auto pins count+action to the bottom, so the Glossary
+   card - the one entry without a count in public_inventory - shows
+   no visible gap where the other five have their count line, and
+   all six keep the same outer height in a grid row without any
+   invented count query. */
+.home-entry-card-meta {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    font-size: 0.8125rem;
+    color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+}
+
+.home-entry-card-action {
+    margin-top: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-primary);
+}
+
+/* Count 0: the section stays reachable and keeps its taxonomy, but
+   is visibly "still being built" rather than advertised as an
+   equally stocked area. Driven purely by the existing count value
+   (generic - any area that reports 0 gets this), no new query, no
+   new status field, no new copy: the visible "0 ..." count plus a
+   reduced surface and a non-primary action carry the message. */
+.home-entry-card-muted {
+    background-color: color-mix(in oklab, var(--color-base-200) 60%, var(--color-base-100));
+}
+
+.home-entry-card-muted::before {
+    background-color: color-mix(in oklab, var(--color-base-content) 25%, transparent);
+}
+
+.home-entry-card-muted .home-entry-card-action {
+    color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+    font-weight: 400;
+}
+
+/* ===========================================================
+   Beta 9.8 - Catalog filter panel & shared pagination UX
+
+   Scoped to the catalog-, active-filter- and pagination-prefixed classes
+   below - none of these selectors touch .card, .input, .select, .btn or
+   .join themselves, only wrap/space around them, so tool cards, other
+   DaisyUI components and the Beta 9.6 editorial-card family are
+   unaffected. Unlayered for the same cascade-layers reason documented
+   throughout this file: this build keeps @layer blocks as real layers
+   and DaisyUI's own rules behave unlayered. */
+
+.catalog-filter-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    margin-block: 1rem;
+    border: 1px solid var(--color-base-300);
+    border-radius: var(--radius-box);
+    background-color: var(--color-base-100);
+}
+
+.catalog-filter-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem 1rem;
+}
+
+.catalog-filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.catalog-filter-field-search {
+    flex: 2 1 260px;
+}
+
+.catalog-filter-field-checkbox {
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
+    cursor: pointer;
+}
+
+.catalog-filter-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+}
+
+.catalog-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-inline-start: auto;
+}
+
+.catalog-filter-reset {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: color-mix(in oklab, var(--color-base-content) 75%, transparent);
+    transition: color 0.15s ease;
+}
+
+.catalog-filter-reset:hover,
+.catalog-filter-reset:focus-visible {
+    color: var(--color-primary);
+}
+
+.active-filter-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-base-300);
+    font-size: 0.875rem;
+}
+
+.active-filter-label {
+    font-weight: 600;
+    color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+}
+
+.active-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 0.625rem;
+    padding-block: 0.25rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-base-300);
+    background-color: var(--color-base-200);
+    color: var(--color-base-content);
+}
+
+.active-filter-clear {
+    font-weight: 500;
+    color: var(--color-primary);
+    margin-inline-start: 0.25rem;
+}
+
+.catalog-results-summary {
+    font-size: 0.875rem;
+    color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+    margin-block: 0.75rem;
+}
+
+.catalog-empty-state {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 1.5rem;
+    border: 1px solid var(--color-base-300);
+    border-radius: var(--radius-box);
+    background-color: var(--color-base-200);
+}
+
+/* Pagination: shared partial used by the catalog and every paginated
+   editorial list (guides/prompts/usecases/comparisons). min-height/
+   min-width always win over a conflicting fixed height from DaisyUI's
+   .btn-sm (CSS box-model rule, not a cascade/specificity question), so
+   this reliably lifts touch targets to ~40px without editing .btn-sm
+   itself or swapping template classes. */
+.pagination-shell {
+    display: flex;
+    justify-content: center;
+    margin-block: 1.5rem;
+}
+
+.pagination-link,
+.pagination-current {
+    min-height: 2.5rem;
+    min-width: 2.5rem;
+}
+
+.pagination-disabled {
+    pointer-events: none;
+    opacity: 0.5;
 }
 
 @keyframes fade-in {
