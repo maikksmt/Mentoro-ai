@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-20 07:55+0100\n"
+"POT-Creation-Date: 2026-07-19 21:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,9 +66,9 @@ msgstr ""
 msgid "Meta"
 msgstr ""
 
-#: catalog/models.py:15 catalog/models.py:45 compare/models.py:19
-#: glossary/models.py:11 guides/models.py:21 prompts/models.py:21
-#: usecases/models.py:20
+#: catalog/models.py:15 catalog/models.py:45 compare/models.py:40
+#: glossary/models.py:11 guides/models.py:54 prompts/models.py:35
+#: usecases/models.py:41
 msgid "Slug"
 msgstr ""
 
@@ -186,11 +186,11 @@ msgstr ""
 msgid "[Tools] Overview"
 msgstr ""
 
-#: compare/admin.py:145 compare/models.py:16 guides/admin.py:132
-#: guides/admin.py:136 guides/models.py:18 guides/models.py:119
-#: guides/models.py:204 prompts/admin.py:109 prompts/models.py:17
+#: compare/admin.py:145 compare/models.py:37 guides/admin.py:133
+#: guides/admin.py:137 guides/models.py:51 guides/models.py:185
+#: guides/models.py:270 prompts/admin.py:109 prompts/models.py:31
 #: templates/content/editorial/review_queue.html:14
-#: templates/ops/seo_check.html:41 usecases/admin.py:99 usecases/models.py:16
+#: templates/ops/seo_check.html:41 usecases/admin.py:99 usecases/models.py:37
 msgid "Title"
 msgstr ""
 
@@ -215,111 +215,111 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: compare/models.py:17 guides/models.py:19 prompts/models.py:18
-#: usecases/models.py:17
+#: compare/models.py:38 guides/models.py:52 prompts/models.py:32
+#: usecases/models.py:38
 msgid "Intro"
 msgstr ""
 
-#: compare/models.py:17
+#: compare/models.py:38
 msgid "Short introduction shown in lists and above the comparison."
 msgstr ""
 
-#: compare/models.py:18 guides/models.py:20 guides/models.py:120
-#: prompts/models.py:19 usecases/models.py:18
+#: compare/models.py:39 guides/models.py:53 guides/models.py:186
+#: prompts/models.py:33 usecases/models.py:39
 msgid "Body"
 msgstr ""
 
-#: compare/models.py:18
+#: compare/models.py:39
 msgid "Optional longer text with context, recommendations or wrap-up."
 msgstr ""
 
-#: compare/models.py:19
+#: compare/models.py:40
 msgid "Internal slug, used for the default detail URL."
 msgstr ""
 
-#: compare/models.py:21 guides/models.py:22 prompts/models.py:22
-#: usecases/models.py:21
+#: compare/models.py:42 guides/models.py:55 prompts/models.py:36
+#: usecases/models.py:42
 msgid "Public slug"
 msgstr ""
 
-#: compare/models.py:26
+#: compare/models.py:47
 msgid "Optional public slug. If empty, slug will be used on publish."
 msgstr ""
 
-#: compare/models.py:32
+#: compare/models.py:55
 msgid "Tool comparison"
 msgstr ""
 
-#: compare/models.py:33
+#: compare/models.py:56
 msgid "Tool comparisons"
 msgstr ""
 
-#: compare/models.py:77
+#: compare/models.py:100
 msgid "Order in which tools are displayed in this comparison."
 msgstr ""
 
-#: compare/models.py:82
+#: compare/models.py:105
 msgid "Label / heading"
 msgstr ""
 
-#: compare/models.py:85
+#: compare/models.py:108
 msgid "Optional headline for this tool within the comparison."
 msgstr ""
 
-#: compare/models.py:88
+#: compare/models.py:111
 msgid "Summary"
 msgstr ""
 
-#: compare/models.py:90
+#: compare/models.py:113
 msgid "Free text: main description for this tool in the comparison."
 msgstr ""
 
-#: compare/models.py:93
+#: compare/models.py:116
 msgid "Strengths / advantages"
 msgstr ""
 
-#: compare/models.py:95
+#: compare/models.py:118
 msgid "Use bullet lists in TinyMCE to highlight strengths."
 msgstr ""
 
-#: compare/models.py:98
+#: compare/models.py:121
 msgid "Weaknesses / limitations"
 msgstr ""
 
-#: compare/models.py:100
+#: compare/models.py:123
 msgid "Use bullet lists in TinyMCE to highlight weaknesses."
 msgstr ""
 
-#: compare/models.py:103
+#: compare/models.py:126
 msgid "Special features / notes"
 msgstr ""
 
-#: compare/models.py:105
+#: compare/models.py:128
 msgid "Anything unique, edge cases, or important caveats."
 msgstr ""
 
-#: compare/models.py:110
+#: compare/models.py:133
 msgid "Tool comparison entry"
 msgstr ""
 
-#: compare/models.py:111
+#: compare/models.py:134
 msgid "Tool comparison entries"
 msgstr ""
 
-#: compare/views.py:66 templates/compare/comparison_list.html:6
+#: compare/views.py:71 templates/compare/comparison_list.html:6
 msgid "AI tool comparisons"
 msgstr ""
 
-#: compare/views.py:68 templates/compare/comparison_list.html:8
+#: compare/views.py:73 templates/compare/comparison_list.html:8
 msgid ""
 "Side-by-side comparisons of AI tools to help you understand strengths, "
 "weaknesses and special features."
 msgstr ""
 
-#: compare/views.py:88 compare/views.py:217 templates/base.html:106
-#: templates/base.html:130 templates/content/home.html:99
-#: templates/content/what-to-find.html:36
-#: templates/partials/_entry_cards.html:51
+#: compare/views.py:93 compare/views.py:227 templates/base.html:139
+#: templates/base.html:171 templates/base.html:270
+#: templates/content/home.html:111 templates/content/what-to-find.html:36
+#: templates/partials/_entry_cards.html:55
 msgid "Comparisons"
 msgstr ""
 
@@ -360,11 +360,11 @@ msgstr ""
 msgid "You are not allowed to perform this transition."
 msgstr ""
 
-#: content/views/home.py:43
+#: content/views/home.py:33
 msgid "AI tools, guides & usecases for beginners and professionals"
 msgstr ""
 
-#: content/views/home.py:45
+#: content/views/home.py:35
 msgid ""
 "MentoroAI offers AI tutorials, guides, prompts, tool comparisons, use cases "
 "and a glossary to help you navigate the modern AI world."
@@ -445,7 +445,7 @@ msgstr ""
 msgid "%(n)d item(s) → Review."
 msgstr ""
 
-#: core/admin.py:377 core/admin.py:469 core/admin.py:518
+#: core/admin.py:377 core/admin.py:469 core/admin.py:524
 #, python-format
 msgid "%(n)d skipped: %(detail)s"
 msgstr ""
@@ -454,7 +454,7 @@ msgstr ""
 msgid "Request changes (→ Rework)"
 msgstr ""
 
-#: core/admin.py:391 core/admin.py:532 core/admin.py:572
+#: core/admin.py:391 core/admin.py:538 core/admin.py:578
 msgid "You are not authorized to perform this action."
 msgstr ""
 
@@ -484,37 +484,42 @@ msgstr ""
 msgid "Publish selected item(s)"
 msgstr ""
 
-#: core/admin.py:505
-msgid "Transition 'publish' not executable"
+#: core/admin.py:501
+#, python-format
+msgid "Could not publish: %(error)s"
 msgstr ""
 
 #: core/admin.py:511
+msgid "Transition 'publish' not executable"
+msgstr ""
+
+#: core/admin.py:517
 #, python-format
 msgid "%(n)d item(s) published."
 msgstr ""
 
-#: core/admin.py:522
+#: core/admin.py:528
 msgid "Archive (Soft Delete)"
 msgstr ""
 
-#: core/admin.py:540
+#: core/admin.py:546
 msgid "Transition 'archive' not executable"
 msgstr ""
 
-#: core/admin.py:558
+#: core/admin.py:564
 #, python-format
 msgid "%(n)d item(s) archived."
 msgstr ""
 
-#: core/admin.py:562
+#: core/admin.py:568
 msgid "Restore (→ Draft)"
 msgstr ""
 
-#: core/admin.py:580
+#: core/admin.py:586
 msgid "Transition 'restore' not executable"
 msgstr ""
 
-#: core/admin.py:598
+#: core/admin.py:604
 #, python-format
 msgid "%(n)d item(s) restored (draft)."
 msgstr ""
@@ -560,55 +565,67 @@ msgid ""
 "beginner-friendly definitions."
 msgstr ""
 
-#: guides/admin.py:87
+#: guides/admin.py:88
 msgid "Relations"
 msgstr ""
 
-#: guides/admin.py:90 prompts/admin.py:61 usecases/admin.py:60
+#: guides/admin.py:91 prompts/admin.py:61 usecases/admin.py:60
 msgid "Routing"
 msgstr ""
 
-#: guides/admin.py:93 prompts/admin.py:64 usecases/admin.py:63
+#: guides/admin.py:94 prompts/admin.py:64 usecases/admin.py:63
 msgid "Content (translated)"
 msgstr ""
 
-#: guides/admin.py:95 prompts/admin.py:66 usecases/admin.py:66
+#: guides/admin.py:96 prompts/admin.py:66 usecases/admin.py:66
 msgid "These fields are language-specific. Use the language tabs above."
 msgstr ""
 
-#: guides/models.py:28 templates/partials/_guideitem_card.html:7
+#: guides/models.py:60
+msgid "Starter guide"
+msgstr ""
+
+#: guides/models.py:62
+msgid "Shown first in the guide list and used as the homepage starter CTA."
+msgstr ""
+
+#: guides/models.py:68 templates/partials/_guideitem_card.html:7
 #: templates/partials/_teaser_card.html:7
 msgid "Guide"
 msgstr ""
 
-#: guides/models.py:29 guides/views.py:55 guides/views.py:133
-#: templates/base.html:94 templates/base.html:118
-#: templates/content/home.html:96 templates/content/what-to-find.html:32
+#: guides/models.py:69 guides/views.py:54 guides/views.py:132
+#: templates/base.html:123 templates/base.html:155 templates/base.html:267
+#: templates/content/home.html:108 templates/content/what-to-find.html:32
 #: templates/guides/guide_list.html:7 templates/partials/_entry_cards.html:19
 msgid "Guides"
 msgstr ""
 
-#: guides/models.py:125
+#: guides/models.py:75 guides/models.py:97
+msgid "Another guide is already published as the starter guide."
+msgstr ""
+
+#: guides/models.py:191
 msgid "Guide Section"
 msgstr ""
 
-#: guides/models.py:126
+#: guides/models.py:192
 msgid "Guide Sections"
 msgstr ""
 
-#: guides/models.py:205
+#: guides/models.py:271
 msgid "Teaser"
 msgstr ""
 
-#: guides/models.py:213
+#: guides/models.py:279
 msgid "Guide Item"
 msgstr ""
 
-#: guides/models.py:214
+#: guides/models.py:280
 msgid "Guide Items"
 msgstr ""
 
-#: guides/models.py:250
+#: guides/models.py:316
 msgid "Either content_object (content_type + object_id) OR a URL."
 msgstr ""
 
@@ -620,11 +637,11 @@ msgstr ""
 msgid "Auto: Change to GuideSection (delete)"
 msgstr ""
 
-#: guides/views.py:35
+#: guides/views.py:34
 msgid "AI guides · MentoroAI"
 msgstr ""
 
-#: guides/views.py:37
+#: guides/views.py:36
 msgid ""
 "Browse practical AI guides and tutorials to learn step by step how to use AI "
 "tools in everyday life and work."
@@ -642,7 +659,7 @@ msgstr ""
 msgid "Reason (optional)"
 msgstr ""
 
-#: newsletter/views.py:21 templates/base.html:219
+#: newsletter/views.py:21 templates/base.html:319
 msgid "Newsletter"
 msgstr ""
 
@@ -669,23 +686,23 @@ msgstr ""
 msgid "Please check your inbox to confirm your subscription."
 msgstr ""
 
-#: newsletter/views.py:76
+#: newsletter/views.py:82
 msgid "Confirm newsletter subscription"
 msgstr ""
 
-#: newsletter/views.py:86
+#: newsletter/views.py:92
 msgid "This confirmation link is invalid or has already been used."
 msgstr ""
 
-#: newsletter/views.py:105
+#: newsletter/views.py:111
 msgid "No active subscription found for this email."
 msgstr ""
 
-#: newsletter/views.py:109
+#: newsletter/views.py:115
 msgid "This email is already unsubscribed."
 msgstr ""
 
-#: newsletter/views.py:113
+#: newsletter/views.py:119
 msgid "You have been unsubscribed."
 msgstr ""
 
@@ -693,33 +710,33 @@ msgstr ""
 msgid "Internals"
 msgstr ""
 
-#: prompts/models.py:20 usecases/models.py:19
+#: prompts/models.py:34 usecases/models.py:40
 msgid "Outro"
 msgstr ""
 
-#: prompts/models.py:25
+#: prompts/models.py:39
 msgid "Select the AI tool for which this prompt has been optimized."
 msgstr ""
 
-#: prompts/models.py:29 prompts/views.py:150
+#: prompts/models.py:45 prompts/views.py:159
 #: templates/partials/_guideitem_card.html:9
 #: templates/partials/_teaser_card.html:9
 #: templates/prompts/prompt_detail.html:41
 msgid "Prompt"
 msgstr ""
 
-#: prompts/models.py:30 prompts/views.py:74 prompts/views.py:149
-#: templates/base.html:97 templates/base.html:121
-#: templates/content/home.html:97 templates/content/what-to-find.html:33
-#: templates/partials/_entry_cards.html:27 templates/prompts/prompt_list.html:6
+#: prompts/models.py:46 prompts/views.py:81 prompts/views.py:158
+#: templates/base.html:127 templates/base.html:159 templates/base.html:268
+#: templates/content/home.html:109 templates/content/what-to-find.html:33
+#: templates/partials/_entry_cards.html:28 templates/prompts/prompt_list.html:6
 msgid "Prompts"
 msgstr ""
 
-#: prompts/views.py:54
+#: prompts/views.py:61
 msgid "AI prompts · MentoroAI"
 msgstr ""
 
-#: prompts/views.py:55
+#: prompts/views.py:62
 msgid ""
 "Browse ready-made AI prompts for writing, coding, learning, marketing and "
 "more."
@@ -1059,7 +1076,7 @@ msgstr ""
 
 #: templates/account/login.html:4 templates/account/login.html:103
 #: templates/account/password_reset_from_key_done.html:23
-#: templates/base.html:161 templates/partials/author_info_card.html:56
+#: templates/base.html:203 templates/partials/author_info_card.html:56
 msgid "Login"
 msgstr ""
 
@@ -1108,7 +1125,7 @@ msgid "Create a free account"
 msgstr ""
 
 #: templates/account/logout.html:4 templates/account/logout.html:20
-#: templates/account/logout.html:32 templates/base.html:158
+#: templates/account/logout.html:32 templates/base.html:200
 msgid "Logout"
 msgstr ""
 
@@ -1419,84 +1436,104 @@ msgstr ""
 msgid "No differences in this language."
 msgstr ""
 
-#: templates/base.html:86
+#: templates/base.html:95
+msgid "Skip to main content"
+msgstr ""
+
+#: templates/base.html:112
 msgid "Mobile menu"
 msgstr ""
 
-#: templates/base.html:91 templates/base.html:115
+#: templates/base.html:119 templates/base.html:151 templates/base.html:271
 #: templates/content/what-to-find.html:31
 #: templates/partials/_entry_cards.html:11
 msgid "Glossary"
 msgstr ""
 
-#: templates/base.html:100 templates/base.html:124
-#: templates/partials/_entry_cards.html:35
+#: templates/base.html:131 templates/base.html:163 templates/base.html:269
+#: templates/partials/_entry_cards.html:37
 msgid "Use cases"
 msgstr ""
 
-#: templates/base.html:103 templates/base.html:127
+#: templates/base.html:135 templates/base.html:167 templates/base.html:266
 #: templates/compare/comparison_list.html:73
 #: templates/content/what-to-find.html:35
-#: templates/partials/_entry_cards.html:43
+#: templates/partials/_entry_cards.html:46
 msgid "Tools"
 msgstr ""
 
-#: templates/base.html:136 templates/catalog/tool_list.html:62
+#: templates/base.html:178 templates/catalog/tool_list.html:62
 #: templates/catalog/tool_list.html:63
 #: templates/compare/comparison_list.html:38
 #: templates/compare/comparison_list.html:39
 msgid "Search"
 msgstr ""
 
-#: templates/base.html:145
+#: templates/base.html:187
 msgid "Toggle theme"
 msgstr ""
 
-#: templates/base.html:168
+#: templates/base.html:210
 msgid "Language select"
 msgstr ""
 
-#: templates/base.html:195
+#: templates/base.html:238
 msgid "Dashboard"
 msgstr ""
 
-#: templates/base.html:198
+#: templates/base.html:241
 msgid "Admin Panel"
 msgstr ""
 
-#: templates/base.html:200 templates/content/editorial/my_content.html:9
+#: templates/base.html:243 templates/content/editorial/my_content.html:9
 msgid "My Content"
 msgstr ""
 
-#: templates/base.html:203
+#: templates/base.html:246
 msgid "Reviews"
 msgstr ""
 
-#: templates/base.html:221 templates/partials/_entry_cards.html:5
+#: templates/base.html:264
+msgid "Explore"
+msgstr ""
+
+#: templates/base.html:278
+msgid "Browse categories"
+msgstr ""
+
+#: templates/base.html:289 templates/guides/guide_list.html:20
+msgid "Start here"
+msgstr ""
+
+#: templates/base.html:298 templates/partials/_entry_cards.html:5
 msgid "What can I find on MentoroAI?"
 msgstr ""
 
-#: templates/base.html:222
+#: templates/base.html:304
+msgid "Legal"
+msgstr ""
+
+#: templates/base.html:306
 msgid "Legal notice"
 msgstr ""
 
-#: templates/base.html:223 templates/base.html:243
+#: templates/base.html:307 templates/base.html:332
 msgid "Privacy policy"
 msgstr ""
 
-#: templates/base.html:226
+#: templates/base.html:310
 msgid "Cookie-Settings"
 msgstr ""
 
-#: templates/base.html:227 templates/legal/terms_of_use.html:10
+#: templates/base.html:311 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr ""
 
-#: templates/base.html:228
+#: templates/base.html:312
 msgid "Copyright"
 msgstr ""
 
-#: templates/base.html:239
+#: templates/base.html:328
 msgid ""
 "\n"
 "                    We only use your data to run MentoroAI and improve our "
@@ -1600,13 +1637,13 @@ msgstr ""
 msgid "Similar tools"
 msgstr ""
 
-#: templates/catalog/tool_detail.html:182 templates/content/home.html:70
-#: templates/prompts/prompt_detail.html:81 templates/usecases/detail.html:88
+#: templates/catalog/tool_detail.html:182 templates/content/home.html:82
+#: templates/prompts/prompt_detail.html:82 templates/usecases/detail.html:88
 msgid "Rating"
 msgstr ""
 
 #: templates/catalog/tool_detail.html:185 templates/catalog/tool_list.html:204
-#: templates/content/home.html:72 templates/prompts/prompt_detail.html:84
+#: templates/content/home.html:84 templates/prompts/prompt_detail.html:85
 #: templates/usecases/detail.html:91
 msgid "Details"
 msgstr ""
@@ -1708,7 +1745,7 @@ msgstr ""
 
 #: templates/compare/comparison_list.html:62
 #: templates/glossary/glossary_results.html:7
-#: templates/guides/guide_list.html:18 templates/guides/guide_list.html:48
+#: templates/guides/guide_list.html:18 templates/guides/guide_list.html:51
 #: templates/partials/_guideitem_card.html:22
 #: templates/partials/_guideitem_card.html:29
 #: templates/partials/_teaser_card.html:27
@@ -1719,13 +1756,13 @@ msgid "Read details about "
 msgstr ""
 
 #: templates/compare/comparison_list.html:88
-#: templates/guides/guide_list.html:32 templates/partials/_teaser_card.html:19
+#: templates/guides/guide_list.html:35 templates/partials/_teaser_card.html:19
 #: templates/prompts/prompt_list.html:30 templates/usecases/list.html:35
 msgid "Published or Updated on"
 msgstr ""
 
 #: templates/compare/comparison_list.html:97
-#: templates/guides/guide_list.html:41 templates/prompts/prompt_list.html:39
+#: templates/guides/guide_list.html:44 templates/prompts/prompt_list.html:39
 #: templates/usecases/list.html:44
 msgid "from"
 msgstr ""
@@ -1735,7 +1772,7 @@ msgid "Read more about "
 msgstr ""
 
 #: templates/compare/comparison_list.html:105
-#: templates/guides/guide_list.html:49 templates/prompts/prompt_list.html:45
+#: templates/guides/guide_list.html:52 templates/prompts/prompt_list.html:45
 #: templates/usecases/list.html:50
 msgid "Read more"
 msgstr ""
@@ -1826,33 +1863,64 @@ msgid ""
 "life."
 msgstr ""
 
-#: templates/content/home.html:20 templates/content/home.html:21
+#: templates/content/home.html:21 templates/content/home.html:22
 msgid "Begin with the Starter Guide"
 msgstr ""
 
-#: templates/content/home.html:24 templates/content/home.html:25
+#: templates/content/home.html:26 templates/content/home.html:27
 msgid "Discover AI Tools"
 msgstr ""
 
-#: templates/content/home.html:39
+#: templates/content/home.html:31 templates/partials/_entry_cards.html:48
+#, python-format
+msgid "%(counter)s AI tool"
+msgid_plural ""
+"%(counter)s AI\n"
+"                            tools"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/content/home.html:34 templates/partials/_entry_cards.html:21
+#, python-format
+msgid "%(counter)s guide"
+msgid_plural ""
+"%(counter)s\n"
+"                            guides"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/content/home.html:37
+#, python-format
+msgid ""
+"%(counter)s category\n"
+"                            "
+msgid_plural "%(counter)s categories "
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/content/home.html:51
 msgid "Featured Tools"
 msgstr ""
 
-#: templates/content/home.html:83
+#: templates/content/home.html:95
 msgid "Recommended for you"
 msgstr ""
 
-#: templates/content/home.html:94
+#: templates/content/home.html:106
 msgid "Current content"
 msgstr ""
 
-#: templates/content/home.html:98 templates/usecases/list.html:8
-#: usecases/models.py:29 usecases/views.py:74 usecases/views.py:157
+#: templates/content/home.html:110 templates/usecases/list.html:8
+#: usecases/models.py:52 usecases/views.py:83 usecases/views.py:174
 msgid "Usecases"
 msgstr ""
 
-#: templates/content/home.html:109
+#: templates/content/home.html:121
 msgid "No published content yet."
+msgstr ""
+
+#: templates/content/home.html:130
+msgid "View roadmap"
 msgstr ""
 
 #: templates/content/richtext_layout_examples.html:3
@@ -2439,12 +2507,12 @@ msgstr ""
 msgid "Step-by-step instructions on AI topics – understandable and practical."
 msgstr ""
 
-#: templates/guides/guide_list.html:57
+#: templates/guides/guide_list.html:60
 msgid "No published guides available."
 msgstr ""
 
 #: templates/legal/cookie_policy.html:10
-#: templates/legal/privacy_policy.html:271
+#: templates/legal/privacy_policy.html:272
 msgid "Cookie Policy"
 msgstr ""
 
@@ -2516,28 +2584,34 @@ msgid ""
 msgstr ""
 
 #: templates/legal/cookie_policy.html:56
-msgid "Preference cookies"
+msgid "Local theme preference"
 msgstr ""
 
 #: templates/legal/cookie_policy.html:58
 msgid ""
 "\n"
-"                Preference cookies allow the website to remember information "
-"that changes the way the\n"
-"                website behaves or looks, for example your selected light/"
-"dark theme.\n"
+"                MentoroAI stores your selected light or dark theme locally "
+"in your browser using\n"
+"                localStorage rather than a cookie. This value is not sent to "
+"MentoroAI and is not\n"
+"                used for tracking or analytics. It stays in your browser "
+"until you change the\n"
+"                theme again or remove the website data in your browser "
+"settings.\n"
 "            "
 msgstr ""
 
-#: templates/legal/cookie_policy.html:66
-msgid "remembers your selected theme (light/dark) for future visits"
-msgstr ""
-
-#: templates/legal/cookie_policy.html:72
-msgid "Statistics cookies (Google Analytics 4)"
+#: templates/legal/cookie_policy.html:68
+msgid ""
+"localStorage entry that remembers your selected theme (mentoroai-light or "
+"mentoroai-dark)"
 msgstr ""
 
 #: templates/legal/cookie_policy.html:74
+msgid "Statistics cookies (Google Analytics 4)"
+msgstr ""
+
+#: templates/legal/cookie_policy.html:76
 msgid ""
 "\n"
 "                We use Google Analytics 4 to analyze how our website is used "
@@ -2553,23 +2627,23 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/cookie_policy.html:86
+#: templates/legal/cookie_policy.html:88
 msgid ""
 "used to distinguish users and generate anonymous statistics (typically "
 "expires after 2 years)"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:90
+#: templates/legal/cookie_policy.html:92
 msgid ""
 "used to maintain session state for Google Analytics 4 (typically expires "
 "after 1 year)"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:94
+#: templates/legal/cookie_policy.html:96
 msgid "Cookie control"
 msgstr ""
 
-#: templates/legal/cookie_policy.html:96
+#: templates/legal/cookie_policy.html:98
 msgid ""
 "\n"
 "                You can change or withdraw your consent at any time using "
@@ -2581,7 +2655,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/cookie_policy.html:103
+#: templates/legal/cookie_policy.html:105
 msgid ""
 "\n"
 "                Klaro also controls the execution of tracking technologies "
@@ -2959,8 +3033,8 @@ msgstr ""
 
 #: templates/legal/privacy_policy.html:161
 #: templates/legal/privacy_policy.html:215
-#: templates/legal/privacy_policy.html:295
-#: templates/legal/privacy_policy.html:319
+#: templates/legal/privacy_policy.html:296
+#: templates/legal/privacy_policy.html:320
 msgid "Legal basis"
 msgstr ""
 
@@ -2990,8 +3064,8 @@ msgstr ""
 
 #: templates/legal/privacy_policy.html:175
 #: templates/legal/privacy_policy.html:228
-#: templates/legal/privacy_policy.html:303
-#: templates/legal/privacy_policy.html:322
+#: templates/legal/privacy_policy.html:304
+#: templates/legal/privacy_policy.html:323
 msgid "Data transfer"
 msgstr ""
 
@@ -3004,7 +3078,7 @@ msgstr ""
 
 #: templates/legal/privacy_policy.html:181
 #: templates/legal/privacy_policy.html:234
-#: templates/legal/privacy_policy.html:328
+#: templates/legal/privacy_policy.html:329
 msgid ""
 "\n"
 "                Where data is transferred to countries outside the European "
@@ -3099,19 +3173,21 @@ msgid ""
 "                language selection and consent management (for example "
 "\"django_language\",\n"
 "                \"htmx-current-path-for-history\" and \"CookieConsent\").\n"
-"                Preference cookies store your selected theme (for example "
-"\"preferred_theme\").\n"
+"                Your selected light or dark theme is not stored in a cookie "
+"but locally in your\n"
+"                browser via localStorage (key \"mentoroai-theme\") and is "
+"not transmitted to us.\n"
 "                Details on the individual cookies, their purposes, "
 "categories and storage periods\n"
 "                can be found in our Cookie Policy.\n"
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:274
+#: templates/legal/privacy_policy.html:275
 msgid "Consent management (Klaro)"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:276
+#: templates/legal/privacy_policy.html:277
 msgid ""
 "\n"
 "                We use the consent management platform Klaro by KIProtect to "
@@ -3123,11 +3199,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:283
+#: templates/legal/privacy_policy.html:284
 msgid "Google Tag Manager"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:285
+#: templates/legal/privacy_policy.html:286
 msgid ""
 "\n"
 "                We use Google Tag Manager to manage and deploy website tags "
@@ -3142,7 +3218,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:296
+#: templates/legal/privacy_policy.html:297
 msgid ""
 "\n"
 "                Legitimate interests under Art. 6(1)(f) GDPR for the use of "
@@ -3152,8 +3228,8 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:304
-#: templates/legal/privacy_policy.html:323
+#: templates/legal/privacy_policy.html:305
+#: templates/legal/privacy_policy.html:324
 msgid ""
 "\n"
 "                Data may be transferred to Google LLC in the United States. "
@@ -3161,11 +3237,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:309
+#: templates/legal/privacy_policy.html:310
 msgid "Google Analytics 4"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:311
+#: templates/legal/privacy_policy.html:312
 msgid ""
 "\n"
 "                If you give your consent to the “Statistics” category, we "
@@ -3178,43 +3254,43 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:319
+#: templates/legal/privacy_policy.html:320
 msgid "Your consent under Art. 6(1)(a) GDPR."
 msgstr ""
 
-#: templates/legal/privacy_policy.html:338
+#: templates/legal/privacy_policy.html:339
 msgid "Your rights"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:340
+#: templates/legal/privacy_policy.html:341
 msgid "Access to your stored data"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:341
+#: templates/legal/privacy_policy.html:342
 msgid "Rectification of inaccurate data"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:342
+#: templates/legal/privacy_policy.html:343
 msgid "Erasure ('right to be forgotten')"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:343
+#: templates/legal/privacy_policy.html:344
 msgid "Restriction of processing"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:344
+#: templates/legal/privacy_policy.html:345
 msgid "Data portability"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:345
+#: templates/legal/privacy_policy.html:346
 msgid "Objection to processing"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:348
+#: templates/legal/privacy_policy.html:349
 msgid "Withdrawal of consent and objection"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:350
+#: templates/legal/privacy_policy.html:351
 msgid ""
 "\n"
 "                You may withdraw your consent at any time with effect for "
@@ -3226,11 +3302,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:357
+#: templates/legal/privacy_policy.html:358
 msgid "Right to lodge a complaint"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:359
+#: templates/legal/privacy_policy.html:360
 msgid ""
 "\n"
 "                You have the right to lodge a complaint with a supervisory "
@@ -3241,11 +3317,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:367
+#: templates/legal/privacy_policy.html:368
 msgid "Data security"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:369
+#: templates/legal/privacy_policy.html:370
 msgid ""
 "\n"
 "                We use technical and organizational measures to protect your "
@@ -3255,7 +3331,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:375
+#: templates/legal/privacy_policy.html:376
 msgid ""
 "\n"
 "                Our servers are hosted within the European Union and are "
@@ -3264,11 +3340,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:381
+#: templates/legal/privacy_policy.html:382
 msgid "Do Not Track signals"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:383
+#: templates/legal/privacy_policy.html:384
 msgid ""
 "\n"
 "                Our website does not currently respond to \"Do Not Track\" "
@@ -3278,11 +3354,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:389
+#: templates/legal/privacy_policy.html:390
 msgid "Automated decision-making"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:391
+#: templates/legal/privacy_policy.html:392
 msgid ""
 "\n"
 "                We do not use automated decision-making or profiling within "
@@ -3290,11 +3366,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:396
+#: templates/legal/privacy_policy.html:397
 msgid "Children"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:398
+#: templates/legal/privacy_policy.html:399
 msgid ""
 "\n"
 "                This website is intended for a general audience.\n"
@@ -3306,11 +3382,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:406
+#: templates/legal/privacy_policy.html:407
 msgid "Changes to this Privacy Policy"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:408
+#: templates/legal/privacy_policy.html:409
 msgid ""
 "\n"
 "                We may update this Privacy Policy from time to time.\n"
@@ -3323,11 +3399,11 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/legal/privacy_policy.html:418
+#: templates/legal/privacy_policy.html:419
 msgid "Effective date"
 msgstr ""
 
-#: templates/legal/privacy_policy.html:419
+#: templates/legal/privacy_policy.html:420
 msgid "This Privacy Policy is effective as of 16 December 2025."
 msgstr ""
 
@@ -3587,65 +3663,86 @@ msgid ""
 "Step-by-step instructions for using AI safely in everyday life or at work."
 msgstr ""
 
-#: templates/partials/_entry_cards.html:21
+#: templates/partials/_entry_cards.html:22
 msgid "To the guides"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:25
+#: templates/partials/_entry_cards.html:26
 msgid "Go to Prompts list"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:28
+#: templates/partials/_entry_cards.html:29
 msgid ""
 "Ready-made input templates for ChatGPT & Co. - simply copy and get started."
 msgstr ""
 
-#: templates/partials/_entry_cards.html:29
+#: templates/partials/_entry_cards.html:30
+#, python-format
+msgid "%(counter)s prompt"
+msgid_plural "%(counter)s prompts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/partials/_entry_cards.html:31
 msgid "To the prompts"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:33
+#: templates/partials/_entry_cards.html:35
 msgid "Go to Usecases list"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:36
+#: templates/partials/_entry_cards.html:38
 msgid ""
 "Others are already using AI - real-world examples from everyday life and "
 "work."
 msgstr ""
 
-#: templates/partials/_entry_cards.html:37
+#: templates/partials/_entry_cards.html:39
+#, python-format
+msgid "%(counter)s use case"
+msgid_plural "%(counter)s use cases"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/partials/_entry_cards.html:40
 msgid "To the use cases"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:41
+#: templates/partials/_entry_cards.html:44
 msgid "Go to Tools list"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:44
+#: templates/partials/_entry_cards.html:47
 msgid ""
 "AI tools and platforms presented - with features and areas of application."
 msgstr ""
 
-#: templates/partials/_entry_cards.html:45
+#: templates/partials/_entry_cards.html:49
 msgid "To the tools"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:49
+#: templates/partials/_entry_cards.html:53
 msgid "Go to Comparisons list"
 msgstr ""
 
-#: templates/partials/_entry_cards.html:52
+#: templates/partials/_entry_cards.html:56
 msgid "Find out which AI tool or model best suits your needs."
 msgstr ""
 
-#: templates/partials/_entry_cards.html:53
+#: templates/partials/_entry_cards.html:57
+#, python-format
+msgid "%(counter)s comparison"
+msgid_plural "%(counter)s comparisons"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/partials/_entry_cards.html:58
 msgid "To the comparisons"
 msgstr ""
 
 #: templates/partials/_guideitem_card.html:11
-#: templates/partials/_teaser_card.html:11 usecases/models.py:28
-#: usecases/views.py:158
+#: templates/partials/_teaser_card.html:11 usecases/models.py:51
+#: usecases/views.py:175
 msgid "Usecase"
 msgstr ""
 
@@ -3752,12 +3849,16 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
-#: templates/partials/copy_block.html:18
-msgid "Copy text block"
+#: templates/partials/copy_block.html:3
+msgid "Copy"
 msgstr ""
 
-#: templates/partials/copy_block.html:21
-msgid "Copy"
+#: templates/partials/copy_block.html:4
+msgid "Copied"
+msgstr ""
+
+#: templates/partials/copy_block.html:5
+msgid "Error"
 msgstr ""
 
 #: templates/partials/features_open.html:5
@@ -3871,11 +3972,23 @@ msgid ""
 msgstr ""
 
 #: templates/partials/features_open.html:69
+#: templates/partials/search_open.html:11
 msgid "Close"
 msgstr ""
 
 #: templates/partials/features_open.html:77
+#: templates/partials/search_open.html:16
 msgid "Close modal"
+msgstr ""
+
+#: templates/partials/search_open.html:5
+msgid "Search is coming soon"
+msgstr ""
+
+#: templates/partials/search_open.html:7
+msgid ""
+"We're preparing a unified search across tools, guides, prompts, use cases, "
+"and comparisons."
 msgstr ""
 
 #: templates/partials/starter_guide_card.html:7
@@ -3900,15 +4013,19 @@ msgstr ""
 msgid "Browse beginner-friendly tools"
 msgstr ""
 
-#: templates/prompts/prompt_detail.html:51
+#: templates/prompts/prompt_detail.html:42
+msgid "Copy prompt"
+msgstr ""
+
+#: templates/prompts/prompt_detail.html:52
 msgid "Suitable tools"
 msgstr ""
 
-#: templates/prompts/prompt_detail.html:89
+#: templates/prompts/prompt_detail.html:90
 msgid "No tools linked."
 msgstr ""
 
-#: templates/prompts/prompt_detail.html:98
+#: templates/prompts/prompt_detail.html:99
 msgid "More Prompts"
 msgstr ""
 
@@ -3982,15 +4099,15 @@ msgstr ""
 msgid "No published use cases found."
 msgstr ""
 
-#: usecases/models.py:22
+#: usecases/models.py:43
 msgid "Persona"
 msgstr ""
 
-#: usecases/views.py:54
+#: usecases/views.py:63
 msgid "AI use cases · MentoroAI"
 msgstr ""
 
-#: usecases/views.py:56
+#: usecases/views.py:65
 msgid ""
 "Practical AI use cases with clear examples, benefits and guidance for "
 "business tasks, research and creative work."

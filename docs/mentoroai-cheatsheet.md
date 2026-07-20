@@ -52,6 +52,29 @@ python manage.py shell
 
 ---
 
+## Cache (Production-Voraussetzung)
+
+Production nutzt `DatabaseCache` mit der Tabelle `mentoroai_cache_table`
+(`mentoroai/settings/base.py`). Die Tabelle muss **vor** der ersten Nutzung
+existieren — Django legt sie außerhalb des Test-Setups nicht automatisch an,
+und `migrate` erzeugt sie ebenfalls nicht.
+
+**Raw**
+
+```bash
+python manage.py createcachetable          # idempotent, bei jedem Deploy sicher
+python manage.py createcachetable --dry-run  # zeigt nur das SQL an
+```
+
+Betroffen sind alle Flächen, die das gecachte Public Inventory nutzen
+(Startseite, globaler Footer). Der Cache-Key ist sprachabhängig und versioniert
+(`mentoroai:public-inventory:v5:<lang>`, TTL 300 s), siehe
+`core/services.py`. Die Version wird nur erhöht, wenn sich die Count-Semantik
+ändert — ein globales `cache.clear()` ist dafür nicht nötig und in
+Produktionscode nicht vorgesehen.
+
+---
+
 ## Tests & Coverage
 
 - `make test` – Alle Django-Tests mit Coverage (mit `.coveragerc` & Settings).

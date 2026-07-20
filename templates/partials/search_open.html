@@ -1,0 +1,18 @@
+{% load i18n %}
+
+<dialog id="searchmodal" class="modal" aria-labelledby="search-dialog-title" aria-describedby="search-dialog-desc">
+    <div class="modal-box max-w-md">
+        <h3 id="search-dialog-title" class="text-lg font-bold">{% trans "Search is coming soon" %}</h3>
+        <p id="search-dialog-desc" class="py-4">
+            {% trans "We're preparing a unified search across tools, guides, prompts, use cases, and comparisons." %}
+        </p>
+        <div class="modal-action">
+            <form method="dialog">
+                <button class="btn" autofocus>{% trans "Close" %}</button>
+            </form>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button aria-label="{% trans 'Close modal' %}">close</button>
+    </form>
+</dialog>

@@ -23,7 +23,7 @@ var klaroConfig = {
 
     htmlTexts: true,
 
-    // purposes: ['necessary', 'preferences', 'statistics', 'marketing'],
+    // purposes: ['necessary', 'statistics', 'marketing'],
 
     translations: {
         zz: {
@@ -50,7 +50,6 @@ var klaroConfig = {
             },
             purposes: {
                 necessary: 'Notwendig',
-                preferences: 'Präferenzen',
                 statistics: 'Statistik',
                 marketing: 'Marketing',
             },
@@ -79,7 +78,6 @@ var klaroConfig = {
             },
             purposes: {
                 necessary: 'Necessary',
-                preferences: 'Preferences',
                 statistics: 'Statistics',
                 marketing: 'Marketing',
             },
@@ -115,30 +113,6 @@ var klaroConfig = {
                     title: 'Essential cookies',
                     description:
                         'These cookies are required for the basic operation and security of the website.',
-                },
-            },
-        },
-
-        {
-            name: 'preferences-cookies',
-            onlyOnce: true,
-            purposes: ['preferences'],
-            cookies: [
-                'preferred_theme',
-            ],
-            translations: {
-                zz: {
-                    title: 'UI Preferences',
-                },
-                de: {
-                    title: 'Benutzerpräferenzen (Theme & Sprache)',
-                    description:
-                        'Speichert die gewählte Darstellungsvariante (Light/Dark Theme).',
-                },
-                en: {
-                    title: 'User preferences (theme & language)',
-                    description:
-                        'Saves the selected display variant (Light/Dark Theme).',
                 },
             },
         },

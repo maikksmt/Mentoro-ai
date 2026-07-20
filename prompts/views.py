@@ -6,28 +6,58 @@ from django.urls import reverse
 from django.utils.translation import gettext as _, get_language
 from django.views.generic import DetailView, ListView
 
+from core.models.editorial import EditorialWorkflowMixin
 from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
 from core.services import to_teaser_item, related_prompts
 from core.views import SeoMixin
 from .models import Prompt
 
 
-def _resolve_by_slug(qs: QuerySet[Prompt], slug: str) -> Optional[Prompt]:
-    obj = (
-        qs.filter(Q(translations__public_slug=slug) | Q(translations__slug=slug))
+def _resolve_by_slug(qs: QuerySet[Prompt], slug: str, language_code: str) -> Optional[Prompt]:
+    """
+    Beta 8.11: mirrors guides/views.py::_resolve_guide_by_slug() - once a
+    prompt has a live_i18n snapshot for language_code, that snapshot's slug
+    is the SOLE public slug for that language; the current (possibly
+    draft-in-progress) translation slug is not tried at all. Without this,
+    a prompt mid-revision immediately exposed its new, unpublished slug the
+    moment an editor changed it, independent of publish status - confirmed
+    via reproduction in prompts/tests/test_draft_slug_leak.py.
+
+    A narrow backward-compatibility fallback to the current translation's
+    public_slug/slug applies ONLY to prompts that are strictly `published`
+    AND have no live_i18n entry for this language at all (a historical
+    record predating the live-snapshot mechanism). Review/approved prompts
+    without a live snapshot for this language are excluded from that
+    fallback - visible_in_language() already requires a genuine live
+    revision for those statuses.
+
+    Language matching is scoped throughout (translations__language_code=
+    language_code), so a bilingual prompt's slug in the other language can
+    never resolve under this prefix either.
+    """
+    live_match = (
+        qs.filter(
+            Q(**{f"live_i18n__{language_code}__public_slug": slug})
+            | Q(**{f"live_i18n__{language_code}__slug": slug})
+        )
         .distinct()
         .first()
     )
-    if obj:
-        return obj
+    if live_match:
+        return live_match
 
-    live_keysets = (p for p in qs)
-    for p in live_keysets:
-        live = getattr(p, "live_i18n", None) or {}
-        for data in live.values():
-            if data.get("public_slug") == slug or data.get("slug") == slug:
-                return p
-    return None
+    compat_qs = (
+        qs.filter(status=EditorialWorkflowMixin.STATUS_PUBLISHED)
+        .exclude(**{"live_i18n__has_key": language_code})
+    )
+    return (
+        compat_qs.filter(
+            Q(translations__language_code=language_code, translations__public_slug=slug)
+            | Q(translations__language_code=language_code, translations__slug=slug)
+        )
+        .distinct()
+        .first()
+    )
 
 
 class PromptListView(SeoMixin, ListView):
@@ -37,9 +67,10 @@ class PromptListView(SeoMixin, ListView):
     paginate_by = 15
 
     def get_queryset(self) -> QuerySet[Prompt]:
+        lang = get_language()
         qs = (
             Prompt.objects
-            .visible_on_site()
+            .visible_in_language(lang)
             .select_related("author", "reviewed_by")
         )
         if not qs.ordered:
@@ -82,14 +113,16 @@ class PromptDetailView(SeoMixin, DetailView):
     context_object_name = "object"
 
     def get_queryset(self) -> QuerySet[Prompt]:
-        return Prompt.objects.all().select_related("author", "reviewed_by")
+        lang = get_language()
+        return Prompt.objects.visible_in_language(lang).select_related("author", "reviewed_by")
 
     def get_object(self, queryset: Optional[QuerySet[Prompt]] = None) -> Prompt:
         slug = self.kwargs.get("slug")
         if not slug:
             raise Http404("Missing slug.")
+        lang = get_language()
         qs = queryset or self.get_queryset()
-        obj = _resolve_by_slug(qs, slug)
+        obj = _resolve_by_slug(qs, slug, lang)
         if not obj:
             raise Http404("Prompt not found.")
         return obj
@@ -142,7 +175,7 @@ class PromptDetailView(SeoMixin, DetailView):
         ctx.setdefault("display_body", obj.display_body)
         ctx.setdefault("display_outro", obj.display_outro)
 
-        rel_qs = related_prompts(obj, limit=3)
+        rel_qs = related_prompts(obj, limit=3, language_code=lang)
         ctx["more"] = [to_teaser_item(p, "prompt") for p in rel_qs]
 
         ctx["crumbs"] = [

@@ -18,6 +18,7 @@
             <div class="prose card-body">
                 <h3 class="card-title">📖 {% trans "Guides" %}</h3>
                 <p>{% trans "Step-by-step instructions for using AI safely in everyday life or at work." %}</p>
+                <p class="text-sm opacity-70">{% blocktrans count counter=public_inventory.counts.guides %}{{ counter }} guide{% plural %}{{ counter }} guides{% endblocktrans %}</p>
                 <button class="btn btn-guide text-base">{% trans "To the guides" %} </button>
             </div>
         </a>
@@ -26,6 +27,7 @@
             <div class="prose card-body">
                 <h3 class="card-title">💬 {% trans "Prompts" %}</h3>
                 <p>{% trans "Ready-made input templates for ChatGPT & Co. - simply copy and get started." %}</p>
+                <p class="text-sm opacity-70">{% blocktrans count counter=public_inventory.counts.prompts %}{{ counter }} prompt{% plural %}{{ counter }} prompts{% endblocktrans %}</p>
                 <button class="btn btn-prompt text-base">{% trans "To the prompts" %}</button>
             </div>
         </a>
@@ -34,6 +36,7 @@
             <div class="prose card-body">
                 <h3 class="card-title">💡 {% trans "Use cases" %}</h3>
                 <p>{% trans "Others are already using AI - real-world examples from everyday life and work." %} </p>
+                <p class="text-sm opacity-70">{% blocktrans count counter=public_inventory.counts.usecases %}{{ counter }} use case{% plural %}{{ counter }} use cases{% endblocktrans %}</p>
                 <button class="btn btn-usecase text-base">{% trans "To the use cases" %} </button>
             </div>
         </a>
@@ -42,6 +45,7 @@
             <div class="prose card-body">
                 <h3 class="card-title">🧰 {% trans "Tools" %}</h3>
                 <p>{% trans "AI tools and platforms presented - with features and areas of application." %} </p>
+                <p class="text-sm opacity-70">{% blocktrans count counter=public_inventory.counts.tools %}{{ counter }} AI tool{% plural %}{{ counter }} AI tools{% endblocktrans %}</p>
                 <button class="btn btn-tool text-base">{% trans "To the tools" %}</button>
             </div>
         </a>
@@ -50,6 +54,7 @@
             <div class="prose card-body">
                 <h3 class="card-title">⚖️ {% trans "Comparisons" %}</h3>
                 <p>{% trans "Find out which AI tool or model best suits your needs." %}</p>
+                <p class="text-sm opacity-70">{% blocktrans count counter=public_inventory.counts.comparisons %}{{ counter }} comparison{% plural %}{{ counter }} comparisons{% endblocktrans %}</p>
                 <button class="btn btn-compare text-base">{% trans "To the comparisons" %}</button>
             </div>
         </a>

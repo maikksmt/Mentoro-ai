@@ -52,18 +52,20 @@
             </li>
         </ul>
 
-        <!-- 2. Preference cookies -->
-        <h3>2. {% trans "Preference cookies" %}</h3>
+        <!-- 2. Local theme preference (not a cookie) -->
+        <h3>2. {% trans "Local theme preference" %}</h3>
         <p>
             {% blocktrans %}
-                Preference cookies allow the website to remember information that changes the way the
-                website behaves or looks, for example your selected light/dark theme.
+                MentoroAI stores your selected light or dark theme locally in your browser using
+                localStorage rather than a cookie. This value is not sent to MentoroAI and is not
+                used for tracking or analytics. It stays in your browser until you change the
+                theme again or remove the website data in your browser settings.
             {% endblocktrans %}
         </p>
         <ul>
             <li>
-                <strong>preferred_theme</strong> —
-                {% trans "remembers your selected theme (light/dark) for future visits" %}
+                <strong>mentoroai-theme</strong> —
+                {% trans "localStorage entry that remembers your selected theme (mentoroai-light or mentoroai-dark)" %}
             </li>
 
         </ul>

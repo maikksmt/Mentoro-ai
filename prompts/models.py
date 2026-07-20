@@ -7,7 +7,21 @@ from parler.utils.context import switch_language
 from taggit.managers import TaggableManager
 
 from catalog.models import Tool
-from core.models.editorial import EditorialWorkflowMixin
+from core.models.editorial import EditorialManager, EditorialQuerySet, EditorialWorkflowMixin
+
+
+class PromptQuerySet(EditorialQuerySet):
+    def visible_in_language(self, language_code):
+        """
+        Public prompts that have an actual translation in language_code -
+        never a fallback from another language. Unlike active_translations()
+        (used by Guide/UseCase), this never lets an EN-only prompt leak onto
+        the DE list or vice versa.
+        """
+        return self.visible_on_site().translated(language_code).language(language_code).distinct()
+
+
+PromptManager = EditorialManager.from_queryset(PromptQuerySet)
 
 
 class Prompt(EditorialWorkflowMixin, TranslatableModel):
@@ -24,6 +38,8 @@ class Prompt(EditorialWorkflowMixin, TranslatableModel):
     tools = models.ManyToManyField(Tool, related_name="prompts", blank=True,
                                    help_text=_("Select the AI tool for which this prompt has been optimized."), )
     tags = TaggableManager(blank=True)
+
+    objects = PromptManager()
 
     class Meta:
         verbose_name = _("Prompt")

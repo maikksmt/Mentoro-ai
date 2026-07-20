@@ -38,8 +38,9 @@
                 </section>
             {% endif %}
             <section class="prose my-6 max-w-full">
-                <h2 class="text-2xl font-semibold mb-2">{% trans "Prompt" %}</h2>
-                {% include "partials/copy_block.html" with content=display_body %}
+                {% trans "Prompt" as prompt_label %}
+                {% trans "Copy prompt" as copy_prompt_label %}
+                {% include "partials/copy_block.html" with content=display_body label=prompt_label copy_label=copy_prompt_label %}
             </section>
             {% if display_outro %}
                 <section class="prose max-w-full">
@@ -58,7 +59,7 @@
                                         <div class="avatar">
                                             {% if t.logo %}
                                                 <div class="w-10 h-10 rounded-full">
-                                                    <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" width="40" height="40">
+                                                    <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" decoding="async" width="40" height="40">
                                                 </div>
                                             {% else %}
                                                 <div class="w-10 h-10 rounded-full ring-1 ring-base-300">

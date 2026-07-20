@@ -65,7 +65,7 @@
                                         <div class="avatar">
                                             {% if t.logo %}
                                                 <div class="w-10 h-10 rounded-full">
-                                                    <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" width="40" height="40">
+                                                    <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" decoding="async" width="40" height="40">
                                                 </div>
                                             {% else %}
                                                 <div class="w-10 h-10 rounded-full ring-1 ring-base-300">
