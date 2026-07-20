@@ -108,6 +108,16 @@ class PromptBlockStructureTests(TestCase):
         html = self._get_detail_html()
         self.assertIn(">Prompt<", html)
 
+    def test_prompt_label_is_not_rendered_as_a_heading(self):
+        # Beta 9.4: the "Prompt" label above the copy block is a visual
+        # caption for that widget, not a document heading - it used to be
+        # an <h2>, which put a second, unrelated "heading" right before
+        # this page's real content (e.g. "Suitable tools") in the
+        # document outline. It must render as a non-heading element while
+        # keeping the same visible text and styling.
+        html = self._get_detail_html()
+        self.assertNotRegex(html, r"<h[1-6][^>]*>\s*Prompt\s*<")
+
     def test_copy_button_exposes_i18n_status_data_attributes(self):
         html = self._get_detail_html()
         self.assertIn("data-copy-default-label=", html)
@@ -118,3 +128,12 @@ class PromptBlockStructureTests(TestCase):
         html = self._get_detail_html()
         self.assertEqual(html.count('data-copy-source>'), 1)
         self.assertIn(self.long_marker, html)
+
+    def test_breadcrumbs_share_the_reading_axis_with_the_article(self):
+        """Beta 9.5: see guides.tests.test_templates for the same fix/rationale."""
+        html = self._get_detail_html()
+        header_start = html.index('class="detail-reading-header"')
+        breadcrumbs_start = html.index('class="text-sm breadcrumbs"')
+        article_start = html.index('class="prose reading-column"')
+        self.assertLess(header_start, breadcrumbs_start)
+        self.assertLess(breadcrumbs_start, article_start)

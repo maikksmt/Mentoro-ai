@@ -4,57 +4,14 @@
 {% block content %}
     {% include "partials/breadcrumbs.html" %}
     <header class="mb-6 card-header-guide">
-        <h1 class="text-3xl font-bold">{% trans "Guides" %}</h1>
-        <p class="text-base-content/80 mt-2">
+        <h1 class="page-title">{% trans "Guides" %}</h1>
+        <p class="page-lead text-base-content/80 mt-2">
             {% trans "Step-by-step instructions on AI topics – understandable and practical." %}
         </p>
     </header>
-    <div class="grid gap-2 lg:gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-3">
         {% for obj in object_list %}
-            <article class="card bg-base-100 shadow-md hover:shadow-lg transition">
-                <div class="card-body">
-                    <h2 class="card-title">
-                        <a href="{{ obj.get_absolute_url }}" class="link link-hover" aria-label="
-                                {% trans "Read details about " %}{{ obj.display_title }}">{{ obj.display_title }}</a>
-                        {% if obj.is_starter %}
-                            <span class="badge badge-primary badge-sm whitespace-nowrap shrink-0">{% trans "Start here" %}</span>
-                        {% endif %}
-                    </h2>
-                    {% if obj.display_intro %}
-                        <p class="line-clamp-3">{{ obj.display_intro|richtext|safe|truncatewords_html:30 }}</p>
-                    {% else %}
-                        <p class="line-clamp-3">{{ obj.display_body|richtext|safe|truncatewords_html:30 }}</p>
-                    {% endif %}
-
-                    <div class="card-actions justify-between mt-4">
-                        <div class="flex flex-col gap-1 text-sm text-base-content/80">
-                            <div class="flex flex-wrap items-center gap-2">
-                                {% if obj.updated_at %}
-                                    <time datetime="{{ obj.updated_at|date:'c' }}"
-                                          class="inline-flex items-center gap-1 whitespace-nowrap"
-                                          aria-label="{% trans 'Published or Updated on' %} {{ obj.updated_at|date:'d.m.Y' }}">
-                                        {% heroicon_outline "calendar-days" size=16 %}
-                                        {{ obj.updated_at|date:"d.m.Y" }}
-                                    </time>
-                                {% endif %}
-                            </div>
-                            {% if obj.author %}
-                                <div class="text-xs text-base-content/80 inline-flex items-center gap-1">
-                                    {% heroicon_outline "user" size=14 %}
-                                    <span> {% trans "from" %} {{ obj.author.get_full_name|default:obj.author.username }}</span>
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <a href="{{ obj.get_absolute_url }}" class="btn btn-primary" role="button"
-                           aria-pressed="false"
-                           aria-label="{% trans "Read details about " %}{{ obj.display_title }}">
-                            {% trans "Read more" %}
-                        </a>
-                    </div>
-
-                </div>
-            </article>
+            {% include "partials/_editorial_card.html" with url=obj.get_absolute_url title=obj.display_title kind="guide" is_starter=obj.is_starter date=obj.updated_at author=obj.author intro=obj.display_intro|default:obj.display_body|richtext|safe|truncatewords_html:30 %}
         {% empty %}
             <div class="col-span-full alert">
                 <span>{% trans "No published guides available." %}</span>

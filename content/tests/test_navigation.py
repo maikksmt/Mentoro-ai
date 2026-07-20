@@ -63,6 +63,18 @@ class MobileDropdownStructureTests(TestCase):
         self.assertNotIn('role="menu"', self.html)
         self.assertNotIn('role="menuitem"', self.html)
 
+    def test_scrim_present_and_marked_decorative(self):
+        """
+        Beta 9.5: the mobile dropdown gained a dedicated scrim element so it
+        reads as its own surface over the dimmed page, rather than floating
+        directly over unmodified content. It carries no interactive role of
+        its own - the existing outside-click handler on the page already
+        closes the menu when the scrim (a sibling of the dropdown) is
+        clicked.
+        """
+        self.assertIn('id="mobile-nav-scrim"', self.html)
+        self.assertIn('aria-hidden="true"', self.html)
+
 
 class ActiveNavSectionTests(TestCase):
     """Beta 8.2: aria-current/active state uses request.resolver_match, not path strings."""
@@ -173,7 +185,7 @@ class ActiveNavSectionTests(TestCase):
         html = resp.content.decode()
 
         mobile_start = html.index('id="mobile-nav-menu"')
-        desktop_start = html.index('class="menu menu-horizontal px-1"')
+        desktop_start = html.index('class="menu menu-horizontal')
         mobile_snippet = html[mobile_start:desktop_start]
         desktop_snippet = html[desktop_start:]
 

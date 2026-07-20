@@ -3,11 +3,13 @@
 
 {% block content %}
     <div class="max-w-5xl mx-auto">
-        {% include "partials/breadcrumbs.html" %}
+        <div class="detail-reading-header">
+            {% include "partials/breadcrumbs.html" %}
+        </div>
 
-        <article class="max-w-none">
-            <header class="mb-6 prose">
-                <h1 class="text-3xl font-bold">{{ display_title }}</h1>
+        <article class="prose reading-column">
+            <header class="mb-6">
+                <h1 class="page-title">{{ display_title }}</h1>
                 <div class="mt-2 flex flex-wrap items-center gap-3 text-sm text-base-content/80">
                     {% if object.reading_time %}
                         <span class="inline-flex items-center gap-1">
@@ -37,76 +39,77 @@
             </header>
 
             {% if display_intro %}
-                <section class="prose my-6 max-w-full">
+                <section class="page-lead my-6">
                     {{ display_intro|richtext|safe }}
                 </section>
             {% endif %}
 
             {% if display_body %}
-                <section class="prose my-6 max-w-full">
+                <section class="my-6">
                     <div>{{ display_body|richtext|safe }}</div>
                 </section>
             {% endif %}
 
             {% if display_outro %}
-                <section class="prose max-w-full">
+                <section>
                     {{ display_outro|richtext|safe }}
                 </section>
             {% endif %}
-            {% if object.tools.all %}
-                <section class="mt-8">
-                    <h2 class="text-2xl font-semibold mb-4">{% trans "Tools used" %}</h2>
-                    <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                        {% for t in object.tools.all %}
-                            <a href="{% url 'catalog:detail' slug=t.slug %}"
-                               class="card border rounded-md hover:shadow-xl transition-shadow h-full">
-                                <div class="card-body">
-                                    <div class="flex items-center gap-3">
-                                        <div class="avatar">
-                                            {% if t.logo %}
-                                                <div class="w-10 h-10 rounded-full">
-                                                    <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" decoding="async" width="40" height="40">
+        </article>
+
+        {% if object.tools.all %}
+            <section class="mt-10">
+                <h2 class="section-title mb-4">{% trans "Tools used" %}</h2>
+                <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                    {% for t in object.tools.all %}
+                        <a href="{% url 'catalog:detail' slug=t.slug %}"
+                           class="card border rounded-md hover:shadow-xl transition-shadow h-full">
+                            <div class="card-body">
+                                <div class="flex items-center gap-3">
+                                    <div class="avatar">
+                                        {% if t.logo %}
+                                            <div class="w-10 h-10 rounded-full">
+                                                <img src="{{ t.logo.url }}" alt="{{ t.name }}" loading="lazy" decoding="async" width="40" height="40">
+                                            </div>
+                                        {% else %}
+                                            <div class="w-10 h-10 rounded-full ring-1 ring-base-300">
+                                                <div class="flex h-full w-full items-center justify-center bg-base-200 text-lg font-semibold">
+                                                    {{ t.name|first|upper }}
                                                 </div>
-                                            {% else %}
-                                                <div class="w-10 h-10 rounded-full ring-1 ring-base-300">
-                                                    <div class="flex h-full w-full items-center justify-center bg-base-200 text-lg font-semibold">
-                                                        {{ t.name|first|upper }}
-                                                    </div>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                        <div>
-                                            <h3 class="font-semibold leading-tight">{{ t.name }}</h3>
-                                            {% if t.vendor %}<p class="text-sm opacity-70">{{ t.vendor }}</p>{% endif %}
-                                        </div>
-                                    </div>
-                                    {% if t.short_description %}
-                                        <p class="opacity-80 mt-3 line-clamp-2">{{ t.short_description|richtext|safe|truncatewords_html:12 }}</p>{% endif %}
-                                    <div class="card-actions mt-4 justify-between items-center">
-                                        {% if t.rating %}
-                                            <span class="badge badge-primary badge-outline"
-                                                  aria-label="{% trans "Rating" %}">{{ t.rating }}★
-                                            </span>
+                                            </div>
                                         {% endif %}
-                                        <span class="btn btn-sm btn-block btn-primary">{% trans "Details" %}</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold leading-tight">{{ t.name }}</h3>
+                                        {% if t.vendor %}<p class="text-sm opacity-70">{{ t.vendor }}</p>{% endif %}
                                     </div>
                                 </div>
-                            </a>
-                        {% endfor %}
-                    </div>
-                </section>
-            {% endif %}
-        </article>
-    </div>
+                                {% if t.short_description %}
+                                    <p class="opacity-80 mt-3 line-clamp-2">{{ t.short_description|richtext|safe|truncatewords_html:12 }}</p>{% endif %}
+                                <div class="card-actions mt-4 justify-between items-center">
+                                    {% if t.rating %}
+                                        <span class="badge badge-primary badge-outline"
+                                              aria-label="{% trans "Rating" %}">{{ t.rating }}★
+                                        </span>
+                                    {% endif %}
+                                    <span class="btn btn-sm btn-block btn-primary">{% trans "Details" %}</span>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
 
-    {% if similar %}
-        <section class="mt-10">
-            <h2 class="text-2xl font-semibold mb-4">{% trans "Similar use cases" %}</h2>
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {% for item in similar %}
-                    {% include "partials/_teaser_card.html" with item=item %}
-                {% endfor %}
-            </div>
-        </section>
-    {% endif %}
+        {% if similar %}
+            <section class="mt-10">
+                <h2 class="section-title mb-4">{% trans "Similar use cases" %}</h2>
+                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {% for item in similar %}
+                        {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+    </div>
 {% endblock %}

@@ -1,0 +1,73 @@
+{% load i18n %}
+{% trans "Read more" as default_cta_label %}
+<article class="editorial-card h-full focus-within:ring-2 focus-within:ring-primary/30">
+    <div class="editorial-card-body">
+        <div class="editorial-card-meta">
+            {% if kind == "guide" %}
+                <span class="badge badge-guide">{% trans "Guide" %}</span>
+            {% elif kind == "prompt" %}
+                <span class="badge badge-prompt">{% trans "Prompt" %}</span>
+            {% elif kind == "usecase" %}
+                <span class="badge badge-usecase">{% trans "Usecase" %}</span>
+            {% elif kind == "comparison" %}
+                <span class="badge badge-compare">{% trans "Comparison" %}</span>
+            {% elif kind == "tool" %}
+                <span class="badge badge-tool">{% trans "Tool" %}</span>
+            {% elif kind == "link" %}
+                <span class="badge badge-info">{% trans "Link" %}</span>
+            {% endif %}
+            {% if is_starter %}
+                <span class="badge badge-primary badge-sm">{% trans "Start here" %}</span>
+            {% endif %}
+            {% if date %}
+                <time datetime="{{ date|date:'c' }}" class="inline-flex items-center gap-1 whitespace-nowrap"
+                      aria-label="{% trans 'Published or Updated on' %} {{ date|date:'d.m.Y' }}">
+                    {% heroicon_outline "calendar-days" size=16 %}
+                    {{ date|date:"d.m.Y" }}
+                </time>
+            {% endif %}
+        </div>
+
+        <h3 class="editorial-card-title">
+            <a href="{{ url }}" class="link link-hover">{{ title }}</a>
+        </h3>
+
+        {% if persona %}
+            <p class="editorial-card-extra">{% trans "Persona:" %} {{ persona }}</p>
+        {% endif %}
+
+        {% if intro %}
+            <div class="editorial-card-intro line-clamp-4">{{ intro }}</div>
+        {% endif %}
+
+        {% if tools %}
+            <div class="editorial-card-extra">
+                <div class="font-semibold uppercase tracking-wide text-[0.65rem] text-base-content/70 mb-1">
+                    {% trans "Tools" %}
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    {% for tool in tools %}
+                        <a href="{% url 'catalog:detail' slug=tool.slug %}" class="badge badge-sm badge-compare">
+                            {{ tool.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if author %}
+            <div class="editorial-card-meta">
+                {% heroicon_outline "user" size=14 %}
+                <span>{% trans "from" %} {{ author.get_full_name|default:author.username }}</span>
+            </div>
+        {% endif %}
+
+        <div class="editorial-card-action">
+            <a href="{{ url }}" class="link link-hover inline-flex items-center gap-1">
+                {{ cta_label|default:default_cta_label }}
+                <span class="sr-only">{% blocktrans %}about {{ title }}{% endblocktrans %}</span>
+                {% heroicon_outline "arrow-right" size=16 %}
+            </a>
+        </div>
+    </div>
+</article>

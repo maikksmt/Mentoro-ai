@@ -6,7 +6,7 @@
         <a href="{% url 'glossary:list' %}" class="btn btn-sm btn-outline">
             {% heroicon_outline "arrow-uturn-left" %}{% blocktrans %}Back to Glossary{% endblocktrans %}
         </a>
-        <h1 class="text-3xl font-bold mt-2">{{ term.term }}</h1>
+        <h1 class="page-title mt-2">{{ term.term }}</h1>
         {% if term.category %}
             <div class="badge badge-neutral mt-2">{{ term.category }}</div>
         {% endif %}

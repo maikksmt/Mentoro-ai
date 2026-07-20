@@ -3,8 +3,8 @@
 {% block content %}
     <div class="max-w-2xl mx-auto">
         <header class="mb-6 card-header-glossary">
-            <h1 class="text-3xl font-bold">{% trans "AI Glossary" %}</h1>
-            <p class="text-base-content/80 mt-2">
+            <h1 class="page-title">{% trans "AI Glossary" %}</h1>
+            <p class="page-lead text-base-content/80 mt-2">
                 {% trans "Explanations of terms from the broad field of AI" %}
             </p>
         </header>
@@ -22,14 +22,14 @@
         <!-- A–Z Navigation -->
         <div class="flex flex-wrap gap-2">
             <a href="{% url 'glossary:list' %}"
-               class="btn btn-sm {% if not letter %}btn-primary{% else %}btn-ghost{% endif %}"
-               role="button" aria-pressed="false" aria-label="{% trans "Show all terms" %}">
+               class="btn btn-sm touch-target {% if not letter %}btn-primary{% else %}btn-ghost{% endif %}"
+               aria-label="{% trans "Show all terms" %}">
                 {% trans "All" %}
             </a>
             {% for L in letters %}
                 <a href="{% url 'glossary:list' %}?letter={{ L }}"
-                   class="btn btn-sm {% if letter == L %}btn-primary{% else %}btn-ghost{% endif %}"
-                   role="button" aria-pressed="false" aria-label="{% trans "Show terms with letter " %}{{ L }}">
+                   class="btn btn-sm touch-target {% if letter == L %}btn-primary{% else %}btn-ghost{% endif %}"
+                   aria-label="{% trans "Show terms with letter " %}{{ L }}">
                     {{ L }}
                 </a>
             {% endfor %}
@@ -39,24 +39,24 @@
         {% if is_paginated %}
             <div class="mt-4 lg:mt-6 flex gap-2">
                 {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}&q={{ q }}&letter={{ letter }}" class="btn btn-sm"
-                       role="button" aria-pressed="false" aria-label="{% trans 'Previous Page' %}">
+                    <a href="?page={{ page_obj.previous_page_number }}&q={{ q }}&letter={{ letter }}" class="btn btn-sm touch-target"
+                       aria-label="{% trans 'Previous Page' %}">
                         {% heroicon_outline "chevron-double-left" %} {% trans "Previous" %}
                     </a>
                 {% else %}
-                    <button class="btn btn-sm btn-disabled">
+                    <button class="btn btn-sm touch-target btn-disabled">
                         {% heroicon_outline "chevron-double-left" %} {% trans "Previous" %}
                     </button>
                 {% endif %}
-                <div class="btn btn-sm btn-ghost">{% trans "Site" %} {{ page_obj.number }}
+                <div class="btn btn-sm btn-ghost touch-target">{% trans "Site" %} {{ page_obj.number }}
                     / {{ page_obj.paginator.num_pages }}</div>
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}&q={{ q }}&letter={{ letter }}" class="btn btn-sm"
-                       role="button" aria-pressed="false" aria-label="{% trans 'Next Page' %}">
+                    <a href="?page={{ page_obj.next_page_number }}&q={{ q }}&letter={{ letter }}" class="btn btn-sm touch-target"
+                       aria-label="{% trans 'Next Page' %}">
                         {% trans "Next" %} {% heroicon_outline "chevron-double-right" %}
                     </a>
                 {% else %}
-                    <button class="btn btn-sm btn-disabled">
+                    <button class="btn btn-sm touch-target btn-disabled">
                         {% trans "Next" %} {% heroicon_outline "chevron-double-right" %}
                     </button>
                 {% endif %}
@@ -73,22 +73,22 @@
             <div class="mt-4 lg:mt-6 flex gap-2">
                 {% if page_obj.has_previous %}
                     <a href="?page={{ page_obj.previous_page_number }}&q={{ q }}&letter={{ letter }}"
-                       class="btn btn-sm" role="button" aria-pressed="false" aria-label="{% trans 'Previous Page' %}">
+                       class="btn btn-sm touch-target" aria-label="{% trans 'Previous Page' %}">
                         {% heroicon_outline "chevron-double-left" %} {% trans "Previous" %}
                     </a>
                 {% else %}
-                    <button class="btn btn-sm btn-disabled">
+                    <button class="btn btn-sm touch-target btn-disabled">
                         {% heroicon_outline "chevron-double-left" %} {% trans "Previous" %}
                     </button>
                 {% endif %}
-                <div class="btn btn-sm btn-ghost">Seite {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</div>
+                <div class="btn btn-sm btn-ghost touch-target">Seite {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</div>
                 {% if page_obj.has_next %}
                     <a href="?page={{ page_obj.next_page_number }}&q={{ q }}&letter={{ letter }}"
-                       class="btn btn-sm" role="button" aria-pressed="false" aria-label="{% trans 'Next Page' %}">
+                       class="btn btn-sm touch-target" aria-label="{% trans 'Next Page' %}">
                         {% trans "Next" %} {% heroicon_outline "chevron-double-right" %}
                     </a>
                 {% else %}
-                    <button class="btn btn-sm btn-disabled">
+                    <button class="btn btn-sm touch-target btn-disabled">
                         {% trans "Next" %} {% heroicon_outline "chevron-double-right" %}
                     </button>
                 {% endif %}
