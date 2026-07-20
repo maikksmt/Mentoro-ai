@@ -2,9 +2,9 @@
 {% block content %}
     <div class="max-w-5xl mx-auto">
         {% include "partials/breadcrumbs.html" %}
-        <article class="prose max-w-none">
+        <article class="prose reading-column">
             <header class="mb-6">
-                <h1 class="text-3xl font-bold">{{ display_title }}</h1>
+                <h1 class="page-title">{{ display_title }}</h1>
                 <div class="mt-2 flex flex-wrap items-center gap-3 text-sm text-base-content/80">
                     {% if object.reading_time %}
                         <span class="inline-flex items-center gap-1">
@@ -33,23 +33,23 @@
                 {% endif %}
             </header>
             {% if display_intro %}
-                <section class="prose my-6 max-w-full">
+                <section class="page-lead my-6">
                     {{ display_intro|richtext|safe }}
                 </section>
             {% endif %}
-            <section class="prose my-6 max-w-full">
+            <section class="my-6">
                 {% trans "Prompt" as prompt_label %}
                 {% trans "Copy prompt" as copy_prompt_label %}
                 {% include "partials/copy_block.html" with content=display_body label=prompt_label copy_label=copy_prompt_label %}
             </section>
             {% if display_outro %}
-                <section class="prose max-w-full">
+                <section>
                     {{ display_outro|richtext|safe }}
                 </section>
             {% endif %}
             {% if object.tools.all %}
                 <section class="my-6">
-                    <h2 class="text-2xl font-semibold mb-2">{% trans "Suitable tools" %}</h2>
+                    <h2 class="section-title mb-2">{% trans "Suitable tools" %}</h2>
                     <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                         {% for t in object.tools.all %}
                             <a href="{% url 'catalog:detail' slug=t.slug %}"
@@ -93,15 +93,15 @@
                 </section>
             {% endif %}
         </article>
+        {% if more %}
+            <section class="mt-10">
+                <h2 class="section-title mb-4">{% trans "More Prompts" %}</h2>
+                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {% for item in more %}
+                        {% include "partials/_teaser_card.html" with item=item %}
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
     </div>
-    {% if more %}
-        <section class="mt-10">
-            <h2 class="text-2xl font-semibold mb-4">{% trans "More Prompts" %}</h2>
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {% for item in more %}
-                    {% include "partials/_teaser_card.html" with item=item %}
-                {% endfor %}
-            </div>
-        </section>
-    {% endif %}
 {% endblock %}

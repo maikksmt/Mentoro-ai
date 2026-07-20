@@ -5,9 +5,9 @@
     <div class="max-w-5xl mx-auto">
         {% include "partials/breadcrumbs.html" %}
 
-        <article class="max-w-none">
-            <header class="mb-6 prose">
-                <h1 class="text-3xl font-bold">{{ display_title }}</h1>
+        <article class="prose reading-column">
+            <header class="mb-6">
+                <h1 class="page-title">{{ display_title }}</h1>
                 <div class="mt-2 flex flex-wrap items-center gap-3 text-sm text-base-content/80">
                     {% if object.reading_time %}
                         <span class="inline-flex items-center gap-1">
@@ -37,25 +37,25 @@
             </header>
 
             {% if display_intro %}
-                <section class="prose my-6 max-w-full">
+                <section class="page-lead my-6">
                     {{ display_intro|richtext|safe }}
                 </section>
             {% endif %}
 
             {% if display_body %}
-                <section class="prose my-6 max-w-full">
+                <section class="my-6">
                     <div>{{ display_body|richtext|safe }}</div>
                 </section>
             {% endif %}
 
             {% if display_outro %}
-                <section class="prose max-w-full">
+                <section>
                     {{ display_outro|richtext|safe }}
                 </section>
             {% endif %}
             {% if object.tools.all %}
                 <section class="mt-8">
-                    <h2 class="text-2xl font-semibold mb-4">{% trans "Tools used" %}</h2>
+                    <h2 class="section-title mb-4">{% trans "Tools used" %}</h2>
                     <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                         {% for t in object.tools.all %}
                             <a href="{% url 'catalog:detail' slug=t.slug %}"
@@ -97,16 +97,16 @@
                 </section>
             {% endif %}
         </article>
-    </div>
 
-    {% if similar %}
-        <section class="mt-10">
-            <h2 class="text-2xl font-semibold mb-4">{% trans "Similar use cases" %}</h2>
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {% for item in similar %}
-                    {% include "partials/_teaser_card.html" with item=item %}
-                {% endfor %}
-            </div>
-        </section>
-    {% endif %}
+        {% if similar %}
+            <section class="mt-10">
+                <h2 class="section-title mb-4">{% trans "Similar use cases" %}</h2>
+                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {% for item in similar %}
+                        {% include "partials/_teaser_card.html" with item=item %}
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+    </div>
 {% endblock %}

@@ -202,6 +202,132 @@
     }
 }
 
+/* ===========================================================
+   Beta 9.4 – Typography hierarchy & reading column
+   Small semantic classes, not a blind h1-h6 override: card-title,
+   footer-title, modal titles and nav text are untouched because
+   none of them carry these classes. `.prose :where(h2/h3)` only
+   resizes headings that are actually inside a `.prose` scope
+   (editorial richtext), using the same zero-specificity :where()
+   trick Tailwind Typography itself uses, so it never fights a
+   directly-applied utility class outside that scope.
+
+   Deliberately NOT wrapped in `@layer components`: this build's
+   compiled output keeps @layer blocks as real CSS cascade layers,
+   and @tailwindcss/typography's own `.prose` rules (e.g. its
+   `max-width: 65ch`) are unlayered. Per the cascade-layers spec,
+   ANY unlayered rule beats ANY layered rule regardless of
+   specificity - a layered `.reading-column.prose` selector still
+   lost to unlayered `.prose` even with higher specificity. Keeping
+   this block unlayered (like the DaisyUI/Typography output it has
+   to compete with) was verified in-browser to be the only way to
+   reliably win the cascade, not just read correctly from source. */
+.page-title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.875rem; /* 30px */
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+}
+
+@media (min-width: 768px) {
+    .page-title {
+        font-size: 2.5rem; /* 40px */
+        line-height: 1.1;
+    }
+}
+
+/* Intro/lead paragraph directly under a page or detail title.
+   Sits between the title and the long-form body: a bit larger
+   than body text, but clearly not body text itself. */
+.page-lead {
+    font-size: 1.0625rem; /* 17px */
+    line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+    .page-lead {
+        font-size: 1.1875rem; /* 19px */
+    }
+}
+
+/* Section-level H2 used by template-authored headings that sit
+   outside the prose scope: Related/Similar/Suitable-tools/
+   Detailed-comparison section headings. Matched 1:1 to the
+   .prose h2 size below so a page never shows two different
+   "H2 sizes" depending on whether a heading came from richtext
+   or from the template. */
+.section-title {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1.5rem; /* 24px */
+    line-height: 1.25;
+}
+
+@media (min-width: 768px) {
+    .section-title {
+        font-size: 1.75rem; /* 28px */
+    }
+}
+
+/* Reading column: the actual long-form text measure. Width only
+   (no color/spacing side effects) so it composes with .prose
+   instead of replacing it. ch is font-relative on purpose - no
+   hard pixel value - so it stays correct if body copy ever
+   changes size. Left-aligned inside its centered .detail-shell
+   parent, same as the rest of the site's centered content.
+
+   Written as .reading-column.prose (not .reading-column alone) so
+   its specificity (two classes) beats plain `.prose` should the two
+   ever tie on layer; see the file-level note above for why staying
+   unlayered is what actually makes it win here.
+
+   55ch, not 70ch: the `ch` unit is defined by the width of the "0"
+   glyph, which in Inter is noticeably wider than the average
+   running-text character. Measured against real article text at
+   the actual rendered font, 70ch produced ~84 characters/line -
+   short of the ~68-72 target - while 55ch lands at ~70. Verified
+   at both the 16px mobile and 17px desktop body size. */
+.reading-column.prose {
+    max-width: 55ch;
+}
+
+/* Heading sizes for headings that render *inside* a .prose scope -
+   both author-written richtext headings (TinyMCE h2/h3) and bare
+   template headings like "What this tool can do". Low-specificity
+   :where() means this never overrides a directly-applied utility
+   class on a heading that sits outside .prose (e.g. the
+   .section-title headings above, which are not inside .prose). */
+.prose :where(h2):not(:where([class~="not-prose"] *)) {
+    font-size: 1.5rem; /* 24px, matches .section-title */
+    line-height: 1.25;
+}
+
+.prose :where(h3):not(:where([class~="not-prose"] *)) {
+    font-size: 1.25rem; /* 20px */
+    line-height: 1.25;
+}
+
+@media (min-width: 768px) {
+    .prose :where(h2):not(:where([class~="not-prose"] *)) {
+        font-size: 1.75rem; /* 28px */
+    }
+
+    .prose :where(h3):not(:where([class~="not-prose"] *)) {
+        font-size: 1.375rem; /* 22px */
+    }
+}
+
+/* Long-form body copy reads slightly larger on bigger screens. Set
+   on the reading column's own font-size (not body/html) so only
+   article copy grows - nav, cards and footer are untouched, and
+   .prose's own em-based children (p, li, ...) scale with it. */
+@media (min-width: 768px) {
+    .reading-column.prose {
+        font-size: 1.0625rem; /* 17px */
+    }
+}
+
 
 /*!* -------------------------------------*/
 /*   4) TYPE SCALE — Utility-like classes*/
