@@ -128,3 +128,12 @@ class PromptBlockStructureTests(TestCase):
         html = self._get_detail_html()
         self.assertEqual(html.count('data-copy-source>'), 1)
         self.assertIn(self.long_marker, html)
+
+    def test_breadcrumbs_share_the_reading_axis_with_the_article(self):
+        """Beta 9.5: see guides.tests.test_templates for the same fix/rationale."""
+        html = self._get_detail_html()
+        header_start = html.index('class="detail-reading-header"')
+        breadcrumbs_start = html.index('class="text-sm breadcrumbs"')
+        article_start = html.index('class="prose reading-column"')
+        self.assertLess(header_start, breadcrumbs_start)
+        self.assertLess(breadcrumbs_start, article_start)

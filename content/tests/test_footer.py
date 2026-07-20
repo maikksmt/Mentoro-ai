@@ -53,6 +53,26 @@ class FooterStructureTests(TestCase):
         self.assertIn('id="footer-legal-heading"', html)
         self.assertIn(">Legal<", html)
 
+    def test_group_titles_are_not_headings(self):
+        """
+        Beta 9.5: footer titles were <h2>, which put "Explore", "Browse
+        categories", etc. into the document outline alongside real page
+        H2s. They must render as plain <p> so they stop competing with
+        page content in the outline.
+        """
+        cat = make_category(slug="heading-check")
+        make_tool(slug="heading-check-tool", categories=[cat])
+        cache.clear()
+        html = self._footer_html()
+        for heading_id in (
+            "footer-explore-heading",
+            "footer-categories-heading",
+            "footer-starter-heading",
+            "footer-legal-heading",
+        ):
+            self.assertIn(f'<p id="{heading_id}"', html)
+            self.assertNotIn(f'<h2 id="{heading_id}"', html)
+
     def test_browse_categories_group_present_when_categories_exist(self):
         cat = make_category(slug="present")
         make_tool(slug="t1", categories=[cat])

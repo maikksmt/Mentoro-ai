@@ -116,27 +116,27 @@
                 class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
                 <li class="my-1"><a href="{% url 'glossary:list' %}"
                                     {% if nav_active_section == "glossary" %}aria-current="page"{% endif %}
-                                    class="btn btn-glossary btn-soft btn-xl text-base-content text-lg{% if nav_active_section == "glossary" %} btn-active{% endif %}">{% trans "Glossary" %}</a>
+                                    class="btn btn-ghost global-nav-item btn-xl text-base-content text-lg{% if nav_active_section == "glossary" %} btn-active{% endif %}">{% trans "Glossary" %}</a>
                 </li>
                 <li class="my-1"><a href="{% url 'guides:list' %}"
                                     {% if nav_active_section == "guides" %}aria-current="page"{% endif %}
-                                    class="btn btn-guide btn-soft btn-xl text-base-content text-lg{% if nav_active_section == "guides" %} btn-active{% endif %}">{% trans "Guides" %}</a>
+                                    class="btn btn-ghost global-nav-item btn-xl text-base-content text-lg{% if nav_active_section == "guides" %} btn-active{% endif %}">{% trans "Guides" %}</a>
                 </li>
                 <li class="my-1"><a href="{% url 'prompts:list' %}"
                                     {% if nav_active_section == "prompts" %}aria-current="page"{% endif %}
-                                    class="btn btn-prompt btn-soft btn-xl text-base-content text-lg{% if nav_active_section == "prompts" %} btn-active{% endif %}">{% trans "Prompts" %}</a>
+                                    class="btn btn-ghost global-nav-item btn-xl text-base-content text-lg{% if nav_active_section == "prompts" %} btn-active{% endif %}">{% trans "Prompts" %}</a>
                 </li>
                 <li class="my-1"><a href="{% url 'usecases:list' %}"
                                     {% if nav_active_section == "usecases" %}aria-current="page"{% endif %}
-                                    class="btn btn-usecase btn-soft btn-xl text-base-content text-lg{% if nav_active_section == "usecases" %} btn-active{% endif %}">{% trans "Use cases" %}</a>
+                                    class="btn btn-ghost global-nav-item btn-xl text-base-content text-lg{% if nav_active_section == "usecases" %} btn-active{% endif %}">{% trans "Use cases" %}</a>
                 </li>
                 <li class="my-1"><a href="{% url 'catalog:list' %}"
                                     {% if nav_active_section == "catalog" %}aria-current="page"{% endif %}
-                                    class="btn btn-tool btn-soft btn-xl text-base-content text-lg{% if nav_active_section == "catalog" %} btn-active{% endif %}">{% trans "Tools" %}</a>
+                                    class="btn btn-ghost global-nav-item btn-xl text-base-content text-lg{% if nav_active_section == "catalog" %} btn-active{% endif %}">{% trans "Tools" %}</a>
                 </li>
                 <li class="my-1"><a href="{% url 'compare:index' %}"
                                     {% if nav_active_section == "compare" %}aria-current="page"{% endif %}
-                                    class="btn btn-compare btn-soft btn-xl text-base-content text-lg{% if nav_active_section == "compare" %} btn-active{% endif %}">{% trans "Comparisons" %}</a>
+                                    class="btn btn-ghost global-nav-item btn-xl text-base-content text-lg{% if nav_active_section == "compare" %} btn-active{% endif %}">{% trans "Comparisons" %}</a>
                 </li>
             </ul>
         </div>
@@ -145,30 +145,30 @@
            class="btn btn-ghost text-xl font-bold">MentoroAI</a>
     </div>
     <div class="navbar-center hidden lg:flex">
-        <ul class="menu menu-horizontal px-1">
-            <li class="mx-1"><a href="{% url 'glossary:list' %}"
+        <ul class="menu menu-horizontal px-1 gap-1">
+            <li><a href="{% url 'glossary:list' %}"
                                 {% if nav_active_section == "glossary" %}aria-current="page"{% endif %}
-                                class="btn btn-sm xl:btn-md btn-glossary btn-soft text-base-content{% if nav_active_section == "glossary" %} btn-active{% endif %}">{% trans "Glossary" %}</a>
+                                class="btn btn-sm xl:btn-md btn-ghost global-nav-item text-base-content{% if nav_active_section == "glossary" %} btn-active{% endif %}">{% trans "Glossary" %}</a>
             </li>
-            <li class="mx-1"><a href="{% url 'guides:list' %}"
+            <li><a href="{% url 'guides:list' %}"
                                 {% if nav_active_section == "guides" %}aria-current="page"{% endif %}
-                                class="btn btn-sm xl:btn-md btn-guide btn-soft text-base-content{% if nav_active_section == "guides" %} btn-active{% endif %}">{% trans "Guides" %}</a>
+                                class="btn btn-sm xl:btn-md btn-ghost global-nav-item text-base-content{% if nav_active_section == "guides" %} btn-active{% endif %}">{% trans "Guides" %}</a>
             </li>
-            <li class="mx-1"><a href="{% url 'prompts:list' %}"
+            <li><a href="{% url 'prompts:list' %}"
                                 {% if nav_active_section == "prompts" %}aria-current="page"{% endif %}
-                                class="btn btn-sm xl:btn-md btn-prompt btn-soft text-base-content{% if nav_active_section == "prompts" %} btn-active{% endif %}">{% trans "Prompts" %}</a>
+                                class="btn btn-sm xl:btn-md btn-ghost global-nav-item text-base-content{% if nav_active_section == "prompts" %} btn-active{% endif %}">{% trans "Prompts" %}</a>
             </li>
-            <li class="mx-1"><a href="{% url 'usecases:list' %}"
+            <li><a href="{% url 'usecases:list' %}"
                                 {% if nav_active_section == "usecases" %}aria-current="page"{% endif %}
-                                class="btn btn-sm xl:btn-md btn-usecase btn-soft text-base-content{% if nav_active_section == "usecases" %} btn-active{% endif %}">{% trans "Use cases" %}</a>
+                                class="btn btn-sm xl:btn-md btn-ghost global-nav-item text-base-content{% if nav_active_section == "usecases" %} btn-active{% endif %}">{% trans "Use cases" %}</a>
             </li>
-            <li class="mx-1"><a href="{% url 'catalog:list' %}"
+            <li><a href="{% url 'catalog:list' %}"
                                 {% if nav_active_section == "catalog" %}aria-current="page"{% endif %}
-                                class="btn btn-sm xl:btn-md btn-tool btn-soft text-base-content{% if nav_active_section == "catalog" %} btn-active{% endif %}">{% trans "Tools" %}</a>
+                                class="btn btn-sm xl:btn-md btn-ghost global-nav-item text-base-content{% if nav_active_section == "catalog" %} btn-active{% endif %}">{% trans "Tools" %}</a>
             </li>
-            <li class="mx-1"><a href="{% url 'compare:index' %}"
+            <li><a href="{% url 'compare:index' %}"
                                 {% if nav_active_section == "compare" %}aria-current="page"{% endif %}
-                                class="btn btn-sm xl:btn-md btn-compare btn-soft text-base-content{% if nav_active_section == "compare" %} btn-active{% endif %}">{% trans "Comparisons" %}</a>
+                                class="btn btn-sm xl:btn-md btn-ghost global-nav-item text-base-content{% if nav_active_section == "compare" %} btn-active{% endif %}">{% trans "Comparisons" %}</a>
             </li>
         </ul>
     </div>
@@ -230,6 +230,7 @@
         </form>
     </div>
 </div>
+<div id="mobile-nav-scrim" class="fixed inset-0 bg-black/40 lg:hidden" aria-hidden="true"></div>
 {% include "partials/search_open.html" %}
 <!-- Admin NAV -->
 {% if request.user.is_authenticated %}
@@ -260,8 +261,8 @@
     <div class="max-w-7xl mx-auto p-3 md:p-4 lg:p-6 space-y-6">
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10 text-sm pt-2">
             <nav aria-labelledby="footer-explore-heading">
-                <h2 id="footer-explore-heading"
-                    class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Explore" %}</h2>
+                <p id="footer-explore-heading"
+                    class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Explore" %}</p>
                 <ul class="space-y-2.5 mb-3">
                     <li><a href="{% url 'catalog:list' %}" class="link link-hover">{% trans "Tools" %}</a></li>
                     <li><a href="{% url 'guides:list' %}" class="link link-hover">{% trans "Guides" %}</a></li>
@@ -274,8 +275,8 @@
 
             {% if public_inventory.top_categories %}
                 <nav aria-labelledby="footer-categories-heading">
-                    <h2 id="footer-categories-heading"
-                        class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Browse categories" %}</h2>
+                    <p id="footer-categories-heading"
+                        class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Browse categories" %}</p>
                     <ul class="space-y-2.5 mb-3">
                         {% for cat in public_inventory.top_categories %}
                             <li><a href="{{ cat.url }}" class="link link-hover">{{ cat.name }}</a></li>
@@ -285,8 +286,8 @@
             {% endif %}
 
             <nav aria-labelledby="footer-starter-heading">
-                <h2 id="footer-starter-heading"
-                    class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Start here" %}</h2>
+                <p id="footer-starter-heading"
+                    class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Start here" %}</p>
                 <ul class="space-y-2.5 mb-3">
                     {% if public_inventory.starter_guide %}
                         <li>
@@ -300,8 +301,8 @@
             </nav>
 
             <nav aria-labelledby="footer-legal-heading">
-                <h2 id="footer-legal-heading"
-                    class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Legal" %}</h2>
+                <p id="footer-legal-heading"
+                    class="footer-title text-xs font-bold uppercase tracking-wider text-base-content/60 mb-3">{% trans "Legal" %}</p>
                 <ul class="space-y-2.5 mb-3">
                     <li><a href="{% url 'legal:legal-notice' %}" class="link link-hover">{% trans "Legal notice" %}</a></li>
                     <li><a href="{% url 'legal:privacy' %}" class="link link-hover">{% trans "Privacy policy" %}</a></li>
@@ -422,6 +423,11 @@
         const container = document.getElementById('mobile-nav-dropdown');
         const trigger = document.getElementById('mobile-nav-trigger');
         const content = document.getElementById('mobile-nav-menu');
+        // Scrim is a sibling of #mobile-nav-dropdown, not inside it, so the
+        // existing outside-click handler below already closes the menu when
+        // the scrim itself is clicked - it just needs its visibility toggled
+        // here, no separate click listener required.
+        const scrim = document.getElementById('mobile-nav-scrim');
         if (!container || !trigger || !content) return;
 
         function isMenuOpen() {
@@ -432,12 +438,14 @@
             container.classList.remove('dropdown-close');
             container.classList.add('dropdown-open');
             trigger.setAttribute('aria-expanded', 'true');
+            if (scrim) scrim.classList.add('mobile-nav-scrim-visible');
         }
 
         function closeMenu({focusTrigger = false} = {}) {
             container.classList.remove('dropdown-open');
             container.classList.add('dropdown-close');
             trigger.setAttribute('aria-expanded', 'false');
+            if (scrim) scrim.classList.remove('mobile-nav-scrim-visible');
             if (focusTrigger) trigger.focus();
         }
 

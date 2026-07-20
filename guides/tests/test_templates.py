@@ -58,3 +58,23 @@ class GuideTemplateContextTests(TestCase):
         self.assertIn("Guides", html)
         self.assertIn(self.pub.safe_translation_getter("title", language_code="en"), html)
         self.assertTrue(len(html) > 0)
+
+    def test_breadcrumbs_share_the_reading_axis_with_the_article(self):
+        """
+        Beta 9.5: the breadcrumb trail used to render at full shell width
+        while the article body was narrowed to a centered reading column,
+        so breadcrumbs/title started well left of the article's visual
+        center. Wrapping the breadcrumbs in .detail-reading-header (the
+        same centered, ch-capped width as .reading-column) keeps both on
+        one axis.
+        """
+        en_slug = self.pub.safe_translation_getter("slug", language_code="en")
+        with translation.override("en"):
+            url = reverse("guides:detail", kwargs={"slug": en_slug})
+        resp = self.client.get(url)
+        html = resp.content.decode("utf-8")
+        header_start = html.index('class="detail-reading-header"')
+        breadcrumbs_start = html.index('class="text-sm breadcrumbs"')
+        article_start = html.index('class="prose reading-column"')
+        self.assertLess(header_start, breadcrumbs_start)
+        self.assertLess(breadcrumbs_start, article_start)

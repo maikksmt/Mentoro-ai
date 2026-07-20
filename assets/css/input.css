@@ -274,8 +274,18 @@
    (no color/spacing side effects) so it composes with .prose
    instead of replacing it. ch is font-relative on purpose - no
    hard pixel value - so it stays correct if body copy ever
-   changes size. Left-aligned inside its centered .detail-shell
-   parent, same as the rest of the site's centered content.
+   changes size.
+
+   Beta 9.5 fix: this rule always said "centered .detail-shell parent"
+   in the comment above but never actually added the margin that
+   centers it - .reading-column only ever constrained the width, so a
+   block element with a max-width and no margin sits flush at the
+   *start* of its container by default. Inside the wider max-w-5xl
+   shell that left the whole article hugging the left edge with a
+   large empty gap on the right - confirmed from a real screenshot of
+   the German guide detail page in dark mode. margin-inline: auto
+   centers the block; it does not touch text-align, so text inside
+   stays left-aligned exactly as required.
 
    Written as .reading-column.prose (not .reading-column alone) so
    its specificity (two classes) beats plain `.prose` should the two
@@ -288,8 +298,37 @@
    the actual rendered font, 70ch produced ~84 characters/line -
    short of the ~68-72 target - while 55ch lands at ~70. Verified
    at both the 16px mobile and 17px desktop body size. */
+.reading-column {
+    margin-inline: auto;
+}
+
 .reading-column.prose {
     max-width: 55ch;
+}
+
+/* Beta 9.5: breadcrumb/title/meta/lead sit above the prose article on
+   Guide, Prompt and Use Case (breadcrumbs are a sibling of <article>,
+   not inside it) and, on Comparison, the whole header is outside the
+   narrowed intro/body blocks. .detail-reading-header gives that
+   content the same width and centering as .reading-column so
+   breadcrumb, title and meta land on the same visual axis as the
+   body below them, without pulling in .prose's typography/color
+   overrides (breadcrumbs and the comparison header are plain nav/
+   heading markup, not richtext). The desktop font-size bump matches
+   .reading-column.prose's so both resolve the same `ch` width at the
+   same viewport - without it the two would be computed against
+   different ambient font sizes (16px vs 17px) and drift a few
+   percent apart, reintroducing a small version of the same
+   misalignment this slice fixes. */
+.detail-reading-header {
+    max-width: 55ch;
+    margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+    .detail-reading-header {
+        font-size: 1.0625rem;
+    }
 }
 
 /* Heading sizes for headings that render *inside* a .prose scope -
@@ -496,6 +535,61 @@ html {
     .navbar-end {
         width: auto;
     }
+}
+
+/* ===========================================================
+   Beta 9.5 - Unified navigation, mobile surface, footer
+   =========================================================== */
+
+/* Global nav item: the six primary-nav links previously used
+   btn-{category} btn-soft, so every link was a full-color surface
+   (six competing hues visible at once). This slice removes those two
+   classes from the nav templates and adds .global-nav-item alongside
+   the DaisyUI btn-ghost variant instead - inactive links get
+   btn-ghost's own neutral hover for free, and only the *active* link
+   gets a calm, single-brand-color treatment.
+
+   Deliberately unlayered (not @layer components), same reasoning as
+   the .reading-column fix above: DaisyUI's own .btn-active rule sets
+   --btn-bg directly, and this needs to reliably win regardless of
+   which cascade layer DaisyUI's compiled output happens to occupy -
+   verified in-browser, not assumed from source.
+
+   .btn-active itself is left exactly where the existing markup and
+   tests expect it (content/tests/test_navigation.py,
+   test_sticky_navbar.py both assert on the literal "btn-active"
+   string and its position relative to aria-current="page") - this
+   only restyles what that combination looks like for nav items.
+   Category classes/variables are untouched; cards, badges and
+   card-headers elsewhere still use them exactly as before. */
+.global-nav-item.btn-active {
+    background-color: color-mix(in oklab, var(--color-primary) 16%, transparent);
+    color: var(--color-primary);
+}
+
+/* Mobile dropdown surface: a visible border turns the menu into a
+   clearly bordered panel instead of relying on shadow alone. */
+#mobile-nav-menu {
+    border: 1px solid var(--color-base-300);
+}
+
+/* Scrim behind the open mobile menu. Sits above ordinary page content
+   but below the sticky navbar (z-100) and *far* below dropdown-content
+   (DaisyUI's z-999) - the trigger stays reachable and native <dialog>s
+   (search/roadmap render in the browser's top layer regardless of any
+   z-index) are unaffected either way. Visibility is toggled by the
+   existing mobile-nav script adding/removing one class - no new
+   animation dependency, same 0.2s ease already used for toasts. */
+#mobile-nav-scrim {
+    z-index: 90;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+#mobile-nav-scrim.mobile-nav-scrim-visible {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 
