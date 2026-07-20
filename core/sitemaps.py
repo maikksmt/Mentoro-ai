@@ -15,8 +15,49 @@ DEFAULT_LANG = "en"
 
 
 class BasePublishableSitemap(Sitemap):
+    """
+    Beta 8.14: items() is language-strict.
+
+    Previously every editorial sitemap returned `Model.objects.published()`,
+    which is language-independent, while location() reverses
+    obj.get_absolute_url(language=get_language()) under the active
+    i18n_patterns prefix. An object published in only one language was
+    therefore emitted in BOTH /en/sitemap.xml and /de/sitemap.xml, and the
+    per-model get_absolute_url() fallbacks turned that into a broken public
+    URL:
+
+      - Guide/Prompt fall back to another language's slug (the
+        `for lng in get_available_languages()` loop), producing e.g.
+        "/de/guides/<en-slug>/" - a 404 under the language-strict detail
+        views hardened in Beta 8.8-8.10.
+      - UseCase falls back via parler's use_fallback=True descriptor, same
+        result.
+      - Comparison (hardened in Beta 8.11) correctly refuses to substitute
+        and returns "#", which the sitemap framework emitted as the
+        malformed loc "https://<domain>#".
+
+    Both were confirmed by reproduction before this fix; robots.txt
+    advertises both language sitemaps, so these URLs were served to
+    crawlers.
+
+    The status rule is deliberately unchanged (still published(), not the
+    broader visible_on_site() used by some list views) - this only adds the
+    language filter, exactly mirroring the visible_in_language() tightening
+    applied to the list/detail/related/inventory surfaces in Beta 8.8-8.10.
+    """
+
     changefreq = "weekly"
     priority = 0.8
+    model = None
+
+    def items(self):
+        lang = get_language() or DEFAULT_LANG
+        return (
+            self.model.objects.published()
+            .translated(lang)
+            .language(lang)
+            .distinct()
+        )
 
     def lastmod(self, obj):
         for field in (
@@ -35,23 +76,19 @@ class BasePublishableSitemap(Sitemap):
 
 
 class GuideSitemap(BasePublishableSitemap):
-    def items(self):
-        return Guide.objects.published()
+    model = Guide
 
 
 class PromptSitemap(BasePublishableSitemap):
-    def items(self):
-        return Prompt.objects.published()
+    model = Prompt
 
 
 class UseCaseSitemap(BasePublishableSitemap):
-    def items(self):
-        return UseCase.objects.published()
+    model = UseCase
 
 
 class ComparisonSitemap(BasePublishableSitemap):
-    def items(self):
-        return Comparison.objects.published()
+    model = Comparison
 
 
 class ToolSitemap(BasePublishableSitemap):
@@ -59,8 +96,13 @@ class ToolSitemap(BasePublishableSitemap):
     priority = 0.6
 
     def items(self):
-        manager = getattr(Tool, "published", None)
-        return (manager or Tool.objects).all()
+        # Beta 8.14a: .public() - this previously returned every Tool
+        # regardless of published_at (the getattr(Tool, "published") probe
+        # never matched; Tool has no such manager), so a tool scheduled for
+        # a future date was listed in both language sitemaps. That only
+        # avoided being a broken URL because ToolDetailView had the same
+        # gap and served it with HTTP 200; both are closed together.
+        return Tool.objects.public()
 
 
 class GlossaryIndexSitemap(Sitemap):

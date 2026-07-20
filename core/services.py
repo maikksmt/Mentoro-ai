@@ -414,7 +414,17 @@ def resolve_public_starter_guide(language_code: str) -> Dict[str, str] | None:
 
 
 def _visible_tool_count_filter(now) -> Q:
-    return Q(tools__published_at__isnull=False, tools__published_at__lte=now)
+    """
+    Per-category "how many public tools" filter.
+
+    Mirrors ToolQuerySet.public() (published_at <= now) but has to be
+    expressed as a Q across the reverse `tools` relation, so it cannot
+    literally reuse that queryset method. Verified by
+    catalog/tests/test_public_tool_visibility.py, which asserts both sides
+    agree - a category whose only tools are scheduled for the future must
+    count 0 and must not surface as a well-stocked category.
+    """
+    return Q(tools__published_at__lte=now)
 
 
 def _compute_public_inventory(lang: str) -> Dict[str, Any]:
@@ -426,9 +436,10 @@ def _compute_public_inventory(lang: str) -> Dict[str, Any]:
     with override(lang):
         now = timezone.now()
 
-        tools_count = Tool.objects.filter(
-            published_at__isnull=False, published_at__lte=now
-        ).count()
+        # Beta 8.14a: unchanged semantics, now expressed via the central
+        # ToolQuerySet.public() - so the count can never drift from what
+        # the catalog/detail/sitemap surfaces consider public.
+        tools_count = Tool.objects.public(at=now).count()
 
         categories_qs = (
             Category.objects.translated(lang)

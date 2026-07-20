@@ -528,27 +528,41 @@ html[data-theme='mentoroai-dark'] #github-logo[srcset] {
     }
 }
 
-/* 6) Dark-Mode Feintuning */
-@media (prefers-color-scheme: dark) {
-    [data-theme="mentoroai-dark"] {
-        /* Header/Badge/Alert – kräftigerer Kontrast in Dark */
+/* 6) Dark-Mode Feintuning
+   Beta 8.14: NOT wrapped in @media (prefers-color-scheme: dark).
 
-        .badge.badge-glossary,
-        .badge.badge-tool,
-        .badge.badge-guide,
-        .badge.badge-usecase,
-        .badge.badge-prompt,
-        .badge.badge-compare,
-        .card-header-glossary,
-        .card-header-tool,
-        .card-header-guide,
-        .card-header-usecase,
-        .card-header-prompt,
-        .card-header-compare {
-            background-color: color-mix(in oklab, var(--intent) 80%, black);
-            color: white;
-            border-color: color-mix(in oklab, var(--intent) 65%, black);
-        }
+   The base .card-header-* / .alert-* rules above set color: oklch(24% 0 0)
+   (near-black) unconditionally; this block is what restores readable
+   contrast in the dark theme. Gating it on the OS preference meant it only
+   applied when the OS *also* asked for dark - but since Beta 8.3 the theme
+   is an explicit, persisted user choice (localStorage "mentoroai-theme"),
+   so [data-theme="mentoroai-dark"] can be active on a light-preference OS.
+   In that combination the section <h1> rendered oklch(0.24) on an
+   oklch(0.2435) header background - effectively invisible (WCAG 1.4.3
+   failure) on every list page (guides, prompts, use cases, comparisons,
+   tools, glossary), plus the category badges and alerts.
+
+   Keying off [data-theme="mentoroai-dark"] alone also matches the
+   convention this file already uses everywhere else, including the
+   @custom-variant dark definition at the top. */
+[data-theme="mentoroai-dark"] {
+    /* Header/Badge/Alert – kräftigerer Kontrast in Dark */
+
+    .badge.badge-glossary,
+    .badge.badge-tool,
+    .badge.badge-guide,
+    .badge.badge-usecase,
+    .badge.badge-prompt,
+    .badge.badge-compare,
+    .card-header-glossary,
+    .card-header-tool,
+    .card-header-guide,
+    .card-header-usecase,
+    .card-header-prompt,
+    .card-header-compare {
+        background-color: color-mix(in oklab, var(--intent) 80%, black);
+        color: white;
+        border-color: color-mix(in oklab, var(--intent) 65%, black);
     }
 }
 

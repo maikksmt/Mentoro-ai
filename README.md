@@ -54,6 +54,41 @@ If you support this mission, leaving a ⭐ helps others discover the project.
 - **Rich Text:** TinyMCE
 - **Translations:** django-parler
 - **CI/CD:** GitHub Actions
+- **Cache:** Django `DatabaseCache` (table `mentoroai_cache_table`)
+
+---
+
+## 🛠️ Development & Deployment
+
+Common commands (see `docs/mentoroai-cheatsheet.md` for the full list):
+
+```bash
+make test           # full Django test suite with coverage
+make lint           # ruff check .
+make check          # python manage.py check
+make check-deploy   # python manage.py check --deploy
+python manage.py makemigrations --check --dry-run
+```
+
+### Cache table (required in production)
+
+Production uses Django's `DatabaseCache` backend with the table
+`mentoroai_cache_table` (see `mentoroai/settings/base.py`). **The table must
+exist before the cache is first used.** Django creates it automatically only
+in the test setup — never on a normal deploy — so the deployment must run:
+
+```bash
+python manage.py createcachetable
+```
+
+The command is idempotent and safe to run on every deploy. Without it, any
+page relying on the cached public inventory (homepage, global footer) will
+fail. This is not a migration; `manage.py migrate` does **not** create it.
+
+> Note: deployment is triggered by `.github/workflows/deploy.yml`, which runs
+> `~/deploy_mentoroai.sh` on the target host. That script is not part of this
+> repository and therefore cannot be verified here — make sure it contains the
+> `createcachetable` step.
 
 ---
 
@@ -136,6 +171,43 @@ Wenn dir die Mission gefällt, freue ich mich über ein ⭐ Sternchen.
 - **Rich Text:** TinyMCE
 - **Übersetzungen:** django-parler
 - **CI/CD:** GitHub Actions
+- **Cache:** Django `DatabaseCache` (Tabelle `mentoroai_cache_table`)
+
+---
+
+## 🛠️ Entwicklung & Deployment
+
+Häufige Kommandos (vollständige Liste: `docs/mentoroai-cheatsheet.md`):
+
+```bash
+make test           # komplette Django-Testsuite mit Coverage
+make lint           # ruff check .
+make check          # python manage.py check
+make check-deploy   # python manage.py check --deploy
+python manage.py makemigrations --check --dry-run
+```
+
+### Cache-Tabelle (in Produktion erforderlich)
+
+Produktion nutzt Djangos `DatabaseCache` mit der Tabelle
+`mentoroai_cache_table` (siehe `mentoroai/settings/base.py`). **Die Tabelle
+muss vor der ersten Nutzung existieren.** Django legt sie nur im Test-Setup
+automatisch an — nie bei einem normalen Deployment. Das Deployment muss daher
+ausführen:
+
+```bash
+python manage.py createcachetable
+```
+
+Der Befehl ist idempotent und kann bei jedem Deployment laufen. Ohne ihn
+schlagen alle Seiten fehl, die das gecachte Public Inventory nutzen
+(Startseite, globaler Footer). Es handelt sich nicht um eine Migration;
+`manage.py migrate` legt die Tabelle **nicht** an.
+
+> Hinweis: Das Deployment wird über `.github/workflows/deploy.yml` angestoßen
+> und führt `~/deploy_mentoroai.sh` auf dem Zielhost aus. Dieses Skript liegt
+> nicht im Repository und kann hier deshalb nicht geprüft werden — stelle
+> sicher, dass es den `createcachetable`-Schritt enthält.
 
 ---
 
