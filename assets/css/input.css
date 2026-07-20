@@ -339,16 +339,36 @@ html {
     font-size: var(--font-size-root);
 }
 
-/* Smartphones: global kleiner */
-@media (max-width: 640px) {
-    :root {
-        --font-size-root: 13px;
-    }
-}
-
 @media (hover: none) {
     .copy-btn {
         opacity: 0.8 !important;
+    }
+}
+
+/* Beta 9.3: restoring the 16px root baseline means the navbar's six controls
+   (hamburger, brand logo, search, theme toggle, login, language select)
+   together need ~456px - more than fits on any phone in portrait mode, not
+   just the narrowest ones. Two problems compound this below 640px:
+   1) .navbar-start/.navbar-end are DaisyUI defaults fixed at width:50% each,
+      so the hamburger+logo overflowed their 50% share into .navbar-end,
+      visually overlapping the search icon. Sizing both to their content
+      instead (with the row's own space-between) keeps start-content flush
+      left and end-content flush right.
+   2) Even content-sized, the combined row is still wider than the viewport
+      on phones. Letting the row wrap wraps navbar-end onto its own line
+      below navbar-start - every control stays fully visible and reachable,
+      no control is removed or resized, and nothing is redesigned.
+   Desktop (>640px) is untouched - DaisyUI's 50/50 split already fits there
+   and was never affected by the mobile root override. */
+@media (max-width: 640px) {
+    .navbar {
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .navbar-start,
+    .navbar-end {
+        width: auto;
     }
 }
 
