@@ -61,13 +61,13 @@
                 <span class="label-text">{% trans "Only with Free-Tier" %}</span>
             </label>
             <div class="catalog-filter-actions">
-                <button class="btn btn-primary btn-sm md:btn-md"
+                <button class="btn btn-primary btn-sm md:btn-md touch-target"
                         aria-label="{% trans 'Search' %}">
                     {% trans "Search" %}
                 </button>
                 {% if q or free or category %}
                     <a href="."
-                       class="catalog-filter-reset"
+                       class="catalog-filter-reset touch-target"
                        aria-label="{% trans "Reset filters" %}">
                         {% trans "Reset" %}
                     </a>
@@ -218,7 +218,7 @@
                         <div class="flex gap-2 items-center">
                             {% if t.website %}
                                 <a href="{{ t.website }}" target="_blank" rel="nofollow noopener"
-                                   class="btn btn-sm btn-outline">
+                                   class="btn btn-outline">
                                     {% trans "Website" %}{% heroicon_micro "arrow-up-right" %}
                                 </a>
                             {% endif %}

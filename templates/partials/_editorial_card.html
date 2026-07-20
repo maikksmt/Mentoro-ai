@@ -65,6 +65,7 @@
         <div class="editorial-card-action">
             <a href="{{ url }}" class="link link-hover inline-flex items-center gap-1">
                 {{ cta_label|default:default_cta_label }}
+                <span class="sr-only">{% blocktrans %}about {{ title }}{% endblocktrans %}</span>
                 {% heroicon_outline "arrow-right" size=16 %}
             </a>
         </div>

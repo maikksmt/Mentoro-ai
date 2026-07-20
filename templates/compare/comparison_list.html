@@ -35,12 +35,12 @@
             </select>
         </label>
         <div class="flex items-center gap-2 ml-auto">
-            <button class="btn btn-primary btn-sm md:btn-md" aria-label="{% trans 'Search' %}">
+            <button class="btn btn-primary btn-sm md:btn-md touch-target" aria-label="{% trans 'Search' %}">
                 {% trans "Search" %}
             </button>
             {% if q or category %}
                 <a href="."
-                   class="btn btn-ghost btn-sm md:btn-md"
+                   class="btn btn-ghost btn-sm md:btn-md touch-target"
                    aria-label="{% trans "Reset filters" %}">
                     {% trans "Reset" %}
                 </a>

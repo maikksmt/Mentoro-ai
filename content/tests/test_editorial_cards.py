@@ -147,6 +147,23 @@ class EditorialCardStructureTests(TestCase):
         self.assertNotIn("Read details about", card)
         self.assertIn("Read more", card)
 
+    def test_cta_link_accessible_name_includes_the_card_title(self):
+        """Beta 9.9: many cards on the same list page previously all shared
+        the exact same visible+accessible CTA name ("Read more"), which is
+        indistinguishable in a screen reader's links list. The visible text
+        stays "Read more" - only a sr-only span appends the title, so the
+        link's full accessible name becomes distinct per card."""
+        html = self.client.get("/en/guides/").content.decode()
+        card = next(c for c in _extract_cards(html) if "EC Guide" in c)
+        cta_match = re.search(r'<div class="editorial-card-action">.*?</a>', card, re.DOTALL)
+        self.assertIsNotNone(cta_match)
+        cta_html = cta_match.group(0)
+        self.assertIn('<span class="sr-only">about EC Guide</span>', cta_html)
+        # visible text (outside the sr-only span) is still exactly "Read more"
+        visible_text = re.sub(r'<span class="sr-only">.*?</span>', "", cta_html)
+        visible_text = re.sub(r"<[^>]+>", " ", visible_text)
+        self.assertIn("Read more", " ".join(visible_text.split()))
+
     def test_no_forced_ellipsis_when_content_is_not_actually_truncated(self):
         html = self.client.get("/en/prompts/").content.decode()
         card = next(c for c in _extract_cards(html) if "EC Prompt" in c)

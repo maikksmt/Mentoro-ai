@@ -130,7 +130,10 @@ class CatalogFilterFormStructureTests(TestCase):
 
     def test_reset_link_is_a_plain_link_without_role_or_aria_pressed(self):
         html = self._get(q="tool").content.decode()
-        reset = re.search(r'<a[^>]*class="catalog-filter-reset"[^>]*>', html).group(0)
+        # Beta 9.9 added `.touch-target` alongside `.catalog-filter-reset`
+        # for mobile touch sizing - match on the stable class token rather
+        # than the exact class attribute value.
+        reset = re.search(r'<a[^>]*class="[^"]*catalog-filter-reset[^"]*"[^>]*>', html).group(0)
         self.assertNotIn("role=", reset)
         self.assertNotIn("aria-pressed", reset)
         self.assertIn('href="."', reset)
@@ -352,3 +355,37 @@ class GlobalSearchPlaceholderUnaffectedTests(TestCase):
         html = resp.content.decode()
         self.assertIn('id="searchmodal"', html)
         self.assertIn('id="search-open"', html)
+
+
+class CatalogTouchTargetTests(TestCase):
+    """Beta 9.9: the filter Search/Reset controls and a tool card's
+    external Website link were sized below a practical ~40px mobile touch
+    target (DaisyUI's `.btn-sm`/no size modifier). Fixed with the small,
+    scoped `.touch-target` utility (min-height/min-width only) rather than
+    touching `.btn`/`.btn-sm` globally - filter params/semantics untouched."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.cat = make_category(slug="touch-target")
+        cls.tool = make_tool(slug="touch-target-tool", categories=[cls.cat])
+        cls.tool.website = "https://example.com/touch-target-tool"
+        cls.tool.save()
+
+    def test_filter_search_button_has_touch_target_class(self):
+        resp = self.client.get(reverse("catalog:list"))
+        html = resp.content.decode()
+        button = re.search(r'<button class="[^"]*touch-target[^"]*"\s+aria-label="Search">', html)
+        self.assertIsNotNone(button, "catalog filter Search button is missing .touch-target")
+
+    def test_filter_reset_link_has_touch_target_class(self):
+        resp = self.client.get(reverse("catalog:list"), {"q": "x"})
+        html = resp.content.decode()
+        reset = re.search(r'<a\s+href="\."\s+class="catalog-filter-reset touch-target"', html)
+        self.assertIsNotNone(reset, "catalog filter Reset link is missing .touch-target")
+
+    def test_tool_card_website_link_is_not_undersized(self):
+        resp = self.client.get(reverse("catalog:list"))
+        html = resp.content.decode()
+        website = re.search(r'<a href="https://example\.com/touch-target-tool"[^>]*class="([^"]*)"', html)
+        self.assertIsNotNone(website)
+        self.assertNotIn("btn-sm", website.group(1))

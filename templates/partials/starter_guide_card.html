@@ -12,12 +12,12 @@
         </p>
         <div class="card-actions justify-between mt-4">
             {% if start_guide_url %}
-                <a href="{{ start_guide_url }}" class="btn btn-primary" role="button" aria-pressed="false"
+                <a href="{{ start_guide_url }}" class="btn btn-primary"
                    aria-label="{% trans "Open the Starter Guide" %}">{% trans "Open the Starter Guide" %}</a>
             {% else %}
                 <span class="btn btn-disabled">{% trans "Open the Starter Guide" %}</span>
             {% endif %}
-            <a href="{% url 'catalog:list' %}" class="btn btn-outline" role="button" aria-pressed="false"
+            <a href="{% url 'catalog:list' %}" class="btn btn-outline"
                aria-label="{% trans "Browse beginner-friendly tools" %}">
                 {% blocktrans %}Browse beginner-friendly tools{% endblocktrans %}
             </a>
