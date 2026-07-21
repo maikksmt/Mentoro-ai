@@ -10,13 +10,14 @@ from django.core.cache import cache
 from django.db.models import Count, IntegerField, Q, QuerySet, Value
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import strip_tags
 from django.utils.translation import get_language, override
 from parler.utils.context import switch_language
 from reversion.models import Version
 
 from catalog.models import Category, Tool
 from compare.models import Comparison
+from core.projections import public_content_url, public_content_value
+from core.text import visible_text
 from guides.models import Guide
 from prompts.models import Prompt
 from usecases.models import UseCase
@@ -539,36 +540,17 @@ def _public_teaser_value(obj, field: str, language_code: str | None = None) -> s
     translated field ("title", "intro", "body", ...) - never the raw,
     possibly draft-in-progress translation.
 
-    Reads live_i18n[language_code] directly rather than delegating to the
-    model's own get_live_value()/get_display_value(): those have their own
-    cross-language fallback (silently returning ANOTHER language's live
-    snapshot value if language_code's own entry is missing), which is the
-    right behavior for their existing callers but not for a language-
-    explicit public teaser. Uniform across all four editorial models this
-    way, including Comparison, which has no get_display_value()/display_*
-    properties at all (a separate, documented, unfixed model gap - see
-    Beta 8.10a report).
-
-    A missing live snapshot only falls back to the current translation if
-    that translation genuinely exists in language_code (has_translation()
-    guard, called with an explicit safe_translation_getter(language_code=)
-    rather than switch_language(), since Parler's own use_fallback=True
-    default would otherwise silently substitute a different language).
+    Beta 10.4: the rule itself now lives in core.projections, so the search
+    adapters can reuse it (and its database-expression twin) without
+    importing a private helper. This wrapper only resolves the ambient
+    language for the existing teaser call sites, which may omit it; the
+    public API requires the language explicitly. An unresolvable language
+    keeps returning "" rather than raising, matching prior behavior.
     """
     lang = language_code or get_language()
-
-    live = getattr(obj, "live_i18n", None) or {}
-    live_value = (live.get(lang) or {}).get(field)
-    if live_value:
-        return live_value
-
-    has_translation = getattr(obj, "has_translation", None)
-    if callable(has_translation) and not has_translation(lang):
+    if not lang:
         return ""
-    getter = getattr(obj, "safe_translation_getter", None)
-    if callable(getter):
-        return getter(field, language_code=lang) or ""
-    return getattr(obj, field, "") or ""
+    return public_content_value(obj, field, language_code=lang)
 
 
 def _public_teaser_url(obj, kind: str, language_code: str | None = None) -> str:
@@ -587,28 +569,42 @@ def _public_teaser_url(obj, kind: str, language_code: str | None = None) -> str:
     branch here (which duplicated that same logic at this one call site
     because the model method didn't do it yet) is gone; every kind now
     goes through the same, single code path.
+
+    Beta 10.4: delegates to core.projections.public_content_url, shared with
+    the search adapters.
     """
     lang = language_code or get_language()
-    return obj.get_absolute_url(language=lang)
+    if not lang:
+        return obj.get_absolute_url()
+    return public_content_url(obj, language_code=lang)
 
 
-def teaser_for_guide(g: Guide, limit: int = 160, language_code: str | None = None) -> str:
+def teaser_for_guide(g: Guide, language_code: str | None = None) -> str:
     """
-    Builds a compact teaser dict (title, short text, URL, date, meta) for a Guide;
-    normalizes text (strip HTML) for consistent list UIs.
+    Returns the full visible-text intro/body for a Guide, for the editorial
+    card to shorten.
+
+    Beta 10.9 correction: this used to pre-cut the text itself with
+    ``strip_tags(src)[:160]`` - a blind slice with no word-boundary check and
+    no "..." marker, and ``strip_tags`` glues adjacent block elements
+    together ("moechten.Erfahre") instead of leaving a space. Both defects
+    then reached the browser untouched, because the card's own `summarize`
+    filter only shortens text that is still over its length limit - text
+    already cut to 160 characters never was. Returning the plain, complete
+    text here and letting the card be the single place that shortens it
+    (core.text.summarize_html, via the `summarize` template filter) is what
+    Beta 10.9 already does for every other editorial card; this closes the
+    one remaining path that duplicated the cut instead of sharing it.
     """
     src = (
         _public_teaser_value(g, "intro", language_code)
         or _public_teaser_value(g, "body", language_code)
     )
-    return (strip_tags(src) or "")[:limit]
+    return visible_text(src)
 
 
-def teaser_for_prompt(p: Prompt, limit: int = 160, language_code: str | None = None) -> str:
-    """
-    Teaser builder for a Prompt;
-    generates a concise, HTML-safe summary suitable for cards and feeds.
-    """
+def teaser_for_prompt(p: Prompt, language_code: str | None = None) -> str:
+    """Teaser builder for a Prompt - see teaser_for_guide for the rationale."""
     ex = ""
     examples = getattr(p, "examples", None)
     if isinstance(examples, (list, tuple)):
@@ -622,27 +618,22 @@ def teaser_for_prompt(p: Prompt, limit: int = 160, language_code: str | None = N
     )
 
     src = ex or body
-    return (strip_tags(src) or "")[:limit]
+    return visible_text(src)
 
 
-def teaser_for_usecase(u: UseCase, limit: int = 160, language_code: str | None = None) -> str:
-    """
-    Teaser builder for a UseCase;
-    aligns the structure with Guides/Prompts so frontends can render all three uniformly.
-    """
+def teaser_for_usecase(u: UseCase, language_code: str | None = None) -> str:
+    """Teaser builder for a UseCase - see teaser_for_guide for the rationale."""
     src = _public_teaser_value(u, "intro", language_code)
-    return (strip_tags(src) or "")[:limit]
+    return visible_text(src)
 
 
-def teaser_for_comparison(c: Comparison, limit: int = 160, language_code: str | None = None) -> str:
-    """
-    Builds a compact teaser text for a Comparison.
-    """
+def teaser_for_comparison(c: Comparison, language_code: str | None = None) -> str:
+    """Teaser builder for a Comparison - see teaser_for_guide for the rationale."""
     src = (
         _public_teaser_value(c, "intro", language_code)
         or _public_teaser_value(c, "body", language_code)
     )
-    return (strip_tags(src) or "")[:limit]
+    return visible_text(src)
 
 
 def to_teaser_item(obj, kind: str, language_code: str | None = None) -> Dict[str, Any]:

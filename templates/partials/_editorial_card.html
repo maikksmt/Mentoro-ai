@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n text_extras %}
 {% trans "Read more" as default_cta_label %}
 <article class="editorial-card h-full focus-within:ring-2 focus-within:ring-primary/30">
     <div class="editorial-card-body">
@@ -8,7 +8,7 @@
             {% elif kind == "prompt" %}
                 <span class="badge badge-prompt">{% trans "Prompt" %}</span>
             {% elif kind == "usecase" %}
-                <span class="badge badge-usecase">{% trans "Usecase" %}</span>
+                <span class="badge badge-usecase">{% trans "Use case" %}</span>
             {% elif kind == "comparison" %}
                 <span class="badge badge-compare">{% trans "Comparison" %}</span>
             {% elif kind == "tool" %}
@@ -36,9 +36,17 @@
             <p class="editorial-card-extra">{% trans "Persona:" %} {{ persona }}</p>
         {% endif %}
 
-        {% if intro %}
-            <div class="editorial-card-intro line-clamp-4">{{ intro }}</div>
-        {% endif %}
+        {% comment %}
+            The intro is shortened here, once, for every content type. It is
+            deliberately not clamped with line-clamp on top: a CSS clamp cuts
+            wherever the line happens to end, which would put a second cut
+            mid-word behind the word-boundary cut the summary already made.
+        {% endcomment %}
+        {% with intro_summary=intro|summarize %}
+            {% if intro_summary %}
+                <div class="editorial-card-intro break-words">{{ intro_summary }}</div>
+            {% endif %}
+        {% endwith %}
 
         {% if tools %}
             <div class="editorial-card-extra">

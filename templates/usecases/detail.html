@@ -106,7 +106,7 @@
                 <h2 class="section-title mb-4">{% trans "Similar use cases" %}</h2>
                 <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {% for item in similar %}
-                        {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
+                        {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser %}
                     {% endfor %}
                 </div>
             </section>

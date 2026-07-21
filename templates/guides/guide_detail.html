@@ -53,7 +53,7 @@
                 <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {% for item in section.items.all %}
                         {% if item.is_published %}
-                            {% include "partials/_editorial_card.html" with url=item.get_url title=item.get_title kind=item.kind intro=item.get_teaser|richtext|safe|truncatewords_html:30 %}
+                            {% include "partials/_editorial_card.html" with url=item.get_url title=item.get_title kind=item.kind intro=item.get_teaser %}
                         {% endif %}
                     {% endfor %}
                 </div>
@@ -65,7 +65,7 @@
                 <h2 class="section-title mb-4">{% trans "Related Guides" %}</h2>
                 <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {% for item in related_guides %}
-                        {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
+                        {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser %}
                     {% endfor %}
                 </div>
             </section>

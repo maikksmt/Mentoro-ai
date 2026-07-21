@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-20 22:51+0200\n"
+"POT-Creation-Date: 2026-07-21 17:06+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -306,18 +306,18 @@ msgstr ""
 msgid "Tool comparison entries"
 msgstr ""
 
-#: compare/views.py:119 templates/compare/comparison_list.html:6
+#: compare/views.py:182 templates/compare/comparison_list.html:6
 msgid "AI tool comparisons"
 msgstr ""
 
-#: compare/views.py:121 templates/compare/comparison_list.html:8
+#: compare/views.py:184 templates/compare/comparison_list.html:8
 msgid ""
 "Side-by-side comparisons of AI tools to help you understand strengths, "
 "weaknesses and special features."
 msgstr ""
 
-#: compare/views.py:141 compare/views.py:262 templates/base.html:139
-#: templates/base.html:171 templates/base.html:273
+#: compare/views.py:204 compare/views.py:325 search/presentation.py:37
+#: templates/base.html:139 templates/base.html:171 templates/base.html:280
 #: templates/content/home.html:57 templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:85
 msgid "Comparisons"
@@ -589,14 +589,16 @@ msgstr ""
 msgid "Shown first in the guide list and used as the homepage starter CTA."
 msgstr ""
 
-#: guides/models.py:70 templates/partials/_editorial_card.html:7
+#: guides/models.py:70 search/presentation.py:31
+#: templates/partials/_editorial_card.html:7
 msgid "Guide"
 msgstr ""
 
 #: guides/models.py:71 guides/views.py:112 guides/views.py:194
-#: templates/base.html:123 templates/base.html:155 templates/base.html:270
-#: templates/content/home.html:54 templates/content/what-to-find.html:32
-#: templates/guides/guide_list.html:7 templates/partials/_entry_cards.html:33
+#: search/presentation.py:31 templates/base.html:123 templates/base.html:155
+#: templates/base.html:277 templates/content/home.html:54
+#: templates/content/what-to-find.html:32 templates/guides/guide_list.html:7
+#: templates/partials/_entry_cards.html:33
 msgid "Guides"
 msgstr ""
 
@@ -658,7 +660,7 @@ msgstr ""
 msgid "Reason (optional)"
 msgstr ""
 
-#: newsletter/views.py:21 templates/base.html:322
+#: newsletter/views.py:21 templates/base.html:329
 msgid "Newsletter"
 msgstr ""
 
@@ -717,15 +719,16 @@ msgstr ""
 msgid "Select the AI tool for which this prompt has been optimized."
 msgstr ""
 
-#: prompts/models.py:45 prompts/views.py:183
+#: prompts/models.py:45 prompts/views.py:183 search/presentation.py:32
 #: templates/partials/_editorial_card.html:9
 #: templates/prompts/prompt_detail.html:43
 msgid "Prompt"
 msgstr ""
 
 #: prompts/models.py:46 prompts/views.py:105 prompts/views.py:182
-#: templates/base.html:127 templates/base.html:159 templates/base.html:271
-#: templates/content/home.html:55 templates/content/what-to-find.html:33
+#: search/presentation.py:32 templates/base.html:127 templates/base.html:159
+#: templates/base.html:278 templates/content/home.html:55
+#: templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:46 templates/prompts/prompt_list.html:6
 msgid "Prompts"
 msgstr ""
@@ -738,6 +741,99 @@ msgstr ""
 msgid ""
 "Browse ready-made AI prompts for writing, coding, learning, marketing and "
 "more."
+msgstr ""
+
+#: search/presentation.py:30 templates/partials/_editorial_card.html:15
+msgid "Tool"
+msgstr ""
+
+#: search/presentation.py:30 templates/base.html:135 templates/base.html:167
+#: templates/base.html:276 templates/content/what-to-find.html:35
+#: templates/partials/_editorial_card.html:55
+#: templates/partials/_entry_cards.html:72
+msgid "Tools"
+msgstr ""
+
+#: search/presentation.py:34 templates/partials/_editorial_card.html:11
+#: usecases/views.py:201
+msgid "Use case"
+msgstr ""
+
+#: search/presentation.py:34 templates/base.html:131 templates/base.html:163
+#: templates/base.html:279 templates/partials/_entry_cards.html:59
+msgid "Use cases"
+msgstr ""
+
+#: search/presentation.py:37 templates/partials/_editorial_card.html:13
+msgid "Comparison"
+msgstr ""
+
+#: search/templates/search/results.html:7 search/views.py:84
+msgid "Search Mentoro AI"
+msgstr ""
+
+#: search/templates/search/results.html:9 search/views.py:86
+msgid "Find practical AI tools, guides, prompts, use cases, and comparisons."
+msgstr ""
+
+#: search/templates/search/results.html:24
+msgid "What are you looking for?"
+msgstr ""
+
+#: search/templates/search/results.html:35 templates/base.html:186
+#: templates/catalog/tool_list.html:43 templates/catalog/tool_list.html:65
+#: templates/catalog/tool_list.html:66
+#: templates/compare/comparison_list.html:38
+#: templates/compare/comparison_list.html:39
+msgid "Search"
+msgstr ""
+
+#: search/templates/search/results.html:42
+msgid "Search is temporarily unavailable."
+msgstr ""
+
+#: search/templates/search/results.html:43
+msgid "Please try again in a moment."
+msgstr ""
+
+#: search/templates/search/results.html:49
+msgid "Enter at least 2 characters to search across Mentoro AI."
+msgstr ""
+
+#: search/templates/search/results.html:53
+msgid "Enter a search term."
+msgstr ""
+
+#: search/templates/search/results.html:56
+msgid "Enter at least 2 characters."
+msgstr ""
+
+#: search/templates/search/results.html:59
+msgid "Use no more than 100 characters."
+msgstr ""
+
+#: search/templates/search/results.html:64
+#, python-format
+msgid "No results for “%(query)s”"
+msgstr ""
+
+#: search/templates/search/results.html:67
+msgid "Try another search term or use fewer words."
+msgstr ""
+
+#: search/templates/search/results.html:73
+msgid "Search results"
+msgstr ""
+
+#: search/templates/search/results.html:76
+#, python-format
+msgid "%(counter)s result for “%(query)s”"
+msgid_plural "%(counter)s results for “%(query)s”"
+msgstr[0] ""
+msgstr[1] ""
+
+#: search/templates/search/results.html:79
+msgid "Results by type"
 msgstr ""
 
 #: templates/400.html:5
@@ -1074,7 +1170,7 @@ msgstr ""
 
 #: templates/account/login.html:4 templates/account/login.html:103
 #: templates/account/password_reset_from_key_done.html:23
-#: templates/base.html:205 templates/partials/author_info_card.html:55
+#: templates/base.html:213 templates/partials/author_info_card.html:55
 msgid "Login"
 msgstr ""
 
@@ -1123,7 +1219,7 @@ msgid "Create a free account"
 msgstr ""
 
 #: templates/account/logout.html:4 templates/account/logout.html:20
-#: templates/account/logout.html:32 templates/base.html:202
+#: templates/account/logout.html:32 templates/base.html:210
 msgid "Logout"
 msgstr ""
 
@@ -1442,96 +1538,77 @@ msgstr ""
 msgid "Mobile menu"
 msgstr ""
 
-#: templates/base.html:119 templates/base.html:151 templates/base.html:274
+#: templates/base.html:119 templates/base.html:151 templates/base.html:281
 #: templates/content/what-to-find.html:31
 #: templates/partials/_entry_cards.html:21
 msgid "Glossary"
 msgstr ""
 
-#: templates/base.html:131 templates/base.html:163 templates/base.html:272
-#: templates/partials/_entry_cards.html:59
-msgid "Use cases"
-msgstr ""
-
-#: templates/base.html:135 templates/base.html:167 templates/base.html:269
-#: templates/content/what-to-find.html:35
-#: templates/partials/_editorial_card.html:46
-#: templates/partials/_entry_cards.html:72
-msgid "Tools"
-msgstr ""
-
-#: templates/base.html:178 templates/catalog/tool_list.html:43
-#: templates/catalog/tool_list.html:65 templates/catalog/tool_list.html:66
-#: templates/compare/comparison_list.html:38
-#: templates/compare/comparison_list.html:39
-msgid "Search"
-msgstr ""
-
-#: templates/base.html:187
+#: templates/base.html:195
 msgid "Toggle theme"
 msgstr ""
 
-#: templates/base.html:212
+#: templates/base.html:220
 msgid "Language select"
 msgstr ""
 
-#: templates/base.html:241
+#: templates/base.html:248
 msgid "Dashboard"
 msgstr ""
 
-#: templates/base.html:244
+#: templates/base.html:251
 msgid "Admin Panel"
 msgstr ""
 
-#: templates/base.html:246 templates/content/editorial/my_content.html:9
+#: templates/base.html:253 templates/content/editorial/my_content.html:9
 msgid "My Content"
 msgstr ""
 
-#: templates/base.html:249
+#: templates/base.html:256
 msgid "Reviews"
 msgstr ""
 
-#: templates/base.html:267
+#: templates/base.html:274
 msgid "Explore"
 msgstr ""
 
-#: templates/base.html:281
+#: templates/base.html:288
 msgid "Browse categories"
 msgstr ""
 
-#: templates/base.html:292 templates/partials/_editorial_card.html:20
+#: templates/base.html:299 templates/partials/_editorial_card.html:20
 msgid "Start here"
 msgstr ""
 
-#: templates/base.html:301 templates/partials/_entry_cards.html:13
+#: templates/base.html:308 templates/partials/_entry_cards.html:13
 msgid "What can I find on MentoroAI?"
 msgstr ""
 
-#: templates/base.html:307
+#: templates/base.html:314
 msgid "Legal"
 msgstr ""
 
-#: templates/base.html:309
+#: templates/base.html:316
 msgid "Legal notice"
 msgstr ""
 
-#: templates/base.html:310 templates/base.html:335
+#: templates/base.html:317 templates/base.html:342
 msgid "Privacy policy"
 msgstr ""
 
-#: templates/base.html:313
+#: templates/base.html:320
 msgid "Cookie-Settings"
 msgstr ""
 
-#: templates/base.html:314 templates/legal/terms_of_use.html:10
+#: templates/base.html:321 templates/legal/terms_of_use.html:10
 msgid "Terms of Use"
 msgstr ""
 
-#: templates/base.html:315
+#: templates/base.html:322
 msgid "Copyright"
 msgstr ""
 
-#: templates/base.html:331
+#: templates/base.html:338
 msgid ""
 "\n"
 "                    We only use your data to run MentoroAI and improve our "
@@ -3639,19 +3716,6 @@ msgstr ""
 msgid "Read more"
 msgstr ""
 
-#: templates/partials/_editorial_card.html:11 usecases/models.py:51
-#: usecases/views.py:201
-msgid "Usecase"
-msgstr ""
-
-#: templates/partials/_editorial_card.html:13
-msgid "Comparison"
-msgstr ""
-
-#: templates/partials/_editorial_card.html:15
-msgid "Tool"
-msgstr ""
-
 #: templates/partials/_editorial_card.html:17
 msgid "Link"
 msgstr ""
@@ -3664,11 +3728,11 @@ msgstr ""
 msgid "Persona:"
 msgstr ""
 
-#: templates/partials/_editorial_card.html:61
+#: templates/partials/_editorial_card.html:70
 msgid "from"
 msgstr ""
 
-#: templates/partials/_editorial_card.html:68
+#: templates/partials/_editorial_card.html:77
 #, python-format
 msgid "about %(title)s"
 msgstr ""
@@ -3984,27 +4048,15 @@ msgid ""
 msgstr ""
 
 #: templates/partials/features_open.html:69
-#: templates/partials/search_open.html:11
 msgid "Close"
 msgstr ""
 
 #: templates/partials/features_open.html:77
-#: templates/partials/search_open.html:16
 msgid "Close modal"
 msgstr ""
 
 #: templates/partials/pagination.html:3
 msgid "Pagination"
-msgstr ""
-
-#: templates/partials/search_open.html:5
-msgid "Search is coming soon"
-msgstr ""
-
-#: templates/partials/search_open.html:7
-msgid ""
-"We're preparing a unified search across tools, guides, prompts, use cases, "
-"and comparisons."
 msgstr ""
 
 #: templates/partials/starter_guide_card.html:7
@@ -4113,6 +4165,10 @@ msgstr ""
 
 #: usecases/models.py:43
 msgid "Persona"
+msgstr ""
+
+#: usecases/models.py:51
+msgid "Usecase"
 msgstr ""
 
 #: usecases/views.py:89

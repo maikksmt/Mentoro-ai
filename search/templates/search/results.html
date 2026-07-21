@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load i18n search_extras %}
+
+{% block content %}
+    <section class="container mx-auto home-section">
+        <header class="mb-3">
+            <h1 class="page-title">{% trans "Search Mentoro AI" %}</h1>
+            <p class="page-lead text-base-content/80 mt-2">
+                {% trans "Find practical AI tools, guides, prompts, use cases, and comparisons." %}
+            </p>
+        </header>
+
+        {% comment %}
+            Wrapping flex row, the same shape the catalog and comparison
+            filter forms use: side by side when there is room, stacked when
+            there is not - without adding a single class the stylesheet does
+            not already carry.
+        {% endcomment %}
+        <form role="search" method="get" action="{% url 'search:results' %}"
+              class="py-2 md:py-4 flex flex-wrap items-end gap-3 md:gap-4">
+            <div class="flex-1 min-w-[220px]">
+                <label for="search-input" class="block mb-1 text-sm font-medium">
+                    {% trans "What are you looking for?" %}
+                </label>
+                <input type="search"
+                       id="search-input"
+                       name="q"
+                       value="{{ query_value }}"
+                       maxlength="100"
+                       class="input w-full"
+                       {% if not search_response or not search_response.query.is_searchable %}autofocus{% endif %}>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm md:btn-md touch-target">
+                {% trans "Search" %}
+            </button>
+        </form>
+
+        {% if search_failed %}
+            <div role="alert" class="alert alert-error my-6">
+                <div>
+                    <p class="font-semibold">{% trans "Search is temporarily unavailable." %}</p>
+                    <p>{% trans "Please try again in a moment." %}</p>
+                </div>
+            </div>
+
+        {% elif not has_query_parameter %}
+            <p class="my-6 text-base-content/80">
+                {% trans "Enter at least 2 characters to search across Mentoro AI." %}
+            </p>
+
+        {% elif search_response.query.issue == "empty" %}
+            <p class="my-6 text-base-content/80">{% trans "Enter a search term." %}</p>
+
+        {% elif search_response.query.issue == "too_short" %}
+            <p class="my-6 text-base-content/80">{% trans "Enter at least 2 characters." %}</p>
+
+        {% elif search_response.query.issue == "too_long" %}
+            <p class="my-6 text-base-content/80">{% trans "Use no more than 100 characters." %}</p>
+
+        {% elif search_response.is_empty %}
+            <div class="my-6">
+                <p class="font-semibold">
+                    {% blocktrans with query=search_response.query.value %}No results for “{{ query }}”{% endblocktrans %}
+                </p>
+                <p class="text-base-content/80">
+                    {% trans "Try another search term or use fewer words." %}
+                </p>
+            </div>
+
+        {% else %}
+            <section aria-labelledby="search-results-heading" class="my-6">
+                <h2 id="search-results-heading" class="section-title">{% trans "Search results" %}</h2>
+
+                <p role="status" class="mt-2 text-base-content/80">
+                    {% blocktrans count counter=search_response.total_count with query=search_response.query.value %}{{ counter }} result for “{{ query }}”{% plural %}{{ counter }} results for “{{ query }}”{% endblocktrans %}
+                </p>
+
+                <h3 class="sr-only">{% trans "Results by type" %}</h3>
+                <ul class="flex flex-wrap gap-2 my-4">
+                    {% for entry in search_response.counts %}
+                        <li>
+                            <span class="badge {% search_kind_badge_class entry.kind %}">
+                                {% search_kind_plural_label entry.kind %}: {{ entry.count }}
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <ol class="flex flex-col gap-4">
+                    {% for result in search_response.results %}
+                        <li>
+                            <article aria-labelledby="search-result-{{ result.kind }}-{{ result.object_id }}"
+                                     class="editorial-card">
+                                <div class="editorial-card-body">
+                                    <div class="editorial-card-meta">
+                                        <span class="badge {% search_kind_badge_class result.kind %}">
+                                            {% search_kind_label result.kind %}
+                                        </span>
+                                    </div>
+                                    <h3 id="search-result-{{ result.kind }}-{{ result.object_id }}"
+                                        class="editorial-card-title break-words">
+                                        <a href="{{ result.url }}" class="link link-hover">{{ result.title }}</a>
+                                    </h3>
+                                    {% if result.summary %}
+                                        <p class="editorial-card-intro break-words">{{ result.summary }}</p>
+                                    {% endif %}
+                                </div>
+                            </article>
+                        </li>
+                    {% endfor %}
+                </ol>
+            </section>
+        {% endif %}
+    </section>
+{% endblock %}

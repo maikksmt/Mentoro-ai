@@ -173,15 +173,22 @@
         </ul>
     </div>
     <div class="navbar-end">
-        <!-- Search -->
-        <button type="button" id="search-open" class="btn btn-ghost btn-circle" aria-haspopup="dialog"
-                aria-controls="searchmodal" aria-label="{% trans "Search" %}">
+        {% comment %}
+            This control sits in navbar-end, which carries no lg: prefix, so it
+            is the search entry point on desktop and on mobile alike. Replacing
+            it in place is what keeps that true - adding a second entry to the
+            mobile dropdown would give small screens two ways in.
+        {% endcomment %}
+        <a href="{% url 'search:results' %}" id="global-search-link"
+           {% if nav_active_section == "search" %}aria-current="page"{% endif %}
+           class="btn btn-ghost btn-circle global-nav-item{% if nav_active_section == "search" %} btn-active{% endif %}"
+           aria-label="{% trans "Search" %}">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor" aria-hidden="true" focusable="false">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
-        </button>
+        </a>
         <!-- Theme Swap -->
         <label class="swap swap-rotate theme-swap btn btn-ghost btn-circle mx-2">
             <input type="checkbox" aria-label="{% trans 'Toggle theme' %}"/>
@@ -233,7 +240,6 @@
     </div>
 </div>
 <div id="mobile-nav-scrim" class="fixed inset-0 bg-black/40 lg:hidden" aria-hidden="true"></div>
-{% include "partials/search_open.html" %}
 <!-- Admin NAV -->
 {% if request.user.is_authenticated %}
     <div class="w-full flex justify-end items-center gap-2 px-4 pt-2 text-sm">
@@ -553,28 +559,13 @@
         });
     })();
 
-    // --- Search placeholder dialog: open + focus restore ---
-    (function () {
-        const openBtn = document.getElementById('search-open');
-        const dialog = document.getElementById('searchmodal');
-        if (!openBtn || !dialog) return;
-
-        openBtn.addEventListener('click', () => {
-            dialog.showModal();
-        });
-
-        dialog.addEventListener('close', () => {
-            openBtn.focus();
-        });
-    })();
-
     // --- Roadmap dialog: focus restore (Beta 9.9). The trigger button
     // (templates/content/home.html) already opens it via a plain
     // `onclick="featuresmodal.showModal()"` and is only ever present on the
-    // homepage, so this mirrors the search dialog's close->focus pattern
-    // instead of adding a new click listener; the native `close` event
-    // already fires for Escape, backdrop click and the in-dialog Close
-    // button alike. No-ops on any page without the dialog. ---
+    // homepage, so restoring focus on close is all that is left to do here;
+    // the native `close` event already fires for Escape, backdrop click and
+    // the in-dialog Close button alike. No-ops on any page without the
+    // dialog. ---
     (function () {
         const dialog = document.getElementById('featuresmodal');
         if (!dialog) return;

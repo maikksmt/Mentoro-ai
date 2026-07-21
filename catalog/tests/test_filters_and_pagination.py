@@ -17,6 +17,7 @@ on real HTTP/query-string behaviour.
 import re
 from html.parser import HTMLParser
 
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone, translation
@@ -88,7 +89,39 @@ def make_category(*, slug):
     return c
 
 
-class CatalogFilterFormStructureTests(TestCase):
+class CatalogUITestCase(TestCase):
+    """
+    Restores the ambient language after each test.
+
+    ``self.client.get()`` runs LocaleMiddleware, which activates the language
+    of the request and never deactivates it again. The assertions below are
+    written against the English UI copy, so whichever language the previously
+    scheduled test happened to request stays active and decides whether they
+    pass - which is why they failed under ``--shuffle`` on some seeds and not
+    on others.
+
+    Activating on the way *in* is what actually fixes it. Cleaning up on the
+    way out only disciplines this module, while the language that broke these
+    tests is activated by an entirely different one - catalog's own
+    test_language_fallback requests /de/ pages. These tests build their URLs
+    with ``reverse()``, which reads the active language to pick the i18n
+    prefix, so a leaked "de" sends them to the German page and every English
+    assertion fails. Declaring the language here makes them independent of
+    whatever ran before.
+
+    The language is *activated*, not deactivated: ``deactivate_all()`` leaves
+    no active language at all, and parler refuses to build a translated model
+    without one, so the next class's ``setUpTestData`` dies with
+    "language_code can't be null".
+    """
+
+    def setUp(self):
+        super().setUp()
+        translation.activate(settings.LANGUAGE_CODE)
+        self.addCleanup(translation.activate, settings.LANGUAGE_CODE)
+
+
+class CatalogFilterFormStructureTests(CatalogUITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.cat = make_category(slug="filter-struct")
@@ -139,7 +172,7 @@ class CatalogFilterFormStructureTests(TestCase):
         self.assertIn('href="."', reset)
 
 
-class CatalogActiveFiltersTests(TestCase):
+class CatalogActiveFiltersTests(CatalogUITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.cat = make_category(slug="active-filter")
@@ -194,7 +227,7 @@ class CatalogActiveFiltersTests(TestCase):
         self.assertIsNotNone(clear_all)
 
 
-class CatalogResultsSummaryAndEmptyStateTests(TestCase):
+class CatalogResultsSummaryAndEmptyStateTests(CatalogUITestCase):
     @classmethod
     def setUpTestData(cls):
         make_tool(slug="summary-tool-1")
@@ -230,7 +263,7 @@ class CatalogResultsSummaryAndEmptyStateTests(TestCase):
         self.assertIn("0 tools found", html)
 
 
-class PaginationQueryPreservationTests(TestCase):
+class PaginationQueryPreservationTests(CatalogUITestCase):
     """Catalog has enough tools to force a second page; the pagination
     partial must preserve q/category/free and replace (not duplicate)
     page."""
@@ -294,7 +327,7 @@ class PaginationQueryPreservationTests(TestCase):
         self.assertNotIn("<button", segment)
 
 
-class ComparisonListPaginationRegressionTests(TestCase):
+class ComparisonListPaginationRegressionTests(CatalogUITestCase):
     """Beta 9.8 bug fix: comparison_list.html passed its search term to the
     shared pagination partial under the context name `q`, but the partial
     reads `query` - so pagination silently dropped the active search term
@@ -329,7 +362,7 @@ class ComparisonListPaginationRegressionTests(TestCase):
         self.assertNotIn("aria-pressed", reset)
 
 
-class OtherPaginatedListsUnaffectedTests(TestCase):
+class OtherPaginatedListsUnaffectedTests(CatalogUITestCase):
     """Guides/prompts/usecases have no filters at all - the shared
     partial must keep paginating them correctly with only `page` set."""
 
@@ -349,15 +382,21 @@ class OtherPaginatedListsUnaffectedTests(TestCase):
         self.assertEqual(href, "?page=2")
 
 
-class GlobalSearchPlaceholderUnaffectedTests(TestCase):
-    def test_global_search_dialog_structure_is_untouched(self):
-        resp = self.client.get("/en/")
-        html = resp.content.decode()
-        self.assertIn('id="searchmodal"', html)
-        self.assertIn('id="search-open"', html)
+class GlobalSearchUnaffectedTests(CatalogUITestCase):
+    """The catalog's own filter form and the global search are separate
+    controls; neither slice may absorb the other."""
+
+    def test_global_search_link_is_present_and_distinct_from_the_filter_form(self):
+        html = self.client.get("/en/catalog/").content.decode()
+        self.assertIn('id="global-search-link"', html)
+        self.assertIn('href="/en/search/"', html)
+        # The catalog form still filters the catalog, not the whole site.
+        form = re.search(r'<form[^>]*catalog-filter.*?</form>', html, re.DOTALL)
+        self.assertIsNotNone(form, "catalog filter form not found")
+        self.assertNotIn("/en/search/", form.group(0))
 
 
-class CatalogTouchTargetTests(TestCase):
+class CatalogTouchTargetTests(CatalogUITestCase):
     """Beta 9.9: the filter Search/Reset controls and a tool card's
     external Website link were sized below a practical ~40px mobile touch
     target (DaisyUI's `.btn-sm`/no size modifier). Fixed with the small,
