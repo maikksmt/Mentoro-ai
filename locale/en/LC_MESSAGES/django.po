@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-20 22:51+0200\n"
+"POT-Creation-Date: 2026-07-21 10:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -306,17 +306,17 @@ msgstr ""
 msgid "Tool comparison entries"
 msgstr ""
 
-#: compare/views.py:119 templates/compare/comparison_list.html:6
+#: compare/views.py:182 templates/compare/comparison_list.html:6
 msgid "AI tool comparisons"
 msgstr ""
 
-#: compare/views.py:121 templates/compare/comparison_list.html:8
+#: compare/views.py:184 templates/compare/comparison_list.html:8
 msgid ""
 "Side-by-side comparisons of AI tools to help you understand strengths, "
 "weaknesses and special features."
 msgstr ""
 
-#: compare/views.py:141 compare/views.py:262 templates/base.html:139
+#: compare/views.py:204 compare/views.py:325 templates/base.html:139
 #: templates/base.html:171 templates/base.html:273
 #: templates/content/home.html:57 templates/content/what-to-find.html:36
 #: templates/partials/_entry_cards.html:85
