@@ -49,6 +49,15 @@ class Prompt(EditorialWorkflowMixin, TranslatableModel):
         return self.safe_translation_getter("title", any_language=True) or f"Prompt #{self.pk}"
 
     def _current_values_for(self, lang: str) -> dict:
+        """
+        Nur als Legacy-Fallback verwendet, wenn kein Snapshot existiert -
+        deshalb ausschließlich dieselbe Sprache: has_translation(lang) muss
+        zuerst geprüft werden, da safe_translation_getter() sonst über
+        Parlers eigenen (PARLER_LANGUAGES-)Fallback stillschweigend eine
+        andere Sprache liefern würde.
+        """
+        if not self.has_translation(lang):
+            return {}
         with switch_language(self, lang):
             get = self.safe_translation_getter
             return {
@@ -62,7 +71,7 @@ class Prompt(EditorialWorkflowMixin, TranslatableModel):
 
     def get_display_value(self, field: str, language: str | None = None):
         val = self.get_live_value(field, language)
-        if val:
+        if val is not None:
             return val
         lang = language or get_language()
         return self._current_values_for(lang).get(field)

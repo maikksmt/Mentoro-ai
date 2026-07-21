@@ -8,6 +8,42 @@ from parler.managers import TranslatableManager, TranslatableQuerySet
 from parler.utils.context import switch_language
 
 
+def get_snapshot_field(
+    snapshot: dict | None,
+    *,
+    language_code: str,
+    field_name: str,
+    default: str = "",
+):
+    """
+    Pure snapshot-field resolver for the published ``live_i18n`` contract
+    shared by every :class:`EditorialWorkflowMixin` subclass and
+    ``GuideSection`` - no DB queries, no Parler language activation, no
+    cross-language fallback (mirrors the three-state contract already
+    documented in ``core/projections.py``'s ``public_content_value()``,
+    which reads the snapshot directly for exactly the same reason).
+
+    Returns ``(is_published, value)``:
+
+    - ``snapshot`` is falsy (``None`` or ``{}``): legacy content that was
+      never run through the publish/snapshot mechanism -
+      ``(False, default)``. Callers may fall back to the current
+      same-language draft value in this case only.
+    - ``snapshot`` is non-empty: it is authoritative regardless of whether
+      ``language_code``/``field_name`` exist within it -
+      ``(True, value)``. A missing language, a missing field, or an
+      explicit ``None`` value all resolve to ``default``; an existing
+      empty string is returned as-is. Never looks at any other language.
+    """
+    if not snapshot:
+        return False, default
+    language_data = snapshot.get(language_code)
+    if not isinstance(language_data, dict):
+        return True, default
+    value = language_data.get(field_name, default)
+    return True, (default if value is None else value)
+
+
 # -------- Manager --------
 
 class EditorialQuerySet(TranslatableQuerySet):
@@ -145,19 +181,17 @@ class EditorialWorkflowMixin(models.Model):
 
     def get_live_value(self, field: str, language: str | None = None) -> str | None:
         """
-        returns live snapshot data for language or fallback to live snapshot from default (or other available) language.
+        Returns the authoritative published-snapshot value for `field` in
+        `language` - never falls back to another language. Returns None
+        only when live_i18n itself is completely empty/missing, signaling
+        callers to fall back to the current same-language draft value
+        instead (see get_snapshot_field()).
         """
         lang = language or get_language()
-        live = self.live_i18n or {}
-        value = (live.get(lang) or {}).get(field)
-        if value:
-            return value
-        for code, data in live.items():
-            if not isinstance(data, dict):
-                continue
-            value = data.get(field)
-            if value:
-                return value
+        is_published, value = get_snapshot_field(
+            self.live_i18n, language_code=lang, field_name=field,
+        )
+        return value if is_published else None
 
     # --- Transitions ---
 

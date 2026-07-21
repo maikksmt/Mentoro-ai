@@ -6,7 +6,7 @@ from catalog.models import Tool
 class ToolSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tool
-        fields = ["id", "name", "slug", "short_desc", "free_tier", "rating"]
+        fields = ["id", "name", "slug", "short_description", "free_tier", "rating"]
 
 
 class ToolViewSet(viewsets.ReadOnlyModelViewSet):
