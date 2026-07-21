@@ -9,7 +9,7 @@ from parler.models import TranslatableModel, TranslatedFields
 from parler.utils.context import switch_language
 
 from catalog.models import Category, Tool
-from core.models.editorial import EditorialManager, EditorialQuerySet, EditorialWorkflowMixin
+from core.models.editorial import EditorialManager, EditorialQuerySet, EditorialWorkflowMixin, get_snapshot_field
 
 
 class GuideQuerySet(EditorialQuerySet):
@@ -100,7 +100,17 @@ class Guide(EditorialWorkflowMixin, TranslatableModel):
                 )
 
     def _current_values_for(self, lang: str) -> dict:
-        """Liest die aktuellen (Draft/DB) Werte sicher in einer Sprache aus."""
+        """
+        Liest die aktuellen (Draft/DB) Werte sicher in einer Sprache aus.
+
+        Nur als Legacy-Fallback verwendet, wenn kein Snapshot existiert -
+        deshalb ausschließlich dieselbe Sprache: has_translation(lang) muss
+        zuerst geprüft werden, da safe_translation_getter() sonst über
+        Parlers eigenen (PARLER_LANGUAGES-)Fallback stillschweigend eine
+        andere Sprache liefern würde.
+        """
+        if not self.has_translation(lang):
+            return {}
         with switch_language(self, lang):
             return {
                 "slug": self.safe_translation_getter("slug"),
@@ -201,6 +211,12 @@ class GuideSection(TranslatableModel):
         return f"{self.guide_id} · {self.order} · {t}"
 
     def _current_values_for(self, lang: str) -> dict:
+        """
+        Nur als Legacy-Fallback verwendet, wenn kein Snapshot existiert -
+        deshalb ausschließlich dieselbe Sprache (siehe Guide._current_values_for).
+        """
+        if not self.has_translation(lang):
+            return {}
         with switch_language(self, lang):
             return {
                 "title": self.safe_translation_getter("title"),
@@ -208,19 +224,18 @@ class GuideSection(TranslatableModel):
             }
 
     def get_live_value(self, field: str, language: str | None = None):
+        """
+        Returns the authoritative published-snapshot value for `field` in
+        `language` - never falls back to another language. Returns None
+        only when live_i18n itself is completely empty/missing, signaling
+        get_display_value() to fall back to the current same-language
+        draft value instead (see core.models.editorial.get_snapshot_field()).
+        """
         lang = language or get_language()
-        live = self.live_i18n or {}
-        value = (live.get(lang) or {}).get(field)
-        if value:
-            return value
-        for code, data in live.items():
-            if not isinstance(data, dict):
-                continue
-            value = data.get(field)
-            if value:
-                return value
-
-        return None
+        is_published, value = get_snapshot_field(
+            self.live_i18n, language_code=lang, field_name=field,
+        )
+        return value if is_published else None
 
     def get_display_value(self, field: str, language: str | None = None):
         lang = language or get_language()
