@@ -17,6 +17,7 @@ from reversion.models import Version
 
 from catalog.models import Category, Tool
 from compare.models import Comparison
+from core.projections import public_content_url, public_content_value
 from guides.models import Guide
 from prompts.models import Prompt
 from usecases.models import UseCase
@@ -539,36 +540,17 @@ def _public_teaser_value(obj, field: str, language_code: str | None = None) -> s
     translated field ("title", "intro", "body", ...) - never the raw,
     possibly draft-in-progress translation.
 
-    Reads live_i18n[language_code] directly rather than delegating to the
-    model's own get_live_value()/get_display_value(): those have their own
-    cross-language fallback (silently returning ANOTHER language's live
-    snapshot value if language_code's own entry is missing), which is the
-    right behavior for their existing callers but not for a language-
-    explicit public teaser. Uniform across all four editorial models this
-    way, including Comparison, which has no get_display_value()/display_*
-    properties at all (a separate, documented, unfixed model gap - see
-    Beta 8.10a report).
-
-    A missing live snapshot only falls back to the current translation if
-    that translation genuinely exists in language_code (has_translation()
-    guard, called with an explicit safe_translation_getter(language_code=)
-    rather than switch_language(), since Parler's own use_fallback=True
-    default would otherwise silently substitute a different language).
+    Beta 10.4: the rule itself now lives in core.projections, so the search
+    adapters can reuse it (and its database-expression twin) without
+    importing a private helper. This wrapper only resolves the ambient
+    language for the existing teaser call sites, which may omit it; the
+    public API requires the language explicitly. An unresolvable language
+    keeps returning "" rather than raising, matching prior behavior.
     """
     lang = language_code or get_language()
-
-    live = getattr(obj, "live_i18n", None) or {}
-    live_value = (live.get(lang) or {}).get(field)
-    if live_value:
-        return live_value
-
-    has_translation = getattr(obj, "has_translation", None)
-    if callable(has_translation) and not has_translation(lang):
+    if not lang:
         return ""
-    getter = getattr(obj, "safe_translation_getter", None)
-    if callable(getter):
-        return getter(field, language_code=lang) or ""
-    return getattr(obj, field, "") or ""
+    return public_content_value(obj, field, language_code=lang)
 
 
 def _public_teaser_url(obj, kind: str, language_code: str | None = None) -> str:
@@ -587,9 +569,14 @@ def _public_teaser_url(obj, kind: str, language_code: str | None = None) -> str:
     branch here (which duplicated that same logic at this one call site
     because the model method didn't do it yet) is gone; every kind now
     goes through the same, single code path.
+
+    Beta 10.4: delegates to core.projections.public_content_url, shared with
+    the search adapters.
     """
     lang = language_code or get_language()
-    return obj.get_absolute_url(language=lang)
+    if not lang:
+        return obj.get_absolute_url()
+    return public_content_url(obj, language_code=lang)
 
 
 def teaser_for_guide(g: Guide, limit: int = 160, language_code: str | None = None) -> str:
