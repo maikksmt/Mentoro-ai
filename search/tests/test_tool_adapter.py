@@ -14,6 +14,7 @@ from datetime import timedelta
 from unittest import skipUnless
 
 from django.db import connection
+from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone, translation
 
@@ -749,7 +750,8 @@ class ResultShapeTests(ToolAdapterTestCase):
 
     def test_every_result_url_resolves(self):
         make_tool("shape-reachable", translations={"en": {"name": "Reachabletoken"}})
-        self.addCleanup(translation.deactivate_all)
+        translation.activate(settings.LANGUAGE_CODE)
+        self.addCleanup(translation.activate, settings.LANGUAGE_CODE)
         for result in self.search("Reachabletoken"):
             self.assertEqual(self.client.get(result.url).status_code, 200)
 

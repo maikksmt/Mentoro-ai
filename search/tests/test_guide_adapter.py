@@ -13,6 +13,7 @@ from unittest import skipUnless
 
 from django.contrib.auth import get_user_model
 from django.db import connection
+from django.conf import settings
 from django.test import TestCase
 from django.utils import translation
 from parler.utils.context import switch_language
@@ -948,7 +949,8 @@ class ResultShapeTests(GuideAdapterTestCase):
                 }
             },
         )
-        self.addCleanup(translation.deactivate_all)
+        translation.activate(settings.LANGUAGE_CODE)
+        self.addCleanup(translation.activate, settings.LANGUAGE_CODE)
         for result in self.search("Reachabletoken"):
             self.assertNotEqual(result.url, "#")
             self.assertEqual(self.client.get(result.url).status_code, 200)

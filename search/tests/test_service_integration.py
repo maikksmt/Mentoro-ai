@@ -12,6 +12,7 @@ from datetime import timedelta
 from unittest import skipUnless
 
 from django.db import connection
+from django.conf import settings
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone, translation
@@ -316,7 +317,8 @@ class ResultContractTests(ServiceIntegrationTestCase):
 
         response = self.search("Contracttoken")
         self.assertEqual(response.total_count, 5)
-        self.addCleanup(translation.deactivate_all)
+        translation.activate(settings.LANGUAGE_CODE)
+        self.addCleanup(translation.activate, settings.LANGUAGE_CODE)
         for result in response.results:
             with self.subTest(kind=result.kind):
                 self.assertIsInstance(result, SearchResult)

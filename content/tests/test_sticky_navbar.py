@@ -128,19 +128,19 @@ class SkipLinkRegressionTests(TestCase):
 
 
 class DialogRegressionTests(TestCase):
-    """Search and roadmap ("features") dialogs must keep their existing
-    IDs and structure - native <dialog> always renders above a
-    position: sticky navbar regardless of its z-index, but the IDs/JS
-    hookups themselves must be untouched by this slice."""
+    """The roadmap ("features") dialog must keep its ID and structure - a
+    native <dialog> always renders above a position: sticky navbar regardless
+    of its z-index, but the ID/JS hookup itself must be untouched by this
+    slice. The search control stopped being a dialog in Beta 10.9 and is
+    covered by content/tests/test_global_search_entry.py."""
 
     def setUp(self):
         resp = self.client.get(_home())
         self.html = resp.content.decode()
 
-    def test_search_dialog_present_with_unchanged_id(self):
-        self.assertIn('id="searchmodal"', self.html)
-        self.assertIn('id="search-open"', self.html)
-        self.assertIn('aria-controls="searchmodal"', self.html)
+    def test_search_control_is_a_link_above_the_sticky_navbar(self):
+        self.assertIn('id="global-search-link"', self.html)
+        self.assertNotIn("searchmodal", self.html)
 
     def test_roadmap_features_dialog_present_with_unchanged_id(self):
         self.assertIn('id="featuresmodal"', self.html)

@@ -59,7 +59,7 @@
         </div>
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {% for item in latest_items %}
-                {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
+                {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser %}
             {% empty %}
                 <div class="alert">
                     {% heroicon_solid "information-circle" size=20 class="mr-2" %}
@@ -75,7 +75,7 @@
             <h2 class="home-section-heading">{% trans "Recommended for you" %}</h2>
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {% for item in recommended_items %}
-                    {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser|richtext|safe|truncatewords_html:30 %}
+                    {% include "partials/_editorial_card.html" with url=item.url title=item.title kind=item.badge|lower date=item.date intro=item.teaser %}
                 {% endfor %}
             </div>
         </section>

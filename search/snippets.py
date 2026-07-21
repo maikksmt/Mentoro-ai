@@ -7,10 +7,8 @@ snippet can carry no markup and no highlighting into the page.
 from __future__ import annotations
 
 import re
-from html import unescape
 
-from django.utils.html import strip_tags
-
+from core.text import visible_text as extract_visible_text
 from search.query import NormalizedSearchQuery, normalize_text
 
 DEFAULT_SNIPPET_LENGTH = 200
@@ -22,13 +20,19 @@ def _visible_text(source: str) -> str:
     """
     Reduces rich text to the words a reader actually sees.
 
-    Tags are stripped before entities are decoded, so escaped markup in the
-    body stays literal text instead of turning into tags that are then
-    removed. A consequence worth knowing: attribute values disappear with
-    their tags, so a query occurring only in an ``href`` or ``class`` is
-    correctly not treated as a visible hit.
+    Delegates the extraction to core.text, which is also what the editorial
+    cards shorten through, so both surfaces agree on what "visible" means.
+    That shared helper strips tags before decoding entities - escaped markup
+    in the body stays literal text instead of turning into tags that are then
+    removed - and, unlike the ``strip_tags`` this used to call, it leaves a
+    space where a block or line break was. Without that, a paragraph boundary
+    silently welded "assistant." to "Learn" in the rendered snippet.
+
+    A consequence worth knowing: attribute values disappear with their tags,
+    so a query occurring only in an ``href`` or ``class`` is correctly not
+    treated as a visible hit.
     """
-    return normalize_text(unescape(strip_tags(source)))
+    return normalize_text(extract_visible_text(source))
 
 
 def _window_bounds(text_length: int, start: int, max_length: int) -> tuple[int, int]:

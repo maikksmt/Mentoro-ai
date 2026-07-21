@@ -7,6 +7,7 @@ fails. The service's own correctness is covered by its own tests.
 """
 from unittest.mock import patch
 
+from django.conf import settings
 from django.test import TestCase
 from django.utils import translation
 
@@ -28,7 +29,8 @@ class SearchViewTestCase(TestCase):
         # LocaleMiddleware activates a language per request and never restores
         # it; without this, a German request here would leak into unrelated
         # tests that assert on English copy.
-        self.addCleanup(translation.deactivate_all)
+        translation.activate(settings.LANGUAGE_CODE)
+        self.addCleanup(translation.activate, settings.LANGUAGE_CODE)
 
     def get(self, url=SEARCH_URL, response=None, side_effect=None):
         with patch("search.views.search_site") as service:

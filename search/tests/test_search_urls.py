@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import SimpleTestCase
 from django.urls import resolve, reverse
 from django.utils import translation
@@ -7,7 +8,8 @@ from search.views import SearchResultsView
 
 class SearchUrlTests(SimpleTestCase):
     def setUp(self):
-        self.addCleanup(translation.deactivate_all)
+        translation.activate(settings.LANGUAGE_CODE)
+        self.addCleanup(translation.activate, settings.LANGUAGE_CODE)
 
     def test_reverse_produces_the_language_prefixed_path(self):
         for language_code, expected in (("en", "/en/search/"), ("de", "/de/search/")):

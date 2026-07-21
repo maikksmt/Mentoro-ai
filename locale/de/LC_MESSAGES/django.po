@@ -804,7 +804,14 @@ msgid "Tools"
 msgstr "Tools"
 
 #: search/presentation.py:34 templates/partials/_editorial_card.html:11
-#: usecases/models.py:51 usecases/views.py:201
+#: usecases/views.py:201
+msgid "Use case"
+msgstr "Anwendungsfall"
+
+#. Kept alongside "Use case" because usecases/models.py still declares the
+#. model's verbose_name as "Usecase"; renaming that would emit a schema
+#. migration, which does not belong in a UI change.
+#: usecases/models.py:51
 msgid "Usecase"
 msgstr "Anwendungsfall"
 

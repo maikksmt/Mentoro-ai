@@ -755,7 +755,11 @@ msgid "Tools"
 msgstr ""
 
 #: search/presentation.py:34 templates/partials/_editorial_card.html:11
-#: usecases/models.py:51 usecases/views.py:201
+#: usecases/views.py:201
+msgid "Use case"
+msgstr ""
+
+#: usecases/models.py:51
 msgid "Usecase"
 msgstr ""
 

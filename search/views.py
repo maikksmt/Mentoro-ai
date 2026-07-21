@@ -13,6 +13,8 @@ GET-only rule needs no extra decorator.
 """
 from __future__ import annotations
 
+import logging
+
 from django.utils.translation import gettext as _
 from django.views.generic import TemplateView
 
@@ -20,6 +22,8 @@ from core.seo.utils import absolute_url, get_og_image, localized_alternates
 from core.views import SeoMixin
 from search.exceptions import SearchExecutionError
 from search.services import search_site
+
+logger = logging.getLogger(__name__)
 
 
 class SearchResultsView(SeoMixin, TemplateView):
@@ -41,9 +45,23 @@ class SearchResultsView(SeoMixin, TemplateView):
             search_response = search_site(
                 raw_query=raw_query, language_code=request.LANGUAGE_CODE
             )
-        except SearchExecutionError:
+        except SearchExecutionError as error:
             # Deliberately narrow: only the search's own failure contract is
             # turned into a page. Anything else stays a 500.
+            #
+            # The page itself says nothing about why, so without this line a
+            # failing adapter would be invisible in production. The message is
+            # built only from values the code itself wrote - the adapter's kind
+            # and the service's own fixed reason - so no search term and no SQL
+            # can end up in it. The traceback carries the original database
+            # error, which is the only place the root cause survives and never
+            # reaches the visitor.
+            logger.exception(
+                "Global search failed for the %s adapter in %s: %s",
+                error.kind,
+                request.LANGUAGE_CODE,
+                error.reason,
+            )
             search_failed = True
             status = 503
 

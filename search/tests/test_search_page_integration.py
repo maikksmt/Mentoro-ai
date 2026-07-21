@@ -6,6 +6,7 @@ Requires PostgreSQL.
 from datetime import timedelta
 from unittest import skipUnless
 
+from django.conf import settings
 from django.db import connection
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
@@ -51,7 +52,8 @@ class SearchPageIntegrationTestCase(TestCase):
         cls.author = make_author("search-page-editor")
 
     def setUp(self):
-        self.addCleanup(translation.deactivate_all)
+        translation.activate(settings.LANGUAGE_CODE)
+        self.addCleanup(translation.activate, settings.LANGUAGE_CODE)
 
     def make_editorial(self, name, slug, *, title, texts=None):
         payload = {"title": title, "slug": slug}

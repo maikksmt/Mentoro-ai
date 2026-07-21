@@ -8,6 +8,7 @@ query still does.
 import re
 from unittest.mock import patch
 
+from django.conf import settings
 from django.test import TestCase
 from django.utils import translation
 
@@ -17,7 +18,8 @@ from search.tests.search_page_fixtures import make_response, make_result, mixed_
 
 class SearchTemplateTestCase(TestCase):
     def setUp(self):
-        self.addCleanup(translation.deactivate_all)
+        translation.activate(settings.LANGUAGE_CODE)
+        self.addCleanup(translation.activate, settings.LANGUAGE_CODE)
 
     def html(self, url="/en/search/?q=ai%20tools", response=None):
         with patch("search.views.search_site") as service:
@@ -121,7 +123,7 @@ class HeadingStructureTests(SearchTemplateTestCase):
 class BadgeAndCountTests(SearchTemplateTestCase):
     def test_every_badge_carries_visible_text(self):
         html = self.html()
-        for label in ("Tool", "Guide", "Prompt", "Usecase", "Comparison"):
+        for label in ("Tool", "Guide", "Prompt", "Use case", "Comparison"):
             with self.subTest(label=label):
                 self.assertRegex(html, rf'<span class="badge badge-\w+">\s*{label}\s*</span>')
 

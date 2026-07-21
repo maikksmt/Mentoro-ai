@@ -52,7 +52,7 @@
     {% if objects %}
         <div class="grid gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-3">
             {% for obj in objects %}
-                {% include "partials/_editorial_card.html" with url=obj.get_absolute_url title=obj.title kind="comparison" tools=obj.tools.all date=obj.updated_at author=obj.author intro=obj.intro|default:obj.body|richtext|safe|truncatewords_html:30 %}
+                {% include "partials/_editorial_card.html" with url=obj.get_absolute_url title=obj.title kind="comparison" tools=obj.tools.all date=obj.updated_at author=obj.author intro=obj.intro|default:obj.body %}
             {% endfor %}
         </div>
 

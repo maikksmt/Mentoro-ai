@@ -31,7 +31,7 @@ KIND_PRESENTATIONS: dict[SearchResultKind, KindPresentation] = {
     SearchResultKind.GUIDE: KindPresentation(_("Guide"), _("Guides"), "badge-guide"),
     SearchResultKind.PROMPT: KindPresentation(_("Prompt"), _("Prompts"), "badge-prompt"),
     SearchResultKind.USE_CASE: KindPresentation(
-        _("Usecase"), _("Use cases"), "badge-usecase"
+        _("Use case"), _("Use cases"), "badge-usecase"
     ),
     SearchResultKind.COMPARISON: KindPresentation(
         _("Comparison"), _("Comparisons"), "badge-compare"

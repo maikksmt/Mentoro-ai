@@ -1,6 +1,7 @@
 """Beta 10.8: the search page reads correctly in both languages."""
 from unittest.mock import patch
 
+from django.conf import settings
 from django.test import TestCase
 from django.utils import translation
 
@@ -16,7 +17,8 @@ from search.tests.search_page_fixtures import (
 
 class TranslationTestCase(TestCase):
     def setUp(self):
-        self.addCleanup(translation.deactivate_all)
+        translation.activate(settings.LANGUAGE_CODE)
+        self.addCleanup(translation.activate, settings.LANGUAGE_CODE)
 
     def html(self, url, response):
         with patch("search.views.search_site") as service:
