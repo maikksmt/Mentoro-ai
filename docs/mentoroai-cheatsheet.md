@@ -75,6 +75,68 @@ Produktionscode nicht vorgesehen.
 
 ---
 
+## Globale Suche (Search-App, Beta 10)
+
+Zentrale Module in `search/`:
+
+- `query.py` – normalisiert die rohe Query; Grenzen: leer, < 2 Zeichen oder
+  > 100 (normalisierte) Zeichen ergeben eine leere Response, ohne dass ein
+  Adapter aufgerufen wird
+- `fts.py` – PostgreSQL Full-Text Search (`SearchQuery(search_type="websearch")`,
+  `SearchRank(normalization=32)`, `@@` als Match-Prädikat, `english`/`german`
+  Sprachkonfiguration), Gewichte A (Titel) / B (Summary) / C (Body)
+- `ranking.py` – ein einziger, globaler Sortierlauf über alle Adapterergebnisse
+  (Match-Tier, Rank, Aktualität, Kind, Objekt-ID) statt Adapter-lokaler
+  Normalisierung oder Typgewichtung
+- `snippets.py` – Plaintext-Ausschnitt je Ergebnis für die Suchseite
+- `registry.py` – feste Adapter-Liste (`SEARCH_ADAPTERS`); das Glossar ist
+  bewusst nicht enthalten
+- `services.py` – `search_site(*, raw_query, language_code)` → immutable
+  `SearchResponse`; fail-closed (`SearchExecutionError`, keine Teilresultate)
+- `views.py` – `SearchResultsView`; loggt einen Adapterfehler serverseitig,
+  ohne Suchbegriff oder SQL in der Log-Nachricht
+
+Adapter (`search/adapters/`): `tools.py`, `guides.py`, `prompts.py`,
+`usecases.py`, `comparisons.py` – je ein Adapter pro Inhaltstyp, liefern
+immutable `SearchResult`-Objekte für eine explizit übergebene Sprache.
+
+**Sichtbarkeits-/Sprachregeln**
+
+- Guide/Prompt/UseCase/Comparison: öffentliche Suchwerte kommen aus der
+  veröffentlichten Revision (Snapshot-autoritativ, falls vorhanden); Draft-Werte
+  und Draft-Slugs erreichen die Suche nie
+- Tool: `Tool.objects.public()` ist die einzige Sichtbarkeitsgrenze; die Suche
+  arbeitet direkt auf der angeforderten `ToolTranslation`, ohne
+  Parler-Cross-Language-Fallback als Suchindex (ein EN-only Tool erscheint
+  also nicht in der deutschen Suche, unabhängig vom Katalog-Fallback)
+
+**Suchseite**
+
+- URLs: `/en/search/`, `/de/search/`; ausschließlich GET, ausschließlich
+  Parameter `q`
+- serverseitig gerendert, kein JavaScript nötig
+- `SearchExecutionError` → HTTP 503, keine technischen Details in der Ausgabe
+- `robots="noindex,follow"`, nicht in der Sitemap
+
+**Card-Kürzung vs. Search-Snippets**
+
+- `core/text.py` (`summarize_html()` / `truncate_at_word_boundary()`,
+  `EDITORIAL_INTRO_MAX_CHARS = 200`) ist die einzige Kürzungsstelle für
+  Editorial-Card-Intros (Guide/Prompt/UseCase/Comparison-Listen,
+  „Aktuelle Inhalte“, Related-Content-Abschnitte). Kürzt ausschließlich an
+  Wortgrenzen und hängt nur bei tatsächlicher Kürzung exakt `...` an.
+- `search/snippets.py` ist davon getrennt und behält seine eigene, bereits
+  bestehende typografische Ellipse (`…`) für den Ausschnitt auf der
+  Suchergebnisseite.
+
+**Raw**
+
+```bash
+make test-app APP=search   # nur die Search-App
+```
+
+---
+
 ## Tests & Coverage
 
 - `make test` – Alle Django-Tests mit Coverage (mit `.coveragerc` & Settings).

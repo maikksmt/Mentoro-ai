@@ -198,7 +198,7 @@ class UseCaseDetailView(SeoMixin, DetailView):
         ctx["similar"] = [to_teaser_item(u, "usecase") for u in rel_qs]
         ctx["crumbs"] = [
             (_("Usecases"), reverse("usecases:list")),
-            (obj.display_title or _("Usecase"), self.request.path),
+            (obj.display_title or _("Use case"), self.request.path),
         ]
         ctx["lastmod"] = getattr(obj, "updated_at", None) or getattr(obj, "published_at", None) or getattr(obj,
                                                                                                            "created_at",

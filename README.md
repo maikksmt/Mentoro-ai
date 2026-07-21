@@ -40,6 +40,7 @@ If you support this mission, leaving a ⭐ helps others discover the project.
 | **Prompts**            | Ready-to-use prompts                       |
 | **Use Cases**          | Real-world examples                        |
 | **Comparisons**        | Tool vs Tool insights                      |
+| **Global Search**      | PostgreSQL full-text search across tools, guides, prompts, use cases and comparisons, in English and German |
 | **Multilingual**       | English + German content                   |
 | **Starter Guide**      | Step-by-step introduction                  |
 | **Editorial Workflow** | Author / Editor / Admin roles              |
@@ -157,6 +158,7 @@ Wenn dir die Mission gefällt, freue ich mich über ein ⭐ Sternchen.
 | **Prompts**            | Nutzbare Prompts                           |
 | **Use Cases**          | Praxisbeispiele                            |
 | **Comparisons**        | Tool-Vergleiche                            |
+| **Globale Suche**      | PostgreSQL-Volltextsuche über Tools, Guides, Prompts, Use Cases und Comparisons, auf Deutsch und Englisch |
 | **Mehrsprachig**       | Deutsch + Englisch                         |
 | **Starter Guide**      | Leichter Einstieg                          |
 | **Editorial Workflow** | Rollen-System                              |

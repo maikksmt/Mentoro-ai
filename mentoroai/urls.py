@@ -57,6 +57,7 @@ urlpatterns += i18n_patterns(
     path("usecases/", include("usecases.urls", namespace="usecases")),
     path("catalog/", include("catalog.urls")),
     path("compare/", include("compare.urls")),
+    path("search/", include("search.urls", namespace="search")),
     path("what-to-find/", TemplateView.as_view(template_name="content/what-to-find.html"), name="what-to-find"),
     path("newsletter/", include("newsletter.urls")),
     path("account/dashboard/", AccountDashboardView.as_view(), name="account_dashboard"),

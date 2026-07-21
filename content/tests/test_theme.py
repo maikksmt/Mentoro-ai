@@ -103,7 +103,7 @@ class ThemeToggleStructureTests(TestCase):
     def test_header_controls_still_present_and_in_order(self):
         # Beta 8.1/8.2 regression: search, theme switch and login stay in the navbar-end group.
         navbar_end = self.html.split('class="navbar-end"', 1)[1]
-        search_pos = navbar_end.index('id="search-open"')
+        search_pos = navbar_end.index('id="global-search-link"')
         theme_pos = navbar_end.index("theme-swap")
         self.assertLess(search_pos, theme_pos)
 

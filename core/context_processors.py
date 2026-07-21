@@ -10,6 +10,7 @@ NAV_SECTION_BY_APP = {
     "prompts": "prompts",
     "usecases": "usecases",
     "compare": "compare",
+    "search": "search",
     "glossary": "glossary",
 }
 

@@ -6,6 +6,46 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0-beta-10] – 2026-07-21
+
+### Added
+
+- global full-text search across tools, guides, prompts, use cases and comparisons, in English and German
+  (`/en/search/`, `/de/search/`), using PostgreSQL full-text search (`websearch` queries, title/summary/body
+  weighting) rather than a naive substring match
+- global search entry point in both the desktop and mobile navigation, replacing the earlier search placeholder
+  dialog
+
+### Changed
+
+- search results are strictly language-bound: a result only surfaces the public, published revision of a guide,
+  prompt, use case or comparison, and a tool only matches on its actual translation in the requested language
+  (no cross-language fallback used as a search index)
+- a failing search fails closed: the visitor sees a plain "temporarily unavailable" state (HTTP 503) with no
+  technical detail, and no partial result list is ever shown
+- editorial card intros/teasers (guide, prompt, use case and comparison cards, including the homepage "latest
+  content" section) are shortened by one shared, word-boundary-safe function instead of each call site cutting
+  text on its own; a card only ever appends `...`, and only when the text was actually shortened
+
+### Fixed
+
+- editorial card intros could be cut off mid-word with no `...` marker, and adjacent rich-text blocks could be
+  glued together into a single run-on sentence in the homepage "latest content" section and in related-content
+  sections on guide/prompt/use-case/comparison detail pages
+- a pre-existing, order-dependent catalog test failure caused by ambient search-page language state leaking
+  between tests
+
+### Notes
+
+- the search page is server-rendered, needs no JavaScript, and is marked `noindex,follow` and excluded from the
+  sitemap
+- search snippets (the excerpt shown per result on the search results page) keep their own, pre-existing
+  ellipsis convention (`…`) and are a separate mechanism from the editorial card intro shortening (`...`)
+- the glossary is not part of the global search
+- no migrations, no new dependencies
+
+---
+
 ## [1.0.0-beta-9] – 2026-07-20
 
 ### Added
