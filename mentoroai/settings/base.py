@@ -113,6 +113,7 @@ INSTALLED_APPS = [
     "prompts",
     "usecases",
     "newsletter",
+    "search",
     "api",
 ]
 
