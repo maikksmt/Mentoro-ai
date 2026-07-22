@@ -11,9 +11,11 @@
             </a>
         </li>
     {% endif %}
-    {# Beta 11.4: only for a saved guide, only for users who may preview it,
-       and only for the language tab currently open (which is guaranteed to
-       have a stored translation - see GuideAdmin.render_change_form). #}
+    {% comment %}
+        Beta 11.4: only for a saved guide, only for users who may preview it,
+        and only for the language tab currently open (which is guaranteed to
+        have a stored translation - see GuideAdmin.render_change_form).
+    {% endcomment %}
     {% if show_draft_preview %}
         <li>
             <a href="{% url 'admin:guides_guide_draft_preview' original.pk draft_preview_language %}"
