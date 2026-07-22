@@ -144,6 +144,13 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
             return False
         return getattr(obj, "author_id", None) == user.id
 
+    def _is_author_user(self, user):
+        if not user.is_authenticated:
+            return False
+        if user.is_superuser:
+            return True
+        return user.groups.filter(name__in=self.AUTHOR_GROUP_NAMES).exists()
+
     def _is_admin_user(self, user):
         if not user.is_authenticated:
             return False
@@ -215,7 +222,15 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
 
         if obj is None:
-            return True
+            # Changelist/module-level access: real editorial roles (or
+            # Django's own change_<model> permission, e.g. for a future
+            # non-group grant) - not just is_staff on its own, which used to
+            # let any staff user reach this changelist regardless of role.
+            return (
+                self._is_editor_user(request.user)
+                or self._is_author_user(request.user)
+                or super().has_change_permission(request, obj)
+            )
 
         if self._is_editor_user(request.user):
             return True

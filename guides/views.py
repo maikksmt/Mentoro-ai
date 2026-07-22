@@ -9,6 +9,7 @@ from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_
 from core.services import related_guides, to_teaser_item
 from core.views import SeoMixin
 from .models import Guide, GuideSection, GuideItem
+from .presentation import public_display_sections
 
 
 def _resolve_guide_by_slug(qs, slug: str, language_code: str) -> Guide | None:
@@ -188,6 +189,14 @@ class GuideDetailView(SeoMixin, DetailView):
         ctx["display_title"] = obj.display_title
         ctx["display_intro"] = obj.display_intro
         ctx["display_body"] = obj.display_body
+        # Beta 11.4: sections/items are resolved here instead of inline in
+        # the template. Same prefetch caches, same snapshot-first model
+        # accessors, same is_published gate - the rendered output is
+        # unchanged. Moving it into an explicit context entry is what lets
+        # the admin draft preview feed the very same template from the saved
+        # draft instead (see guides/presentation.py); the public path never
+        # sees a preview flag.
+        ctx["display_sections"] = public_display_sections(obj)
         rel_qs = related_guides(obj, limit=3, language_code=lang)
         ctx["related_guides"] = [to_teaser_item(g, "guide") for g in rel_qs]
         ctx["crumbs"] = [
