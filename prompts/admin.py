@@ -13,9 +13,14 @@ from reversion.admin import VersionAdmin
 
 from content.templatetags.richtext import richtext
 from core.admin import TranslatableTinyMCEMixin, EditorialWorkflowAdminMixin
+from core.editorial_preview import (
+    apply_editorial_preview_headers,
+    has_saved_translation,
+    is_supported_preview_language,
+)
 from core.services import get_live_display_instance, build_field_diffs
 from .models import Prompt
-from .presentation import PREVIEW_ROBOTS, build_draft_prompt_context, has_saved_translation
+from .presentation import build_draft_prompt_context
 
 
 @admin.register(Prompt)
@@ -152,8 +157,7 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
         if request.method not in ("GET", "HEAD"):
             return HttpResponseNotAllowed(["GET", "HEAD"])
 
-        supported_languages = {code for code, _label in settings.LANGUAGES}
-        if language_code not in supported_languages:
+        if not is_supported_preview_language(language_code):
             raise Http404("Unsupported preview language.")
 
         prompt = self.get_object(request, object_id)
@@ -172,10 +176,7 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
             context = build_draft_prompt_context(prompt, language_code)
             response = render(request, "prompts/prompt_detail.html", context)
 
-        response["X-Robots-Tag"] = PREVIEW_ROBOTS
-        response["Pragma"] = "no-cache"
-        response["Content-Language"] = language_code
-        return response
+        return apply_editorial_preview_headers(response, language_code)
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         """

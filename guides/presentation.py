@@ -35,12 +35,9 @@ from dataclasses import dataclass
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from core.seo.types import SeoMeta
+from core.editorial_preview import build_preview_seo_meta, has_saved_translation
 from core.seo.utils import seo_text
 from core.services import related_guides, to_teaser_item
-
-#: Robots directive sent for every preview response (header and meta alike).
-PREVIEW_ROBOTS = "noindex,nofollow"
 
 
 @dataclass(frozen=True)
@@ -147,21 +144,6 @@ def draft_display_sections(guide, language_code: str) -> list[GuideSectionView]:
     return sections
 
 
-def has_saved_translation(obj, language_code: str) -> bool:
-    """
-    True when a translation row for ``language_code`` is actually stored.
-
-    Deliberately queried instead of using Parler's ``has_translation()``:
-    ``TranslatableAdmin.get_object()`` calls
-    ``set_current_language(..., initialize=True)`` for the tab the editor has
-    open, which puts an *empty, unsaved* translation into the instance cache.
-    ``has_translation()`` then reports True for a language the author never
-    saved - which would offer a preview link (and let the preview itself
-    proceed) for content that does not exist. Counting rows is immune to that.
-    """
-    return obj.translations.filter(language_code=language_code).exists()
-
-
 def _draft_translation_value(obj, field: str, language_code: str) -> str:
     """Stored translation value for exactly ``language_code``, or ``""``."""
     return (
@@ -210,17 +192,9 @@ def build_draft_guide_context(guide, language_code: str) -> dict:
             (_("Guides"), reverse("guides:list")),
             (title, ""),
         ],
-        "seo": SeoMeta(
+        "seo": build_preview_seo_meta(
             title=title,
             description=seo_text(intro or body or title)[:155],
-            date="",
-            author="",
-            og_type="article",
-            canonical="",
-            robots=PREVIEW_ROBOTS,
-            og_image=None,
-            alternates=[],
-            json_ld=None,
         ),
         "is_preview": True,
         "preview_language": language_code,

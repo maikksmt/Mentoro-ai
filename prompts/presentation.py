@@ -21,40 +21,20 @@ Public and draft stay two independent functions with independent sources:
   one explicitly requested language and never consults ``live_i18n``,
   ``get_display_value()`` or any cross-language fallback.
 
-:func:`has_saved_translation` is a verbatim copy of
-``guides.presentation.has_saved_translation`` (same Parler
-``initialize=True`` rationale - see its docstring). It is duplicated rather
-than imported: the two content types have no shared preview module in this
-slice, and the function is small enough that duplicating it is simpler than
-introducing one for a single four-line body (see the Beta 11.5 final report's
-architecture section for the full "duplicate vs. extract" reasoning).
+:func:`has_saved_translation` moved to ``core.editorial_preview`` in Beta
+11.6, once this module's byte-identical copy of
+``guides.presentation.has_saved_translation`` gave the duplication a second
+occurrence worth consolidating (see the Beta 11.5 final report's
+"duplicate vs. extract" reasoning for why one occurrence alone was not).
 """
 from __future__ import annotations
 
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from core.seo.types import SeoMeta
+from core.editorial_preview import build_preview_seo_meta
 from core.seo.utils import seo_text
 from core.services import related_prompts, to_teaser_item
-
-#: Robots directive sent for every preview response (header and meta alike).
-PREVIEW_ROBOTS = "noindex,nofollow"
-
-
-def has_saved_translation(obj, language_code: str) -> bool:
-    """
-    True when a translation row for ``language_code`` is actually stored.
-
-    Deliberately queried instead of using Parler's ``has_translation()``:
-    ``TranslatableAdmin.get_object()`` calls
-    ``set_current_language(..., initialize=True)`` for the tab the editor has
-    open, which puts an *empty, unsaved* translation into the instance cache.
-    ``has_translation()`` then reports True for a language the author never
-    saved - which would offer a preview link (and let the preview itself
-    proceed) for content that does not exist. Counting rows is immune to that.
-    """
-    return obj.translations.filter(language_code=language_code).exists()
 
 
 def _draft_translation_value(obj, field: str, language_code: str) -> str:
@@ -112,17 +92,9 @@ def build_draft_prompt_context(prompt, language_code: str) -> dict:
             (_("Prompts"), reverse("prompts:list")),
             (title, ""),
         ],
-        "seo": SeoMeta(
+        "seo": build_preview_seo_meta(
             title=title,
             description=seo_text(intro or body or title)[:155],
-            date="",
-            author="",
-            og_type="article",
-            canonical="",
-            robots=PREVIEW_ROBOTS,
-            og_image=None,
-            alternates=[],
-            json_ld=None,
         ),
         "is_preview": True,
         "preview_language": language_code,
