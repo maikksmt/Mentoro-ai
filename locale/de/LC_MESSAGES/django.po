@@ -1584,6 +1584,14 @@ msgstr "Entwurf mit Live vergleichen"
 msgid "Draft ↔ Live"
 msgstr "Entwurf ↔ Live"
 
+#: templates/admin/guides/guide/change_form.html:21
+msgid "Open the saved draft as a full public page"
+msgstr "Den gespeicherten Entwurf als vollständige öffentliche Seite öffnen"
+
+#: templates/admin/guides/guide/change_form.html:23
+msgid "Preview saved draft"
+msgstr "Gespeicherten Entwurf ansehen"
+
 #: templates/admin/guides/guide_diff.html:43
 msgid "Draft vs. Live"
 msgstr "Entwurf vs. Live"
