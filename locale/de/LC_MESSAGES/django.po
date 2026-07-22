@@ -1585,10 +1585,12 @@ msgid "Draft ↔ Live"
 msgstr "Entwurf ↔ Live"
 
 #: templates/admin/guides/guide/change_form.html:21
+#: templates/admin/prompts/prompt/change_form.html:24
 msgid "Open the saved draft as a full public page"
 msgstr "Den gespeicherten Entwurf als vollständige öffentliche Seite öffnen"
 
 #: templates/admin/guides/guide/change_form.html:23
+#: templates/admin/prompts/prompt/change_form.html:25
 msgid "Preview saved draft"
 msgstr "Gespeicherten Entwurf ansehen"
 
