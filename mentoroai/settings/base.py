@@ -265,7 +265,16 @@ TINYMCE_DEFAULT_CONFIG = {
     "license_key": 'gpl',
     "menubar": False,
     "height": 540,
-    "body_class": "prose richtext-body",
+    # Beta 11.3: same content classes as the public richtext surface
+    # (article.prose.reading-column on guide/prompt/usecase/comparison
+    # detail pages), so the editor iframe resolves the exact shared
+    # typography, colors and 70ch reading measure from output.css. Only
+    # "reading-column" is added vs. before; "richtext-body" is kept
+    # (no-op class, no public rule) to avoid changing more than needed.
+    "body_class": "prose reading-column richtext-body",
+    # output.css is the single compiled public stylesheet (the shared
+    # source, unchanged in this slice); tinymce-editor.css is reduced to
+    # genuine editor chrome only (see that file).
     "content_css": [
         "/static/css/output.css",
         "/static/css/tinymce-editor.css",
@@ -311,8 +320,12 @@ TINYMCE_DEFAULT_CONFIG = {
     "table_toolbar": (
         "tableprops tabledelete | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol"
     ),
-    "visualblocks_default_state": True,
-    "visualchars_default_state": True,
+    # Beta 11.3: editor starts clean (no block outlines / invisible-char
+    # marks) so it visually matches the public content surface. Both remain
+    # reachable via their unchanged toolbar buttons ("visualblocks
+    # visualchars") and plugins; no saved HTML is affected.
+    "visualblocks_default_state": False,
+    "visualchars_default_state": False,
     "convert_urls": False,
     "automatic_uploads": True,
     "invalid_elements": "h1",

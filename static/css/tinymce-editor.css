@@ -1,77 +1,61 @@
+/* ===========================================================
+   TinyMCE editor chrome (Beta 11.3)
 
-body.mce-content-body .card,
-body.mce-content-body .alert {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+   Loaded into the editor iframe alongside the compiled public
+   stylesheet (static/css/output.css). ALL content typography,
+   colors, link styles, list markers, headings, tables, blockquotes,
+   code, the reading measure and the editorial DaisyUI/Tailwind
+   building blocks come from output.css together with the
+   `prose reading-column richtext-body` body_class - exactly the same
+   rules the public richtext surface (article.prose.reading-column)
+   resolves. This file must therefore NOT redefine any content
+   typography, color or width; it holds only genuine editor chrome.
+
+   Before Beta 11.3 this file forced `color:#000 !important` on the
+   body, headings, links and list markers, `background:#fff !important`
+   on html/body, `max-width:100% !important` (defeating the public
+   70ch reading column) and a foreign `line-height:1.6`. Those
+   overrides pinned the editor to hardcoded black-on-white full-width
+   and blocked both public-light parity and any future dark-theme
+   sync. They are removed here so the shared theme tokens (applied to
+   the iframe :root via output.css's `:where(:root)` mentoroai-light
+   block) drive the editor exactly as they drive the public page.
+=========================================================== */
+
+/* Editor canvas: fill the iframe with the theme's base surface via the
+   shared token (light = white today) instead of a hardcoded #fff, so the
+   area around the centered reading column matches the public page
+   background now and can follow a future dark-theme sync.
+
+   The gutter lives on the canvas (html), NOT on the reading-column body,
+   deliberately mirroring the public layout: there the side padding sits on
+   the page container (.container.px-*) that WRAPS the centered
+   article.prose.reading-column, so on a wide surface it never narrows the
+   reading measure (the column's auto margins dominate) and on a narrow
+   surface it only keeps content off the edge. Putting the padding on the
+   body instead would inset the 70ch column itself and shorten the line
+   length vs. public. No `!important`, so nothing here fights content rules. */
+html {
+    background-color: var(--color-base-100);
+    padding: 1.25rem 1.5rem;
 }
 
-/* Hintergrund & Standard-Textfarbe im Iframe */
-html,
+/* Restores the shared body font-family token. TinyMCE's own oxide skin
+   (static/tinymce/skins/ui/oxide/content.min.css, loaded before this file)
+   ships an UNLAYERED `body { font-family: sans-serif }` rule. Per the CSS
+   Cascade Layers spec, any unlayered rule beats ANY layered rule for the
+   same element/property regardless of load order or specificity - so
+   output.css's own `body { font-family: var(--font-sans) }` (inside
+   `@layer base`) loses to it, confirmed in the real TinyMCE iframe (not
+   visible in a plain-HTML harness that never loads the oxide skin).
+   Headings are unaffected - oxide ships no competing h1-h6 rule, so their
+   `@layer base` font-family already wins normally.
+
+   This does not redefine typography: it is the exact same --font-sans
+   token output.css already declares, restated unlayered (like this
+   project's other public parity fixes - see input.css's .reading-column/
+   .prose h2/h3 comments for the identical layering rationale) so it wins
+   against oxide's unlayered rule instead of introducing any new value. */
 body {
-    background: #ffffff !important;
-    color: #000000 !important;
-}
-
-/* Textfarben im Content explizit schwarz */
-.mce-content-body,
-.mce-content-body h2,
-.mce-content-body h3,
-.mce-content-body h4,
-.mce-content-body div,
-.mce-content-body p,
-.mce-content-body li,
-.mce-content-body strong,
-.mce-content-body b,
-.mce-content-body em,
-.mce-content-body i,
-.mce-content-body a,
-.mce-content-body th,
-.mce-content-body blockquote {
-    color: #000000 !important;
-}
-
-/* Listen & Marker */
-.mce-content-body ul,
-.mce-content-body ol {
-    list-style-position: outside; /* optional, nur für sauberes Layout */
-}
-
-.mce-content-body li::marker {
-    color: #000000 !important;
-}
-
-/* Grundtypografie & Innenabstand */
-.mce-content-body {
-    line-height: 1.6;
-    padding: 1.25rem 1.5rem !important;
-}
-
-/* volle Breite im Iframe, auch bei .prose / .richtext-body */
-.mce-content-body,
-.mce-content-body.prose,
-.mce-content-body.richtext-body {
-    max-width: 100% !important;
-    width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    box-sizing: border-box;
-}
-
-/* Dark Mode im Iframe deaktivieren */
-:root {
-    color-scheme: only light;
-}
-
-.field-body .tox-tinymce,
-.form-row .tox-tinymce,
-.tox.tox-tinymce {
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
-.field-body,
-.form-row,
-.form-group {
-    width: 100% !important;
-    max-width: 100% !important;
+    font-family: var(--font-sans);
 }
