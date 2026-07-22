@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.utils.formats import date_format
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from parler.admin import TranslatableStackedInline
 from reversion.admin import VersionAdmin
 
+from content.templatetags.richtext import richtext
 from core.admin import TranslatableTinyMCEMixin, EditorialWorkflowAdminMixin, TranslatableTinyMCEInlineMixin
 from .models import Comparison, ComparisonToolEntry
 
@@ -128,11 +128,11 @@ class ComparisonAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Ver
 
     def intro(self, obj):
         value = obj.safe_translation_getter("intro", any_language=True)
-        return mark_safe(value or "")
+        return richtext(value or "")
 
     def body(self, obj):
         value = obj.safe_translation_getter("body", any_language=True)
-        return mark_safe(value or "")
+        return richtext(value or "")
 
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("title",)}

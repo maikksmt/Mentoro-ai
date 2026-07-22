@@ -3,12 +3,12 @@ from django.contrib import admin
 from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils.formats import date_format
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, get_language, get_language_info
 from parler.admin import TranslatableStackedInline
 from parler.utils.context import switch_language
 from reversion.admin import VersionAdmin
 
+from content.templatetags.richtext import richtext
 from core.admin import TranslatableTinyMCEMixin, TranslatableTinyMCEInlineMixin, EditorialWorkflowAdminMixin, ChildOfGuideOwnershipMixin
 from core.services import get_live_display_instance, build_field_diffs, build_section_diffs
 from .models import GuideItem, GuideSection, Guide
@@ -47,7 +47,7 @@ class GuideSectionInline(TranslatableTinyMCEInlineMixin, TranslatableStackedInli
 
     def body(self, obj):
         value = obj.safe_translation_getter("body", any_language=True)
-        return mark_safe(value or "")
+        return richtext(value or "")
 
 
 @admin.register(Guide)
@@ -110,11 +110,11 @@ class GuideAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, VersionA
 
     def intro(self, obj):
         value = obj.safe_translation_getter("intro", any_language=True)
-        return mark_safe(value or "")
+        return richtext(value or "")
 
     def body(self, obj):
         value = obj.safe_translation_getter("body", any_language=True)
-        return mark_safe(value or "")
+        return richtext(value or "")
 
     # ------- kleine Helfer für Spalten -------
     def get_prepopulated_fields(self, request, obj=None):
@@ -216,6 +216,6 @@ class GuideSectionAdmin(ChildOfGuideOwnershipMixin, TranslatableTinyMCEMixin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def body(self, obj):
-        return mark_safe(obj.safe_translation_getter("body", any_language=True))
+        return richtext(obj.safe_translation_getter("body", any_language=True))
 
     inlines = [GuideItemInline]

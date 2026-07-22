@@ -254,6 +254,11 @@ STORAGES = {
 
 WHITENOISE_KEEP_ONLY_HASHED_FILES = False
 
+# Conservative size limit for editor-uploaded TinyMCE images (see
+# content/views/uploads.py::tinymce_upload) - no other project-wide upload
+# size setting covers this endpoint.
+TINYMCE_UPLOAD_MAX_BYTES = 5 * 1024 * 1024  # 5 MB
+
 # TinyMCE Config
 
 TINYMCE_DEFAULT_CONFIG = {
