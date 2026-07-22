@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple, Optional, Iterable
 
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Count, IntegerField, Q, QuerySet, Value
+from django.db.models import Case, Count, IntegerField, Q, QuerySet, Value, When
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import get_language, override
@@ -192,6 +192,27 @@ def related_prompts(prompt, limit=6, language_code: str | None = None):
     return items[:limit]
 
 
+def _live_usecase_persona(usecase, language_code: str) -> str:
+    """
+    The published persona for `language_code`, or "" when there is no live
+    signal to rank on - never the current draft translation.
+
+    Deliberately narrower than :func:`core.projections.public_content_value`:
+    that helper's state-C fallback (an entirely empty ``live_i18n``, i.e. a
+    record predating the snapshot mechanism) reads the current translation
+    instead, which is the right legacy contract for rendered fields. Persona
+    ranking must not do that - since Beta 11.7A every currently-published use
+    case has a real snapshot (backfilled by
+    usecases/migrations/0006_backfill_usecase_live_state.py), so a missing
+    snapshot or a missing "persona" key both mean exactly the same thing: no
+    persona signal for this candidate, not "check the draft instead".
+    """
+    snapshot = (getattr(usecase, "live_i18n", None) or {}).get(language_code)
+    if not isinstance(snapshot, dict):
+        return ""
+    return snapshot.get("persona") or ""
+
+
 def related_usecases(usecase, limit=6, language_code: str | None = None):
     """
     Like above for UseCases;
@@ -259,22 +280,40 @@ def related_usecases(usecase, limit=6, language_code: str | None = None):
        Value(0) - no query is added, no candidate can score a persona
        point from two absent personas. Tool-based candidate selection and
        tool_matches ranking are unaffected either way.
+
+    Beta 11.7B: both the source and the candidate side of persona matching
+    were still reading the current *draft* translation
+    (``translations__persona``, joined via the live translation table),
+    which the Beta 11.7 visibility widening turned into a real draft leak -
+    not of rendered text, but of *behaviour*: editing a published use case's
+    persona and sending it to review/rework changed which candidates it
+    matched (and which candidates it appeared as a match for) before that
+    edit was ever published. Both sides now read
+    :func:`_live_usecase_persona`, i.e. ``live_i18n[lang]["persona"]``, via
+    a JSONField key-transform lookup (``live_i18n__<lang>__persona__iexact``)
+    - so the candidate match is evaluated in the same query, with no
+    additional query per candidate, exactly like the join it replaces. A
+    candidate with no live persona for `lang` (missing snapshot, missing
+    key, or empty value) simply cannot match - the lookup resolves to SQL
+    NULL, which no ``__iexact`` comparison satisfies. Everything else -
+    weights, the persona-vs-tool priority, order_by, limit, fallback-fill -
+    is unchanged.
     """
     lang = language_code or get_language() or "en"
-    persona = ""
-    if usecase.has_translation(lang):
-        persona = usecase.safe_translation_getter("persona", default="", language_code=lang) or ""
+    persona = _live_usecase_persona(usecase, lang)
     tool_ids = _ids(usecase.tools.all()) if hasattr(usecase, "tools") else []
 
     qs = UseCase.objects.visible_in_language(lang).exclude(pk=usecase.pk).prefetch_related("tools")
 
     persona_q = Q()
     if persona:
-        persona_q = Q(translations__language_code=lang, translations__persona__iexact=persona)
+        persona_q = Q(**{f"live_i18n__{lang}__persona__iexact": persona})
 
     if persona or tool_ids:
         if persona:
-            persona_match_annotation = Count("id", filter=persona_q)
+            persona_match_annotation = Case(
+                When(persona_q, then=Value(1)), default=Value(0), output_field=IntegerField()
+            )
         else:
             persona_match_annotation = Value(0, output_field=IntegerField())
         qs = (

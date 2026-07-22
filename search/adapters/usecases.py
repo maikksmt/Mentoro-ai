@@ -1,12 +1,11 @@
 """
 Use case search adapter.
 
-``persona`` is deliberately not indexed. It would be a strong search
-dimension - "freelancer", "teacher" - but UseCase.LIVE_SNAPSHOT_FIELDS does
-not include it, so it has no published representation at all: the public
-projection can only ever return "" for it, and reading the current
-translation instead would search draft text. Indexing it needs the model to
-snapshot it first.
+``persona`` is deliberately not indexed. Beta 11.7 added it to
+UseCase.LIVE_SNAPSHOT_FIELDS, so it now does have a published
+representation - but only for objects published since then, and indexing a
+new field changes result ranking and snippets. That is a search decision,
+not a visibility one, and stays out of this slice.
 
 Linked tools stay out until the tool adapter settles how public tool names
 resolve across languages.
@@ -37,9 +36,9 @@ class UseCaseSearchAdapter:
         query: NormalizedSearchQuery,
         language_code: str,
     ) -> tuple[SearchResult, ...]:
-        # UseCaseQuerySet.visible_in_language() builds on published(), not on
-        # the broader visible_on_site() that guides and prompts use. Search
-        # mirrors whatever the model decides; it never defines its own rule.
+        # UseCaseQuerySet.visible_in_language() builds on visible_on_site()
+        # since Beta 11.7, matching guides and prompts. Search mirrors
+        # whatever the model decides; it never defines its own rule.
         return search_editorial(
             queryset=UseCase.objects.visible_in_language(language_code),
             translation_model=UseCaseTranslation,

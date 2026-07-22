@@ -1,62 +1,30 @@
 """
-Beta 11.1: Phase 7 reproduction, KNOWN ISSUE - deliberately not fixed in
-this slice.
+Beta 11.7: the regression guard for the defect this module used to merely
+reproduce.
 
-Reproduces (through the real admin save path, not direct model
-manipulation) that editing a published UseCase takes its public detail page
-offline: EditorialWorkflowAdminMixin.save_model()'s auto-review guard
-(_must_auto_review()/_auto_transition_to_review()) moves any changed,
-previously-PUBLISHED object to STATUS_REVIEW by design, so a second pair of
-eyes reviews the change before it goes live again. Guide and Prompt stay
-publicly visible through this transition because their querysets use
-visible_on_site() (published, OR review/approved with an existing live
-revision - see core/models/editorial.py::EditorialQuerySet.visible_on_site()).
+History: Beta 11.1 confirmed - through the real admin POST an editor
+actually uses, not model-level transitions - that editing a published
+UseCase took its public detail page offline. The admin's auto-review guard
+(EditorialWorkflowAdminMixin.save_model() ->_must_auto_review() ->
+_auto_transition_to_review()) moves any changed, previously-PUBLISHED object
+to STATUS_REVIEW by design, and UseCaseQuerySet.visible_in_language() then
+used the strict .published()-only status rule, so the whole page 404ed even
+though the published live_i18n snapshot was still intact. Guide and Prompt
+were unaffected because they already used visible_on_site().
 
-UseCase (and Comparison, see
-compare/tests/test_published_edit_visibility.py) instead uses the strict
-.published()-only status rule in its own visible_in_language() (see
-usecases/models.py::UseCaseQuerySet), so the same edit takes the entire
-public page offline (404) even though the previously-published live_i18n
-snapshot is still intact and unchanged. This exact status semantics
-("published() rather than the broader visible_on_site()") was already
-flagged as a deliberate, unchanged decision in a prior beta (see
-usecases/tests/test_draft_slug_leak.py's module docstring); this module is
-the first to reproduce it through the real admin POST an editor actually
-uses, rather than direct model-level transitions.
+Beta 11.1 deliberately did not widen UseCase to visible_on_site(), because
+one field would have leaked: UseCase.persona was absent from
+LIVE_SNAPSHOT_FIELDS while templates/usecases/list.html rendered it straight
+off the current translation (`obj.persona`). Beta 11.7 closes that first -
+persona is snapshotted and the card reads display_persona (see
+usecases/tests/test_live_visibility_persona_and_cache.py) - and only then
+widens the status rule.
 
-This slice does NOT widen UseCase's visibility to visible_on_site(),
-because that would introduce a NEW, more severe defect: UseCase.persona is
-NOT in UseCase.LIVE_SNAPSHOT_FIELDS:
-
-    LIVE_SNAPSHOT_FIELDS = ("slug", "public_slug", "title", "intro", "body", "outro")
-
-and, unlike title/intro/body/outro (all rendered through display_*
-properties backed by get_live_value()), templates/usecases/list.html
-renders the use case card's persona label via `obj.persona` directly - the
-current draft translation value, with no live_i18n/snapshot involvement
-whatsoever (see partials/_editorial_card.html's `{% if persona %}` block).
-Under today's strict published()-only rule that live read is harmless: the
-instant any edit puts the use case into review, it drops out of
-UseCaseListView's queryset entirely, so the one field with zero snapshot
-gate is exactly the field visibility already hides from the public.
-Switching to visible_on_site() would keep such an object in the public list
-during review/approved and would then render whatever `persona` currently
-holds - a genuine, concretely reproduced draft-leak mechanism (see
-test_persona_is_read_live_on_the_list_page_with_no_snapshot_gate_at_all
-below), not a hypothetical one. (persona is not itself part of
-UseCaseAdmin's editable fieldsets today, so this is not independently
-reachable through the current form - but nothing at the model/DB level
-prevents it, exactly as with the slug divergence
-usecases/tests/test_draft_slug_leak.py documents for the same reason.)
-
-Properly fixing the offline-on-edit defect needs persona to gain the same
-kind of live-snapshot mechanism UseCase's other translated fields already
-have - out of scope for this security-hardening slice; flagged in the Beta
-11.1 final report's "Verschobene Probleme" section as follow-up
-workflow/snapshot work.
+This module now asserts the fixed contract: the page stays up, and it keeps
+showing the published values.
 """
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from core.models.editorial import EditorialWorkflowMixin
@@ -65,10 +33,9 @@ from usecases.models import UseCase
 User = get_user_model()
 
 
-class UseCasePublishedEditGoesOfflineKnownIssueTests(TestCase):
-    """KNOWN ISSUE reproduction: editing a published UseCase through the
-    real admin form 404s its public detail page, even though the live
-    snapshot the page would need to render is still fully intact."""
+class UseCasePublishedEditStaysOnlineTests(TestCase):
+    """Editing a published UseCase through the real admin form keeps its
+    public detail page online, serving the last published values."""
 
     @classmethod
     def setUpTestData(cls):
@@ -87,6 +54,10 @@ class UseCasePublishedEditGoesOfflineKnownIssueTests(TestCase):
         )
         cls.usecase.publish(by=cls.admin_user)
         cls.usecase.save()
+        # The live-revision marker the admin's publish action sets via
+        # core.admin.set_last_published_revision(); visible_on_site() requires
+        # it for review/approved objects, exactly as it does for Guide/Prompt.
+        UseCase.objects.filter(pk=cls.usecase.pk).update(last_published_revision_id=1)
 
     def setUp(self):
         self.client.force_login(self.admin_user)
@@ -125,42 +96,55 @@ class UseCasePublishedEditGoesOfflineKnownIssueTests(TestCase):
         refreshed = UseCase.objects.get(pk=self.usecase.pk)
         self.assertEqual(refreshed.status, EditorialWorkflowMixin.STATUS_REVIEW)
 
-    def test_known_issue_public_detail_page_404s_after_the_admin_edit(self):
-        """KNOWN ISSUE (see module docstring): confirmed, reproduced 404 of
-        a UseCase whose live_i18n snapshot is still fully intact and
-        unchanged. This asserts today's actual, observed behavior - it does
-        NOT claim the 404 is the desired or correct contract."""
+    def test_public_detail_page_stays_online_after_the_admin_edit(self):
+        """The Beta 11.7 contract: the previously published page survives the
+        edit that moves the object into a new review round."""
         payload = self._base_payload(title="Changed Title Via Admin")
         self.client.post(self._change_url(), data=payload)
 
         refreshed = UseCase.objects.get(pk=self.usecase.pk)
+        self.assertEqual(refreshed.status, EditorialWorkflowMixin.STATUS_REVIEW)
         self.assertEqual(refreshed.live_i18n.get("en", {}).get("title"), "Original Title")
 
         resp = self.client.get("/en/usecases/offline-repro-usecase/")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 200)
 
-    def test_persona_is_read_live_on_the_list_page_with_no_snapshot_gate_at_all(self):
-        """Concrete mechanism behind the decision NOT to widen UseCase's
-        visibility to visible_on_site() in this slice: persona has no
-        live-snapshot equivalent at all and templates/usecases/list.html
-        reads it directly off the object (`obj.persona`), so any status
-        that keeps a use case in the public list while status != published
-        would render whatever persona is currently in the DB - unpublished
-        edits included."""
-        self.assertNotIn("persona", UseCase.LIVE_SNAPSHOT_FIELDS)
+    def test_public_detail_page_still_shows_the_published_title(self):
+        payload = self._base_payload(title="Changed Title Via Admin")
+        self.client.post(self._change_url(), data=payload)
 
-        u = self.usecase
-        u.persona = "DRAFT PERSONA NEVER PUBLISHED"
-        u.save()
+        # A fresh, anonymous client: the visitor's view. Reusing the logged-in
+        # admin client would carry its "was changed successfully" flash
+        # message - which quotes the new title - into the public HTML.
+        html = Client().get("/en/usecases/offline-repro-usecase/").content.decode()
+        self.assertIn("Original Title", html)
+        self.assertNotIn("Changed Title Via Admin", html)
 
-        # Simulate what visible_on_site() would additionally allow through:
-        # a still-visible review-status object with an existing live
-        # revision, exactly like Guide/Prompt already permit.
-        u.move_to_review(by=self.admin_user)
-        u.last_published_revision_id = 1
-        u.save()
+    def test_public_list_page_still_shows_the_published_title(self):
+        payload = self._base_payload(title="Changed Title Via Admin")
+        self.client.post(self._change_url(), data=payload)
 
-        would_be_visible = UseCase.objects.visible_on_site().filter(pk=u.pk).exists()
-        self.assertTrue(would_be_visible, "visible_on_site() would keep this object public")
+        html = Client().get("/en/usecases/").content.decode()
+        self.assertIn("Original Title", html)
+        self.assertNotIn("Changed Title Via Admin", html)
 
-        self.assertEqual(u.persona, "DRAFT PERSONA NEVER PUBLISHED")
+    def test_persona_now_has_a_live_snapshot_gate(self):
+        """The precondition that made widening the status rule safe: persona
+        is snapshotted, so a review-status use case that stays listed renders
+        its published persona, never the current draft one."""
+        self.assertIn("persona", UseCase.LIVE_SNAPSHOT_FIELDS)
+
+        refreshed = UseCase.objects.get(pk=self.usecase.pk)
+        self.assertEqual(refreshed.live_i18n["en"]["persona"], "Original Persona")
+
+        refreshed.set_current_language("en")
+        refreshed.persona = "DRAFT PERSONA NEVER PUBLISHED"
+        refreshed.save()
+        refreshed.move_to_review(by=self.admin_user)
+        refreshed.save()
+
+        self.assertTrue(UseCase.objects.visible_on_site().filter(pk=refreshed.pk).exists())
+
+        html = Client().get("/en/usecases/").content.decode()
+        self.assertIn("Original Persona", html)
+        self.assertNotIn("DRAFT PERSONA NEVER PUBLISHED", html)

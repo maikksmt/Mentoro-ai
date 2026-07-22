@@ -74,7 +74,9 @@ ADAPTER_SPECS: tuple[AdapterSpec, ...] = (
         kind=SearchResultKind.USE_CASE,
         url_prefix="usecases",
         text_fields=("intro", "body", "outro"),
-        review_with_live_revision_is_public=False,
+        # Beta 11.7 moved UseCaseQuerySet.visible_in_language() from
+        # published() to visible_on_site(), matching guide and prompt.
+        review_with_live_revision_is_public=True,
         required_extra={"persona": ""},
     ),
     AdapterSpec(

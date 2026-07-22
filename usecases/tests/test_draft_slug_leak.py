@@ -2,15 +2,15 @@
 Beta 8.11 Section B: reproduction of the same slug-priority bug confirmed
 for Prompt/Guide, applied to UseCase.
 
-Architectural note (documented, not changed in this slice): unlike Guide/
-Prompt, UseCaseQuerySet.visible_in_language() uses the strict .published()
-status rule, not the broader visible_on_site() - a use case that leaves
-STATUS_PUBLISHED (e.g. via move_to_review()) disappears from every public
-surface entirely, old slug included, so the classic "live revision in
-progress" scenario used for Guide/Prompt cannot leak a draft slug here: it
-404s on BOTH slugs instead. This is pre-existing, confirmed status
-semantics ("keine unbeabsichtigte Erweiterung von published() auf
-visible_on_site()") and is deliberately left unchanged.
+Architectural note (updated in Beta 11.7): UseCaseQuerySet.visible_in_language()
+now uses visible_on_site() - published, or review/approved with a live
+revision - exactly like Guide/Prompt. A use case mid-revision therefore stays
+public under its *live* slug, which makes the live-snapshot-first resolver
+order below load-bearing rather than merely defensive: the saved draft slug
+sits in the database alongside it and must not resolve until republished.
+Until Beta 11.6 this module documented the opposite (both slugs 404ing,
+because the object left the public queryset entirely); that behaviour was the
+defect Beta 11.7 fixed, not a contract to preserve.
 
 What *is* realistic and worth guarding here: usecases/views.py::_resolve_by_slug()
 had the identical structural bug as Prompt's - it checked the CURRENT
@@ -36,8 +36,9 @@ User = get_user_model()
 
 
 class UseCaseStatusSemanticsDuringRevisionTests(TestCase):
-    """Documents the real (unchanged) status semantics: a use case mid-
-    revision (status=review) is fully invisible - old slug included."""
+    """Beta 11.7 status semantics: a use case mid-revision (status=review,
+    live revision present) stays public under its live slug, while the saved
+    draft slug remains unresolvable."""
 
     @classmethod
     def setUpTestData(cls):
@@ -45,7 +46,7 @@ class UseCaseStatusSemanticsDuringRevisionTests(TestCase):
             username="usecase-status-editor", email="usecase-status@example.com", password="testpass123"
         )
 
-    def test_old_live_slug_404s_once_status_leaves_published(self):
+    def test_old_live_slug_still_resolves_while_the_draft_slug_does_not(self):
         u = UseCase.objects.create(status=EditorialWorkflowMixin.STATUS_APPROVED, author=self.author)
         u.create_translation("en", title="Old Public Title", intro="i", body="b", outro="o",
                               slug="uc-old-live-slug-811", persona="Founder")
@@ -60,10 +61,12 @@ class UseCaseStatusSemanticsDuringRevisionTests(TestCase):
         u.last_published_revision_id = 1
         u.save()
 
-        # Both the old AND the new slug 404 - the object is not in
-        # .published() at all while status=review, regardless of slug.
+        # The published live slug keeps serving the published values ...
         resp_old = self.client.get(f"/en/usecases/{old_slug}/")
-        self.assertEqual(resp_old.status_code, 404)
+        self.assertEqual(resp_old.status_code, 200)
+        self.assertIn("Old Public Title", resp_old.content.decode())
+
+        # ... and the saved draft slug stays invisible until republished.
         resp_new = self.client.get("/en/usecases/uc-new-draft-slug-811/")
         self.assertEqual(resp_new.status_code, 404)
 

@@ -1,9 +1,16 @@
 """
 Beta 10.5: what is specific to the use case adapter.
 
-Two decisions matter here: persona is not indexed because the model never
-snapshots it, and the public queryset is the stricter published() rather than
-visible_on_site().
+Two decisions matter here: persona is not indexed, and the public queryset
+is whatever the model decides.
+
+Both moved in Beta 11.7. UseCaseQuerySet.visible_in_language() now uses
+visible_on_site() like every other editorial model, so a use case mid-review
+stays searchable under its published values instead of disappearing. And
+persona is now snapshotted (it is rendered on the public card), so the
+"nothing to search" argument for leaving it out no longer holds - but
+indexing a new field changes ranking and snippets, which is a search
+decision and stays out of that slice.
 """
 from unittest import skipUnless
 
@@ -70,10 +77,11 @@ class UseCaseFieldConfigurationTests(TestCase):
             "persona", [f.public_field for f in USE_CASE_SEARCH_FIELDS]
         )
 
-    def test_persona_is_not_part_of_the_published_snapshot(self):
-        # The reason persona cannot be indexed: the model never writes it into
-        # live_i18n, so it has no published representation to search.
-        self.assertNotIn("persona", UseCase.LIVE_SNAPSHOT_FIELDS)
+    def test_persona_is_snapshotted_but_still_deliberately_unindexed(self):
+        # Beta 11.7 added persona to the snapshot so the public use-case card
+        # can render it live-gated. Search deliberately did not follow.
+        self.assertIn("persona", UseCase.LIVE_SNAPSHOT_FIELDS)
+        self.assertNotIn("persona", [f.public_field for f in USE_CASE_SEARCH_FIELDS])
 
     def test_adapter_kind(self):
         self.assertIs(UseCaseSearchAdapter.kind, SearchResultKind.USE_CASE)
@@ -101,20 +109,28 @@ class UseCasePersonaTests(UseCaseAdapterTestCase):
 
 @postgresql_only
 class UseCaseVisibilityTests(UseCaseAdapterTestCase):
-    def test_review_with_live_revision_is_not_public(self):
-        # UseCaseQuerySet.visible_in_language() uses published(), so unlike a
-        # guide the object leaves public view during review. Search follows.
+    def test_review_with_live_revision_stays_searchable_under_published_values(self):
+        # Beta 11.7: visible_in_language() uses visible_on_site(), so - like a
+        # guide - the object keeps its public presence during review. Search
+        # follows the model, and keeps matching the *published* text.
         use_case = self.make("uc-review-en", title="Reviewtoken use case")
         self.assertIn(use_case.pk, self.ids("Reviewtoken"))
 
         begin_unpublished_revision(
             use_case, author=self.author, language_code="en", intro="edited"
         )
-        self.assertNotIn(use_case.pk, self.ids("Reviewtoken"))
-        self.assertNotIn(
+        self.assertIn(use_case.pk, self.ids("Reviewtoken"))
+        self.assertIn(
             use_case.pk,
             list(UseCase.objects.visible_in_language("en").values_list("pk", flat=True)),
         )
+
+    def test_review_edit_text_is_not_searchable_before_republishing(self):
+        use_case = self.make("uc-review-draft-en", title="Reviewdraft use case")
+        begin_unpublished_revision(
+            use_case, author=self.author, language_code="en", intro="Draftneedle intro"
+        )
+        self.assertNotIn(use_case.pk, self.ids("Draftneedle"))
 
     def test_search_matches_the_public_queryset(self):
         self.make("uc-parity-a-en", title="Paritytoken one")
