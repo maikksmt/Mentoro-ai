@@ -86,6 +86,15 @@ class TestPublicViews(TestCase):
         self.assertIn('rel="canonical"', html)
         self.assertIn('name="language"', html)
 
+    def test_detail_og_url_is_present_and_non_empty(self):
+        """Companion to the preview's og:url suppression (Beta 11.8): the
+        public page must keep a real, non-empty og:url."""
+        resp = self.client.get(reverse("usecases:detail", kwargs={"slug": "a"}), HTTP_ACCEPT_LANGUAGE="en")
+        self.assertEqual(resp.status_code, 200)
+        html = resp.content.decode()
+        self.assertIn('property="og:url"', html)
+        self.assertNotIn('property="og:url" content="">', html)
+
     def test_list_filter_persona_tolerated(self):
         url = reverse("usecases:list") + "?persona=teacher"
         resp = self.client.get(url, HTTP_ACCEPT_LANGUAGE="en")

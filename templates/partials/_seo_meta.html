@@ -28,7 +28,8 @@
 <meta property="og:site_name" content="{{ SITE_NAME|default:'MentoroAI' }}">
 <meta property="og:title" content="{{ seo.title }}">
 <meta property="og:description" content="{{ seo.description }}">
-<meta property="og:url" content="{{ seo.canonical }}">
+{% if seo.canonical %}
+    <meta property="og:url" content="{{ seo.canonical }}">{% endif %}
 {% if seo.og_image %}
     <meta property="og:image" content="{{ seo.og_image }}">
     <meta property="og:image:alt" content="{{ title }}">
