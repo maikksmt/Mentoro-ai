@@ -31,6 +31,16 @@ from usecases.models import UseCase
 
 def make_usecase(*, slug, status=EditorialWorkflowMixin.STATUS_PUBLISHED,
                   published_at=None, languages=("en", "de"), persona="", **extra):
+    """
+    Beta 11.7B: since related_usecases() now ranks on the live snapshot
+    persona (live_i18n[lang]["persona"]) rather than the current draft
+    translation, a PUBLISHED fixture needs a real snapshot - otherwise every
+    persona comparison in this module would see "" (no signal) instead of
+    the persona these tests are specifically about. Written directly rather
+    than through the FSM publish() transition to keep this module's fast,
+    direct-construction style; DRAFT fixtures (tested elsewhere as excluded)
+    deliberately get no snapshot.
+    """
     if published_at is None and status == EditorialWorkflowMixin.STATUS_PUBLISHED:
         published_at = timezone.now()
     u = UseCase.objects.create(status=status, published_at=published_at, **extra)
@@ -39,6 +49,16 @@ def make_usecase(*, slug, status=EditorialWorkflowMixin.STATUS_PUBLISHED,
             lang, title=f"Title {slug} {lang}", intro="i", body="b", outro="o",
             slug=f"{slug}-{lang}", persona=persona,
         )
+    if status == EditorialWorkflowMixin.STATUS_PUBLISHED:
+        u.live_i18n = {
+            lang: {
+                "slug": f"{slug}-{lang}", "public_slug": None,
+                "title": f"Title {slug} {lang}", "intro": "i", "body": "b",
+                "outro": "o", "persona": persona,
+            }
+            for lang in languages
+        }
+        u.save(update_fields=["live_i18n"])
     return u
 
 

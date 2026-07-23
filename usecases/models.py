@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _, get_language
@@ -10,6 +11,47 @@ from core.models.editorial import EditorialManager, EditorialQuerySet, Editorial
 
 
 class UseCaseQuerySet(EditorialQuerySet):
+    #: Editing states in which a use case that was already published keeps its
+    #: public presence, provided a live revision exists.
+    #:
+    #: Beta 11.7A adds STATUS_REWORK to the shared
+    #: EditorialQuerySet.visible_on_site() set (published, review, approved).
+    #: "Rework" means the *new* draft needs another pass - it is not a
+    #: withdrawal, so the previously approved live snapshot stays valid and
+    #: must keep serving. Taking the page offline for the duration of an
+    #: editorial round was the exact defect Beta 11.7 set out to fix; leaving
+    #: rework out would have reopened it one transition later
+    #: (published -> review -> rework is a real, reachable path).
+    #:
+    #: STATUS_ARCHIVED is deliberately absent: archiving *is* the deliberate
+    #: public withdrawal, and it outranks any snapshot still on record.
+    #: STATUS_DRAFT is absent too - the FSM only reaches it from archived via
+    #: restore(), i.e. after a withdrawal, so a published use case never
+    #: legitimately returns to draft.
+    LIVE_EDITING_STATUSES = (
+        EditorialWorkflowMixin.STATUS_REVIEW,
+        EditorialWorkflowMixin.STATUS_APPROVED,
+        EditorialWorkflowMixin.STATUS_REWORK,
+    )
+
+    def visible_on_site(self):
+        """
+        Use-case-specific override of the shared editorial rule, widened by
+        STATUS_REWORK (see :attr:`LIVE_EDITING_STATUSES`).
+
+        Overridden here rather than in EditorialQuerySet because that class
+        backs Guide, Prompt and Comparison as well, and the rework decision
+        was taken for use cases only. Ordering matches the base method so
+        callers see no other behavioural difference.
+        """
+        return self.filter(
+            Q(status=EditorialWorkflowMixin.STATUS_PUBLISHED)
+            | Q(
+                status__in=self.LIVE_EDITING_STATUSES,
+                last_published_revision_id__isnull=False,
+            )
+        ).order_by("updated_at")
+
     def visible_in_language(self, language_code):
         """
         Public use cases that have an actual translation in language_code -
@@ -19,19 +61,66 @@ class UseCaseQuerySet(EditorialQuerySet):
         never lets an EN-only use case leak onto the DE list/homepage/detail
         resolution or vice versa.
 
-        Status rule intentionally matches the existing .published manager
-        (strict published() only, matching UseCaseListView's current status
-        rule) - this only tightens the language filter, it does not widen
-        which statuses are publicly visible.
+        Status rule (Beta 11.7): visible_on_site() - published, or one of
+        :attr:`LIVE_EDITING_STATUSES` with an existing live revision. That is
+        the rule Guide and Prompt already use, plus rework (Beta 11.7A).
+        It replaces the stricter published()
+        this queryset carried until Beta 11.6, under which the admin's own
+        auto-review guard (EditorialWorkflowAdminMixin._must_auto_review())
+        took an edited use case's entire public page offline the moment an
+        author saved a change, even though its published live_i18n snapshot
+        was still intact (reproduced through the real admin POST in
+        usecases/tests/test_published_edit_visibility.py).
+
+        Widening the status rule is only safe because every field the public
+        surfaces actually render now resolves through the live snapshot:
+        LIVE_SNAPSHOT_FIELDS gained "persona" in the same slice, closing the
+        one field (rendered by templates/usecases/list.html) that used to be
+        read straight off the current draft translation. Archived use cases
+        stay excluded - visible_on_site() never admits STATUS_ARCHIVED.
+
+        The snapshot filter makes the language rule fail-closed, which
+        ``translated()`` alone is not. ``translated()`` only asks whether a
+        translation *row* exists, so a use case published in English and
+        given a German translation afterwards counted as publicly visible in
+        German and served that never-published draft under /de/ (confirmed by
+        reproduction against the unchanged Beta 11.6 tree - a pre-existing
+        defect, not one this slice introduced). Public visibility in a
+        language now requires a published revision *in that language*:
+
+        * ``live_i18n`` has an entry for ``language_code`` - published here.
+        * ``live_i18n`` is entirely empty - a record predating the snapshot
+          mechanism; the strict ``published()``-era behaviour is kept for it,
+          matching core/projections.py::public_content_value()'s state C.
+        * ``live_i18n`` is non-empty but lacks this language - published in
+          other languages only, so there is no public revision here (state
+          B). Excluded.
         """
-        return self.published().translated(language_code).language(language_code).distinct()
+        return (
+            self.visible_on_site()
+            .filter(
+                Q(**{"live_i18n__has_key": language_code})
+                | Q(live_i18n={})
+                | Q(live_i18n__isnull=True)
+            )
+            .translated(language_code)
+            .language(language_code)
+            .distinct()
+        )
 
 
 UseCaseManager = EditorialManager.from_queryset(UseCaseQuerySet)
 
 
 class UseCase(EditorialWorkflowMixin, TranslatableModel):
-    LIVE_SNAPSHOT_FIELDS = ("slug", "public_slug", "title", "intro", "body", "outro")
+    #: Beta 11.7 added "persona": templates/usecases/list.html renders it on
+    #: the public card, so it needs the same published-snapshot gate the
+    #: other rendered fields have. Without it, widening visible_in_language()
+    #: to visible_on_site() would have published the current draft persona of
+    #: any use case sitting in review. Snapshots written before this slice
+    #: carry no "persona" key and therefore resolve to "" (fail-closed) until
+    #: the object is published again - see get_snapshot_field()'s state A.
+    LIVE_SNAPSHOT_FIELDS = ("slug", "public_slug", "title", "intro", "body", "outro", "persona")
     live_i18n = models.JSONField(default=dict, blank=True)
     translations = TranslatedFields(
         title=models.CharField(_("Title"), max_length=200),
@@ -116,11 +205,35 @@ class UseCase(EditorialWorkflowMixin, TranslatableModel):
                     self.public_slug = self.slug
 
     def get_absolute_url(self, language: str | None = None):
+        """
+        The public detail URL for ``language``, or ``"#"`` when there is no
+        public revision in that language.
+
+        Beta 11.7 made the missing-snapshot case fail closed. The three
+        states mirror core/projections.py::public_content_value():
+
+        * a snapshot entry for ``language`` exists - its slug is the sole
+          public slug for that language;
+        * ``live_i18n`` is entirely empty - a record predating the snapshot
+          mechanism, so the current translation's slug still stands in;
+        * ``live_i18n`` is non-empty but has no entry for ``language`` -
+          published in other languages only. Falling back to the current
+          translation here handed out a never-published draft slug, which
+          ``localized_alternates()`` then advertised as an hreflang
+          alternate pointing at a 404. Returning ``"#"`` makes that helper
+          skip the language, matching what it already does for Comparison.
+        """
         lang = language or get_language()
-        live = (self.live_i18n or {}).get(lang or "", {})
+        snapshot = self.live_i18n or {}
+        live = snapshot.get(lang or "", {})
         slug = live.get("public_slug") or live.get("slug")
+
         if not slug:
+            if snapshot:
+                return "#"
             from parler.utils.context import switch_language
             with switch_language(self, lang):
                 slug = self.safe_translation_getter("public_slug") or self.safe_translation_getter("slug")
+        if not slug:
+            return "#"
         return reverse("usecases:detail", kwargs={"slug": slug})

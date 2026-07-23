@@ -207,9 +207,10 @@ class VisibilityTests(ServiceIntegrationTestCase):
         self.assertEqual(self.search("Draftstatustoken").total_count, 0)
 
     def test_review_semantics_stay_model_specific(self):
-        # Guides and prompts keep a live revision public; use cases and
-        # comparisons do not. The service reproduces whatever each adapter
-        # decides - it has no visibility rule of its own.
+        # Since Beta 11.9 every editorial model keeps a live revision
+        # public through an editorial round. The service reproduces
+        # whatever each adapter decides - it has no visibility rule of its
+        # own, which is exactly what this asserts.
         from search.tests.editorial_fixtures import begin_unpublished_revision
 
         expected_visible = set()

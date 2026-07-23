@@ -40,8 +40,9 @@ class ComparisonSearchAdapter:
         query: NormalizedSearchQuery,
         language_code: str,
     ) -> tuple[SearchResult, ...]:
-        # ComparisonQuerySet.visible_in_language() builds on published(), not
-        # on the broader visible_on_site() that guides and prompts use.
+        # ComparisonQuerySet.visible_in_language() builds on visible_on_site()
+        # since Beta 11.9, matching guides and prompts. Search mirrors
+        # whatever the model decides; it never defines its own rule.
         return search_editorial(
             queryset=Comparison.objects.visible_in_language(language_code),
             translation_model=ComparisonTranslation,

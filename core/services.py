@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple, Optional, Iterable
 
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Count, IntegerField, Q, QuerySet, Value
+from django.db.models import Case, Count, IntegerField, Q, QuerySet, Value, When
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import get_language, override
@@ -16,6 +16,7 @@ from reversion.models import Version
 
 from catalog.models import Category, Tool
 from compare.models import Comparison
+from compare.presentation import live_tool_ids_for_comparisons
 from core.projections import public_content_url, public_content_value
 from core.text import visible_text
 from guides.models import Guide
@@ -192,6 +193,27 @@ def related_prompts(prompt, limit=6, language_code: str | None = None):
     return items[:limit]
 
 
+def _live_usecase_persona(usecase, language_code: str) -> str:
+    """
+    The published persona for `language_code`, or "" when there is no live
+    signal to rank on - never the current draft translation.
+
+    Deliberately narrower than :func:`core.projections.public_content_value`:
+    that helper's state-C fallback (an entirely empty ``live_i18n``, i.e. a
+    record predating the snapshot mechanism) reads the current translation
+    instead, which is the right legacy contract for rendered fields. Persona
+    ranking must not do that - since Beta 11.7A every currently-published use
+    case has a real snapshot (backfilled by
+    usecases/migrations/0006_backfill_usecase_live_state.py), so a missing
+    snapshot or a missing "persona" key both mean exactly the same thing: no
+    persona signal for this candidate, not "check the draft instead".
+    """
+    snapshot = (getattr(usecase, "live_i18n", None) or {}).get(language_code)
+    if not isinstance(snapshot, dict):
+        return ""
+    return snapshot.get("persona") or ""
+
+
 def related_usecases(usecase, limit=6, language_code: str | None = None):
     """
     Like above for UseCases;
@@ -259,22 +281,40 @@ def related_usecases(usecase, limit=6, language_code: str | None = None):
        Value(0) - no query is added, no candidate can score a persona
        point from two absent personas. Tool-based candidate selection and
        tool_matches ranking are unaffected either way.
+
+    Beta 11.7B: both the source and the candidate side of persona matching
+    were still reading the current *draft* translation
+    (``translations__persona``, joined via the live translation table),
+    which the Beta 11.7 visibility widening turned into a real draft leak -
+    not of rendered text, but of *behaviour*: editing a published use case's
+    persona and sending it to review/rework changed which candidates it
+    matched (and which candidates it appeared as a match for) before that
+    edit was ever published. Both sides now read
+    :func:`_live_usecase_persona`, i.e. ``live_i18n[lang]["persona"]``, via
+    a JSONField key-transform lookup (``live_i18n__<lang>__persona__iexact``)
+    - so the candidate match is evaluated in the same query, with no
+    additional query per candidate, exactly like the join it replaces. A
+    candidate with no live persona for `lang` (missing snapshot, missing
+    key, or empty value) simply cannot match - the lookup resolves to SQL
+    NULL, which no ``__iexact`` comparison satisfies. Everything else -
+    weights, the persona-vs-tool priority, order_by, limit, fallback-fill -
+    is unchanged.
     """
     lang = language_code or get_language() or "en"
-    persona = ""
-    if usecase.has_translation(lang):
-        persona = usecase.safe_translation_getter("persona", default="", language_code=lang) or ""
+    persona = _live_usecase_persona(usecase, lang)
     tool_ids = _ids(usecase.tools.all()) if hasattr(usecase, "tools") else []
 
     qs = UseCase.objects.visible_in_language(lang).exclude(pk=usecase.pk).prefetch_related("tools")
 
     persona_q = Q()
     if persona:
-        persona_q = Q(translations__language_code=lang, translations__persona__iexact=persona)
+        persona_q = Q(**{f"live_i18n__{lang}__persona__iexact": persona})
 
     if persona or tool_ids:
         if persona:
-            persona_match_annotation = Count("id", filter=persona_q)
+            persona_match_annotation = Case(
+                When(persona_q, then=Value(1)), default=Value(0), output_field=IntegerField()
+            )
         else:
             persona_match_annotation = Value(0, output_field=IntegerField())
         qs = (
@@ -316,42 +356,99 @@ def related_comparisons(comparison: Comparison, limit: int = 6, language_code: s
     language's title/slug for such an object, but that only means the
     resulting card had title="" and url="#" - it was never excluded from
     the list itself. Confirmed via reproduction in
-    compare/tests/test_related_comparisons_language_safety.py. Ranking
-    weights, order, and limit are unchanged; only the base visibility/
-    language filter (here and in the fallback-fill query) was touched.
+    compare/tests/test_related_comparisons_language_safety.py.
+
+    Beta 11.9E: tool/category matching for both the source and every
+    candidate now reads each comparison's published entry snapshot
+    (live_tool_ids_for_comparisons() - the same State-A/State-C boundary and
+    Tool.objects.public() contract the detail page, category filter and
+    list cards already share) instead of the current `tools` M2M (i.e.
+    today's ComparisonToolEntry draft rows). A comparison mid-review whose
+    draft entry had its tool swapped, a new draft entry, or a deleted draft
+    row could previously change which comparisons were "related" and in
+    what order before the edit was ever republished - the same leak class
+    Beta 11.9/11.9A/11.9B/11.9C/11.9D closed for the detail page, category
+    filter and list cards. Confirmed by reproduction in
+    compare/tests/test_related_comparisons_live_tools.py.
+
+    This can no longer be expressed as the previous single SQL
+    join+Count()+order_by()+limit(): live_entries is JSON, not a relation,
+    so there is nothing for `tools__in=`/`tools__categories__in=` to join
+    against without either a fragile JSONB expression (rejected for the
+    same reason Beta 11.9C rejected it for the category filter) or
+    reintroducing the very M2M this fix removes. Matching is instead scored
+    in Python over two small bulk reads - the source's own live tool IDs,
+    and every visible candidate's live tool IDs via
+    live_tool_ids_for_comparisons(), each a single query (plus at most one
+    further bulk query for State-C legacy rows) - never one query per
+    candidate. Match weights (tool overlap first, category overlap second),
+    the -published_at tie-breaker, the result limit, source exclusion and
+    the fallback-fill are all unchanged; only where the tool/category
+    membership itself comes from was touched.
     """
 
     if comparison is None:
         return []
     lang = language_code or get_language()
 
-    tool_ids = _ids(comparison.tools.all()) if hasattr(comparison, "tools") else []
-
-    cat_ids = list(
-        comparison.tools.values_list("categories__id", flat=True).distinct()
-    ) if tool_ids else []
-
-    qs = (
+    candidates_qs = (
         Comparison.objects.visible_in_language(lang)
         .exclude(pk=comparison.pk)
-        .prefetch_related("tools", "tools__categories")
     )
 
-    if tool_ids or cat_ids:
-        qs = (
-            qs.filter(Q(tools__in=tool_ids) | Q(tools__categories__in=cat_ids))
-            .annotate(
-                tool_matches=Count("tools", filter=Q(tools__in=tool_ids), distinct=True),
-                cat_matches=Count(
-                    "tools__categories", filter=Q(tools__categories__in=cat_ids), distinct=True
-                ),
-            )
-            .order_by("-tool_matches", "-cat_matches", "-published_at")
-        )
-    else:
-        qs = qs.order_by("-published_at")
+    source_tool_ids = live_tool_ids_for_comparisons(
+        Comparison.objects.filter(pk=comparison.pk)
+    ).get(comparison.pk, frozenset())
+    candidate_tool_ids_by_pk = live_tool_ids_for_comparisons(candidates_qs)
 
-    items = list(qs[:limit])
+    all_tool_ids = set(source_tool_ids)
+    for ids in candidate_tool_ids_by_pk.values():
+        all_tool_ids |= ids
+
+    public_tool_ids: set[int] = set()
+    categories_by_tool_id: Dict[int, set] = {}
+    if all_tool_ids:
+        for tool_id, category_id in (
+            Tool.objects.public().filter(pk__in=all_tool_ids).values_list("pk", "categories")
+        ):
+            public_tool_ids.add(tool_id)
+            if category_id is not None:
+                categories_by_tool_id.setdefault(tool_id, set()).add(category_id)
+
+    source_public_tool_ids = source_tool_ids & public_tool_ids
+    source_cat_ids: set = set()
+    for tool_id in source_public_tool_ids:
+        source_cat_ids |= categories_by_tool_id.get(tool_id, set())
+
+    if source_public_tool_ids or source_cat_ids:
+        published_at_by_pk = dict(candidates_qs.values_list("pk", "published_at"))
+
+        scored = []
+        for pk, tool_ids in candidate_tool_ids_by_pk.items():
+            candidate_public_tool_ids = tool_ids & public_tool_ids
+            candidate_cat_ids: set = set()
+            for tool_id in candidate_public_tool_ids:
+                candidate_cat_ids |= categories_by_tool_id.get(tool_id, set())
+
+            tool_matches = len(candidate_public_tool_ids & source_public_tool_ids)
+            cat_matches = len(candidate_cat_ids & source_cat_ids)
+            if tool_matches or cat_matches:
+                scored.append((pk, tool_matches, cat_matches, published_at_by_pk.get(pk)))
+
+        # Mirrors order_by("-tool_matches", "-cat_matches", "-published_at").
+        # published_at is never actually NULL for a visible comparison
+        # (on_after_publish() always sets it, and it is never cleared), but
+        # the `is not None` guard keeps ties comparable instead of raising
+        # if that invariant is ever violated.
+        scored.sort(
+            key=lambda row: (row[1], row[2], row[3] is not None, row[3]),
+            reverse=True,
+        )
+        top_pks = [row[0] for row in scored[:limit]]
+        instances_by_pk = candidates_qs.in_bulk(top_pks)
+        items = [instances_by_pk[pk] for pk in top_pks if pk in instances_by_pk]
+    else:
+        items = list(candidates_qs.order_by("-published_at")[:limit])
 
     # fallback: always return something useful
     if len(items) < limit:

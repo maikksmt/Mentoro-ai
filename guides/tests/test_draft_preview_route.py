@@ -80,3 +80,23 @@ class DraftPreviewRouteTests(TestCase):
     def test_content_language_matches_the_requested_language(self):
         resp = self.client.get(preview_url(self.guide.pk, "en"))
         self.assertEqual(resp["Content-Language"], "en")
+
+    def test_no_open_graph_url_meta_tag_is_rendered(self):
+        """A preview has no canonical URL to publish, so og:url must be
+        absent entirely - not an empty placeholder (see
+        templates/partials/_seo_meta.html)."""
+        html = self.client.get(preview_url(self.guide.pk, "en")).content.decode()
+        self.assertNotIn('property="og:url"', html)
+        self.assertNotIn("property='og:url'", html)
+
+    def test_no_canonical_link_is_rendered(self):
+        html = self.client.get(preview_url(self.guide.pk, "en")).content.decode()
+        self.assertNotIn('rel="canonical"', html)
+
+    def test_no_hreflang_alternate_links_are_rendered(self):
+        html = self.client.get(preview_url(self.guide.pk, "en")).content.decode()
+        self.assertNotIn("hreflang=", html)
+
+    def test_no_json_ld_is_rendered(self):
+        html = self.client.get(preview_url(self.guide.pk, "en")).content.decode()
+        self.assertNotIn("application/ld+json", html)

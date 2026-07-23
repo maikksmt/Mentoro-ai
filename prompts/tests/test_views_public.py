@@ -33,3 +33,18 @@ class PromptPublicViewsTests(TestCase):
         url = reverse("prompts:list")
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
+
+    def test_detail_canonical_and_og_url_are_present_and_non_empty(self):
+        """Companion to the preview's og:url suppression (Beta 11.8): the
+        public page must keep a real, non-empty canonical and og:url."""
+        # The literal slug from setUpTestData - self.p_en_pub.slug is a
+        # translated-field descriptor whose value depends on parler's
+        # current-language cache, not a stable identifier to assert on.
+        slug = "hello-en"
+        resp = self.client.get(reverse("prompts:detail", kwargs={"slug": slug}))
+        html = resp.content.decode("utf-8")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('<link rel="canonical"', html)
+        self.assertIn('property="og:url"', html)
+        self.assertNotIn('property="og:url" content="">', html)
+        self.assertIn(slug, html)

@@ -1,10 +1,13 @@
 """
 Beta 10.5: what is specific to the comparison adapter.
 
-Comparisons expose only strictly published objects, and their linked tool
-names are deliberately not searchable yet. This module also confirms the
-adapter is independent of the public comparison list search hardened in
-Beta 10.2.
+Linked tool names are deliberately not searchable yet. This module also
+confirms the adapter is independent of the public comparison list search
+hardened in Beta 10.2.
+
+Beta 11.9 moved the visibility rule: comparisons no longer expose strictly
+published objects only - a comparison mid-review keeps its published values
+searchable, like every other editorial model.
 """
 from unittest import skipUnless
 
@@ -118,21 +121,30 @@ class ComparisonToolMetadataTests(ComparisonAdapterTestCase):
 
 @postgresql_only
 class ComparisonVisibilityTests(ComparisonAdapterTestCase):
-    def test_review_with_live_revision_is_not_public(self):
-        # ComparisonQuerySet.visible_in_language() uses published().
+    def test_review_with_live_revision_stays_searchable_under_published_values(self):
+        # Beta 11.9: visible_in_language() uses visible_on_site(), so - like
+        # a guide - the comparison keeps its public presence during review.
+        # Search follows the model, and keeps matching the *published* text.
         comparison = self.make("cmp-review-en", title="Reviewtoken comparison")
         self.assertIn(comparison.pk, self.ids("Reviewtoken"))
 
         begin_unpublished_revision(
             comparison, author=self.author, language_code="en", intro="edited"
         )
-        self.assertNotIn(comparison.pk, self.ids("Reviewtoken"))
-        self.assertNotIn(
+        self.assertIn(comparison.pk, self.ids("Reviewtoken"))
+        self.assertIn(
             comparison.pk,
             list(
                 Comparison.objects.visible_in_language("en").values_list("pk", flat=True)
             ),
         )
+
+    def test_review_edit_text_is_not_searchable_before_republishing(self):
+        comparison = self.make("cmp-review-draft-en", title="Reviewdraft comparison")
+        begin_unpublished_revision(
+            comparison, author=self.author, language_code="en", intro="Draftneedle intro"
+        )
+        self.assertNotIn(comparison.pk, self.ids("Draftneedle"))
 
     def test_search_matches_the_public_queryset(self):
         self.make("cmp-parity-a-en", title="Paritytoken one")

@@ -31,6 +31,11 @@ from usecases.models import UseCase
 
 def make_usecase(*, slug, status=EditorialWorkflowMixin.STATUS_PUBLISHED,
                   published_at=None, languages=("en", "de"), persona="", **extra):
+    """
+    Beta 11.7B: related_usecases() now ranks on the live snapshot persona
+    (live_i18n[lang]["persona"]), so a PUBLISHED fixture needs a real
+    snapshot - see the identical note in test_persona_case_ranking.py.
+    """
     if published_at is None and status == EditorialWorkflowMixin.STATUS_PUBLISHED:
         published_at = timezone.now()
     u = UseCase.objects.create(status=status, published_at=published_at, **extra)
@@ -39,6 +44,16 @@ def make_usecase(*, slug, status=EditorialWorkflowMixin.STATUS_PUBLISHED,
             lang, title=f"Title {slug} {lang}", intro="i", body="b", outro="o",
             slug=f"{slug}-{lang}", persona=persona,
         )
+    if status == EditorialWorkflowMixin.STATUS_PUBLISHED:
+        u.live_i18n = {
+            lang: {
+                "slug": f"{slug}-{lang}", "public_slug": None,
+                "title": f"Title {slug} {lang}", "intro": "i", "body": "b",
+                "outro": "o", "persona": persona,
+            }
+            for lang in languages
+        }
+        u.save(update_fields=["live_i18n"])
     return u
 
 

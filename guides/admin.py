@@ -13,9 +13,14 @@ from reversion.admin import VersionAdmin
 
 from content.templatetags.richtext import richtext
 from core.admin import TranslatableTinyMCEMixin, TranslatableTinyMCEInlineMixin, EditorialWorkflowAdminMixin, ChildOfGuideOwnershipMixin
+from core.editorial_preview import (
+    apply_editorial_preview_headers,
+    has_saved_translation,
+    is_supported_preview_language,
+)
 from core.services import get_live_display_instance, build_field_diffs, build_section_diffs
 from .models import GuideItem, GuideSection, Guide
-from .presentation import PREVIEW_ROBOTS, build_draft_guide_context, has_saved_translation
+from .presentation import build_draft_guide_context
 
 
 class GuideItemInline(TranslatableTinyMCEInlineMixin, TranslatableStackedInline):
@@ -177,8 +182,7 @@ class GuideAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, VersionA
         if request.method not in ("GET", "HEAD"):
             return HttpResponseNotAllowed(["GET", "HEAD"])
 
-        supported_languages = {code for code, _label in settings.LANGUAGES}
-        if language_code not in supported_languages:
+        if not is_supported_preview_language(language_code):
             raise Http404("Unsupported preview language.")
 
         guide = self.get_object(request, object_id)
@@ -197,10 +201,7 @@ class GuideAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, VersionA
             context = build_draft_guide_context(guide, language_code)
             response = render(request, "guides/guide_detail.html", context)
 
-        response["X-Robots-Tag"] = PREVIEW_ROBOTS
-        response["Pragma"] = "no-cache"
-        response["Content-Language"] = language_code
-        return response
+        return apply_editorial_preview_headers(response, language_code)
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         """

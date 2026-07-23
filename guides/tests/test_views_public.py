@@ -70,6 +70,15 @@ class GuideListViewTests(TestCase):
             self.assertIn('hreflang="en"', html)
             self.assertIn('hreflang="de"', html)
 
+    def test_detail_og_url_is_present_and_non_empty(self):
+        """Companion to the preview's og:url suppression (Beta 11.8): the
+        public page must keep a real, non-empty og:url matching canonical."""
+        resp = self._detail(self.pub.slug)
+        html = resp.content.decode("utf-8")
+        self.assertIn('property="og:url"', html)
+        self.assertNotIn('property="og:url" content="">', html)
+        self.assertIn(self.pub.slug, html)
+
 
 class GuideListStarterOrderingTests(TestCase):
     def _list(self):

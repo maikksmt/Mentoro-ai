@@ -86,9 +86,43 @@ class PromptSitemap(BasePublishableSitemap):
 class UseCaseSitemap(BasePublishableSitemap):
     model = UseCase
 
+    def items(self):
+        """
+        Beta 11.7: the same visible_in_language() contract the use-case
+        list, detail, related and search surfaces use - published, or
+        review/approved with a live revision, and only in languages that
+        actually have a published snapshot.
+
+        Overridden here rather than in BasePublishableSitemap because that
+        base class is shared with Guide, Prompt and Comparison, whose status
+        rules are out of scope for this slice. The effect is that a use case
+        being revised keeps its sitemap entry (under its live slug) instead
+        of dropping out and back in on every editing round, and that a
+        language with no published revision is no longer advertised.
+        """
+        lang = get_language() or DEFAULT_LANG
+        return self.model.objects.visible_in_language(lang)
+
 
 class ComparisonSitemap(BasePublishableSitemap):
     model = Comparison
+
+    def items(self):
+        """
+        Beta 11.9: the same visible_in_language() contract the comparison
+        list, detail, related and search surfaces use - published, or
+        review/approved/rework with both a live revision and a published
+        entry snapshot, and only in languages that actually have a
+        published snapshot.
+
+        Overridden here rather than in BasePublishableSitemap because that
+        base class is shared with Guide and Prompt, whose status rules are
+        out of scope for this slice. The effect is that a comparison being
+        revised keeps its sitemap entry (under its live slug) instead of
+        dropping out and back in on every editing round.
+        """
+        lang = get_language() or DEFAULT_LANG
+        return self.model.objects.visible_in_language(lang)
 
 
 class ToolSitemap(BasePublishableSitemap):

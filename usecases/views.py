@@ -20,19 +20,25 @@ def _resolve_by_slug(qs: QuerySet[UseCase], slug: str, language_code: str) -> Op
     identical fix in prompts/views.py - once a use case has a live_i18n
     snapshot for language_code, that snapshot's slug is the SOLE public
     slug for that language; the current translation slug is not tried at
-    all. This use case's own visible_in_language() stays strict
-    (.published() only, not the broader visible_on_site() Guide/Prompt
-    use), so in practice a status=review/approved use case is already
-    excluded from `qs` entirely - but a status=PUBLISHED record whose
-    translation slug has diverged from its own live_i18n snapshot (e.g. via
-    a direct DB write bypassing the admin's auto-review guard) must still
-    resolve only the live slug, never the diverged one - confirmed via
-    reproduction in usecases/tests/test_draft_slug_leak.py.
+    all. A status=PUBLISHED record whose translation slug has diverged from
+    its own live_i18n snapshot (e.g. via a direct DB write bypassing the
+    admin's auto-review guard) therefore resolves only the live slug, never
+    the diverged one - confirmed via reproduction in
+    usecases/tests/test_draft_slug_leak.py.
+
+    Beta 11.7 makes that live-slug-first order load-bearing rather than
+    merely defensive: visible_in_language() now admits review/approved use
+    cases that still have a live revision, so `qs` routinely contains
+    objects whose current translation slug is a *saved draft* slug. The
+    live_i18n branch below is what keeps that draft slug unresolvable until
+    the object is published again.
 
     The narrow backward-compatibility fallback to the current translation's
     public_slug/slug applies ONLY to use cases that are strictly `published`
     AND have no live_i18n entry for this language at all (a historical
-    record predating the live-snapshot mechanism).
+    record predating the live-snapshot mechanism). Keeping that branch
+    pinned to STATUS_PUBLISHED is deliberate: a review-status object without
+    a snapshot in this language must not fall through to its draft slug.
 
     Language matching is scoped throughout (translations__language_code=
     language_code), so a bilingual use case's slug in the other language
