@@ -16,6 +16,7 @@ from reversion.models import Version
 
 from catalog.models import Category, Tool
 from compare.models import Comparison
+from compare.presentation import live_tool_ids_for_comparisons
 from core.projections import public_content_url, public_content_value
 from core.text import visible_text
 from guides.models import Guide
@@ -355,42 +356,99 @@ def related_comparisons(comparison: Comparison, limit: int = 6, language_code: s
     language's title/slug for such an object, but that only means the
     resulting card had title="" and url="#" - it was never excluded from
     the list itself. Confirmed via reproduction in
-    compare/tests/test_related_comparisons_language_safety.py. Ranking
-    weights, order, and limit are unchanged; only the base visibility/
-    language filter (here and in the fallback-fill query) was touched.
+    compare/tests/test_related_comparisons_language_safety.py.
+
+    Beta 11.9E: tool/category matching for both the source and every
+    candidate now reads each comparison's published entry snapshot
+    (live_tool_ids_for_comparisons() - the same State-A/State-C boundary and
+    Tool.objects.public() contract the detail page, category filter and
+    list cards already share) instead of the current `tools` M2M (i.e.
+    today's ComparisonToolEntry draft rows). A comparison mid-review whose
+    draft entry had its tool swapped, a new draft entry, or a deleted draft
+    row could previously change which comparisons were "related" and in
+    what order before the edit was ever republished - the same leak class
+    Beta 11.9/11.9A/11.9B/11.9C/11.9D closed for the detail page, category
+    filter and list cards. Confirmed by reproduction in
+    compare/tests/test_related_comparisons_live_tools.py.
+
+    This can no longer be expressed as the previous single SQL
+    join+Count()+order_by()+limit(): live_entries is JSON, not a relation,
+    so there is nothing for `tools__in=`/`tools__categories__in=` to join
+    against without either a fragile JSONB expression (rejected for the
+    same reason Beta 11.9C rejected it for the category filter) or
+    reintroducing the very M2M this fix removes. Matching is instead scored
+    in Python over two small bulk reads - the source's own live tool IDs,
+    and every visible candidate's live tool IDs via
+    live_tool_ids_for_comparisons(), each a single query (plus at most one
+    further bulk query for State-C legacy rows) - never one query per
+    candidate. Match weights (tool overlap first, category overlap second),
+    the -published_at tie-breaker, the result limit, source exclusion and
+    the fallback-fill are all unchanged; only where the tool/category
+    membership itself comes from was touched.
     """
 
     if comparison is None:
         return []
     lang = language_code or get_language()
 
-    tool_ids = _ids(comparison.tools.all()) if hasattr(comparison, "tools") else []
-
-    cat_ids = list(
-        comparison.tools.values_list("categories__id", flat=True).distinct()
-    ) if tool_ids else []
-
-    qs = (
+    candidates_qs = (
         Comparison.objects.visible_in_language(lang)
         .exclude(pk=comparison.pk)
-        .prefetch_related("tools", "tools__categories")
     )
 
-    if tool_ids or cat_ids:
-        qs = (
-            qs.filter(Q(tools__in=tool_ids) | Q(tools__categories__in=cat_ids))
-            .annotate(
-                tool_matches=Count("tools", filter=Q(tools__in=tool_ids), distinct=True),
-                cat_matches=Count(
-                    "tools__categories", filter=Q(tools__categories__in=cat_ids), distinct=True
-                ),
-            )
-            .order_by("-tool_matches", "-cat_matches", "-published_at")
-        )
-    else:
-        qs = qs.order_by("-published_at")
+    source_tool_ids = live_tool_ids_for_comparisons(
+        Comparison.objects.filter(pk=comparison.pk)
+    ).get(comparison.pk, frozenset())
+    candidate_tool_ids_by_pk = live_tool_ids_for_comparisons(candidates_qs)
 
-    items = list(qs[:limit])
+    all_tool_ids = set(source_tool_ids)
+    for ids in candidate_tool_ids_by_pk.values():
+        all_tool_ids |= ids
+
+    public_tool_ids: set[int] = set()
+    categories_by_tool_id: Dict[int, set] = {}
+    if all_tool_ids:
+        for tool_id, category_id in (
+            Tool.objects.public().filter(pk__in=all_tool_ids).values_list("pk", "categories")
+        ):
+            public_tool_ids.add(tool_id)
+            if category_id is not None:
+                categories_by_tool_id.setdefault(tool_id, set()).add(category_id)
+
+    source_public_tool_ids = source_tool_ids & public_tool_ids
+    source_cat_ids: set = set()
+    for tool_id in source_public_tool_ids:
+        source_cat_ids |= categories_by_tool_id.get(tool_id, set())
+
+    if source_public_tool_ids or source_cat_ids:
+        published_at_by_pk = dict(candidates_qs.values_list("pk", "published_at"))
+
+        scored = []
+        for pk, tool_ids in candidate_tool_ids_by_pk.items():
+            candidate_public_tool_ids = tool_ids & public_tool_ids
+            candidate_cat_ids: set = set()
+            for tool_id in candidate_public_tool_ids:
+                candidate_cat_ids |= categories_by_tool_id.get(tool_id, set())
+
+            tool_matches = len(candidate_public_tool_ids & source_public_tool_ids)
+            cat_matches = len(candidate_cat_ids & source_cat_ids)
+            if tool_matches or cat_matches:
+                scored.append((pk, tool_matches, cat_matches, published_at_by_pk.get(pk)))
+
+        # Mirrors order_by("-tool_matches", "-cat_matches", "-published_at").
+        # published_at is never actually NULL for a visible comparison
+        # (on_after_publish() always sets it, and it is never cleared), but
+        # the `is not None` guard keeps ties comparable instead of raising
+        # if that invariant is ever violated.
+        scored.sort(
+            key=lambda row: (row[1], row[2], row[3] is not None, row[3]),
+            reverse=True,
+        )
+        top_pks = [row[0] for row in scored[:limit]]
+        instances_by_pk = candidates_qs.in_bulk(top_pks)
+        items = [instances_by_pk[pk] for pk in top_pks if pk in instances_by_pk]
+    else:
+        items = list(candidates_qs.order_by("-published_at")[:limit])
 
     # fallback: always return something useful
     if len(items) < limit:

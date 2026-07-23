@@ -107,6 +107,23 @@ class UseCaseSitemap(BasePublishableSitemap):
 class ComparisonSitemap(BasePublishableSitemap):
     model = Comparison
 
+    def items(self):
+        """
+        Beta 11.9: the same visible_in_language() contract the comparison
+        list, detail, related and search surfaces use - published, or
+        review/approved/rework with both a live revision and a published
+        entry snapshot, and only in languages that actually have a
+        published snapshot.
+
+        Overridden here rather than in BasePublishableSitemap because that
+        base class is shared with Guide and Prompt, whose status rules are
+        out of scope for this slice. The effect is that a comparison being
+        revised keeps its sitemap entry (under its live slug) instead of
+        dropping out and back in on every editing round.
+        """
+        lang = get_language() or DEFAULT_LANG
+        return self.model.objects.visible_in_language(lang)
+
 
 class ToolSitemap(BasePublishableSitemap):
     changefreq = "weekly"
