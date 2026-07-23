@@ -1,0 +1,21 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    {% comment %}
+        Beta 11.10: only for a saved comparison, only for users who may
+        preview it, and only for the language tab currently open (which is
+        guaranteed to have a stored translation - see
+        ComparisonAdmin.render_change_form).
+    {% endcomment %}
+    {% if show_draft_preview %}
+        <li>
+            <a href="{% url 'admin:compare_comparison_draft_preview' original.pk draft_preview_language %}"
+               class="viewsitelink" target="_blank" rel="noopener"
+               title="{% trans 'Open the saved draft as a full public page' %}">
+                {% trans "Preview saved draft" %}
+            </a>
+        </li>
+    {% endif %}
+{% endblock %}
