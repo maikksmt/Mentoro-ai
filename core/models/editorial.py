@@ -67,20 +67,46 @@ class EditorialQuerySet(TranslatableQuerySet):
     def published(self):
         return self.filter(status=EditorialWorkflowMixin.STATUS_PUBLISHED).order_by("published_at")
 
+    #: Editing states in which content that was already published keeps its
+    #: public presence, provided a live revision marker exists.
+    #:
+    #: STATUS_REWORK joined this set in Beta 11.11B2A. Use cases already had it
+    #: (Beta 11.7A) and comparisons too (Beta 11.9), each via a local override
+    #: whose reasoning was never guide/prompt-specific: "rework" means the *new*
+    #: draft needs another pass, not that the previously published snapshot was
+    #: withdrawn, so taking the page offline for the duration of an editorial
+    #: round is a defect rather than a safety measure. Guide and Prompt were
+    #: simply never migrated to that conclusion.
+    #:
+    #: B2A forces the issue, because its fail-closed cleanup moves exactly the
+    #: affected rows: a guide or prompt sitting in review/approved with a valid
+    #: live snapshot becomes ``rework``, and without this entry it would have
+    #: dropped off every public surface (detail, list, search) even though its
+    #: published snapshot is intact and still authoritative.
+    #:
+    #: STATUS_ARCHIVED stays out - archiving *is* the deliberate public
+    #: withdrawal and outranks any snapshot still on record. STATUS_DRAFT stays
+    #: out too: the FSM only reaches it from archived via restore(), i.e. after
+    #: a withdrawal, and B2A routes rows without a provable live state there.
+    #:
+    #: Spelled as literals rather than ``EditorialWorkflowMixin.STATUS_*``
+    #: because that class is defined further down this module and a class-body
+    #: reference would raise NameError at import time. The two stay in lockstep
+    #: through an explicit contract test rather than through an import cycle.
+    LIVE_EDITING_STATUSES = ("review", "approved", "rework")
+
     def visible_on_site(self):
         """
         Public visibility filter:
-        includes published items and review/approved items that already have a
+        includes published items and items in one of
+        :attr:`LIVE_EDITING_STATUSES` that already have a
         last_published_at/live revision, preventing premature exposure.
         """
         return (
             self.filter(
                 Q(status=EditorialWorkflowMixin.STATUS_PUBLISHED)
                 | Q(
-                    status__in=[
-                        EditorialWorkflowMixin.STATUS_REVIEW,
-                        EditorialWorkflowMixin.STATUS_APPROVED,
-                    ],
+                    status__in=self.LIVE_EDITING_STATUSES,
                     last_published_revision_id__isnull=False,
                 )
             ).order_by("updated_at")
@@ -150,7 +176,76 @@ class EditorialWorkflowMixin(models.Model):
         settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="%(class)s_reviewer"
     )
     review_note = models.TextField(blank=True)
+
+    #: LEGACY MARKER - despite its name this holds a ``reversion.Version.id``,
+    #: not a ``reversion.Revision.id``, and it is a plain IntegerField with no
+    #: FK semantics at all (see core.admin.set_last_published_revision()).
+    #:
+    #: It predates the review binding below and means something different:
+    #: "this object was published at least once", used by
+    #: :meth:`EditorialQuerySet.visible_on_site` as the live-revision marker.
+    #: It is deliberately NOT renamed, reinterpreted, converted to a Revision
+    #: id, or used to seed :attr:`review_revision` - Beta 11.11B2A leaves its
+    #: value and its meaning exactly as found.
     last_published_revision_id = models.IntegerField(null=True, blank=True)
+
+    # ------------------------------------------------------------------
+    # Review binding (Beta 11.11B2A) - schema only, not yet written to.
+    #
+    # These three are internal workflow metadata: never editable through a
+    # ModelForm, never shown in a Parler language tab or an inline, and not
+    # part of any public or API projection. Nothing in the runtime sets them
+    # yet - submit, approve and publish leave all three untouched, which the
+    # B2A test suite asserts. The binding logic, the fingerprint builder, the
+    # publish guard and the invalidation follow in later slices.
+    #
+    # Both FKs point at ``reversion.Revision`` - the whole revision, i.e. the
+    # complete graph the Beta 11.11B1 manifest now records (parent, children
+    # and every translation). That is deliberately a different object from
+    # ``last_published_revision_id`` above, which stores a ``Version.id``
+    # (one row within one revision). Confusing the two would bind a review to
+    # a single serialized row instead of the reviewed content as a whole.
+    # ------------------------------------------------------------------
+
+    #: The revision that was submitted for review. NULL for drafts and for
+    #: every pre-B2A row: historical review/approved states carry no provable
+    #: binding, and B2A refuses to invent one (see the data migrations).
+    #:
+    #: SET_NULL rather than CASCADE or PROTECT: reversion housekeeping
+    #: (``deleterevisions``) must never delete editorial content, and must
+    #: never be blocked by it either. Losing the binding degrades to
+    #: "unbound", which the later publish guard treats as fail-closed.
+    review_revision = models.ForeignKey(
+        "reversion.Revision",
+        null=True,
+        blank=True,
+        editable=False,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
+    #: The revision that was actually approved. Will be set to the same
+    #: revision as :attr:`review_revision` at approval time; B2A implements no
+    #: runtime invariant tying them together yet.
+    approved_revision = models.ForeignKey(
+        "reversion.Revision",
+        null=True,
+        blank=True,
+        editable=False,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
+    #: SHA-256 hex digest of the reviewed editorial payload, once a later
+    #: slice computes one. Exactly 64 characters when set; ``""`` means "not
+    #: bound yet" and is the only value B2A ever stores. Not nullable, so
+    #: "unbound" has a single representation rather than two.
+    review_payload_fingerprint = models.CharField(
+        max_length=64,
+        blank=True,
+        default="",
+        editable=False,
+    )
 
     class Meta:
         abstract = True
