@@ -33,7 +33,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
 
-from django.db import DEFAULT_DB_ALIAS
+from django.db import DEFAULT_DB_ALIAS, connections, transaction
 from reversion.models import Revision, Version
 
 from compare.models import Comparison
@@ -48,6 +48,12 @@ from usecases.models import UseCase
 #: a live_i18n field" heuristic, which could quietly accept an unrelated model
 #: that happens to share a field name.
 _SIMPLE_LIVE_SNAPSHOT_TYPES = (Guide, Prompt, UseCase)
+
+#: Every type :func:`invalidate_editorial_review_state` accepts - the same
+#: four concrete roots :func:`has_provable_live_snapshot` knows, reused rather
+#: than redeclared so the two "which types does this module support" lists
+#: cannot drift apart.
+_EDITORIAL_ROOT_MODELS = _SIMPLE_LIVE_SNAPSHOT_TYPES + (Comparison,)
 
 
 # ======================================================================
@@ -453,3 +459,289 @@ def target_status_after_review_invalidation(obj: Any) -> str:
     if has_provable_live_snapshot(obj):
         return EditorialWorkflowMixin.STATUS_REWORK
     return EditorialWorkflowMixin.STATUS_DRAFT
+
+
+# ======================================================================
+# 9. Atomic review invalidation (Beta 11.11B2B2)
+# ======================================================================
+
+
+class ReviewInvalidationErrorCode(StrEnum):
+    """Stable reason :func:`invalidate_editorial_review_state` refused to run,
+    independent of message wording."""
+
+    UNSUPPORTED_OBJECT = "unsupported_object"
+    UNSAVED_OBJECT = "unsaved_object"
+    INVALID_DATABASE_ALIAS = "invalid_database_alias"
+    DATABASE_ALIAS_MISMATCH = "database_alias_mismatch"
+    OBJECT_NOT_FOUND = "object_not_found"
+
+
+class ReviewInvalidationError(ValueError):
+    """
+    Raised by :func:`invalidate_editorial_review_state` for every input or
+    alias problem it refuses to proceed past.
+
+    Carries a stable :attr:`code`, mirroring
+    :class:`ReviewPayloadFingerprintError`'s shape, so callers can branch on
+    the failure kind without parsing the message text.
+    """
+
+    def __init__(self, code: ReviewInvalidationErrorCode, message: str):
+        self.code = code
+        super().__init__(message)
+
+
+class ReviewInvalidationNoOpReason(StrEnum):
+    """Stable reason :func:`invalidate_editorial_review_state` made no change,
+    for the one case that is a legitimate outcome rather than an error."""
+
+    STATUS_NOT_REVIEWABLE = "status_not_reviewable"
+
+
+@dataclass(frozen=True, slots=True)
+class ReviewInvalidationResult:
+    """
+    Immutable outcome of :func:`invalidate_editorial_review_state`.
+
+    The database row - not the ``obj`` the caller passed in - is what this
+    describes. A caller holding an older in-memory instance of the same row
+    must call ``refresh_from_db()`` (or reload through the manager, since
+    ``status`` is a protected ``FSMField`` that rejects the plain ``setattr``
+    ``refresh_from_db()`` performs - reload via ``type(obj).objects.get(...)``
+    instead) if it wants to see the effect; this function never writes back
+    onto the object that was handed to it.
+
+    Changed: ``changed is True``, ``previous_status`` is ``"review"`` or
+    ``"approved"``, ``current_status`` is ``"draft"`` or ``"rework"``,
+    ``no_op_reason is None``.
+
+    No-op: ``changed is False``, ``previous_status == current_status``,
+    ``no_op_reason == ReviewInvalidationNoOpReason.STATUS_NOT_REVIEWABLE``.
+
+    ``had_live_snapshot`` always reflects :func:`has_provable_live_snapshot`
+    as evaluated on the locked database row, in both cases.
+    """
+
+    changed: bool
+    previous_status: str
+    current_status: str
+    had_live_snapshot: bool
+    no_op_reason: ReviewInvalidationNoOpReason | None
+
+
+#: Statuses this function will actually invalidate. Every other status
+#: (including "draft" and "rework" themselves) is a structured, write-free
+#: no-op - see :data:`ReviewInvalidationNoOpReason.STATUS_NOT_REVIEWABLE`.
+_INVALIDATABLE_STATUSES = (
+    EditorialWorkflowMixin.STATUS_REVIEW,
+    EditorialWorkflowMixin.STATUS_APPROVED,
+)
+
+#: Fields cleared on an actual invalidation, and the exact ``update_fields``
+#: set written - together with ``"status"`` and ``"updated_at"`` - by the one
+#: ``save()`` call. Never touches content, translations, children, tags,
+#: categories, tool relations, slugs, author, ``published_at``,
+#: ``is_published``, ``live_i18n``, ``live_entries`` or
+#: ``last_published_revision_id``.
+_CLEARED_BINDING_FIELDS = (
+    "review_revision",
+    "approved_revision",
+    "review_payload_fingerprint",
+    "reviewed_by",
+    "reviewed_at",
+    "submitted_for_review_at",
+)
+
+
+def invalidate_editorial_review_state(
+    obj: Any, *, using: str | None = None
+) -> ReviewInvalidationResult:
+    """
+    Atomically moves one editorial root object out of an unbound ``review`` or
+    ``approved`` state - Beta 11.11B2B2's answer to "a review/approval binding
+    can no longer be trusted; make the workflow state reflect that."
+
+    Never calls :func:`validate_review_binding` or
+    :func:`validate_approved_binding`, and never inspects the binding fields
+    to decide anything: this function invalidates a status, regardless of
+    *why* the binding is untrustworthy - missing, syntactically invalid,
+    pointing at a foreign revision, mismatched between review and approval, or
+    nulled out by a deleted revision's ``SET_NULL``. All of those look
+    identical to it: "review or approved" plus the current live-snapshot
+    state on the locked row is the entire input.
+
+    Atomicity and the fresh-row contract
+    -------------------------------------
+    The ``obj`` argument is used only to determine the supported model, the
+    primary key, and the database alias - never its ``status``,
+    ``live_i18n``, ``live_entries``, or any binding field. Every decision is
+    made against a ``SELECT ... FOR UPDATE``-locked row fetched fresh inside
+    ``transaction.atomic(using=db_alias)``, through the *concrete* model's
+    default manager (``obj._meta.concrete_model``, so a proxy instance is
+    accepted and resolved to its base). A stale in-memory ``obj`` - loaded
+    before some other process changed the row - therefore cannot skew the
+    outcome; the locked database row is the sole source of truth.
+
+    Supported types: exactly ``guides.Guide``, ``prompts.Prompt``,
+    ``usecases.UseCase``, ``compare.Comparison`` (or a proxy of one of them).
+    Anything else - ``None``, a translation, a child model, a queryset, a
+    list, an unrelated model - raises
+    :class:`ReviewInvalidationError` with
+    :data:`ReviewInvalidationErrorCode.UNSUPPORTED_OBJECT`.
+
+    Database alias, resolved in this order: explicit ``using``, then
+    ``obj._state.db`` if set, then ``DEFAULT_DB_ALIAS``. An explicit ``using``
+    that contradicts an already-set ``obj._state.db`` is a fail-closed
+    :data:`ReviewInvalidationErrorCode.DATABASE_ALIAS_MISMATCH` - never a
+    cross-database invalidation. An alias not present in Django's
+    ``connections`` is
+    :data:`ReviewInvalidationErrorCode.INVALID_DATABASE_ALIAS`. Revisions play
+    no part in alias resolution here (unlike :func:`revision_contains_object`)
+    because a broken or missing binding is exactly the case this function
+    must still be able to invalidate.
+
+    What actually happens on ``review``/``approved``
+    --------------------------------------------------
+    1. The target status is computed once, via the existing
+       :func:`target_status_after_review_invalidation` - no separate or
+       duplicated snapshot logic.
+    2. The matching internal FSM transition
+       (``_invalidate_review_to_draft`` or ``_invalidate_review_to_rework``,
+       on :class:`~core.models.editorial.EditorialWorkflowMixin`) runs on the
+       locked instance - a real django-fsm transition, never a bare
+       ``status =`` assignment (the field is ``protected=True`` and would
+       reject that).
+    3. ``review_revision``, ``approved_revision``,
+       ``review_payload_fingerprint``, ``reviewed_by``, ``reviewed_at`` and
+       ``submitted_for_review_at`` are cleared on the same instance.
+       ``review_note`` and every content field are left untouched.
+    4. Exactly one ``save(update_fields=[...])`` call persists the change -
+       explicitly listing ``"status"``, the six cleared fields above, and
+       ``"updated_at"`` (an ``auto_now`` field only actually written when
+       named in ``update_fields``, matching the convention already used by
+       ``core.admin``'s workflow actions). No ``QuerySet.update()``: the
+       change must be able to participate in an already-open
+       ``reversion.create_revision()`` block the same way any other
+       ``ModelAdmin`` save does, and reversion's post-save hook only fires for
+       real ``Model.save()`` calls.
+
+    On every other status the row is left completely alone - no write, no
+    ``update_fields``, ``updated_at`` untouched - and the result reports
+    :data:`ReviewInvalidationNoOpReason.STATUS_NOT_REVIEWABLE`. Idempotent:
+    invalidating twice makes the second call exactly this no-op.
+
+    Reversion
+    ---------
+    This function itself never calls ``reversion.create_revision()``,
+    ``reversion.add_to_revision()``, or creates a ``Revision``/``Version``
+    directly. Called outside any active revision block, the plain ``save()``
+    creates none either. Called inside a caller's own
+    ``with reversion.create_revision():`` block, the save is picked up by
+    reversion's normal signal-based recording into that *same* revision,
+    exactly like any other tracked save - this function neither knows nor
+    needs to know whether such a block is open.
+
+    Rollback: any exception raised during the transition or the save
+    propagates out of ``transaction.atomic()`` unmodified - no broad
+    ``except Exception``, nothing swallowed - and the whole transaction rolls
+    back, leaving the row, its bindings, ``review_note`` and ``updated_at``
+    exactly as they were.
+
+    Accepts exactly one object; there is no bulk/queryset variant.
+    """
+    if obj is None or not isinstance(obj, _EDITORIAL_ROOT_MODELS):
+        raise ReviewInvalidationError(
+            ReviewInvalidationErrorCode.UNSUPPORTED_OBJECT,
+            "invalidate_editorial_review_state() only accepts a Guide, Prompt, "
+            "UseCase or Comparison instance, got "
+            f"{'None' if obj is None else type(obj).__name__}",
+        )
+
+    if obj.pk is None:
+        raise ReviewInvalidationError(
+            ReviewInvalidationErrorCode.UNSAVED_OBJECT,
+            "invalidate_editorial_review_state() requires a saved object with a primary key",
+        )
+
+    if using is not None and not isinstance(using, str):
+        raise TypeError(f"using must be a database alias string, got {type(using).__name__}")
+
+    obj_db_alias = getattr(obj._state, "db", None)
+
+    # An unknown alias name is always INVALID_DATABASE_ALIAS, even if it also
+    # happens to differ from obj_db_alias - "this alias does not exist" is the
+    # more fundamental problem. DATABASE_ALIAS_MISMATCH is reserved for a
+    # `using` that *is* a real, configured alias but conflicts with one the
+    # object already claims to be bound to.
+    if using is not None:
+        if using not in connections:
+            raise ReviewInvalidationError(
+                ReviewInvalidationErrorCode.INVALID_DATABASE_ALIAS,
+                f"{using!r} is not a configured database alias",
+            )
+        if obj_db_alias and obj_db_alias != using:
+            raise ReviewInvalidationError(
+                ReviewInvalidationErrorCode.DATABASE_ALIAS_MISMATCH,
+                f"explicit using={using!r} does not match the object's own database "
+                f"alias {obj_db_alias!r}",
+            )
+        db_alias = using
+    else:
+        db_alias = obj_db_alias or DEFAULT_DB_ALIAS
+        if db_alias not in connections:
+            raise ReviewInvalidationError(
+                ReviewInvalidationErrorCode.INVALID_DATABASE_ALIAS,
+                f"{db_alias!r} is not a configured database alias",
+            )
+
+    concrete_model = obj._meta.concrete_model
+
+    with transaction.atomic(using=db_alias):
+        try:
+            locked = (
+                concrete_model._default_manager.using(db_alias)
+                .select_for_update()
+                .get(pk=obj.pk)
+            )
+        except concrete_model.DoesNotExist:
+            raise ReviewInvalidationError(
+                ReviewInvalidationErrorCode.OBJECT_NOT_FOUND,
+                f"{concrete_model._meta.label} #{obj.pk} no longer exists",
+            ) from None
+
+        previous_status = locked.status
+        had_live_snapshot = has_provable_live_snapshot(locked)
+
+        if previous_status not in _INVALIDATABLE_STATUSES:
+            return ReviewInvalidationResult(
+                changed=False,
+                previous_status=previous_status,
+                current_status=previous_status,
+                had_live_snapshot=had_live_snapshot,
+                no_op_reason=ReviewInvalidationNoOpReason.STATUS_NOT_REVIEWABLE,
+            )
+
+        target_status = target_status_after_review_invalidation(locked)
+
+        if target_status == EditorialWorkflowMixin.STATUS_REWORK:
+            locked._invalidate_review_to_rework()
+        else:
+            locked._invalidate_review_to_draft()
+
+        locked.review_revision = None
+        locked.approved_revision = None
+        locked.review_payload_fingerprint = ""
+        locked.reviewed_by = None
+        locked.reviewed_at = None
+        locked.submitted_for_review_at = None
+
+        locked.save(update_fields=["status", *_CLEARED_BINDING_FIELDS, "updated_at"])
+
+        return ReviewInvalidationResult(
+            changed=True,
+            previous_status=previous_status,
+            current_status=target_status,
+            had_live_snapshot=had_live_snapshot,
+            no_op_reason=None,
+        )

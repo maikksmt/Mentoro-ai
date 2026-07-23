@@ -349,3 +349,41 @@ class EditorialWorkflowMixin(models.Model):
         """
         if note:
             self.review_note = note
+
+    # --- Internal review-invalidation transitions (Beta 11.11B2B2) ---
+    #
+    # Not a public workflow action: no admin action calls these, no view calls
+    # these, and they take no `by`/`note` arguments the way the transitions
+    # above do. The sole caller is
+    # `core.review_binding.invalidate_editorial_review_state()`, which decides
+    # the target status on a freshly `select_for_update()`-locked row and then
+    # calls exactly one of the two methods below to make the FSM state change
+    # itself go through a real django-fsm transition rather than a bare
+    # attribute assignment (`status` is `protected=True`; direct assignment
+    # raises `AttributeError`).
+    #
+    # Distinct methods, not one method with a wider source list, because
+    # `request_rework` above already defines a `STATUS_REVIEW -> STATUS_REWORK`
+    # transition; django-fsm tracks transitions per decorated *method*
+    # (`func._django_fsm`), so this being a separate method - not an edit to
+    # `request_rework` - is what avoids colliding with it.
+    #
+    # Deliberately do nothing beyond the state change: no metadata clearing, no
+    # `save()`, no revision, no other side effect. Clearing
+    # `review_revision`/`approved_revision`/`review_payload_fingerprint`/
+    # `reviewed_by`/`reviewed_at`/`submitted_for_review_at` and persisting the
+    # result happens once, in the caller, after whichever of these two ran -
+    # keeping "what changes" in exactly one place.
+
+    @transition(field=status, source=[STATUS_REVIEW, STATUS_APPROVED], target=STATUS_DRAFT)
+    def _invalidate_review_to_draft(self):
+        """FSM-only state change for a review/approved row with no provable
+        live snapshot. See the section docstring above."""
+        pass
+
+    @transition(field=status, source=[STATUS_REVIEW, STATUS_APPROVED], target=STATUS_REWORK)
+    def _invalidate_review_to_rework(self):
+        """FSM-only state change for a review/approved row that has a
+        provable live snapshot to fall back to. See the section docstring
+        above."""
+        pass
