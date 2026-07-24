@@ -4723,6 +4723,54 @@ msgstr ""
 "Praktische KI-Anwendungsfälle mit klaren Beispielen, Vorteilen und "
 "Anleitungen für geschäftliche Aufgaben, Forschung und kreative Arbeit."
 
+#: prompts/admin.py:191
+#, python-format
+msgid "%(count)d prompt was submitted for review."
+msgid_plural "%(count)d prompts were submitted for review."
+msgstr[0] "%(count)d Prompt wurde zur Prüfung eingereicht."
+msgstr[1] "%(count)d Prompts wurden zur Prüfung eingereicht."
+
+#: prompts/admin.py:202
+#, python-format
+msgid ""
+"%(count)d prompt was skipped because its status does not allow submission for "
+"review."
+msgid_plural ""
+"%(count)d prompts were skipped because their status does not allow submission "
+"for review."
+msgstr[0] ""
+"%(count)d Prompt wurde übersprungen, weil sein Status keine Einreichung zur "
+"Prüfung erlaubt."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, weil ihr Status keine Einreichung zur "
+"Prüfung erlaubt."
+
+#: prompts/admin.py:215
+#, python-format
+msgid "%(count)d selected prompt no longer exists and was skipped."
+msgid_plural "%(count)d selected prompts no longer exist and were skipped."
+msgstr[0] "%(count)d ausgewählter Prompt existiert nicht mehr und wurde übersprungen."
+msgstr[1] ""
+"%(count)d ausgewählte Prompts existieren nicht mehr und wurden übersprungen."
+
+#: prompts/admin.py:226
+#, python-format
+msgid "%(count)d prompt was skipped because you are not allowed to submit it."
+msgid_plural ""
+"%(count)d prompts were skipped because you are not allowed to submit them."
+msgstr[0] "%(count)d Prompt wurde übersprungen, weil du ihn nicht einreichen darfst."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, weil du sie nicht einreichen darfst."
+
+#: prompts/admin.py:240
+msgid ""
+"Some prompts could not be submitted because of a server configuration "
+"problem. Please contact an administrator."
+msgstr ""
+"Einige Prompts konnten wegen eines Server-Konfigurationsproblems nicht "
+"eingereicht werden. Bitte wende dich an eine Administratorin oder einen "
+"Administrator."
+
 #~ msgid "Search is coming soon"
 #~ msgstr "Die Suche kommt bald"
 

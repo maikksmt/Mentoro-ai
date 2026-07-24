@@ -80,8 +80,17 @@ class ReviewBindingRuntimeTestCase(TestCase):
 
 class WorkflowLeavesTheBindingEmptyTests(ReviewBindingRuntimeTestCase):
     """
-    The full workflow on a simple type (Prompt) and the most complex one
-    (Comparison), driven through the real admin actions.
+    Admin workflow actions on a type whose admin submit path is still the
+    shared, unbound one - Comparison, driven through the real admin actions.
+
+    Beta 11.11C2B activated the *prompt* admin submit (it now binds a review
+    revision and a fingerprint - covered in
+    ``prompts/tests/test_admin_review_submission.py`` and asserted here by
+    ``test_prompt_admin_submit_now_binds``). Guide/UseCase/Comparison keep the
+    shared editorial submit action, which still writes no binding, so
+    Comparison stands in for that unchanged contract in the iterating tests
+    below. Prompt-specific assertions were previously part of ``_targets()``;
+    they were split out when C2B changed only Prompt's behaviour.
     """
 
     def setUp(self):
@@ -96,8 +105,9 @@ class WorkflowLeavesTheBindingEmptyTests(ReviewBindingRuntimeTestCase):
         )
 
     def _targets(self):
+        # Comparison only: its admin submit path is unchanged by C2B and still
+        # writes no binding. Prompt's now-bound submit is asserted separately.
         return (
-            ("prompts", "prompt", self.prompt),
             ("compare", "comparison", self.comparison),
         )
 
@@ -108,6 +118,28 @@ class WorkflowLeavesTheBindingEmptyTests(ReviewBindingRuntimeTestCase):
                 reloaded = self.assert_unbound(obj)
                 self.assertEqual(reloaded.status, Workflow.STATUS_REVIEW)
                 self.assertIsNotNone(reloaded.submitted_for_review_at)
+
+    def test_prompt_admin_submit_now_binds(self):
+        """
+        C2B contract (replacing the old 'prompt submit writes no binding'
+        assertion): the prompt admin submit action now binds a review revision
+        and the canonical fingerprint, while approve/publish remain
+        un-activated - ``approved_revision`` stays empty and no reviewer
+        metadata is written.
+        """
+        from core.review_binding import fingerprint_review_payload
+        from prompts.review_payload import build_prompt_review_payload
+
+        expected_fp = fingerprint_review_payload(build_prompt_review_payload(self.prompt))
+        self.run_action("prompts", "prompt", "action_submit_for_review", self.prompt.pk)
+
+        reloaded = refetch(self.prompt)
+        self.assertEqual(reloaded.status, Workflow.STATUS_REVIEW)
+        self.assertIsNotNone(reloaded.review_revision_id)
+        self.assertEqual(reloaded.review_payload_fingerprint, expected_fp)
+        self.assertIsNone(reloaded.approved_revision_id)
+        self.assertIsNone(reloaded.reviewed_by_id)
+        self.assertIsNone(reloaded.reviewed_at)
 
     def test_approve_reaches_approved_and_writes_no_binding(self):
         for app_label, model_name, obj in self._targets():
@@ -148,6 +180,11 @@ class WorkflowLeavesTheBindingEmptyTests(ReviewBindingRuntimeTestCase):
         """
         Unchanged from before B2A: despite the name it stores a
         ``Version.id``, and the new FKs did not take it over.
+
+        C2B update: the prompt submit now binds ``review_revision``, so it is
+        no longer ``None`` after the workflow. ``approved_revision`` stays
+        ``None`` (approve is not yet activated), which is the part this test
+        still guards for the legacy marker.
         """
         from reversion.models import Version
 
@@ -159,7 +196,10 @@ class WorkflowLeavesTheBindingEmptyTests(ReviewBindingRuntimeTestCase):
         self.assertIsNotNone(marker)
         version = Version.objects.get(id=marker)
         self.assertEqual(version.content_type.model, "prompt")
-        self.assertIsNone(published.review_revision_id)
+        # review_revision is now bound by the C2B admin submit; the legacy
+        # Version.id marker is a different value from that Revision FK.
+        self.assertIsNotNone(published.review_revision_id)
+        self.assertNotEqual(published.review_revision_id, marker)
         self.assertIsNone(published.approved_revision_id)
 
     def test_rework_behaves_exactly_as_before_and_writes_no_binding(self):
@@ -170,14 +210,23 @@ class WorkflowLeavesTheBindingEmptyTests(ReviewBindingRuntimeTestCase):
                 reloaded = self.assert_unbound(obj)
                 self.assertEqual(reloaded.status, Workflow.STATUS_REWORK)
 
-    def test_editing_during_review_neither_binds_nor_invalidates(self):
+    def test_editing_during_review_does_not_auto_invalidate(self):
         """
-        B2A adds the *columns* for the fix, not the fix. The known gap from
-        Beta 11.11A stays exactly where it was; this asserts only that B2A
-        introduced no half-active behaviour of its own.
+        The known Beta 11.11A stale gap is still open: editing a prompt during
+        review does not automatically invalidate the review binding.
+
+        C2B update: the submit now *does* bind a review revision and
+        fingerprint, so the old 'assert_unbound after submit' no longer holds.
+        What this test still guards is that a subsequent edit during review
+        neither clears nor re-binds that binding (no auto-invalidation is wired
+        - that remains a later slice), and never sets ``approved_revision``.
         """
         self.run_action("prompts", "prompt", "action_submit_for_review", self.prompt.pk)
-        self.assertEqual(refetch(self.prompt).status, Workflow.STATUS_REVIEW)
+        bound = refetch(self.prompt)
+        self.assertEqual(bound.status, Workflow.STATUS_REVIEW)
+        self.assertIsNotNone(bound.review_revision_id)
+        review_revision_id = bound.review_revision_id
+        fingerprint = bound.review_payload_fingerprint
 
         self.client.post(
             reverse("admin:prompts_prompt_change", args=[self.prompt.pk]),
@@ -195,7 +244,12 @@ class WorkflowLeavesTheBindingEmptyTests(ReviewBindingRuntimeTestCase):
                 "_continue": "Save",
             },
         )
-        self.assert_unbound(self.prompt)
+
+        after_edit = refetch(self.prompt)
+        # binding unchanged - no auto-invalidation, no re-binding
+        self.assertEqual(after_edit.review_revision_id, review_revision_id)
+        self.assertEqual(after_edit.review_payload_fingerprint, fingerprint)
+        self.assertIsNone(after_edit.approved_revision_id)
 
 
 # ======================================================================

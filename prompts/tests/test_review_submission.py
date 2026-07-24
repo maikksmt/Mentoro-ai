@@ -920,10 +920,18 @@ class QueryAndLockContractTests(TransactionTestCase):
 
 
 class NoRuntimeActivationTests(TestCase):
-    def test_production_definition_only_in_the_submission_module(self):
+    def test_production_definition_and_only_sanctioned_consumer(self):
+        """
+        Beta 11.11C2A contract: nothing in production consumed
+        ``submit_prompt_for_review``. Beta 11.11C2B contract: exactly one
+        production consumer now exists - ``prompts/admin.py`` - and no other.
+        The definition still lives only in ``prompts/review_submission.py``.
+        Updated minimally by adding the sanctioned admin file to the allow-list.
+        """
         import ast
         import pathlib
 
+        import prompts.admin as admin_module
         import prompts.review_submission as submission_module
 
         symbols = (
@@ -932,8 +940,9 @@ class NoRuntimeActivationTests(TestCase):
             "PromptReviewSubmissionError",
             "PromptReviewSubmissionErrorCode",
         )
-        allowed_file = pathlib.Path(submission_module.__file__).resolve()
-        project_root = allowed_file.parents[1]
+        definition_file = pathlib.Path(submission_module.__file__).resolve()
+        allowed_files = {definition_file, pathlib.Path(admin_module.__file__).resolve()}
+        project_root = definition_file.parents[1]
 
         offenders = []
         for py_file in project_root.rglob("*.py"):
@@ -941,7 +950,7 @@ class NoRuntimeActivationTests(TestCase):
                 continue
             if "/tests/" in str(py_file) or py_file.name.startswith("test_"):
                 continue
-            if py_file.resolve() == allowed_file:
+            if py_file.resolve() in allowed_files:
                 continue
             text = py_file.read_text(encoding="utf-8", errors="ignore")
             if not any(symbol in text for symbol in symbols):
@@ -957,18 +966,30 @@ class NoRuntimeActivationTests(TestCase):
                     offenders.append(f"{py_file}: reference {node.id}")
         self.assertEqual(offenders, [])
 
-    def test_prompt_admin_does_not_import_the_primitive(self):
+    def test_prompt_admin_imports_the_primitive_not_the_internals(self):
+        """
+        C2A contract: the prompt admin did not import the primitive. C2B
+        contract: it now imports and delegates to ``submit_prompt_for_review``
+        (and its error types) but still reaches for none of the C2A internals -
+        no ``create_revision``, no ``move_to_review``, no payload/fingerprint
+        builder. Inverted from the C2A ``assertNotIn`` accordingly.
+        """
         import prompts.admin
 
         source = open(prompts.admin.__file__, encoding="utf-8").read()
-        for symbol in ("submit_prompt_for_review", "review_submission", "PromptReviewSubmissionError"):
-            with self.subTest(symbol=symbol):
-                self.assertNotIn(symbol, source)
+        self.assertIn("submit_prompt_for_review", source)
+        self.assertIn("PromptReviewSubmissionError", source)
 
-    def test_admin_submit_action_still_uses_its_own_batch_revision(self):
-        """The admin action is unchanged: it still wraps the batch in one shared
-        create_revision and does not delegate to the new primitive."""
+    def test_admin_submit_action_opens_no_batch_revision(self):
+        """
+        C2A contract: the admin still batched every selected object into one
+        shared ``reversion.create_revision``. C2B contract: it delegates to the
+        per-root primitive and opens no batch revision itself - the AST checks
+        in ``prompts/tests/test_admin_review_submission.py`` assert the absence
+        of ``create_revision``/``atomic`` calls in the action body; here we just
+        assert the delegation is present.
+        """
         import prompts.admin
 
         source = open(prompts.admin.__file__, encoding="utf-8").read()
-        self.assertNotIn("submit_prompt_for_review", source)
+        self.assertIn("submit_prompt_for_review", source)
