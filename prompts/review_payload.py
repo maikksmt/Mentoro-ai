@@ -55,12 +55,23 @@ Everything reviewable content-wise lives in translations or in two relations:
   still included unconditionally, because a later slice's stale-detection
   must be able to notice a changed tag set even though C1 does not yet wire
   that check to anything (see the Beta 11.11B1 taggit-boundary note below).
-* **relations.author** - ``{"username": ..., "display_name": ...}`` or
-  ``None``. Included because the author *is* publicly rendered: the SEO
-  ``<meta name="author">`` tag (``templates/partials/_seo_meta.html``) and
-  the visible byline on the detail page both show exactly
-  ``author.get_full_name() or author.username`` - reproduced here verbatim,
-  never the email address, roles, permissions or login state.
+* **relations.author** - ``{"id": ...}`` or ``None``. Beta 11.11C4D
+  narrowed this to *only* the relational identity
+  (``prompt.author_id``) - the redactional question this payload exists to
+  answer is "who is this prompt's author", not "what does that person's
+  account currently display as their name". A real author reassignment
+  (``author_id`` changing, including to/from ``None``) still changes this
+  payload and its fingerprint, exactly as before. A change to the author's
+  ``auth.User`` account - ``username``, ``first_name``, ``last_name``, or
+  anything derived from them (``get_full_name()``) - does **not**, and never
+  did substantively belong here: those are display concerns for a future,
+  separate publish-time snapshot (Beta 11.11C4C audit), not part of what a
+  reviewer reviewed. Before C4D this field carried
+  ``{"username": ..., "display_name": ...}``, computed from the live
+  ``auth.User`` row at payload-build time - see
+  ``prompts/migrations/0008_prompt_review_payload_v2.py`` for the frozen
+  historical serializer that reproduces that exact prior shape, used only to
+  migrate already-bound ``review``/``approved`` rows onto this new contract.
 
 Explicitly excluded (never influence the payload or its fingerprint):
 ``status``, ``review_revision``/``review_revision_id``,
@@ -69,7 +80,10 @@ Explicitly excluded (never influence the payload or its fingerprint):
 ``review_note``, ``created_at``, ``updated_at``, ``published_at``,
 ``is_published``, ``live_i18n``, ``last_published_revision_id``, any
 reversion id, cache state, request data, the active/fallback language, admin
-form state, preview headers, or any absolute/host-qualified URL.
+form state, preview headers, any absolute/host-qualified URL, and - as of
+Beta 11.11C4D - the author's ``username``, ``first_name``, ``last_name``,
+``get_full_name()``, email, or any other account/profile attribute beyond the
+bare ``author_id``.
 
 No category: Prompt has no category field at all (unlike Guide), so there is
 nothing to include or exclude on that account - confirmed against the real
@@ -97,18 +111,19 @@ checks that confirm this module is not yet imported anywhere else.
 from enum import StrEnum
 from typing import Any
 
-from django.contrib.auth import get_user_model
 from django.db import DEFAULT_DB_ALIAS, connections
 
 from catalog.models import Tool
 from prompts.models import Prompt, PromptTranslation
 
-User = get_user_model()
-
 #: Stable, versioned top-level schema identifier. Never derived from package,
 #: git or database state - bumped by hand whenever the payload shape changes
-#: in a way that should be treated as a new contract.
-SCHEMA = "prompt-review-v1"
+#: in a way that should be treated as a new contract. Beta 11.11C4D bumped
+#: v1 -> v2 for exactly one reason: the author section narrowed from
+#: ``{"username": ..., "display_name": ...}`` to ``{"id": ...}`` - see the
+#: module docstring and ``prompts/migrations/0008_prompt_review_payload_v2.py``
+#: for how already-bound v1 rows are migrated onto this contract.
+SCHEMA = "prompt-review-v2"
 CONTENT_TYPE = "prompt"
 
 #: Explicit whitelist of ``PromptTranslation`` fields carried into the
@@ -150,11 +165,16 @@ def _serialize_translation(row: dict[str, Any]) -> dict[str, Any]:
     return {"language_code": row["language_code"], **{name: row[name] for name in TRANSLATION_FIELDS}}
 
 
-def _serialize_author(author) -> dict[str, str] | None:
-    if author is None:
+def _serialize_author(author_id: int | None) -> dict[str, int] | None:
+    """
+    Beta 11.11C4D: the redactional author identity is exactly
+    ``prompt.author_id`` - never the account's current display name (see the
+    module docstring). Takes the raw FK id, not a ``User`` instance, so this
+    never needs its own query against ``auth_user``.
+    """
+    if author_id is None:
         return None
-    display_name = author.get_full_name() or author.username or ""
-    return {"username": author.username, "display_name": display_name}
+    return {"id": author_id}
 
 
 def build_prompt_review_payload(prompt: Any, *, using: str | None = None) -> dict[str, Any]:
@@ -187,12 +207,13 @@ def build_prompt_review_payload(prompt: Any, *, using: str | None = None) -> dic
     11.11B2B2) uses. Every query below runs against that one resolved alias.
 
     Issues exactly four read queries, regardless of how many translations or
-    tags exist: the root prompt with its single-valued ``author`` relation
-    (``select_related``), the translations, the tags, and the tool ids. Three
-    would be the ideal ("root+author", "translations", "tags"), but ``tools``
-    is a second, independent many-to-many relation that cannot be folded into
-    the root query or the tags query without either an unbounded join or an
-    extra round trip either way - so it gets its own single query rather than
+    tags exist: the root prompt (its own ``author_id`` column - Beta
+    11.11C4D dropped the ``select_related("author")`` join entirely, since
+    no field on the related ``auth.User`` row is read anymore), the
+    translations, the tags, and the tool ids. ``tools`` is a second,
+    independent many-to-many relation that cannot be folded into the root
+    query or the tags query without either an unbounded join or an extra
+    round trip either way - so it gets its own single query rather than
     being fetched lazily per item. See the module docstring for why each of
     these four is in the payload and why nothing else is.
     """
@@ -240,13 +261,11 @@ def build_prompt_review_payload(prompt: Any, *, using: str | None = None) -> dic
                 f"{db_alias!r} is not a configured database alias",
             )
 
-    # Query 1: root prompt + its single-valued author relation.
+    # Query 1: the root prompt row. No `select_related("author")` - the
+    # payload only ever reads `author_id`, a plain column on this same row,
+    # so joining in `auth_user` would be a pure, unused extra cost.
     try:
-        root = (
-            Prompt._default_manager.using(db_alias)
-            .select_related("author")
-            .get(pk=prompt.pk)
-        )
+        root = Prompt._default_manager.using(db_alias).get(pk=prompt.pk)
     except Prompt.DoesNotExist:
         raise PromptReviewPayloadError(
             PromptReviewPayloadErrorCode.OBJECT_NOT_FOUND,
@@ -282,7 +301,7 @@ def build_prompt_review_payload(prompt: Any, *, using: str | None = None) -> dic
         "fields": {},
         "translations": translations,
         "relations": {
-            "author": _serialize_author(root.author),
+            "author": _serialize_author(root.author_id),
             "tools": tool_ids,
             "tags": tags,
         },

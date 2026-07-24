@@ -6,6 +6,7 @@ the AlterField migration itself, for all four editorial models.
 from django.core.management import call_command
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
+from django.db.migrations.recorder import MigrationRecorder
 from django.test import TransactionTestCase
 from django.utils import timezone
 
@@ -22,6 +23,18 @@ class UpdatedAtMigrationPreservationMixin:
     def test_historical_value_survives_the_alter_field(self):
         migrate_from = [(self.app, self.migrate_from)]
         migrate_to = [(self.app, self.migrate_to)]
+
+        if self.app == "prompts":
+            # Beta 11.11C4D added prompts/migrations/0008_prompt_review_payload_v2.py,
+            # which is deliberately irreversible (no reverse_code - see its own
+            # module docstring). Rolling "prompts" back below it would otherwise
+            # unapply 0008 first and raise IrreversibleError. It has zero schema
+            # operations, so deleting its own "applied" bookkeeping row (never
+            # touching data, never invoking reverse_code) is a safe stand-in; the
+            # final `call_command("migrate", ...)` below re-runs it forward again.
+            MigrationRecorder(connection).record_unapplied(
+                "prompts", "0008_prompt_review_payload_v2"
+            )
 
         executor = MigrationExecutor(connection)
         executor.migrate(migrate_from)

@@ -253,7 +253,7 @@ class PayloadShapeTests(TestCase):
     def test_schema_and_content_type_are_stable(self):
         prompt = make_full_prompt()
         payload = build_prompt_review_payload(prompt)
-        self.assertEqual(payload["schema"], "prompt-review-v1")
+        self.assertEqual(payload["schema"], "prompt-review-v2")
         self.assertEqual(payload["content_type"], "prompt")
         self.assertEqual(payload["schema"], SCHEMA)
         self.assertEqual(payload["content_type"], CONTENT_TYPE)
@@ -457,30 +457,30 @@ class TranslationContractTests(TestCase):
 
 
 class AuthorRelationTests(TestCase):
+    """Beta 11.11C4D: the author relation is exactly ``{"id": author_id}`` -
+    the redactional identity is the account, never the account's current
+    display name (see the module docstring and the C4C audit). Name/username
+    changes must leave the payload byte-for-byte identical; only a real
+    reassignment of ``author_id`` may change it."""
+
     def test_no_author_serializes_as_none(self):
         prompt = make_full_prompt(author=None)
         payload = build_prompt_review_payload(prompt)
         self.assertIsNone(payload["relations"]["author"])
 
-    def test_author_with_full_name_uses_get_full_name(self):
+    def test_author_is_serialized_as_id_only(self):
         user = User.objects.create_user(
-            "author-fullname", password="pw", first_name="Ada", last_name="Lovelace"
+            "author-id-only", password="pw", first_name="Ada", last_name="Lovelace"
         )
         prompt = make_full_prompt(author=user)
         payload = build_prompt_review_payload(prompt)
-        self.assertEqual(
-            payload["relations"]["author"],
-            {"username": "author-fullname", "display_name": "Ada Lovelace"},
-        )
+        self.assertEqual(payload["relations"]["author"], {"id": user.pk})
 
-    def test_author_without_full_name_falls_back_to_username(self):
-        user = User.objects.create_user("author-username-only", password="pw")
+    def test_author_id_is_used_even_with_no_name_fields_set(self):
+        user = User.objects.create_user("author-no-names", password="pw")
         prompt = make_full_prompt(author=user)
         payload = build_prompt_review_payload(prompt)
-        self.assertEqual(
-            payload["relations"]["author"],
-            {"username": "author-username-only", "display_name": "author-username-only"},
-        )
+        self.assertEqual(payload["relations"]["author"], {"id": user.pk})
 
     def test_author_email_is_never_included(self):
         user = User.objects.create_user(
@@ -492,13 +492,22 @@ class AuthorRelationTests(TestCase):
         self.assertNotIn("secret@example.com", serialized)
         self.assertNotIn("email", payload["relations"]["author"])
 
-    def test_author_staff_and_superuser_flags_are_never_included(self):
+    def test_author_section_contains_only_id(self):
         user = User.objects.create_superuser(
             "author-super", "author-super@example.com", "pw"
         )
         prompt = make_full_prompt(author=user)
         payload = build_prompt_review_payload(prompt)
-        self.assertEqual(set(payload["relations"]["author"]), {"username", "display_name"})
+        self.assertEqual(set(payload["relations"]["author"]), {"id"})
+
+    def test_username_and_display_name_are_never_included(self):
+        user = User.objects.create_user(
+            "author-shape-check", password="pw", first_name="Ada", last_name="Lovelace"
+        )
+        prompt = make_full_prompt(author=user)
+        payload = build_prompt_review_payload(prompt)
+        self.assertNotIn("username", payload["relations"]["author"])
+        self.assertNotIn("display_name", payload["relations"]["author"])
 
     def test_changing_the_author_assignment_changes_the_payload(self):
         author_a = User.objects.create_user("author-change-a", password="pw")
@@ -509,22 +518,87 @@ class AuthorRelationTests(TestCase):
         after = build_prompt_review_payload(refetch(prompt))
         self.assertNotEqual(before["relations"]["author"], after["relations"]["author"])
 
-    def test_changing_the_authors_display_name_changes_the_payload(self):
+    def test_clearing_the_author_assignment_changes_the_payload(self):
+        author = User.objects.create_user("author-clear", password="pw")
+        prompt = make_full_prompt(author=author)
+        before = build_prompt_review_payload(prompt)
+        Prompt.objects.filter(pk=prompt.pk).update(author=None)
+        after = build_prompt_review_payload(refetch(prompt))
+        self.assertNotEqual(before["relations"]["author"], after["relations"]["author"])
+        self.assertIsNone(after["relations"]["author"])
+
+    def test_assigning_an_author_where_there_was_none_changes_the_payload(self):
+        author = User.objects.create_user("author-assign", password="pw")
+        prompt = make_full_prompt(author=None)
+        before = build_prompt_review_payload(prompt)
+        Prompt.objects.filter(pk=prompt.pk).update(author=author)
+        after = build_prompt_review_payload(refetch(prompt))
+        self.assertNotEqual(before["relations"]["author"], after["relations"]["author"])
+
+    def test_changing_the_authors_first_name_does_not_change_the_payload(self):
         author = User.objects.create_user(
-            "author-rename", password="pw", first_name="Old", last_name="Name"
+            "author-rename-first", password="pw", first_name="Old", last_name="Name"
         )
         prompt = make_full_prompt(author=author)
         before = build_prompt_review_payload(prompt)
         User.objects.filter(pk=author.pk).update(first_name="New")
         after = build_prompt_review_payload(refetch(prompt))
-        self.assertNotEqual(before["relations"]["author"], after["relations"]["author"])
+        self.assertEqual(before["relations"]["author"], after["relations"]["author"])
 
-    def test_no_extra_query_from_lazy_author_access(self):
+    def test_changing_the_authors_last_name_does_not_change_the_payload(self):
+        author = User.objects.create_user(
+            "author-rename-last", password="pw", first_name="First", last_name="Old"
+        )
+        prompt = make_full_prompt(author=author)
+        before = build_prompt_review_payload(prompt)
+        User.objects.filter(pk=author.pk).update(last_name="New")
+        after = build_prompt_review_payload(refetch(prompt))
+        self.assertEqual(before["relations"]["author"], after["relations"]["author"])
+
+    def test_changing_both_names_at_once_does_not_change_the_payload(self):
+        author = User.objects.create_user(
+            "author-rename-both", password="pw", first_name="Old", last_name="Name"
+        )
+        prompt = make_full_prompt(author=author)
+        before = build_prompt_review_payload(prompt)
+        User.objects.filter(pk=author.pk).update(first_name="New", last_name="Person")
+        after = build_prompt_review_payload(refetch(prompt))
+        self.assertEqual(before["relations"]["author"], after["relations"]["author"])
+
+    def test_clearing_the_authors_name_to_blank_does_not_change_the_payload(self):
+        author = User.objects.create_user(
+            "author-rename-blank", password="pw", first_name="First", last_name="Last"
+        )
+        prompt = make_full_prompt(author=author)
+        before = build_prompt_review_payload(prompt)
+        User.objects.filter(pk=author.pk).update(first_name="", last_name="")
+        after = build_prompt_review_payload(refetch(prompt))
+        self.assertEqual(before["relations"]["author"], after["relations"]["author"])
+
+    def test_changing_the_username_does_not_change_the_payload(self):
+        author = User.objects.create_user("author-rename-username-old", password="pw")
+        prompt = make_full_prompt(author=author)
+        before = build_prompt_review_payload(prompt)
+        User.objects.filter(pk=author.pk).update(username="author-rename-username-new")
+        after = build_prompt_review_payload(refetch(prompt))
+        self.assertEqual(before["relations"]["author"], after["relations"]["author"])
+
+    def test_stale_caller_author_id_is_ignored_in_favor_of_the_database(self):
+        author_a = User.objects.create_user("author-stale-a", password="pw")
+        author_b = User.objects.create_user("author-stale-b", password="pw")
+        prompt = make_full_prompt(author=author_a)
+        stale = refetch(prompt)
+        _ = stale.author  # populate the caller's own cached FK access
+        Prompt.objects.filter(pk=prompt.pk).update(author=author_b)
+        payload = build_prompt_review_payload(stale)
+        self.assertEqual(payload["relations"]["author"], {"id": author_b.pk})
+
+    def test_no_query_against_the_user_table(self):
         author = User.objects.create_user("author-lazy", password="pw")
         prompt = make_full_prompt(author=author)
         with CaptureQueriesContext(connection) as ctx:
             build_prompt_review_payload(prompt)
-        self.assertEqual(query_count_for(ctx, User), 1)
+        self.assertEqual(query_count_for(ctx, User), 0)
 
 
 # ======================================================================
@@ -780,13 +854,16 @@ class SensitivityMatrixTests(TestCase):
         self.assertNotEqual(before, self._fp(prompt))
 
     def test_author_display_name_changed(self):
+        """Beta 11.11C4D inverted this from the v1 contract: the author's
+        first/last name is no longer part of the payload at all, so a pure
+        display-name change must leave the fingerprint unchanged."""
         author = User.objects.create_user(
             "sens-author-display", password="pw", first_name="Old"
         )
         prompt = make_full_prompt(author=author)
         before = self._fp(prompt)
         User.objects.filter(pk=author.pk).update(first_name="New")
-        self.assertNotEqual(before, self._fp(prompt))
+        self.assertEqual(before, self._fp(prompt))
 
 
 # ======================================================================

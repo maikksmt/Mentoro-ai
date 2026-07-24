@@ -456,11 +456,6 @@ class StalePayloadTests(ApprovalTestCase):
         prompt.tools.remove(tool)
         self._assert_blocked(prompt)
 
-    def test_author_display_name_changed(self):
-        prompt = submitted_prompt(actor=self.actor, author=self.author)
-        User.objects.filter(pk=self.author.pk).update(first_name="Changed", last_name="Name")
-        self._assert_blocked(prompt)
-
     def test_author_reassigned(self):
         other_author = User.objects.create_user("c3a-other-author", password="pw")
         prompt = submitted_prompt(actor=self.actor, author=self.author)
@@ -509,6 +504,24 @@ class SuccessTests(ApprovalTestCase):
         self.assertEqual(
             fingerprint_review_payload(build_prompt_review_payload(reloaded)), fingerprint
         )
+
+    def test_author_display_name_change_does_not_block_approval(self):
+        """Beta 11.11C4D inverted this from the v1 contract (formerly part of
+        StalePayloadTests's blocked matrix): the review payload's author
+        section is now ``{"id": author_id}`` only, so a pure display-name
+        change since submit must not be treated as stale content."""
+        prompt = submitted_prompt(actor=self.actor, author=self.author)
+        before = refetch(prompt)
+        fingerprint = before.review_payload_fingerprint
+        User.objects.filter(pk=self.author.pk).update(first_name="Changed", last_name="Name")
+
+        result = approve_prompt_review(refetch(prompt), actor=self.actor)
+
+        self.assertEqual(result.current_status, Workflow.STATUS_APPROVED)
+        self.assertEqual(result.fingerprint, fingerprint)
+        reloaded = refetch(prompt)
+        self.assertEqual(reloaded.status, Workflow.STATUS_APPROVED)
+        self.assertEqual(reloaded.review_payload_fingerprint, fingerprint)
 
 
 # ======================================================================

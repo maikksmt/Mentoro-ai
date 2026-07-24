@@ -30,6 +30,7 @@ from datetime import datetime, timezone as dt_timezone
 from django.core.management import call_command
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
+from django.db.migrations.recorder import MigrationRecorder
 from django.test import TransactionTestCase
 
 BEFORE = {
@@ -62,6 +63,21 @@ class EditorialMigrationTestCase(TransactionTestCase):
         super().setUp()
         migrate_from = [(self.app, BEFORE[self.app])]
         migrate_to = [(self.app, AFTER[self.app])]
+
+        if self.app == "prompts":
+            # Beta 11.11C4D added prompts/migrations/0008_prompt_review_payload_v2.py
+            # on top of AFTER["prompts"], and it is deliberately irreversible (no
+            # reverse_code at all - see its own module docstring). Rolling
+            # "prompts" back to BEFORE["prompts"] would otherwise have to unapply
+            # 0008 first, which raises IrreversibleError. 0008 has zero schema
+            # operations, so there is nothing to actually reverse at the schema
+            # level - deleting its own "applied" bookkeeping row (never touching
+            # data, never invoking reverse_code) is a fully safe stand-in, and
+            # forward `migrate()` calls (including this file's own tearDown) simply
+            # re-run it for real afterwards.
+            MigrationRecorder(connection).record_unapplied(
+                "prompts", "0008_prompt_review_payload_v2"
+            )
 
         executor = MigrationExecutor(connection)
         executor.migrate(migrate_from)
