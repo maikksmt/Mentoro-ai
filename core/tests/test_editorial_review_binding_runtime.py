@@ -239,23 +239,33 @@ class WorkflowLeavesTheBindingEmptyTests(ReviewBindingRuntimeTestCase):
                 reloaded = self.assert_unbound(obj)
                 self.assertEqual(reloaded.status, Workflow.STATUS_REWORK)
 
-    def test_editing_during_review_does_not_auto_invalidate(self):
+    def test_editing_during_review_now_auto_invalidates(self):
         """
-        The known Beta 11.11A stale gap is still open: editing a prompt during
-        review does not automatically invalidate the review binding.
+        Beta 11.11C4H closed the Beta 11.11A stale gap this test used to
+        document: editing a prompt's reviewed content through the real
+        PromptAdmin changeform now *does* automatically invalidate the review
+        binding, via the Beta 11.11C4G guard integrated into
+        ``PromptAdmin.save_model()``/``save_related()``.
 
-        C2B update: the submit now *does* bind a review revision and
-        fingerprint, so the old 'assert_unbound after submit' no longer holds.
-        What this test still guards is that a subsequent edit during review
-        neither clears nor re-binds that binding (no auto-invalidation is wired
-        - that remains a later slice), and never sets ``approved_revision``.
+        Previous contract (through Beta 11.11C4G): a content edit during
+        review left ``review_revision``/``review_payload_fingerprint``
+        untouched - "no auto-invalidation is wired". New contract (Beta
+        11.11C4H): a *real* payload change (this test changes ``title``, a
+        canonical v2 payload field) fails closed - the binding is cleared and
+        the prompt drops back to an unreviewed state, exactly like any other
+        Beta 11.11B2B2 invalidation. Remaining protection: this is not a
+        blanket "every edit invalidates" rule - an edit that leaves the v2
+        payload unchanged still leaves the binding untouched (see
+        ``prompts/tests/test_admin_review_edit_guard.py``).
+
+        ``self.prompt`` (from ``setUp``) has no ``live_i18n`` yet (never
+        published), so B2B2's own live-snapshot rule sends it to ``draft``,
+        not ``rework``.
         """
         self.run_action("prompts", "prompt", "action_submit_for_review", self.prompt.pk)
         bound = refetch(self.prompt)
         self.assertEqual(bound.status, Workflow.STATUS_REVIEW)
         self.assertIsNotNone(bound.review_revision_id)
-        review_revision_id = bound.review_revision_id
-        fingerprint = bound.review_payload_fingerprint
 
         self.client.post(
             reverse("admin:prompts_prompt_change", args=[self.prompt.pk]),
@@ -275,9 +285,9 @@ class WorkflowLeavesTheBindingEmptyTests(ReviewBindingRuntimeTestCase):
         )
 
         after_edit = refetch(self.prompt)
-        # binding unchanged - no auto-invalidation, no re-binding
-        self.assertEqual(after_edit.review_revision_id, review_revision_id)
-        self.assertEqual(after_edit.review_payload_fingerprint, fingerprint)
+        self.assertEqual(after_edit.status, Workflow.STATUS_DRAFT)
+        self.assertIsNone(after_edit.review_revision_id)
+        self.assertEqual(after_edit.review_payload_fingerprint, "")
         self.assertIsNone(after_edit.approved_revision_id)
 
 

@@ -968,17 +968,30 @@ class QueryAndLockContractTests(GuardTestCase):
 
 
 class NoRuntimeActivationTests(TestCase):
-    def test_no_production_module_other_than_the_guard_itself_imports_it(self):
+    """
+    Beta 11.11C4G shipped the guard with zero production consumers. Beta
+    11.11C4H activates exactly one: ``prompts/admin.py``'s ``PromptAdmin``
+    changeform. This module's own contract - not a new one - is what changed:
+    "no consumers" became "exactly one, precisely named" consumer. Every
+    other production module (content/views/editorial.py, models, signals,
+    other admin modules, translation-delete) remains forbidden, unchanged.
+    """
+
+    def test_admin_py_is_the_sole_production_consumer(self):
         import ast
         import pathlib
 
+        import prompts.admin as admin_module
         import prompts.review_edit_guard as guard_module
 
         symbols = (
             "capture_prompt_review_edit_baseline",
             "invalidate_prompt_review_if_payload_changed",
         )
-        allowed_files = {pathlib.Path(guard_module.__file__).resolve()}
+        allowed_files = {
+            pathlib.Path(guard_module.__file__).resolve(),
+            pathlib.Path(admin_module.__file__).resolve(),
+        }
 
         project_root = pathlib.Path(guard_module.__file__).resolve().parents[1]
         offenders = []
@@ -1005,19 +1018,42 @@ class NoRuntimeActivationTests(TestCase):
 
         self.assertEqual(offenders, [])
 
-    def test_admin_module_never_imports_the_guard(self):
+    def test_admin_module_does_import_the_guard(self):
+        """The one sanctioned consumer, precisely - not a broad assertion
+        that "some" activation exists, but that this exact module does."""
         import prompts.admin as admin_module
 
         source = open(admin_module.__file__, encoding="utf-8").read()
-        self.assertNotIn("review_edit_guard", source)
-        self.assertNotIn("capture_prompt_review_edit_baseline", source)
-        self.assertNotIn("invalidate_prompt_review_if_payload_changed", source)
+        self.assertIn("review_edit_guard", source)
+        self.assertIn("capture_prompt_review_edit_baseline", source)
+        self.assertIn("invalidate_prompt_review_if_payload_changed", source)
 
     def test_editorial_view_module_never_imports_the_guard(self):
         import content.views.editorial as editorial_module
 
         source = open(editorial_module.__file__, encoding="utf-8").read()
         self.assertNotIn("review_edit_guard", source)
+
+    def test_translation_delete_view_never_imports_the_guard(self):
+        """Beta 11.11C4H integrates only the normal changeform save path -
+        the separate Parler translation-delete URL is explicitly out of
+        scope and must stay that way."""
+        import parler.admin as parler_admin_module
+
+        source = open(parler_admin_module.__file__, encoding="utf-8").read()
+        self.assertNotIn("review_edit_guard", source)
+
+    def test_other_admin_modules_never_import_the_guard(self):
+        import compare.admin
+        import guides.admin
+        import usecases.admin
+
+        for module in (guides.admin, usecases.admin, compare.admin):
+            source = open(module.__file__, encoding="utf-8").read()
+            with self.subTest(module=module.__name__):
+                self.assertNotIn("review_edit_guard", source)
+                self.assertNotIn("capture_prompt_review_edit_baseline", source)
+                self.assertNotIn("invalidate_prompt_review_if_payload_changed", source)
 
 
 # ======================================================================

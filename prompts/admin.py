@@ -31,11 +31,46 @@ from .review_approval import (
     PromptReviewApprovalErrorCode,
     approve_prompt_review,
 )
+from .review_edit_guard import (
+    PromptReviewEditBaseline,
+    capture_prompt_review_edit_baseline,
+    invalidate_prompt_review_if_payload_changed,
+)
 from .review_submission import (
     PromptReviewSubmissionError,
     PromptReviewSubmissionErrorCode,
     submit_prompt_for_review,
 )
+
+#: Beta 11.11C4H: request-local (never module-global, cache, thread-local,
+#: ContextVar or session) storage for the Beta 11.11C4G baseline captured by
+#: ``PromptAdmin.save_model()``, consumed by ``PromptAdmin.save_related()``
+#: further down the same request. Keyed by prompt pk so a hypothetical future
+#: multi-object save on the same request cannot cross-contaminate. Lives only
+#: as long as the request object itself.
+_PROMPT_REVIEW_EDIT_BASELINE_REQUEST_ATTR = "_mentoro_prompt_review_edit_baselines"
+
+
+class _PromptReviewEditIntegrationError(RuntimeError):
+    """
+    An internal admin-lifecycle contract violation, never a routine outcome:
+    ``save_related()`` found no baseline matching the prompt it is about to
+    save relations for, or ``save_model()`` found one unexpectedly already
+    present. Under normal Django admin operation this can only mean
+    ``save_model()`` did not run, did not succeed, or ran for a different
+    prompt than ``save_related()`` is now handling - never "no payload
+    change", which is a value ``invalidate_prompt_review_if_payload_changed()``
+    itself reports. Deliberately private: no other module is meant to catch
+    this specifically.
+    """
+
+
+def _prompt_review_edit_baselines(request) -> dict[int, PromptReviewEditBaseline]:
+    store = getattr(request, _PROMPT_REVIEW_EDIT_BASELINE_REQUEST_ATTR, None)
+    if store is None:
+        store = {}
+        setattr(request, _PROMPT_REVIEW_EDIT_BASELINE_REQUEST_ATTR, store)
+    return store
 
 
 def _selected_action_name(request):
@@ -523,6 +558,79 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
                 ),
                 level=messages.ERROR,
             )
+
+    def save_model(self, request, obj, form, change):
+        """
+        Beta 11.11C4H: capture the pre-mutation Beta 11.11C1/C4D v2 payload
+        baseline for an *existing* Prompt, strictly before the root is saved.
+
+        Only for ``change=True`` with an already-assigned pk - a brand-new
+        Prompt has no prior review/approval state to protect, so Add takes
+        the plain, unmodified path. The baseline is captured read-only,
+        against the database (never against ``obj``, which the validated
+        form has already mutated in memory - Beta 11.11C4G ignores that and
+        rereads the row fresh), strictly before ``super().save_model()`` ever
+        runs. If capture itself fails, ``super().save_model()`` is never
+        called and nothing is mutated.
+
+        The baseline is only stored on the request - for ``save_related()``
+        to consume - once ``super().save_model()`` has actually succeeded. If
+        it raises, execution never reaches that line, so no stale baseline is
+        ever left behind; the surrounding admin changeform's own
+        ``transaction.atomic()`` (``ModelAdmin.changeform_view()``) is what
+        rolls the partial root save back, not this method.
+        """
+        if change and obj.pk:
+            baseline = capture_prompt_review_edit_baseline(obj)
+            super().save_model(request, obj, form, change)
+            store = _prompt_review_edit_baselines(request)
+            if baseline.prompt_id in store:
+                raise _PromptReviewEditIntegrationError(
+                    f"a review-edit baseline for prompt #{baseline.prompt_id} "
+                    "already exists on this request"
+                )
+            store[baseline.prompt_id] = baseline
+        else:
+            super().save_model(request, obj, form, change)
+
+    def save_related(self, request, form, formsets, change):
+        """
+        Beta 11.11C4H: after ``super().save_related()`` has persisted
+        everything else the canonical payload can depend on - tag/tool
+        membership via ``form.save_m2m()``, and any formsets (Prompt has
+        none) - compare the current v2 payload against the baseline
+        ``save_model()`` captured, and invalidate a bound review/approval via
+        the existing Beta 11.11B2B2 primitive exactly once if, and only if,
+        it actually changed.
+
+        For ``change=True`` the matching baseline is popped off the request
+        immediately, *before* ``super().save_related()`` runs - never left
+        for a second, accidental compare, and never reused across requests. A
+        missing baseline at this point is an internal lifecycle contract
+        violation (``save_model()`` did not run, or did not succeed, for this
+        exact prompt) and fails closed *before* any relation is saved -
+        never silently treated as "no payload change" and never a
+        ``messages.warning`` that lets the save continue unprotected.
+
+        Returns the ``PromptReviewEditGuardResult`` (``None`` for Add, or for
+        a change whose relations were saved without ever reaching compare)
+        purely for direct-call test convenience - Django's own admin
+        machinery never reads a ``save_related()`` return value.
+        """
+        if change and form.instance.pk:
+            prompt_id = form.instance.pk
+            baseline = _prompt_review_edit_baselines(request).pop(prompt_id, None)
+            if baseline is None:
+                raise _PromptReviewEditIntegrationError(
+                    f"no captured review-edit baseline for prompt #{prompt_id}; "
+                    "save_model() must run and succeed before save_related()"
+                )
+            super().save_related(request, form, formsets, change)
+            return invalidate_prompt_review_if_payload_changed(
+                form.instance, baseline=baseline, using=baseline.database_alias,
+            )
+        super().save_related(request, form, formsets, change)
+        return None
 
     def get_readonly_fields(self, request, obj=None):
         fields = list(super().get_readonly_fields(request, obj))
