@@ -960,10 +960,19 @@ class StaleCallerTests(ApprovalTestCase):
 
 
 class NoRuntimeActivationTests(TestCase):
-    def test_production_definition_only_in_its_own_module(self):
+    def test_production_definition_and_only_sanctioned_consumer(self):
+        """
+        Beta 11.11C3A contract: no production module consumed
+        ``approve_prompt_review``. Beta 11.11C3B contract: exactly one
+        production consumer now exists - ``prompts/admin.py`` - and no other.
+        The definition still lives only in ``prompts/review_approval.py``.
+        Updated minimally by adding the sanctioned admin file to the
+        allow-list, mirroring how C2B updated C2A's equivalent test.
+        """
         import ast
         import pathlib
 
+        import prompts.admin as admin_module
         import prompts.review_approval as approval_module
 
         symbols = (
@@ -973,6 +982,7 @@ class NoRuntimeActivationTests(TestCase):
             "PromptReviewApprovalErrorCode",
         )
         definition_file = pathlib.Path(approval_module.__file__).resolve()
+        allowed_files = {definition_file, pathlib.Path(admin_module.__file__).resolve()}
         project_root = definition_file.parents[1]
 
         offenders = []
@@ -981,7 +991,7 @@ class NoRuntimeActivationTests(TestCase):
                 continue
             if "/tests/" in str(py_file) or py_file.name.startswith("test_"):
                 continue
-            if py_file.resolve() == definition_file:
+            if py_file.resolve() in allowed_files:
                 continue
             text = py_file.read_text(encoding="utf-8", errors="ignore")
             if not any(symbol in text for symbol in symbols):
@@ -997,27 +1007,41 @@ class NoRuntimeActivationTests(TestCase):
                     offenders.append(f"{py_file}: reference {node.id}")
         self.assertEqual(offenders, [])
 
-    def test_admin_module_does_not_import_it(self):
+    def test_prompt_admin_imports_the_primitive_not_the_internals(self):
+        """
+        C3A contract: the prompt admin did not import the primitive. C3B
+        contract: it now imports and delegates to ``approve_prompt_review``
+        (and its error types) but still reaches for none of the C3A
+        internals - no ``build_prompt_review_payload``,
+        ``fingerprint_review_payload``, ``validate_review_binding``,
+        ``reversion.create_revision``, or FSM ``.approve()``. Inverted from
+        the C3A ``assertNotIn`` accordingly.
+        """
         import prompts.admin
 
         source = open(prompts.admin.__file__, encoding="utf-8").read()
-        for symbol in (
-            "approve_prompt_review",
-            "review_approval",
-            "PromptReviewApprovalError",
-        ):
-            with self.subTest(symbol=symbol):
-                self.assertNotIn(symbol, source)
+        self.assertIn("approve_prompt_review", source)
+        self.assertIn("PromptReviewApprovalError", source)
 
-    def test_admin_approve_action_still_writes_no_binding(self):
+    def test_admin_approve_action_now_binds_approved_revision(self):
+        """
+        C3A contract: the shared admin approve path (still used by every
+        editorial type at that point) wrote no ``approved_revision``. C3B
+        contract: the prompt-specific override now binds it, exactly to the
+        already-captured ``review_revision`` - never a fresh lookup. The
+        AST-based absence-of-``create_revision``/``atomic``/internals check
+        lives in ``prompts/tests/test_admin_review_approval.py``; this test
+        only pins the resulting binding contract.
+        """
         from django.contrib.auth.models import Group
         from django.test import Client
         from django.urls import reverse
 
-        editor = User.objects.create_user("c3a-editor", password="pw", is_staff=True)
+        editor = User.objects.create_user("c3b-editor", password="pw", is_staff=True)
         editor.groups.add(Group.objects.get_or_create(name="Editor")[0])
-        author = User.objects.create_user("c3a-runtime-author", password="pw")
+        author = User.objects.create_user("c3b-runtime-author", password="pw")
         prompt = submitted_prompt(actor=editor, author=author)
+        review_revision_id = refetch(prompt).review_revision_id
         client = Client()
         client.force_login(editor)
         client.post(
@@ -1027,8 +1051,10 @@ class NoRuntimeActivationTests(TestCase):
         )
         reloaded = refetch(prompt)
         self.assertEqual(reloaded.status, Workflow.STATUS_APPROVED)
-        # the shared admin path is untouched by C3A - still writes no binding
-        self.assertIsNone(reloaded.approved_revision_id)
+        self.assertEqual(reloaded.review_revision_id, review_revision_id)
+        self.assertEqual(reloaded.approved_revision_id, review_revision_id)
+        self.assertEqual(reloaded.reviewed_by_id, editor.pk)
+        self.assertIsNotNone(reloaded.reviewed_at)
 
     def test_other_editorial_admins_do_not_import_it(self):
         import compare.admin

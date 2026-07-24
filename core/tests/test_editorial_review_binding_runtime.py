@@ -149,6 +149,30 @@ class WorkflowLeavesTheBindingEmptyTests(ReviewBindingRuntimeTestCase):
                 reloaded = self.assert_unbound(obj)
                 self.assertEqual(reloaded.status, Workflow.STATUS_APPROVED)
 
+    def test_prompt_admin_approve_now_binds(self):
+        """
+        C3B contract (replacing the old 'prompt approve writes no binding'
+        assertion): the prompt admin approve action now binds
+        ``approved_revision`` to the exact ``review_revision`` C2B's submit
+        already captured - never a fresh lookup, never a new snapshot -
+        while publish remains un-activated.
+        """
+        self.run_action("prompts", "prompt", "action_submit_for_review", self.prompt.pk)
+        submitted = refetch(self.prompt)
+        review_revision_id = submitted.review_revision_id
+        fingerprint = submitted.review_payload_fingerprint
+        self.assertIsNotNone(review_revision_id)
+
+        self.run_action("prompts", "prompt", "action_approve", self.prompt.pk)
+
+        reloaded = refetch(self.prompt)
+        self.assertEqual(reloaded.status, Workflow.STATUS_APPROVED)
+        self.assertEqual(reloaded.review_revision_id, review_revision_id)
+        self.assertEqual(reloaded.approved_revision_id, review_revision_id)
+        self.assertEqual(reloaded.review_payload_fingerprint, fingerprint)
+        self.assertIsNotNone(reloaded.reviewed_by_id)
+        self.assertIsNotNone(reloaded.reviewed_at)
+
     def test_publish_reaches_published_and_writes_no_binding(self):
         for app_label, model_name, obj in self._targets():
             with self.subTest(model=f"{app_label}.{model_name}"):
@@ -182,9 +206,12 @@ class WorkflowLeavesTheBindingEmptyTests(ReviewBindingRuntimeTestCase):
         ``Version.id``, and the new FKs did not take it over.
 
         C2B update: the prompt submit now binds ``review_revision``, so it is
-        no longer ``None`` after the workflow. ``approved_revision`` stays
-        ``None`` (approve is not yet activated), which is the part this test
-        still guards for the legacy marker.
+        no longer ``None`` after the workflow.
+
+        C3B update: the prompt approve now binds ``approved_revision`` too
+        (equal to ``review_revision``, never the legacy marker's value) - what
+        this test still guards is that the legacy ``last_published_revision_id``
+        marker keeps meaning "a ``Version.id``", distinct from either FK.
         """
         from reversion.models import Version
 
@@ -196,11 +223,13 @@ class WorkflowLeavesTheBindingEmptyTests(ReviewBindingRuntimeTestCase):
         self.assertIsNotNone(marker)
         version = Version.objects.get(id=marker)
         self.assertEqual(version.content_type.model, "prompt")
-        # review_revision is now bound by the C2B admin submit; the legacy
-        # Version.id marker is a different value from that Revision FK.
+        # review_revision and approved_revision are now bound by the C2B/C3B
+        # admin submit/approve; the legacy Version.id marker is a different
+        # value from either Revision FK.
         self.assertIsNotNone(published.review_revision_id)
         self.assertNotEqual(published.review_revision_id, marker)
-        self.assertIsNone(published.approved_revision_id)
+        self.assertEqual(published.approved_revision_id, published.review_revision_id)
+        self.assertNotEqual(published.approved_revision_id, marker)
 
     def test_rework_behaves_exactly_as_before_and_writes_no_binding(self):
         for app_label, model_name, obj in self._targets():

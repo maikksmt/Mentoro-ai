@@ -26,6 +26,11 @@ from core.editorial_preview import (
 from core.services import get_live_display_instance, build_field_diffs
 from .models import Prompt
 from .presentation import build_draft_prompt_context
+from .review_approval import (
+    PromptReviewApprovalError,
+    PromptReviewApprovalErrorCode,
+    approve_prompt_review,
+)
 from .review_submission import (
     PromptReviewSubmissionError,
     PromptReviewSubmissionErrorCode,
@@ -82,6 +87,19 @@ def _selected_action_name(request):
 
     selected_action = action_values[action_index]
     return selected_action or None
+
+
+#: The Prompt admin actions that must run outside VersionAdmin's shared
+#: revision context because each hands its selection to a per-root C3-series
+#: primitive (Beta 11.11C2A / C3A) that opens its own atomic transaction and
+#: reversion revision per object. Extended in Beta 11.11C3B to cover approval
+#: alongside submission - see ``PromptAdmin.changelist_view``.
+_ISOLATED_PROMPT_ACTIONS = frozenset(
+    {
+        "action_submit_for_review",
+        "action_approve",
+    }
+)
 
 
 @admin.register(Prompt)
@@ -163,32 +181,36 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
 
     def changelist_view(self, request, extra_context=None):
         """
-        Run the prompt submit-for-review action *outside* VersionAdmin's shared
-        revision context (Beta 11.11C2B, hardened in Beta 11.11C2B1A).
+        Run the prompt submit-for-review and approve actions *outside*
+        VersionAdmin's shared revision context (Beta 11.11C2B, hardened in
+        Beta 11.11C2B1A, extended to approval in Beta 11.11C3B).
 
         ``reversion.admin.VersionAdmin.changelist_view`` wraps the entire
         changelist POST - including admin-action dispatch - in one
         ``reversion.create_revision()`` block. That is exactly what the shared
-        editorial submit action relied on to batch every selected object into a
-        single revision. This admin's submit action instead delegates each
-        prompt to ``submit_prompt_for_review`` (Beta 11.11C2A), which opens its
-        own per-root revision and, by design, refuses to run inside an outer
-        reversion context. So for that one action we dispatch through
-        ``ModelAdmin.changelist_view`` (``super(VersionAdmin, self)``), skipping
-        only VersionAdmin's revision wrapper; every other request - the GET
-        changelist, and the approve/rework/publish/archive/restore actions that
-        still write directly inside a revision - keeps VersionAdmin's normal
-        behaviour.
+        editorial submit/approve actions relied on to batch every selected
+        object into a single revision. This admin's submit and approve actions
+        instead delegate each prompt to ``submit_prompt_for_review`` (Beta
+        11.11C2A) or ``approve_prompt_review`` (Beta 11.11C3A), each of which
+        opens its own per-root revision and, by design, refuses to run inside
+        an outer reversion context. So for either of those two actions
+        (:data:`_ISOLATED_PROMPT_ACTIONS`) we dispatch through
+        ``ModelAdmin.changelist_view`` (``super(VersionAdmin, self)``),
+        skipping only VersionAdmin's revision wrapper; every other request -
+        the GET changelist, and the rework/publish/archive/restore actions
+        that still write directly inside a revision - keeps VersionAdmin's
+        normal behaviour.
 
-        Which action was "the" submit action is decided by
+        Which action was actually selected is decided by
         ``_selected_action_name``, not by a bare ``request.POST.get("action")``
         - a changelist POST can carry more than one ``action`` field (top and
         bottom action bars), and only the one ``index`` actually points at
         counts. See that function's docstring for the exact contract,
         including its fail-closed behaviour for a negative or out-of-range
-        index.
+        index. That contract is reused verbatim here - only the set of action
+        names it is compared against grew from one to two.
         """
-        if request.method == "POST" and _selected_action_name(request) == "action_submit_for_review":
+        if request.method == "POST" and _selected_action_name(request) in _ISOLATED_PROMPT_ACTIONS:
             return super(VersionAdmin, self).changelist_view(request, extra_context)
         return super().changelist_view(request, extra_context)
 
@@ -319,6 +341,184 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
                 request,
                 _(
                     "Some prompts could not be submitted because of a server "
+                    "configuration problem. Please contact an administrator."
+                ),
+                level=messages.ERROR,
+            )
+
+    #: C3A error codes the admin recovers from per prompt: it counts them,
+    #: warns in aggregate, and keeps processing the rest of the selection.
+    #: ``REVIEW_PAYLOAD_CHANGED`` belongs here deliberately - until the C4 edit
+    #: invalidation exists, a prompt whose reviewed content changed after
+    #: submit is an expected editorial state, not a technical failure.
+    _RECOVERABLE_APPROVAL_CODES = frozenset(
+        {
+            PromptReviewApprovalErrorCode.STATUS_NOT_APPROVABLE,
+            PromptReviewApprovalErrorCode.REVIEW_PAYLOAD_CHANGED,
+            PromptReviewApprovalErrorCode.OBJECT_NOT_FOUND,
+        }
+    )
+    #: Request/configuration problems (bad alias or actor): fail closed - stop
+    #: processing further prompts and show one generic error - but leave every
+    #: prompt already committed by C3A's own per-root transaction untouched.
+    _CONFIG_APPROVAL_CODES = frozenset(
+        {
+            PromptReviewApprovalErrorCode.INVALID_DATABASE_ALIAS,
+            PromptReviewApprovalErrorCode.DATABASE_ALIAS_MISMATCH,
+            PromptReviewApprovalErrorCode.INVALID_ACTOR,
+            PromptReviewApprovalErrorCode.ACTOR_DATABASE_ALIAS_MISMATCH,
+        }
+    )
+
+    @admin.action(description=_("Approve (Review → Approved)"))
+    def action_approve(self, request, queryset):
+        """
+        Prompt-specific override of the shared editorial approve action
+        (Beta 11.11C3B).
+
+        The shared ``EditorialWorkflowAdminMixin.action_approve`` wraps the
+        *whole* selection in one ``transaction.atomic()`` and one
+        ``reversion.create_revision()``, so every selected prompt's approval
+        lands in a single shared revision. This override instead hands each
+        prompt to ``prompts.review_approval.approve_prompt_review`` (Beta
+        11.11C3A), which gives every prompt its own atomic transaction, its
+        own reversion revision, and binds ``approved_revision`` to the exact
+        ``review_revision`` already captured at submit time - never a fresh
+        lookup, never a new snapshot.
+
+        Consequently the admin itself opens no ``transaction.atomic()`` and no
+        ``reversion.create_revision()``, calls no FSM transition and no model
+        save, computes no payload or fingerprint, validates no binding, and
+        never touches ``set_user``/``set_comment`` - all of that is C3A's
+        responsibility. A failure on one prompt therefore cannot roll back
+        another's already-committed approval.
+
+        The selection is materialised in a stable primary-key order *before*
+        any approval runs, for the same reason as the submit override: a
+        successful approval changes a prompt's status and would otherwise
+        shift a still-evaluating queryset. The per-object editorial permission
+        check (``content.approve``) is preserved exactly, and denied objects
+        are skipped without ever reaching C3A - so no revision or version is
+        written for them.
+
+        C3A error codes are classified, never blanket-caught:
+
+        * recoverable (:data:`_RECOVERABLE_APPROVAL_CODES`) - counted, warned
+          in aggregate, processing continues. This includes
+          ``REVIEW_PAYLOAD_CHANGED``: until the C4 edit-invalidation slice, a
+          prompt edited after submit is an expected stale-review state, not an
+          integrity failure, and the admin never claims to have moved it back
+          to draft or rework - it simply was not approved;
+        * request/configuration (:data:`_CONFIG_APPROVAL_CODES`) - fail
+          closed: a single generic error message (no internal codes, aliases
+          or revision ids) and processing stops, while earlier successes stay
+          committed;
+        * anything else (integrity/programmer errors such as
+          ``REVIEW_BINDING_INVALID`` or ``PAYLOAD_CHANGED_DURING_APPROVAL``) is
+          re-raised, never disguised as a harmless skip.
+        """
+        # Materialise the selection once, in a stable order, so an approved
+        # prompt leaving the queryset's implicit filter cannot skew iteration.
+        selected_prompts = list(queryset.order_by("pk"))
+        db_alias = queryset.db
+
+        approved = 0
+        not_approvable = 0
+        stale = 0
+        missing = 0
+        permission_denied = 0
+        config_error = False
+
+        for prompt in selected_prompts:
+            if not self._user_has_perm(request, "approve", prompt):
+                permission_denied += 1
+                continue
+            try:
+                approve_prompt_review(prompt, actor=request.user, using=db_alias)
+            except PromptReviewApprovalError as exc:
+                if exc.code == PromptReviewApprovalErrorCode.STATUS_NOT_APPROVABLE:
+                    not_approvable += 1
+                    continue
+                if exc.code == PromptReviewApprovalErrorCode.REVIEW_PAYLOAD_CHANGED:
+                    stale += 1
+                    continue
+                if exc.code == PromptReviewApprovalErrorCode.OBJECT_NOT_FOUND:
+                    missing += 1
+                    continue
+                if exc.code in self._CONFIG_APPROVAL_CODES:
+                    config_error = True
+                    break
+                # Integrity/programmer error - not a routine skip. Re-raise so
+                # it surfaces; prompts already committed by C3A remain committed.
+                raise
+            approved += 1
+
+        if approved:
+            self.message_user(
+                request,
+                ngettext(
+                    "%(count)d prompt was approved.",
+                    "%(count)d prompts were approved.",
+                    approved,
+                )
+                % {"count": approved},
+                level=messages.SUCCESS,
+            )
+        if not_approvable:
+            self.message_user(
+                request,
+                ngettext(
+                    "%(count)d prompt was skipped because its status does not allow "
+                    "approval.",
+                    "%(count)d prompts were skipped because their status does not allow "
+                    "approval.",
+                    not_approvable,
+                )
+                % {"count": not_approvable},
+                level=messages.WARNING,
+            )
+        if stale:
+            self.message_user(
+                request,
+                ngettext(
+                    "%(count)d prompt was skipped because its reviewed content has "
+                    "changed.",
+                    "%(count)d prompts were skipped because their reviewed content has "
+                    "changed.",
+                    stale,
+                )
+                % {"count": stale},
+                level=messages.WARNING,
+            )
+        if missing:
+            self.message_user(
+                request,
+                ngettext(
+                    "%(count)d selected prompt no longer exists and was skipped.",
+                    "%(count)d selected prompts no longer exist and were skipped.",
+                    missing,
+                )
+                % {"count": missing},
+                level=messages.WARNING,
+            )
+        if permission_denied:
+            self.message_user(
+                request,
+                ngettext(
+                    "%(count)d prompt was skipped because you are not allowed to "
+                    "approve it.",
+                    "%(count)d prompts were skipped because you are not allowed to "
+                    "approve them.",
+                    permission_denied,
+                )
+                % {"count": permission_denied},
+                level=messages.WARNING,
+            )
+        if config_error:
+            self.message_user(
+                request,
+                _(
+                    "Some prompts could not be approved because of a server "
                     "configuration problem. Please contact an administrator."
                 ),
                 level=messages.ERROR,

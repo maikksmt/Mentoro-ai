@@ -4771,6 +4771,57 @@ msgstr ""
 "eingereicht werden. Bitte wende dich an eine Administratorin oder einen "
 "Administrator."
 
+#: prompts/admin.py:460
+#, python-format
+msgid "%(count)d prompt was approved."
+msgid_plural "%(count)d prompts were approved."
+msgstr[0] "%(count)d Prompt wurde genehmigt."
+msgstr[1] "%(count)d Prompts wurden genehmigt."
+
+#: prompts/admin.py:471
+#, python-format
+msgid ""
+"%(count)d prompt was skipped because its status does not allow approval."
+msgid_plural ""
+"%(count)d prompts were skipped because their status does not allow "
+"approval."
+msgstr[0] ""
+"%(count)d Prompt wurde übersprungen, weil sein Status keine Genehmigung "
+"erlaubt."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, weil ihr Status keine Genehmigung "
+"erlaubt."
+
+#: prompts/admin.py:484
+#, python-format
+msgid "%(count)d prompt was skipped because its reviewed content has changed."
+msgid_plural ""
+"%(count)d prompts were skipped because their reviewed content has changed."
+msgstr[0] ""
+"%(count)d Prompt wurde übersprungen, weil sein geprüfter Inhalt sich "
+"geändert hat."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, weil ihr geprüfter Inhalt sich "
+"geändert hat."
+
+#: prompts/admin.py:508
+#, python-format
+msgid "%(count)d prompt was skipped because you are not allowed to approve it."
+msgid_plural ""
+"%(count)d prompts were skipped because you are not allowed to approve them."
+msgstr[0] "%(count)d Prompt wurde übersprungen, weil du ihn nicht genehmigen darfst."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, weil du sie nicht genehmigen darfst."
+
+#: prompts/admin.py:521
+msgid ""
+"Some prompts could not be approved because of a server configuration "
+"problem. Please contact an administrator."
+msgstr ""
+"Einige Prompts konnten wegen eines Server-Konfigurationsproblems nicht "
+"genehmigt werden. Bitte wende dich an eine Administratorin oder einen "
+"Administrator."
+
 #~ msgid "Search is coming soon"
 #~ msgstr "Die Suche kommt bald"
 

@@ -305,12 +305,21 @@ class ActionDispatchEndToEndTests(PromptAdminSubmissionTestCase):
         self.assertEqual(Revision.objects.count(), revisions_before)
 
     def test_other_action_actually_selected_never_calls_c2a_even_though_submit_is_posted(self):
+        """
+        C2B1A contract: used ``action_approve`` as the stand-in "other, still
+        shared-VersionAdmin-path" action here. Beta 11.11C3B isolated
+        ``action_approve`` too (it is now backed by C3A, same as submit), so
+        it no longer demonstrates "some other action ran the normal path" -
+        ``action_request_rework`` (still shared, unaffected by C3B) takes over
+        that role; C3A/C3B's own dispatch coverage lives in
+        ``prompts/tests/test_admin_review_approval.py``.
+        """
         prompt = make_prompt(status=Workflow.STATUS_REVIEW, author=self.author)
         with mock.patch("prompts.admin.submit_prompt_for_review") as submit_mock:
-            self._post(prompt, index="0", action_values=["action_approve", SUBMIT_ACTION])
+            self._post(prompt, index="0", action_values=["action_request_rework", SUBMIT_ACTION])
         submit_mock.assert_not_called()
-        # approve's own (unchanged) VersionAdmin-wrapped path still ran
-        self.assertEqual(refetch(prompt).status, Workflow.STATUS_APPROVED)
+        # rework's own (unchanged) VersionAdmin-wrapped path still ran
+        self.assertEqual(refetch(prompt).status, Workflow.STATUS_REWORK)
 
 
 class ActionDispatchMalformedIndexSecurityTests(PromptAdminSubmissionTestCase):
@@ -343,17 +352,32 @@ class ActionDispatchMalformedIndexSecurityTests(PromptAdminSubmissionTestCase):
         self.assertEqual(Revision.objects.count(), revisions_before)
 
     def test_out_of_range_index_does_not_bypass_and_c2a_is_never_reached(self):
-        # Two values, index 2: out of range. Django's own IndexError-recovery
-        # falls back to the *last* posted value here ("action_approve"), so
-        # this case also demonstrates our refusal matching Django's own
-        # eventual choice - not just diverging from it.
+        """
+        Two values, index 2: out of range. Django's own IndexError-recovery
+        falls back to the *last* posted value here, so this case also
+        demonstrates our refusal matching Django's own eventual choice - not
+        just diverging from it.
+
+        C2B1A contract: the last value was ``action_approve``, which back
+        then ran the old shared (non-isolated) path regardless, and was
+        therefore a harmless no-op to observe. Beta 11.11C3B isolated
+        ``action_approve`` too: had this test still used it, Django's real
+        dispatch would run it *inside* the retained VersionAdmin reversion
+        context (our bypass correctly refuses for an out-of-range index), and
+        C3A's own fail-closed ``ACTIVE_REVERSION_CONTEXT`` guard would then
+        raise - loudly, not silently, exactly the security property this
+        class exists to prove, but not what *this* test (about submit, not
+        approval) is checking. ``action_publish`` takes over as the "other"
+        value: still non-isolated, and a harmless no-op here since the prompt
+        is a draft and publish only proceeds from ``approved``.
+        """
         prompt = make_prompt(status=Workflow.STATUS_DRAFT, author=self.author)
         revisions_before = Revision.objects.count()
         with mock.patch("prompts.admin.submit_prompt_for_review") as submit_mock:
             self.client.post(
                 CHANGELIST_URL,
                 data={
-                    "action": [SUBMIT_ACTION, "action_approve"],
+                    "action": [SUBMIT_ACTION, "action_publish"],
                     "_selected_action": [str(prompt.pk)],
                     "index": "2",
                 },
@@ -827,10 +851,23 @@ class OtherEditorialTypesUnchangedTests(TestCase):
 
 
 class NoFurtherActivationTests(PromptAdminSubmissionTestCase):
-    def test_approve_still_sets_no_approved_revision(self):
+    def test_approve_now_binds_approved_revision(self):
+        """
+        C2B contract (this module): the prompt admin approve action was still
+        the shared, unbound path - ``approved_revision`` stayed ``None``. Beta
+        11.11C3B replaced the prompt-specific approve action with one backed
+        by ``approve_prompt_review`` (C3A), so approval now binds
+        ``approved_revision`` to the already-captured ``review_revision``.
+        Full approval-admin coverage (audit graph, isolation, stale/rollback
+        matrices) lives in ``prompts/tests/test_admin_review_approval.py``;
+        this test only pins that the two-step submit-then-approve admin flow
+        this module already exercises produces a bound result, not an
+        unbound one.
+        """
         prompt = make_prompt(status=Workflow.STATUS_DRAFT, author=self.author)
-        # submit via the new admin path, then approve via the unchanged action
+        # submit via the new admin path, then approve via the now-also-isolated action
         self.post_submit([prompt])
+        review_revision_id = refetch(prompt).review_revision_id
         self.client.post(
             CHANGELIST_URL,
             data={"action": "action_approve", "_selected_action": [str(prompt.pk)], "index": "0"},
@@ -838,8 +875,7 @@ class NoFurtherActivationTests(PromptAdminSubmissionTestCase):
         )
         reloaded = refetch(prompt)
         self.assertEqual(reloaded.status, Workflow.STATUS_APPROVED)
-        # approve does not yet bind approved_revision
-        self.assertIsNone(reloaded.approved_revision_id)
+        self.assertEqual(reloaded.approved_revision_id, review_revision_id)
 
     def test_submit_still_leaves_review_note_unchanged(self):
         prompt = make_prompt(status=Workflow.STATUS_DRAFT, author=self.author)
