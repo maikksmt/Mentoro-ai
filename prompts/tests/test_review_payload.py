@@ -1117,6 +1117,7 @@ class NoRuntimeActivationTests(TestCase):
         import ast
         import pathlib
 
+        import prompts.review_approval as review_approval_module
         import prompts.review_payload as review_payload_module
         import prompts.review_submission as review_submission_module
 
@@ -1127,14 +1128,17 @@ class NoRuntimeActivationTests(TestCase):
         )
         # Beta 11.11C2A made prompts/review_submission.py the first sanctioned
         # consumer of the C1 builder: submit_prompt_for_review() feeds the
-        # canonical payload into fingerprint_review_payload(). It is therefore
-        # an allowed importer alongside the builder's own module. The builder is
+        # canonical payload into fingerprint_review_payload(). Beta 11.11C3A
+        # added prompts/review_approval.py as the second: approve_prompt_review()
+        # re-checks the same payload before and after approval. Both are
+        # allowed importers alongside the builder's own module. The builder is
         # still not wired into any admin/model/view/signal/search path - that is
-        # covered by C2A's own no-runtime-activation test and by
+        # covered by C2A's/C3A's own no-runtime-activation tests and by
         # test_admin_module_never_imports_the_builder below.
         allowed_files = {
             pathlib.Path(review_payload_module.__file__).resolve(),
             pathlib.Path(review_submission_module.__file__).resolve(),
+            pathlib.Path(review_approval_module.__file__).resolve(),
         }
 
         project_root = pathlib.Path(review_payload_module.__file__).resolve().parents[1]
