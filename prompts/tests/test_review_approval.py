@@ -964,14 +964,20 @@ class NoRuntimeActivationTests(TestCase):
         """
         Beta 11.11C3A contract: no production module consumed
         ``approve_prompt_review``. Beta 11.11C3B contract: exactly one
-        production consumer now exists - ``prompts/admin.py`` - and no other.
-        The definition still lives only in ``prompts/review_approval.py``.
-        Updated minimally by adding the sanctioned admin file to the
-        allow-list, mirroring how C2B updated C2A's equivalent test.
+        production consumer existed - ``prompts/admin.py``. Beta 11.11C4B
+        contract: a second sanctioned consumer now exists -
+        ``content/views/editorial.py``, which routes the Prompt "approved"
+        transition through this primitive instead of the generic
+        FSM-``+ obj.save()`` path every other editorial type still uses -
+        and no other. The definition still lives only in
+        ``prompts/review_approval.py``. Updated minimally by adding the
+        second sanctioned file to the allow-list, mirroring how C2B/C4B
+        updated C2A's equivalent test.
         """
         import ast
         import pathlib
 
+        import content.views.editorial as editorial_views_module
         import prompts.admin as admin_module
         import prompts.review_approval as approval_module
 
@@ -982,7 +988,11 @@ class NoRuntimeActivationTests(TestCase):
             "PromptReviewApprovalErrorCode",
         )
         definition_file = pathlib.Path(approval_module.__file__).resolve()
-        allowed_files = {definition_file, pathlib.Path(admin_module.__file__).resolve()}
+        allowed_files = {
+            definition_file,
+            pathlib.Path(admin_module.__file__).resolve(),
+            pathlib.Path(editorial_views_module.__file__).resolve(),
+        }
         project_root = definition_file.parents[1]
 
         offenders = []

@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import DEFAULT_DB_ALIAS
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
@@ -11,6 +12,16 @@ from content.forms_editorial import SubmitToReviewForm, ReviewUpdateForm
 from core.models.editorial import EditorialWorkflowMixin
 from guides.models import Guide
 from prompts.models import Prompt
+from prompts.review_approval import (
+    PromptReviewApprovalError,
+    PromptReviewApprovalErrorCode,
+    approve_prompt_review,
+)
+from prompts.review_submission import (
+    PromptReviewSubmissionError,
+    PromptReviewSubmissionErrorCode,
+    submit_prompt_for_review,
+)
 from usecases.models import UseCase
 
 EDITORIAL_MODEL_REGISTRY: dict[str, type] = {
@@ -44,6 +55,84 @@ def is_author(user, obj) -> bool:
 
 def is_editor(user) -> bool:
     return user.groups.filter(name__in=["Editor", "Admin"]).exists()
+
+
+def _is_concrete_prompt(obj) -> bool:
+    """
+    Beta 11.11C4B: a proxy of Prompt counts, a Prompt subclass does not -
+    mirrors the same ``_meta.concrete_model`` check the review-binding
+    primitives themselves use, never a class-name string or duck-typing.
+    """
+    return obj._meta.concrete_model is Prompt
+
+
+def _prompt_database_alias(obj) -> str:
+    return obj._state.db or DEFAULT_DB_ALIAS
+
+
+def _submit_prompt_for_review_via_primitive(request, obj: Prompt) -> None:
+    """
+    Beta 11.11C4B: routes a Prompt's "review" transition through the atomic,
+    per-root ``submit_prompt_for_review()`` primitive (Beta 11.11C2A) instead
+    of the generic ``move_to_review()`` + ``obj.save()`` path every other
+    editorial type in this module still uses. No transaction, reversion
+    context, or second save is opened here - the primitive owns all of that.
+
+    ``STATUS_NOT_SUBMITTABLE`` reuses this view's existing "wrong state"
+    message; ``OBJECT_NOT_FOUND`` reuses its existing 404 contract. Every
+    other code (alias/actor/reversion/revision-graph/payload-consistency
+    errors) is not a routine workflow outcome and is left to propagate -
+    never disguised as a harmless status message.
+    """
+    try:
+        submit_prompt_for_review(obj, actor=request.user, using=_prompt_database_alias(obj))
+    except PromptReviewSubmissionError as exc:
+        if exc.code == PromptReviewSubmissionErrorCode.STATUS_NOT_SUBMITTABLE:
+            messages.error(request, _("Transition not allowed from current state."))
+            return
+        if exc.code == PromptReviewSubmissionErrorCode.OBJECT_NOT_FOUND:
+            raise Http404("Prompt not found.") from exc
+        raise
+    messages.success(request, _("Status updated."))
+
+
+def _approve_prompt_review_via_primitive(request, obj: Prompt) -> None:
+    """
+    Beta 11.11C4B: routes a Prompt's "approved" transition through the
+    atomic, per-root ``approve_prompt_review()`` primitive (Beta 11.11C3A)
+    instead of the generic ``approve()`` + ``obj.save()`` path. No
+    transaction, reversion context, or second save is opened here.
+
+    ``STATUS_NOT_APPROVABLE`` reuses the existing "wrong state" message,
+    ``OBJECT_NOT_FOUND`` the existing 404 contract, and
+    ``REVIEW_PAYLOAD_CHANGED`` gets its own message - the reviewed content
+    changed since submit, so the prompt stays in review and must be
+    resubmitted; this is never reported as "already moved back to draft/
+    rework" since C3A itself performs no such invalidation. Everything else
+    (``REVIEW_BINDING_INVALID``, ``ACTIVE_REVERSION_CONTEXT``,
+    ``PAYLOAD_CHANGED_DURING_APPROVAL``, alias/actor errors) is a technical
+    integrity failure, never a harmless-looking workflow skip, and is left to
+    propagate.
+    """
+    try:
+        approve_prompt_review(obj, actor=request.user, using=_prompt_database_alias(obj))
+    except PromptReviewApprovalError as exc:
+        if exc.code == PromptReviewApprovalErrorCode.STATUS_NOT_APPROVABLE:
+            messages.error(request, _("Transition not allowed from current state."))
+            return
+        if exc.code == PromptReviewApprovalErrorCode.OBJECT_NOT_FOUND:
+            raise Http404("Prompt not found.") from exc
+        if exc.code == PromptReviewApprovalErrorCode.REVIEW_PAYLOAD_CHANGED:
+            messages.error(
+                request,
+                _(
+                    "The reviewed prompt content has changed. Submit it for "
+                    "review again before approval."
+                ),
+            )
+            return
+        raise
+    messages.success(request, _("Status updated."))
 
 
 @login_required
@@ -97,6 +186,11 @@ def submit_to_review(request):
     if not request.user.has_perm(perm, obj):
         messages.error(request, _("You are not allowed to submit this item for review."))
         return redirect("content:editorial:my_content")
+
+    if _is_concrete_prompt(obj):
+        _submit_prompt_for_review_via_primitive(request, obj)
+        return redirect("content:editorial:my_content")
+
     if not hasattr(obj, method_name):
         messages.error(request, _("Transition not available on this object."))
         return redirect("content:editorial:my_content")
@@ -138,6 +232,13 @@ def my_content_update(request: HttpRequest) -> HttpResponse:
 
     if not request.user.has_perm(perm, obj):
         messages.error(request, _("You are not allowed to perform this transition."))
+        return redirect("content:editorial:my_content")
+
+    if _is_concrete_prompt(obj) and new_status == "review":
+        _submit_prompt_for_review_via_primitive(request, obj)
+        return redirect("content:editorial:my_content")
+    if _is_concrete_prompt(obj) and new_status == "approved":
+        _approve_prompt_review_via_primitive(request, obj)
         return redirect("content:editorial:my_content")
 
     if not hasattr(obj, method_name):
@@ -201,6 +302,13 @@ def review_update(request: HttpRequest) -> HttpResponse:
 
     if not request.user.has_perm(perm, obj):
         messages.error(request, _("You are not allowed to perform this transition."))
+        return redirect("content:editorial:review_queue")
+
+    if _is_concrete_prompt(obj) and new_status == "review":
+        _submit_prompt_for_review_via_primitive(request, obj)
+        return redirect("content:editorial:review_queue")
+    if _is_concrete_prompt(obj) and new_status == "approved":
+        _approve_prompt_review_via_primitive(request, obj)
         return redirect("content:editorial:review_queue")
 
     if not hasattr(obj, method_name):

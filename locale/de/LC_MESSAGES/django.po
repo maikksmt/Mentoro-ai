@@ -372,6 +372,14 @@ msgstr "Übergang vom aktuellen Zustand nicht erlaubt."
 msgid "Status updated."
 msgstr "Status aktualisiert."
 
+#: content/views/editorial.py:129
+msgid ""
+"The reviewed prompt content has changed. Submit it for review again "
+"before approval."
+msgstr ""
+"Der geprüfte Prompt-Inhalt wurde geändert. Reiche ihn vor der Genehmigung "
+"erneut zur Prüfung ein."
+
 #: content/views/editorial.py:140 content/views/editorial.py:203
 msgid "You are not allowed to perform this transition."
 msgstr "Sie dürfen diese Aktion nicht durchführen."
