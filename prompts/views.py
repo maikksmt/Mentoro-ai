@@ -10,6 +10,7 @@ from core.models.editorial import EditorialWorkflowMixin
 from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
 from core.services import to_teaser_item, related_prompts
 from core.views import SeoMixin
+from .live_author import resolve_prompt_live_author_display_name
 from .models import Prompt
 
 
@@ -67,12 +68,14 @@ class PromptListView(SeoMixin, ListView):
     paginate_by = 15
 
     def get_queryset(self) -> QuerySet[Prompt]:
+        # Beta 11.11C4F: neither "author" nor "reviewed_by" is read by any
+        # public context builder or template anymore - the author name comes
+        # exclusively from the live_author snapshot column already on this
+        # same row, and reviewed_by was never rendered publicly to begin
+        # with. Dropping both keeps the public list free of any auth_user
+        # join.
         lang = get_language()
-        qs = (
-            Prompt.objects
-            .visible_in_language(lang)
-            .select_related("author", "reviewed_by")
-        )
+        qs = Prompt.objects.visible_in_language(lang)
         if not qs.ordered:
             qs = qs.order_by("-published_at", "-updated_at")
         return qs
@@ -113,8 +116,9 @@ class PromptDetailView(SeoMixin, DetailView):
     context_object_name = "object"
 
     def get_queryset(self) -> QuerySet[Prompt]:
+        # Beta 11.11C4F: same reasoning as PromptListView.get_queryset().
         lang = get_language()
-        return Prompt.objects.visible_in_language(lang).select_related("author", "reviewed_by")
+        return Prompt.objects.visible_in_language(lang)
 
     def get_object(self, queryset: Optional[QuerySet[Prompt]] = None) -> Prompt:
         slug = self.kwargs.get("slug")
@@ -136,11 +140,10 @@ class PromptDetailView(SeoMixin, DetailView):
         desc = seo_text(desc_source)[:155]
         canonical = absolute_url(self.request.path)
         og_img = getattr(obj, "hero_image_url", None)
-        author_obj = getattr(obj, "author", None)
-        author_name = ""
-        if author_obj:
-            # get_full_name ist eine Methode → aufrufen!
-            author_name = (author_obj.get_full_name() or getattr(author_obj, "username", "") or "")
+        # Beta 11.11C4F: the public author name comes exclusively from the
+        # publish-time snapshot - never from obj.author/get_full_name()/
+        # username. See prompts/live_author.py for the fail-closed contract.
+        author_name = resolve_prompt_live_author_display_name(obj)
         alts = localized_alternates(
             self.request,
             url_name="prompts:detail",
@@ -170,6 +173,10 @@ class PromptDetailView(SeoMixin, DetailView):
             alternates=alts,
             json_ld=json_ld,
         )
+        # Same resolved snapshot name backs the visible byline - passed
+        # through the context rather than re-resolved in the template, so
+        # there is exactly one place that interprets live_author's shape.
+        ctx.setdefault("author_display_name", author_name)
         ctx.setdefault("display_title", obj.display_title)
         ctx.setdefault("display_intro", obj.display_intro)
         ctx.setdefault("display_body", obj.display_body)

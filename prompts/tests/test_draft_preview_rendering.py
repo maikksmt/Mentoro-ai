@@ -168,9 +168,13 @@ class TemplateParityTests(TestCase):
         self.assertNotIn("&lt;strong&gt;", html)
 
     def test_untranslated_relations_are_read_from_the_current_object(self):
-        """tools/author/published_at/updated_at are not translated or
-        snapshotted - the template reads them straight off the object,
-        exactly as it does for the public page."""
+        """tools/published_at/updated_at are not translated or snapshotted -
+        the template reads them straight off the object, exactly as it does
+        for the public page. The author byline is the one exception since
+        Beta 11.11C4F: the preview still reads the current ``object.author``
+        directly (gated by the ``is_preview`` context flag), while the
+        public page renders exclusively from the frozen ``live_author``
+        snapshot - see ``prompts/tests/test_public_author_snapshot.py``."""
         from catalog.models import Tool
 
         tool = Tool.objects.create(slug="preview-tool")

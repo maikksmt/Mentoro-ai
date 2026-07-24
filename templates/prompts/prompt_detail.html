@@ -25,11 +25,20 @@
                         {% endif %}
                     {% endif %}
                 </div>
-                {% if object.author %}
+                {% if is_preview %}
+                    {% if object.author %}
+                        <div>
+                            <div class="text-sm text-base-content/80 inline-flex items-center gap-1">
+                                {% heroicon_outline "user" size=16 %} {% trans "Author: " %}
+                                <span>{{ object.author.get_full_name|default:object.author.username }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% elif author_display_name %}
                     <div>
                         <div class="text-sm text-base-content/80 inline-flex items-center gap-1">
                             {% heroicon_outline "user" size=16 %} {% trans "Author: " %}
-                            <span>{{ object.author.get_full_name|default:object.author.username }}</span>
+                            <span>{{ author_display_name }}</span>
                         </div>
                     </div>
                 {% endif %}

@@ -63,7 +63,14 @@
             </div>
         {% endif %}
 
-        {% if author %}
+        {% if author_uses_snapshot %}
+            {% if author_display_name %}
+                <div class="editorial-card-meta">
+                    {% heroicon_outline "user" size=14 %}
+                    <span>{% trans "from" %} {{ author_display_name }}</span>
+                </div>
+            {% endif %}
+        {% elif author %}
             <div class="editorial-card-meta">
                 {% heroicon_outline "user" size=14 %}
                 <span>{% trans "from" %} {{ author.get_full_name|default:author.username }}</span>
