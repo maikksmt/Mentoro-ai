@@ -16,6 +16,7 @@ environment the production code requires) and assert on the resulting
 database state: status, bindings, revisions, and - where relevant - what
 never happens (no invalidation, no extra save, no extra revision).
 """
+import ast
 import itertools
 from unittest import mock
 
@@ -32,7 +33,7 @@ from reversion.models import Revision, Version
 from catalog.models import Tool
 from core.models.editorial import EditorialWorkflowMixin as Workflow
 from prompts.admin import PromptAdmin, _PromptReviewEditIntegrationError
-from prompts.models import Prompt
+from prompts.models import Prompt, PromptTranslation
 from prompts.review_approval import approve_prompt_review
 from prompts.review_edit_guard import PromptReviewEditBaseline
 from prompts.review_submission import submit_prompt_for_review
@@ -44,6 +45,16 @@ _slug_counter = itertools.count()
 CHANGELIST_URL = reverse("admin:prompts_prompt_changelist")
 SUBMIT_ACTION = "action_submit_for_review"
 APPROVE_ACTION = "action_approve"
+
+#: The editable field names the real ``PromptAdmin`` changeform carries -
+#: used to give a hand-built ``mock.Mock`` form a realistic ``fields`` mapping
+#: (a real form always has one), so ``PromptAdmin._preserve_untouched_translated_fields()``
+#: sees exactly the same "which translated fields are absent from the form"
+#: picture it does in production (only ``public_slug`` is absent). Kept in
+#: sync with ``test_tools_field_is_admin_editable``'s assertion on the real form.
+_CHANGEFORM_FORM_FIELDS = dict.fromkeys(
+    ("author", "review_note", "published_at", "tools", "slug", "title", "intro", "body", "outro")
+)
 
 
 def refetch(prompt):
@@ -377,7 +388,7 @@ class TagsAndToolsTests(AdminGuardTestCase):
                 reversion.set_user(self.editor)
                 fresh = Prompt.objects.select_for_update().get(pk=prompt.pk)
                 fresh.set_current_language("en")
-                form = mock.Mock(instance=fresh, save_m2m=mock.Mock())
+                form = mock.Mock(instance=fresh, save_m2m=mock.Mock(), fields=_CHANGEFORM_FORM_FIELDS)
 
                 ma.save_model(request, fresh, form, True)
                 fresh.tags.add("c4h-added-tag")
@@ -457,6 +468,133 @@ class AddChangeformTests(AdminGuardTestCase):
         # change=True - proven structurally impossible for Add by the mocked
         # non-call test above; this is the behavioural companion.
         self.assertEqual(Prompt.objects.filter(status=Workflow.STATUS_REVIEW).count(), 0)
+
+
+# ======================================================================
+# public_slug preservation on a normal changeform save
+# (Abnahme-Korrekturrunde 2, Blocker 1)
+# ======================================================================
+
+
+class PublicSlugPreservationTests(AdminGuardTestCase):
+    """
+    ``PromptTranslation.public_slug`` is a translated field that is
+    admin-readonly - never rendered on the changeform - so an ordinary save
+    must never clobber a value already stored in the database.
+
+    Setup injects ``public_slug`` with a raw ``.update()`` on purpose: that
+    reproduces exactly the production trigger, a value that reached the
+    database *without* going through Parler's own ``save()`` (precisely what
+    ``reversion.revert()`` does, and what any direct DB write does), which
+    leaves Parler's persistent translation cache stale so the admin form would
+    otherwise write ``None`` back over it. The C4J fix
+    (``PromptAdmin._preserve_untouched_translated_fields()``) re-reads the
+    field fresh from the database - bypassing that cache - before the save.
+    """
+
+    def _set_public_slug(self, prompt, value, *, language_code="en"):
+        PromptTranslation.objects.filter(
+            master_id=prompt.pk, language_code=language_code
+        ).update(public_slug=value)
+        return refetch(prompt)
+
+    def _public_slug(self, prompt, *, language_code="en"):
+        return PromptTranslation.objects.get(
+            master_id=prompt.pk, language_code=language_code
+        ).public_slug
+
+    def _de_payload(self, slug, **overrides):
+        data = {
+            "author": str(self.editor.pk), "review_note": "",
+            "published_at_0": "", "published_at_1": "", "tools": [],
+            "slug": slug, "title": "DE Title", "intro": "i", "body": "b", "outro": "o",
+            "_continue": "Save",
+        }
+        data.update(overrides)
+        return data
+
+    def test_title_edit_preserves_public_slug(self):
+        prompt = self.make_prompt(author=self.editor)
+        self._set_public_slug(prompt, "filmempfehlungen")
+        resp = self.client.post(
+            change_url(prompt),
+            base_payload(refetch(prompt), author=self.editor, title="Changed Title"),
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(self._public_slug(prompt), "filmempfehlungen")
+        self.assertEqual(
+            refetch(prompt).translations.get(language_code="en").title, "Changed Title"
+        )
+
+    def test_body_edit_preserves_public_slug(self):
+        prompt = self.make_prompt(author=self.editor)
+        self._set_public_slug(prompt, "keep-on-body")
+        self.client.post(
+            change_url(prompt),
+            base_payload(refetch(prompt), author=self.editor, body="Changed body"),
+        )
+        self.assertEqual(self._public_slug(prompt), "keep-on-body")
+
+    def test_tools_edit_preserves_public_slug(self):
+        tool = make_tool("Slug Tool")
+        prompt = self.make_prompt(author=self.editor)
+        self._set_public_slug(prompt, "keep-on-tools")
+        self.client.post(
+            change_url(prompt),
+            base_payload(refetch(prompt), author=self.editor, tools=(tool,)),
+        )
+        self.assertEqual(self._public_slug(prompt), "keep-on-tools")
+
+    def test_author_edit_preserves_public_slug(self):
+        prompt = self.make_prompt(author=self.author)
+        self._set_public_slug(prompt, "keep-on-author")
+        self.client.post(
+            change_url(prompt), base_payload(refetch(prompt), author=self.other_author)
+        )
+        self.assertEqual(self._public_slug(prompt), "keep-on-author")
+
+    def test_unchanged_save_preserves_public_slug(self):
+        prompt = self.make_prompt(author=self.editor)
+        self._set_public_slug(prompt, "unchanged-keep")
+        self.client.post(change_url(prompt), base_payload(refetch(prompt), author=self.editor))
+        self.assertEqual(self._public_slug(prompt), "unchanged-keep")
+
+    def test_new_language_without_public_slug_stays_none(self):
+        prompt = self.make_prompt(author=self.editor)
+        de_slug = f"c4h-de-{next(_slug_counter)}"
+        resp = self.client.post(change_url(prompt) + "?language=de", self._de_payload(de_slug))
+        self.assertEqual(resp.status_code, 302)
+        self.assertIsNone(self._public_slug(prompt, language_code="de"))
+
+    def test_en_edit_does_not_change_de_public_slug(self):
+        prompt = self.make_prompt(author=self.editor)
+        prompt.create_translation(
+            "de", title="DE", intro="i", body="b", outro="o",
+            slug=f"c4h-de-{next(_slug_counter)}",
+        )
+        self._set_public_slug(prompt, "en-pub", language_code="en")
+        self._set_public_slug(prompt, "de-pub", language_code="de")
+        self.client.post(
+            change_url(prompt) + "?language=en",
+            base_payload(refetch(prompt), author=self.editor, title="EN changed"),
+        )
+        self.assertEqual(self._public_slug(prompt, language_code="en"), "en-pub")
+        self.assertEqual(self._public_slug(prompt, language_code="de"), "de-pub")
+
+    def test_de_edit_does_not_change_en_public_slug(self):
+        prompt = self.make_prompt(author=self.editor)
+        de_slug = f"c4h-de-{next(_slug_counter)}"
+        prompt.create_translation(
+            "de", title="DE", intro="i", body="b", outro="o", slug=de_slug,
+        )
+        self._set_public_slug(prompt, "en-pub2", language_code="en")
+        self._set_public_slug(prompt, "de-pub2", language_code="de")
+        self.client.post(
+            change_url(prompt) + "?language=de",
+            self._de_payload(de_slug, title="DE changed"),
+        )
+        self.assertEqual(self._public_slug(prompt, language_code="en"), "en-pub2")
+        self.assertEqual(self._public_slug(prompt, language_code="de"), "de-pub2")
 
 
 # ======================================================================
@@ -570,7 +708,7 @@ class MissingBaselineFailClosedTests(AdminGuardTestCase):
 
         fresh = refetch(prompt)
         fresh.set_current_language("en")
-        form = mock.Mock(instance=fresh, save_m2m=mock.Mock())
+        form = mock.Mock(instance=fresh, save_m2m=mock.Mock(), fields=_CHANGEFORM_FORM_FIELDS)
 
         with transaction.atomic():
             with reversion.create_revision():
@@ -639,7 +777,7 @@ class RequestLifecycleCleanupTests(AdminGuardTestCase):
                     fresh = Prompt.objects.select_for_update().get(pk=prompt.pk)
                     fresh.set_current_language("en")
                     fresh.title = f"Changed {prompt.pk}"
-                    form = mock.Mock(instance=fresh, save_m2m=mock.Mock())
+                    form = mock.Mock(instance=fresh, save_m2m=mock.Mock(), fields=_CHANGEFORM_FORM_FIELDS)
                     ma.save_model(request, fresh, form, True)
                     ma.save_related(request, form, [], True)
 
@@ -897,40 +1035,119 @@ class ActionIsolationUnchangedTests(AdminGuardTestCase):
 # ======================================================================
 
 
+def _dotted_call_name(node):
+    """Reconstructs e.g. ``"transaction.atomic"`` from a Call node's
+    ``func`` - AST-based, so a docstring mention of the same text never
+    self-matches the way a plain substring search would."""
+    func = node.func
+    parts = []
+    while isinstance(func, ast.Attribute):
+        parts.append(func.attr)
+        func = func.value
+    if isinstance(func, ast.Name):
+        parts.append(func.id)
+    else:
+        return None
+    return ".".join(reversed(parts))
+
+
+class _EnclosingFunctionCallVisitor(ast.NodeVisitor):
+    """Walks a module, recording ``(enclosing_function_name_or_None, call_name)``
+    for every call whose dotted name is in ``watched`` - used below to prove
+    a forbidden/sanctioned call is confined to specific functions, which a
+    flat ``ast.walk()`` cannot express on its own."""
+
+    def __init__(self, watched):
+        self.watched = watched
+        self.stack: list[str] = []
+        self.hits: list[tuple[str | None, str]] = []
+
+    def visit_FunctionDef(self, node):  # noqa: N802 - ast.NodeVisitor API
+        self.stack.append(node.name)
+        self.generic_visit(node)
+        self.stack.pop()
+
+    def visit_Call(self, node):  # noqa: N802 - ast.NodeVisitor API
+        name = _dotted_call_name(node)
+        if name is None and isinstance(node.func, ast.Name):
+            name = node.func.id
+        if name in self.watched:
+            self.hits.append((self.stack[-1] if self.stack else None, name))
+        self.generic_visit(node)
+
+
 class StaticSafetyTests(TestCase):
-    def test_no_new_transaction_or_reversion_context_in_admin(self):
+    def test_no_reversion_context_opened_in_admin(self):
+        """
+        Beta 11.11C4J still opens no ``reversion.create_revision()`` of its
+        own anywhere - the only revision for a real revert/recover remains
+        VersionAdmin's own (see the module note above ``revision_view()``).
+        """
         import ast
         import pathlib
 
         source = pathlib.Path("prompts/admin.py").read_text(encoding="utf-8")
         tree = ast.parse(source)
-        forbidden = {"transaction.atomic", "reversion.create_revision", "reversion.set_user", "reversion.set_comment"}
-        offenders = []
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.Call):
-                continue
-            func = node.func
-            parts = []
-            while isinstance(func, ast.Attribute):
-                parts.append(func.attr)
-                func = func.value
-            if isinstance(func, ast.Name):
-                parts.append(func.id)
-            else:
-                continue
-            name = ".".join(reversed(parts))
-            if name in forbidden:
-                offenders.append(name)
+        forbidden = {"reversion.create_revision", "reversion.set_user", "reversion.set_comment"}
+        offenders = [
+            name
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            for name in [_dotted_call_name(node)]
+            if name in forbidden
+        ]
         self.assertEqual(offenders, [])
 
-    def test_no_direct_b2b2_call_in_admin(self):
+    def test_transaction_atomic_confined_to_revert_and_recover_views(self):
+        """
+        Beta 11.11C4J: ``revision_view()``/``recover_view()`` must open their
+        own alias-bound ``transaction.atomic()`` to wrap the entire
+        ``super()`` call (capturing the C4G baseline strictly before the
+        reversion mutation runs) - but ``save_model()``/``save_related()``
+        and everything else in this admin must still never open one of their
+        own, exactly as Beta 11.11C4H established.
+        """
+        import ast
         import pathlib
 
         source = pathlib.Path("prompts/admin.py").read_text(encoding="utf-8")
-        # Only the sanctioned import + one call site inside save_related() -
-        # confirmed via the AST-based single-call-site check below.
+        tree = ast.parse(source)
+        visitor = _EnclosingFunctionCallVisitor({"transaction.atomic"})
+        visitor.visit(tree)
+        allowed_functions = {"revision_view", "recover_view"}
+        offenders = [hit for hit in visitor.hits if hit[0] not in allowed_functions]
+        self.assertEqual(offenders, [])
+        self.assertGreaterEqual(len(visitor.hits), 2)
+
+    def test_direct_b2b2_call_confined_to_sanctioned_c4j_helpers(self):
+        """
+        Beta 11.11C4H's original contract ("this admin never calls B2B2
+        directly, only through the C4G compare") no longer holds unmodified:
+        Beta 11.11C4J's product decision requires two additional, precisely
+        scoped direct ``invalidate_editorial_review_state()`` calls - the
+        revert-with-unchanged-payload stale/invalid-binding check, and the
+        unconditional recovery invalidation - neither of which is a payload
+        comparison C4G's own function could express. What must still hold is
+        that these are the *only* two call sites, and that
+        ``invalidate_prompt_review_if_payload_changed`` (the sanctioned C4G
+        entry point) remains the one used for every genuine payload compare.
+        """
+        import ast
+        import pathlib
+
+        source = pathlib.Path("prompts/admin.py").read_text(encoding="utf-8")
         self.assertIn("invalidate_prompt_review_if_payload_changed", source)
-        self.assertNotIn("invalidate_editorial_review_state", source)
+
+        tree = ast.parse(source)
+        visitor = _EnclosingFunctionCallVisitor({"invalidate_editorial_review_state"})
+        visitor.visit(tree)
+        allowed_functions = {
+            "_finish_prompt_review_guard",
+            "_invalidate_reverted_prompt_if_binding_invalid",
+        }
+        offenders = [hit for hit in visitor.hits if hit[0] not in allowed_functions]
+        self.assertEqual(offenders, [])
+        self.assertGreaterEqual(len(visitor.hits), 2)
 
     def test_no_direct_binding_or_status_field_writes_in_admin(self):
         import ast

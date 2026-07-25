@@ -1,8 +1,13 @@
 # prompts/admin.py
+from dataclasses import dataclass
+from enum import StrEnum
+
 from django.conf import settings
 from django.contrib import admin, messages
+from django.contrib.admin.utils import unquote
+from django.db import DEFAULT_DB_ALIAS, connections, transaction
 from django.http import Http404, HttpResponseNotAllowed
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils import translation
@@ -15,6 +20,7 @@ from django.utils.translation import (
 )
 from parler.utils.context import switch_language
 from reversion.admin import VersionAdmin
+from reversion.models import Version
 
 from content.templatetags.richtext import richtext
 from core.admin import TranslatableTinyMCEMixin, EditorialWorkflowAdminMixin
@@ -23,8 +29,16 @@ from core.editorial_preview import (
     has_saved_translation,
     is_supported_preview_language,
 )
+from core.models.editorial import EditorialWorkflowMixin
+from core.review_binding import (
+    ReviewInvalidationResult,
+    fingerprint_review_payload,
+    invalidate_editorial_review_state,
+    validate_approved_binding,
+    validate_review_binding,
+)
 from core.services import get_live_display_instance, build_field_diffs
-from .models import Prompt
+from .models import Prompt, PromptTranslation
 from .presentation import build_draft_prompt_context
 from .review_approval import (
     PromptReviewApprovalError,
@@ -36,26 +50,33 @@ from .review_edit_guard import (
     capture_prompt_review_edit_baseline,
     invalidate_prompt_review_if_payload_changed,
 )
+from .review_payload import build_prompt_review_payload
 from .review_submission import (
     PromptReviewSubmissionError,
     PromptReviewSubmissionErrorCode,
     submit_prompt_for_review,
 )
 
-#: Beta 11.11C4H: request-local (never module-global, cache, thread-local,
+#: Beta 11.11C4H/C4J: request-local (never module-global, cache, thread-local,
 #: ContextVar or session) storage for the Beta 11.11C4G baseline captured by
-#: ``PromptAdmin.save_model()``, consumed by ``PromptAdmin.save_related()``
-#: further down the same request. Keyed by prompt pk so a hypothetical future
-#: multi-object save on the same request cannot cross-contaminate. Lives only
-#: as long as the request object itself.
+#: ``PromptAdmin.save_model()`` (or, since Beta 11.11C4J, pre-populated by
+#: ``PromptAdmin.revision_view()``/``recover_view()`` before the reversion
+#: mutation runs), consumed by ``PromptAdmin.save_related()`` further down the
+#: same request. Keyed by prompt pk so a hypothetical future multi-object save
+#: on the same request cannot cross-contaminate. Lives only as long as the
+#: request object itself. The attribute name predates C4J and still says
+#: "baselines" - the values it holds are now :class:`_PromptReversionGuardState`,
+#: not bare :class:`~prompts.review_edit_guard.PromptReviewEditBaseline`
+#: instances; renaming the attribute was not worth the churn.
 _PROMPT_REVIEW_EDIT_BASELINE_REQUEST_ATTR = "_mentoro_prompt_review_edit_baselines"
 
 
 class _PromptReviewEditIntegrationError(RuntimeError):
     """
     An internal admin-lifecycle contract violation, never a routine outcome:
-    ``save_related()`` found no baseline matching the prompt it is about to
-    save relations for, or ``save_model()`` found one unexpectedly already
+    ``save_related()`` found no state matching the prompt it is about to save
+    relations for, or ``save_model()`` found an unexpected
+    :data:`_PromptReversionGuardSource.NORMAL_CHANGEFORM` state already
     present. Under normal Django admin operation this can only mean
     ``save_model()`` did not run, did not succeed, or ran for a different
     prompt than ``save_related()`` is now handling - never "no payload
@@ -65,7 +86,72 @@ class _PromptReviewEditIntegrationError(RuntimeError):
     """
 
 
-def _prompt_review_edit_baselines(request) -> dict[int, PromptReviewEditBaseline]:
+class _PromptReversionGuardSource(StrEnum):
+    """
+    Beta 11.11C4J: which of the three lifecycles populated a Prompt's
+    request-local guard state. ``save_model()``/``save_related()`` branch on
+    this to decide whether to capture a fresh baseline themselves (normal
+    changeform) or consume a state prepared earlier in the same request by
+    ``revision_view()``/``recover_view()`` (revert/recover) - never both.
+    """
+
+    NORMAL_CHANGEFORM = "normal_changeform"
+    REVISION_REVERT = "revision_revert"
+    RECOVERY = "recovery"
+
+
+@dataclass(frozen=True, slots=True)
+class _PromptReversionGuardState:
+    """
+    Beta 11.11C4J: immutable, minimal request-local record of which guard
+    lifecycle is in progress for one prompt id.
+
+    Carries no payload, no model instance, no user instance, no revision
+    instance and no connection object - only the identifiers
+    ``save_model()``/``save_related()`` need to finish the lifecycle
+    correctly. ``baseline`` is the Beta 11.11C4G payload baseline captured
+    *before* the reversion mutation for :data:`_PromptReversionGuardSource.REVISION_REVERT`
+    (and, unchanged from Beta 11.11C4H, before the ordinary root save for
+    :data:`_PromptReversionGuardSource.NORMAL_CHANGEFORM`); it is always
+    ``None`` for :data:`_PromptReversionGuardSource.RECOVERY`, since no prior
+    row exists to baseline against.
+    """
+
+    source: _PromptReversionGuardSource
+    prompt_id: int
+    database_alias: str
+    baseline: PromptReviewEditBaseline | None
+
+
+@dataclass(frozen=True, slots=True)
+class PromptRevisionGuardResult:
+    """
+    Beta 11.11C4J: immutable outcome of finishing a guarded
+    ``save_related()`` call, uniform across all three
+    :class:`_PromptReversionGuardSource` values - test convenience only,
+    exactly like :class:`~prompts.review_edit_guard.PromptReviewEditGuardResult`
+    (Django's own admin machinery never reads a ``save_related()`` return
+    value).
+
+    ``payload_changed`` is ``None`` only for
+    :data:`_PromptReversionGuardSource.RECOVERY`, where there is no prior
+    baseline to compare against. ``invalidation`` carries the real
+    ``core.review_binding.ReviewInvalidationResult`` verbatim whenever B2B2
+    actually ran - via Beta 11.11C4G's compare on a genuine payload change,
+    via the Beta 11.11C4J stale-binding check on an unchanged revert payload,
+    or via the Beta 11.11C4J unconditional recovery invalidation - and is
+    ``None`` whenever B2B2 never ran at all.
+    """
+
+    prompt_id: int
+    database_alias: str
+    source: _PromptReversionGuardSource
+    payload_changed: bool | None
+    invalidated: bool
+    invalidation: ReviewInvalidationResult | None
+
+
+def _prompt_review_edit_baselines(request) -> dict[int, _PromptReversionGuardState]:
     store = getattr(request, _PROMPT_REVIEW_EDIT_BASELINE_REQUEST_ATTR, None)
     if store is None:
         store = {}
@@ -579,19 +665,155 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
         ever left behind; the surrounding admin changeform's own
         ``transaction.atomic()`` (``ModelAdmin.changeform_view()``) is what
         rolls the partial root save back, not this method.
+
+        Beta 11.11C4J: when this same request is a reversion "revert"/
+        "recover" confirmation, ``revision_view()``/``recover_view()`` already
+        placed a :class:`_PromptReversionGuardState` for this exact prompt id
+        on the request *before* the reversion mutation ran - i.e. before this
+        method was ever reached. In that case the C4H capture above would
+        read the database *after* ``reversion.revision.revert()`` already
+        wrote the historical content, which is too late to serve as a
+        "before" baseline (see the module-level design note above
+        ``revision_view()``). This method must therefore never capture a new
+        baseline nor overwrite that state - it only runs the ordinary
+        ``super().save_model()`` root save and leaves the pre-populated state
+        for ``save_related()`` to consume.
+
+        Beta 11.11C4J (Abnahme): in every branch that actually persists an
+        existing prompt, ``_preserve_untouched_translated_fields()`` runs
+        strictly before ``super().save_model()`` so a readonly translated
+        field the changeform never carries (``public_slug``) keeps its real,
+        already-stored database value - the live value on a normal edit, the
+        just-reverted historical value inside a revert/recover lifecycle - see
+        that helper for the full rationale.
         """
-        if change and obj.pk:
-            baseline = capture_prompt_review_edit_baseline(obj)
+        if not (change and obj.pk):
             super().save_model(request, obj, form, change)
-            store = _prompt_review_edit_baselines(request)
-            if baseline.prompt_id in store:
+            return
+
+        store = _prompt_review_edit_baselines(request)
+        existing = store.get(obj.pk)
+
+        if existing is not None:
+            if existing.source == _PromptReversionGuardSource.NORMAL_CHANGEFORM:
                 raise _PromptReviewEditIntegrationError(
-                    f"a review-edit baseline for prompt #{baseline.prompt_id} "
-                    "already exists on this request"
+                    f"a review-edit baseline for prompt #{obj.pk} already exists "
+                    "on this request"
                 )
-            store[baseline.prompt_id] = baseline
-        else:
+            # Beta 11.11C4J: revision_revert / recovery - the state was
+            # deliberately prepared before the reversion mutation ran; do not
+            # capture again and do not overwrite it.
+            self._preserve_untouched_translated_fields(request, obj, form)
             super().save_model(request, obj, form, change)
+            return
+
+        baseline = capture_prompt_review_edit_baseline(obj)
+        self._preserve_untouched_translated_fields(request, obj, form)
+        super().save_model(request, obj, form, change)
+        store[obj.pk] = _PromptReversionGuardState(
+            source=_PromptReversionGuardSource.NORMAL_CHANGEFORM,
+            prompt_id=baseline.prompt_id,
+            database_alias=baseline.database_alias,
+            baseline=baseline,
+        )
+
+    def _preserve_untouched_translated_fields(self, request, obj, form):
+        """
+        Beta 11.11C4J (Abnahme): restore translated fields that this admin's
+        changeform does not carry as editable fields - today only
+        ``public_slug`` (it is ``readonly`` and never rendered) - from the
+        current, already-persisted database row for the form's active
+        language, onto the exact translation instance the changeform is about
+        to save.
+
+        Why this is needed. Parler caches each translation in Django's cache
+        framework. A value that reached the database *without* going through
+        Parler's own ``save()`` - most importantly ``reversion.Revision.revert()``
+        writing the historical translation rows directly, but also any raw
+        ``QuerySet.update()`` - leaves that cache holding a *stale* translation.
+        ``TranslatableAdmin``'s form then loads the stale translation, and
+        because ``public_slug`` is absent from the form it is never
+        re-populated; the subsequent ``obj.save()`` writes the stale value
+        (typically ``None``) back over the real one whenever any *other*
+        translated field on the same row changed (Parler only re-saves a
+        translation that is dirty). Reading the field fresh here - a plain
+        ``.values()`` query that bypasses the Parler cache entirely - and
+        assigning it onto the current-language translation restores the correct
+        value in every case: the live production value for a normal edit, and
+        the just-reverted historical value inside a C4J revert/recover
+        lifecycle (``revision.revert()`` has already run, in the same
+        transaction, by the time this method is reached).
+
+        Strictly scoped and side-effect free: uses the same database alias as
+        the object (never a hardcoded ``"default"``) and the form's active
+        language only (never a Parler fallback, never another language); never
+        creates a translation that does not exist (a brand-new language tab
+        keeps ``public_slug=None`` because the fresh read returns nothing);
+        never derives ``public_slug`` from ``slug``; never touches
+        ``form.initial``/``form.cleaned_data``/``form.changed_data``; and
+        preserves exactly the translated fields absent from *this* form, not
+        an assumed hardcoded list.
+        """
+        preserved = [
+            name
+            for name in PromptTranslation.get_translated_fields()
+            if name not in form.fields
+        ]
+        if not preserved:
+            return
+
+        language_code = self.get_form_language(request, obj)
+        db_alias = obj._state.db or DEFAULT_DB_ALIAS
+        row = (
+            PromptTranslation.objects.using(db_alias)
+            .filter(master_id=obj.pk, language_code=language_code)
+            .values(*preserved)
+            .first()
+        )
+        if row is None:
+            return
+
+        obj.set_current_language(language_code)
+        for field_name in preserved:
+            setattr(obj, field_name, row[field_name])
+
+    def _auto_transition_to_review(self, request, obj):
+        """
+        Beta 11.11C4J (Abnahme): inside a request-local C4J revert/recover
+        lifecycle, the general "a published object was edited through the
+        changeform, move it to review" auto-transition on
+        ``EditorialWorkflowAdminMixin`` must not fire.
+
+        A ``reversion.Revision.revert()`` restores the historical row before
+        Django's ``changeform_view()`` builds its confirm form; Parler's
+        translated-field form initials can lag that same-transaction write, so
+        ``form.has_changed()`` reports a spurious change even when the confirm
+        POST submits exactly the reverted content. When the reverted-*from*
+        row was ``published``, that spurious "change" alone would otherwise
+        drive the general auto-review (published -> review), which C4J's own
+        compare would then invalidate to draft/rework - the wrong outcome:
+        reverting to a published version must end published. The historical
+        version sets the restored status; from there only C4J / Beta 11.11B2B2
+        decide (review/approved with a real payload change or an invalid
+        restored binding -> draft/rework; every other status left as restored).
+
+        This override bypasses *only* that one general auto-transition, and
+        *only* when a request-local :data:`_PromptReversionGuardSource.REVISION_REVERT`
+        or :data:`_PromptReversionGuardSource.RECOVERY` state exists for this
+        exact prompt. Everything else the mixin's ``save_model`` does - the
+        real root/translation save, the author default, the
+        ``last_published_revision_id`` handling, permissions, logging - runs
+        unchanged, and every non-reversion save (normal changeform, add,
+        changelist actions, preview) takes the full, unmodified mixin path,
+        so the pre-existing published-edit contract is preserved exactly.
+        """
+        state = _prompt_review_edit_baselines(request).get(getattr(obj, "pk", None))
+        if state is not None and state.source in (
+            _PromptReversionGuardSource.REVISION_REVERT,
+            _PromptReversionGuardSource.RECOVERY,
+        ):
+            return
+        return super()._auto_transition_to_review(request, obj)
 
     def save_related(self, request, form, formsets, change):
         """
@@ -603,34 +825,304 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
         the existing Beta 11.11B2B2 primitive exactly once if, and only if,
         it actually changed.
 
-        For ``change=True`` the matching baseline is popped off the request
+        For ``change=True`` the matching state is popped off the request
         immediately, *before* ``super().save_related()`` runs - never left
         for a second, accidental compare, and never reused across requests. A
-        missing baseline at this point is an internal lifecycle contract
+        missing state at this point is an internal lifecycle contract
         violation (``save_model()`` did not run, or did not succeed, for this
         exact prompt) and fails closed *before* any relation is saved -
         never silently treated as "no payload change" and never a
         ``messages.warning`` that lets the save continue unprotected.
 
-        Returns the ``PromptReviewEditGuardResult`` (``None`` for Add, or for
-        a change whose relations were saved without ever reaching compare)
+        Beta 11.11C4J: which primitive finishes the lifecycle depends on
+        :attr:`_PromptReversionGuardState.source` - see
+        ``_finish_prompt_review_guard()``. This still runs *inside* the same
+        active ``reversion.create_revision()`` block VersionAdmin's
+        ``revision_view()``/``recover_view()`` opened (Django's admin
+        ``_changeform_view()`` never returns control to those callers before
+        ``save_related()`` has already run), so any B2B2 save this triggers
+        is recorded into that one, already-open revision - never a second one.
+
+        Returns a :class:`~prompts.review_edit_guard.PromptReviewEditGuardResult`
+        or :class:`PromptRevisionGuardResult` (``None`` for Add, or for a
+        change whose relations were saved without ever reaching compare)
         purely for direct-call test convenience - Django's own admin
         machinery never reads a ``save_related()`` return value.
         """
         if change and form.instance.pk:
             prompt_id = form.instance.pk
-            baseline = _prompt_review_edit_baselines(request).pop(prompt_id, None)
-            if baseline is None:
+            state = _prompt_review_edit_baselines(request).pop(prompt_id, None)
+            if state is None:
                 raise _PromptReviewEditIntegrationError(
-                    f"no captured review-edit baseline for prompt #{prompt_id}; "
+                    f"no captured review-edit state for prompt #{prompt_id}; "
                     "save_model() must run and succeed before save_related()"
                 )
             super().save_related(request, form, formsets, change)
-            return invalidate_prompt_review_if_payload_changed(
-                form.instance, baseline=baseline, using=baseline.database_alias,
-            )
+            return self._finish_prompt_review_guard(state, form.instance)
         super().save_related(request, form, formsets, change)
         return None
+
+    def _finish_prompt_review_guard(self, state, instance):
+        """
+        Beta 11.11C4J: the single point where every ``save_related()`` call -
+        regardless of :class:`_PromptReversionGuardSource` - finishes the
+        review-binding guard lifecycle. Dispatches to exactly one of three
+        shapes, never inventing a fourth:
+
+        * :data:`_PromptReversionGuardSource.NORMAL_CHANGEFORM` - unchanged
+          Beta 11.11C4H behaviour: one Beta 11.11C4G compare, returned as-is.
+        * :data:`_PromptReversionGuardSource.REVISION_REVERT` - the same
+          Beta 11.11C4G compare against the pre-revert baseline. A genuine
+          payload change is handled identically to a normal edit (B2B2 via
+          C4G). An *unchanged* payload additionally gets its final,
+          reversion-restored ``review``/``approved`` binding checked for
+          structural validity (``core.review_binding.validate_review_binding``/
+          ``validate_approved_binding``) and for a stale fingerprint (the
+          stored ``review_payload_fingerprint`` compared against the live
+          canonical fingerprint, both already-computed values - never a
+          re-derived hashing/serialization implementation) - see
+          ``_invalidate_reverted_prompt_if_binding_invalid()``. Only an
+          invalid or stale binding is invalidated; a still-valid one is left
+          untouched, per the Beta 11.11C4J product decision.
+        * :data:`_PromptReversionGuardSource.RECOVERY` - no baseline exists
+          (the row did not exist before), so no payload compare is possible
+          or meaningful. The final, fully-restored row is handed to B2B2
+          exactly once, unconditionally - B2B2's own existing
+          "review/approved only, everything else is a no-op" contract is
+          reused verbatim, never re-implemented here.
+        """
+        if state.source == _PromptReversionGuardSource.RECOVERY:
+            invalidation = invalidate_editorial_review_state(
+                instance, using=state.database_alias
+            )
+            return PromptRevisionGuardResult(
+                prompt_id=state.prompt_id,
+                database_alias=state.database_alias,
+                source=state.source,
+                payload_changed=None,
+                invalidated=invalidation.changed,
+                invalidation=invalidation,
+            )
+
+        guard_result = invalidate_prompt_review_if_payload_changed(
+            instance, baseline=state.baseline, using=state.database_alias,
+        )
+
+        if state.source == _PromptReversionGuardSource.NORMAL_CHANGEFORM:
+            return guard_result
+
+        # _PromptReversionGuardSource.REVISION_REVERT
+        if guard_result.payload_changed:
+            return PromptRevisionGuardResult(
+                prompt_id=state.prompt_id,
+                database_alias=state.database_alias,
+                source=state.source,
+                payload_changed=True,
+                invalidated=guard_result.invalidated,
+                invalidation=guard_result.invalidation,
+            )
+
+        stale_invalidation = self._invalidate_reverted_prompt_if_binding_invalid(
+            instance, using=state.database_alias,
+        )
+        return PromptRevisionGuardResult(
+            prompt_id=state.prompt_id,
+            database_alias=state.database_alias,
+            source=state.source,
+            payload_changed=False,
+            invalidated=stale_invalidation is not None and stale_invalidation.changed,
+            invalidation=stale_invalidation,
+        )
+
+    def _invalidate_reverted_prompt_if_binding_invalid(self, instance, *, using):
+        """
+        Beta 11.11C4J: the payload-unchanged half of the revert product
+        decision. A reversion revert restores *every* local field on the
+        Prompt row, including ``status``, ``review_revision``,
+        ``approved_revision`` and ``review_payload_fingerprint`` themselves
+        (Prompt is fully reversion-registered, see
+        ``core/reversion_registration.py``) - so even when the canonical
+        payload itself did not change, the restored binding fields could be
+        structurally broken (dangling/foreign revision reference, mismatched
+        ``approved_revision``/``review_revision``, malformed fingerprint) or
+        simply stale relative to the current live payload (the restored
+        fingerprint reflects a *different* historical review moment).
+
+        Only ``review``/``approved`` are ever considered - every other status
+        is left alone, mirroring B2B2's own ``_INVALIDATABLE_STATUSES``
+        contract rather than re-deriving it. Reuses exactly the existing
+        public primitives: ``core.review_binding.validate_review_binding``/
+        ``validate_approved_binding`` for structural validity, and the
+        already-canonical ``build_prompt_review_payload()``/
+        ``fingerprint_review_payload()`` pair for the live comparison value -
+        never a new binding or hashing implementation. Invalidates via the
+        existing Beta 11.11B2B2 ``invalidate_editorial_review_state()``
+        exactly once, and only when actually necessary; returns ``None`` when
+        the restored binding is already valid and current, leaving it
+        untouched.
+        """
+        current = Prompt._default_manager.using(using).get(pk=instance.pk)
+
+        if current.status not in (
+            EditorialWorkflowMixin.STATUS_REVIEW,
+            EditorialWorkflowMixin.STATUS_APPROVED,
+        ):
+            return None
+
+        if current.status == EditorialWorkflowMixin.STATUS_APPROVED:
+            validation = validate_approved_binding(current, using=using)
+        else:
+            validation = validate_review_binding(current, using=using)
+
+        if not validation.is_valid:
+            return invalidate_editorial_review_state(current, using=using)
+
+        live_fingerprint = fingerprint_review_payload(
+            build_prompt_review_payload(current, using=using)
+        )
+        if current.review_payload_fingerprint == live_fingerprint:
+            return None
+
+        return invalidate_editorial_review_state(current, using=using)
+
+    # ------------------------------------------------------------------
+    # Beta 11.11C4J: django-reversion "Revert to this version" / "Recover"
+    # ------------------------------------------------------------------
+    #
+    # ``reversion.admin.VersionAdmin._reversion_revisionform_view()`` (which
+    # both ``revision_view()`` and ``recover_view()`` delegate to) runs, in
+    # this fixed order, inside one outer ``transaction.atomic(using=version.db)``:
+    #
+    #     version.revision.revert(delete=True)      # <- real DB mutation, HERE
+    #     with self.create_revision(request):
+    #         response = self.changeform_view(...)  # -> save_model()/save_related()
+    #
+    # The historical row (root Prompt *and* its translations - Prompt is
+    # reversion-registered with ``follow=("translations",)``, see
+    # ``core/reversion_registration.py``) is restored via ``revert()`` -
+    # BEFORE ``changeform_view()`` ever reaches ``save_model()``. A baseline
+    # captured inside ``save_model()`` would therefore already see the
+    # reverted content, not the state right before the click - the compare
+    # in ``save_related()`` would then structurally never detect a change.
+    #
+    # C4J closes this by capturing the Beta 11.11C4G baseline itself, in an
+    # outer ``transaction.atomic()`` that *wraps* the entire
+    # ``super().revision_view()``/``super().recover_view()`` call - so
+    # reversion's own inner atomic becomes a nested savepoint - and by
+    # placing that baseline (or, for recovery, a baseline-less marker) on the
+    # existing C4H request-local store *before* calling ``super()``. This
+    # admin opens no ``reversion.create_revision()`` of its own anywhere in
+    # this file (see ``StaticSafetyTests`` in
+    # ``prompts/tests/test_admin_review_edit_guard.py``); the only revision
+    # created for a real revert/recover is VersionAdmin's own, and any B2B2
+    # save this guard triggers is recorded into that same, already-open
+    # revision because it happens inside ``save_related()``, itself called
+    # from inside VersionAdmin's ``with self.create_revision(request):``
+    # block.
+
+    def _get_prompt_version_or_404(self, *, version_id, object_id=None):
+        """
+        The same ``reversion.models.Version`` lookup ``VersionAdmin`` itself
+        performs (``get_object_or_404(Version, pk=version_id, ...)``), with
+        one addition ``VersionAdmin`` does not make on its own: the version's
+        ``content_type`` must resolve to this admin's own concrete model.
+        Neither ``revision_view()`` nor (especially) ``recover_view()``
+        otherwise verify that a ``version_id`` reachable through
+        ``admin:prompts_prompt_...`` actually belongs to a Prompt - without
+        this check, a crafted ``version_id`` for an unrelated model could
+        reach ``changeform_view(request, quote(version.object_id), ...)``
+        with a numeric id that only accidentally matches a real Prompt pk.
+        For ``revision_view`` the caller also passes ``object_id`` so the
+        lookup enforces, in one query, that the version genuinely belongs to
+        *that* requested object - never merely to *some* Prompt.
+        """
+        model_meta = Prompt._meta.concrete_model._meta
+        qs = Version.objects.filter(
+            pk=version_id,
+            content_type__app_label=model_meta.app_label,
+            content_type__model=model_meta.model_name,
+        )
+        if object_id is not None:
+            qs = qs.filter(object_id=unquote(object_id))
+        return get_object_or_404(qs)
+
+    def _resolve_prompt_reversion_db_alias(self, version):
+        """
+        ``version.db`` is the alias ``VersionAdmin`` itself will use for its
+        own ``transaction.atomic(using=version.db)`` - never a hardcoded
+        ``"default"``, never sourced from request data. Validated against
+        Django's real configured aliases before this admin opens its own
+        outer atomic block on it.
+        """
+        db_alias = version.db
+        if not db_alias or db_alias not in connections:
+            raise Http404("This version has no valid database alias.")
+        return db_alias
+
+    def revision_view(self, request, object_id, version_id, extra_context=None):
+        """
+        Beta 11.11C4J: capture the Beta 11.11C4G payload baseline for this
+        Prompt *before* ``version.revision.revert()`` can run inside
+        ``super().revision_view()`` - see the module note above.
+
+        Covers both request methods VersionAdmin itself handles identically
+        here: a GET preview (reverts inside reversion's own atomic block,
+        renders the reverted state, then rolls everything back via its
+        internal ``_RollBackRevisionView`` - ``save_model()``/``save_related()``
+        are never reached for a GET at all) and a confirmed POST (reverts,
+        then runs the real ``changeform_view()`` save path). Either way the
+        state placed below is removed in ``finally`` - consumed by
+        ``save_related()`` on a successful save, or simply never consumed and
+        discarded otherwise (invalid form, GET preview, or any exception).
+        """
+        version = self._get_prompt_version_or_404(version_id=version_id, object_id=object_id)
+        db_alias = self._resolve_prompt_reversion_db_alias(version)
+        prompt_id = int(version.object_id)
+        store = _prompt_review_edit_baselines(request)
+
+        with transaction.atomic(using=db_alias):
+            baseline = capture_prompt_review_edit_baseline(
+                Prompt(pk=prompt_id), using=db_alias
+            )
+            store[prompt_id] = _PromptReversionGuardState(
+                source=_PromptReversionGuardSource.REVISION_REVERT,
+                prompt_id=prompt_id,
+                database_alias=db_alias,
+                baseline=baseline,
+            )
+            try:
+                return super().revision_view(request, object_id, version_id, extra_context)
+            finally:
+                store.pop(prompt_id, None)
+
+    def recover_view(self, request, version_id, extra_context=None):
+        """
+        Beta 11.11C4J: place a baseline-less
+        :data:`_PromptReversionGuardSource.RECOVERY` marker for this Prompt
+        *before* ``super().recover_view()`` can run ``version.revision.revert()``.
+
+        No baseline is captured here - the row does not exist yet, so there
+        is nothing to read (``capture_prompt_review_edit_baseline()`` is
+        never called for recovery). ``save_related()`` fail-closed invalidates
+        a ``review``/``approved`` outcome unconditionally instead - see
+        ``_finish_prompt_review_guard()``.
+        """
+        version = self._get_prompt_version_or_404(version_id=version_id)
+        db_alias = self._resolve_prompt_reversion_db_alias(version)
+        prompt_id = int(version.object_id)
+        store = _prompt_review_edit_baselines(request)
+
+        with transaction.atomic(using=db_alias):
+            store[prompt_id] = _PromptReversionGuardState(
+                source=_PromptReversionGuardSource.RECOVERY,
+                prompt_id=prompt_id,
+                database_alias=db_alias,
+                baseline=None,
+            )
+            try:
+                return super().recover_view(request, version_id, extra_context)
+            finally:
+                store.pop(prompt_id, None)
 
     def get_readonly_fields(self, request, obj=None):
         fields = list(super().get_readonly_fields(request, obj))

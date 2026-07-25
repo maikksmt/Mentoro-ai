@@ -742,6 +742,18 @@ class NoDuplicatedLogicTests(TestCase):
         return ast.parse(source)
 
     def test_admin_does_not_call_forbidden_c3a_internals(self):
+        """
+        Scoped to ``PromptAdmin.action_approve`` itself (mirroring
+        ``test_admin_approve_action_opens_no_transaction_or_reversion_context``
+        right below), not the whole ``prompts/admin.py`` file: Beta 11.11C4J
+        legitimately calls several of these same B2B1/B2B2/C1 primitives
+        elsewhere in this file (``_invalidate_reverted_prompt_if_binding_invalid()``/
+        ``_finish_prompt_review_guard()``), for the unrelated purpose of
+        detecting and fail-closed invalidating a stale binding a
+        django-reversion revert/recover restored - never to duplicate what
+        ``action_approve`` itself does. What this test must still prove is
+        that ``action_approve`` specifically never reaches for any of them.
+        """
         forbidden = {
             "create_revision",
             "set_user",
@@ -755,8 +767,17 @@ class NoDuplicatedLogicTests(TestCase):
             "invalidate_editorial_review_state",
             "approve",  # Prompt.approve / EditorialWorkflowMixin.approve FSM method
         }
+        tree = self._admin_tree()
+        target = None
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef) and node.name == "PromptAdmin":
+                for item in node.body:
+                    if isinstance(item, ast.FunctionDef) and item.name == "action_approve":
+                        target = item
+        self.assertIsNotNone(target)
+
         offenders = []
-        for node in ast.walk(self._admin_tree()):
+        for node in ast.walk(target):
             if isinstance(node, ast.Call):
                 func = node.func
                 name = getattr(func, "attr", None) or getattr(func, "id", None)

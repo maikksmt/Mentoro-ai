@@ -776,6 +776,19 @@ class NoDuplicatedLogicTests(TestCase):
         return ast.parse(source)
 
     def test_admin_does_not_call_forbidden_c2a_internals(self):
+        """
+        Scoped to ``PromptAdmin.action_submit_for_review`` itself (mirroring
+        ``test_admin_submit_action_opens_no_transaction_or_reversion_context``
+        right below), not the whole ``prompts/admin.py`` file: Beta 11.11C4J
+        legitimately calls ``build_prompt_review_payload``/
+        ``fingerprint_review_payload`` elsewhere in this file
+        (``_invalidate_reverted_prompt_if_binding_invalid()``), for the
+        unrelated purpose of detecting a stale binding a django-reversion
+        revert restored - never to duplicate what ``action_submit_for_review``
+        itself does. What this test must still prove is that
+        ``action_submit_for_review`` specifically never reaches for any of
+        them.
+        """
         forbidden = {
             "create_revision",
             "set_user",
@@ -786,8 +799,17 @@ class NoDuplicatedLogicTests(TestCase):
             "revision_contains_object",
             "move_to_review",
         }
+        tree = self._admin_tree()
+        target = None
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef) and node.name == "PromptAdmin":
+                for item in node.body:
+                    if isinstance(item, ast.FunctionDef) and item.name == "action_submit_for_review":
+                        target = item
+        self.assertIsNotNone(target)
+
         offenders = []
-        for node in ast.walk(self._admin_tree()):
+        for node in ast.walk(target):
             if isinstance(node, ast.Call):
                 func = node.func
                 name = getattr(func, "attr", None) or getattr(func, "id", None)

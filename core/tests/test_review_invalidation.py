@@ -1032,12 +1032,35 @@ class NoRuntimeActivationTests(TestCase):
         self.assertEqual(offenders, [])
 
     def test_admin_modules_never_call_the_new_primitive_or_transitions(self):
+        """
+        Beta 11.11C4J added ``prompts/admin.py`` as this project's first,
+        deliberately narrow admin-level consumer of
+        ``invalidate_editorial_review_state()`` - reverting/recovering a
+        Prompt via django-reversion can restore a ``review``/``approved``
+        binding this project can no longer trust (see
+        ``PromptAdmin._finish_prompt_review_guard()``/
+        ``_invalidate_reverted_prompt_if_binding_invalid()``), and B2B2's own
+        primitive is exactly the sanctioned way to invalidate it - never a
+        re-derived one. The blanket "never" claim this test originally made
+        (Beta 11.11B2B2, before any admin wiring existed) no longer holds for
+        ``prompts.admin`` unmodified; what must still hold, and is checked
+        precisely below via AST rather than a loosened substring check, is
+        that ``guides``/``usecases``/``compare`` admins remain completely
+        untouched, that the two *private* FSM transition methods
+        (``_invalidate_review_to_draft``/``_invalidate_review_to_rework``)
+        are never called directly from any admin (only
+        ``invalidate_editorial_review_state()`` itself may call those), and
+        that ``prompts.admin``'s own use of the public primitive is confined
+        to its two sanctioned call sites.
+        """
+        import ast
+
         import compare.admin
         import guides.admin
         import prompts.admin
         import usecases.admin
 
-        for module in (guides.admin, prompts.admin, usecases.admin, compare.admin):
+        for module in (guides.admin, usecases.admin, compare.admin):
             source = open(module.__file__, encoding="utf-8").read()
             for symbol in (
                 "invalidate_editorial_review_state",
@@ -1046,6 +1069,37 @@ class NoRuntimeActivationTests(TestCase):
             ):
                 with self.subTest(module=module.__name__, symbol=symbol):
                     self.assertNotIn(symbol, source)
+
+        prompts_admin_source = open(prompts.admin.__file__, encoding="utf-8").read()
+        for symbol in ("_invalidate_review_to_draft", "_invalidate_review_to_rework"):
+            with self.subTest(module="prompts.admin", symbol=symbol):
+                self.assertNotIn(symbol, prompts_admin_source)
+
+        tree = ast.parse(prompts_admin_source)
+        allowed_functions = {
+            "_finish_prompt_review_guard",
+            "_invalidate_reverted_prompt_if_binding_invalid",
+        }
+        offenders = []
+        stack: list[str] = []
+
+        class Visitor(ast.NodeVisitor):
+            def visit_FunctionDef(self, node):  # noqa: N802
+                stack.append(node.name)
+                self.generic_visit(node)
+                stack.pop()
+
+            def visit_Call(self, node):  # noqa: N802
+                func = node.func
+                name = func.id if isinstance(func, ast.Name) else getattr(func, "attr", None)
+                if name == "invalidate_editorial_review_state":
+                    enclosing = stack[-1] if stack else None
+                    if enclosing not in allowed_functions:
+                        offenders.append(enclosing)
+                self.generic_visit(node)
+
+        Visitor().visit(tree)
+        self.assertEqual(offenders, [])
 
 
 class B2ARuntimeNonActivationStillHoldsTests(TestCase):

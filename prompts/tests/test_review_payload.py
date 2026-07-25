@@ -1194,6 +1194,7 @@ class NoRuntimeActivationTests(TestCase):
         import ast
         import pathlib
 
+        import prompts.admin as prompts_admin_module
         import prompts.review_approval as review_approval_module
         import prompts.review_edit_guard as review_edit_guard_module
         import prompts.review_payload as review_payload_module
@@ -1214,16 +1215,22 @@ class NoRuntimeActivationTests(TestCase):
         # after a caller's own content mutation - itself not yet activated by
         # any production consumer (see
         # prompts/tests/test_review_edit_guard.py::NoRuntimeActivationTests).
-        # All three are allowed importers alongside the builder's own module.
-        # The builder is still not wired into any admin/model/view/signal/
-        # search path - that is covered by C2A's/C3A's/C4G's own
-        # no-runtime-activation tests and by
-        # test_admin_module_never_imports_the_builder below.
+        # Beta 11.11C4J added prompts/admin.py as the fourth and, so far,
+        # final one: PromptAdmin._invalidate_reverted_prompt_if_binding_invalid()
+        # rebuilds the same canonical payload to detect a stale fingerprint a
+        # django-reversion revert restored onto an otherwise payload-unchanged
+        # row - see test_admin_module_only_uses_the_builder_in_the_sanctioned_helper
+        # below (renamed from test_admin_module_never_imports_the_builder).
+        # All four are allowed importers alongside the builder's own module.
+        # The builder is still not wired into any model/view/signal/search
+        # path - that is covered by C2A's/C3A's/C4G's own no-runtime-activation
+        # tests and by the admin-scoped test below.
         allowed_files = {
             pathlib.Path(review_payload_module.__file__).resolve(),
             pathlib.Path(review_submission_module.__file__).resolve(),
             pathlib.Path(review_approval_module.__file__).resolve(),
             pathlib.Path(review_edit_guard_module.__file__).resolve(),
+            pathlib.Path(prompts_admin_module.__file__).resolve(),
         }
 
         project_root = pathlib.Path(review_payload_module.__file__).resolve().parents[1]
@@ -1251,17 +1258,85 @@ class NoRuntimeActivationTests(TestCase):
 
         self.assertEqual(offenders, [])
 
-    def test_admin_module_never_imports_the_builder(self):
+    def test_admin_module_only_uses_the_builder_in_the_sanctioned_helper(self):
+        """
+        Beta 11.11C4H/C1-era contract ("admin.py never imports the builder at
+        all") no longer holds unmodified: Beta 11.11C4J's stale-fingerprint
+        check for a reversion revert genuinely needs the same canonical
+        payload builder :func:`~prompts.review_payload.build_prompt_review_payload`
+        reuses - never a re-derived one.
+
+        Abnahme-Korrekturrunde Phase 9 tightening: this must hold precisely,
+        not just "confined to some function" - the exact file
+        (``prompts/admin.py``, resolved by path, not merely by module name),
+        the exact enclosing function
+        (``PromptAdmin._invalidate_reverted_prompt_if_binding_invalid``,
+        verified as an actual method of the ``PromptAdmin`` class, not just
+        any function with that name), and the exact call-site count (1, no
+        more, no fewer) are all asserted - together with proof that no
+        *other* method of ``PromptAdmin`` calls it at all.
+        """
+        import ast
+        import pathlib
+
         import prompts.admin
 
-        source = open(prompts.admin.__file__, encoding="utf-8").read()
-        for symbol in (
-            "build_prompt_review_payload",
-            "review_payload",
-            "PromptReviewPayloadError",
-        ):
-            with self.subTest(symbol=symbol):
-                self.assertNotIn(symbol, source)
+        admin_path = pathlib.Path(prompts.admin.__file__).resolve()
+        self.assertEqual(admin_path.name, "admin.py")
+        self.assertEqual(admin_path.parent.name, "prompts")
+
+        source = admin_path.read_text(encoding="utf-8")
+        tree = ast.parse(source)
+
+        prompt_admin_class = next(
+            node for node in ast.walk(tree)
+            if isinstance(node, ast.ClassDef) and node.name == "PromptAdmin"
+        )
+        target_method = next(
+            item for item in prompt_admin_class.body
+            if isinstance(item, ast.FunctionDef)
+            and item.name == "_invalidate_reverted_prompt_if_binding_invalid"
+        )
+
+        def call_sites(node):
+            return [
+                call for call in ast.walk(node)
+                if isinstance(call, ast.Call)
+                and (
+                    (isinstance(call.func, ast.Name) and call.func.id == "build_prompt_review_payload")
+                    or (isinstance(call.func, ast.Attribute) and call.func.attr == "build_prompt_review_payload")
+                )
+            ]
+
+        # Exactly one call site, and it lives inside the one sanctioned method.
+        self.assertEqual(len(call_sites(target_method)), 1)
+        self.assertEqual(len(call_sites(prompt_admin_class)), 1)
+        self.assertEqual(len(call_sites(tree)), 1)
+
+        # No other PromptAdmin method calls it at all.
+        offenders = []
+        for item in prompt_admin_class.body:
+            if not isinstance(item, ast.FunctionDef):
+                continue
+            if item is target_method:
+                continue
+            if call_sites(item):
+                offenders.append(item.name)
+        self.assertEqual(offenders, [])
+
+    def test_admin_module_has_no_own_json_or_hashing_code(self):
+        """
+        Companion to the call-site-count test above: proves ``prompts/admin.py``
+        never grows its own JSON canonicalization or SHA-256 hashing
+        alongside the reused builder - the exact "no payload duplication"
+        property the Beta 11.11C4J product decision explicitly requires.
+        """
+        import pathlib
+
+        source = pathlib.Path("prompts/admin.py").read_text(encoding="utf-8")
+        self.assertNotIn("hashlib", source)
+        self.assertNotIn("json.dumps", source)
+        self.assertNotIn("import json", source)
 
     def test_submit_still_computes_no_payload_or_fingerprint(self):
         author = User.objects.create_user("no-activation-author", password="pw")
