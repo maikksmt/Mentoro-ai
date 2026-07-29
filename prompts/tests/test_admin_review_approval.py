@@ -235,13 +235,26 @@ class ActionDispatchApprovalTests(PromptAdminApprovalTestCase):
         self.assertEqual(refetch(prompt).status, Workflow.STATUS_REVIEW)
 
     def test_invalid_index_does_not_bypass_approval(self):
-        # Unchanged C2B1A contract: negative index fails closed even for a
-        # single approve value - proven at the helper level already in
+        # Unchanged C2B1A contract: an out-of-range index fails closed -
+        # proven at the helper level already in
         # test_admin_review_submission.py; here only the approval-specific
         # end-to-end consequence (C3A never reached via the bypass) matters.
+        #
+        # Beta 11.11D2 note: the second, decoy action used to be
+        # "action_publish", chosen back then because publish was inert. On an
+        # out-of-range index Django's own ``response_action`` hits an
+        # IndexError, leaves the posted list in place and so dispatches the
+        # *last* value - which now lands on the D2-backed publish action,
+        # inside the retained VersionAdmin revision context, where the publish
+        # primitive correctly refuses with ACTIVE_REVERSION_CONTEXT and
+        # returns a 500. That fail-closed refusal is D2's own contract and is
+        # covered in test_admin_review_publish.py; this test is about the
+        # approval bypass, so the decoy moves to "action_restore_draft" -
+        # non-isolated, and genuinely inert on a prompt in review because its
+        # transition only proceeds from ``archived``.
         prompt = self.make_submitted_prompt(author=self.author)
         with mock.patch("prompts.admin.approve_prompt_review") as approve_mock:
-            self._post(prompt, index="9", action_values=[APPROVE_ACTION, "action_publish"])
+            self._post(prompt, index="9", action_values=[APPROVE_ACTION, "action_restore_draft"])
         approve_mock.assert_not_called()
 
 
@@ -839,7 +852,17 @@ class OtherEditorialTypesUnchangedTests(TestCase):
 
 
 class NoFurtherActivationTests(PromptAdminApprovalTestCase):
-    def test_publish_remains_unguarded(self):
+    def test_publish_still_succeeds_on_a_cleanly_approved_prompt(self):
+        """
+        At C3B this test recorded that publish was deliberately left
+        unguarded - it checked no binding and no fingerprint at all. Beta
+        11.11D2 closed that gap: publish now runs through its own per-root
+        primitive, which re-validates both bindings and the approved
+        fingerprint before the transition. What this test still pins is the
+        C3B-era guarantee that survives unchanged - an approval produced by
+        this action leaves a prompt that publishes cleanly. The guard itself
+        is covered by ``prompts/tests/test_admin_review_publish.py``.
+        """
         prompt = self.make_submitted_prompt(author=self.author)
         self.post_approve([prompt])
         self.client.post(
@@ -849,7 +872,8 @@ class NoFurtherActivationTests(PromptAdminApprovalTestCase):
         )
         reloaded = refetch(prompt)
         self.assertEqual(reloaded.status, Workflow.STATUS_PUBLISHED)
-        # publish still does not check the approved_revision binding at all
+        # the approval binding is intact and untouched by the publish
+        self.assertEqual(reloaded.approved_revision_id, reloaded.review_revision_id)
 
     def test_review_note_stays_unchanged_after_approval(self):
         prompt = self.make_submitted_prompt(author=self.author)

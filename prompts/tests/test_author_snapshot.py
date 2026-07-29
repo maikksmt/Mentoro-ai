@@ -28,7 +28,9 @@ from guides.models import Guide
 from compare.models import Comparison
 from usecases.models import UseCase
 from prompts.models import PROMPT_AUTHOR_SNAPSHOT_SCHEMA, Prompt
+from prompts.review_approval import approve_prompt_review
 from prompts.review_payload import build_prompt_review_payload
+from prompts.review_submission import submit_prompt_for_review
 
 User = get_user_model()
 
@@ -55,6 +57,28 @@ def make_prompt(*, status=Workflow.STATUS_DRAFT, author=None, languages=("en",))
             slug=f"snap-slug-{next(_slug_counter)}",
         )
     return prompt
+
+
+def approved_prompt(*, author, editor, languages=("en",)):
+    """
+    A genuinely approved prompt, produced by the real Beta 11.11C2A submit and
+    C3A approval primitives.
+
+    Beta 11.11D2 update: these two helpers used to reach ``approved`` by
+    calling the bare FSM ``move_to_review()``/``approve()`` methods, which
+    never bind ``review_revision``/``approved_revision``. Publishing then
+    silently accepted that unbound state. D2's publish primitive re-validates
+    both bindings immediately before the transition, so an approval that never
+    happened is now correctly refused - the fixture, not the contract, was
+    wrong. Nothing about the ``live_author`` snapshot behaviour these tests
+    cover changes; only the road to ``approved`` is now the real one.
+    """
+    prompt = make_prompt(author=author, languages=languages)
+    submit_prompt_for_review(refetch(prompt), actor=author)
+    approve_prompt_review(refetch(prompt), actor=editor)
+    approved = refetch(prompt)
+    assert approved.status == Workflow.STATUS_APPROVED, approved.status
+    return approved
 
 
 def publish_directly(prompt, *, by):
@@ -310,9 +334,12 @@ class RepublishTests(TestCase):
 
 
 class AdminPublishPathTests(TestCase):
-    """The real ``core.admin.EditorialWorkflowAdminMixin.action_publish``
-    path - the only production path that wraps the publish in an active
-    ``reversion.create_revision()`` context."""
+    """The real prompt admin publish action. Beta 11.11D2 moved it off the
+    shared ``EditorialWorkflowAdminMixin.action_publish`` and onto
+    ``PromptAdmin.action_publish``, which delegates to the per-root
+    ``publish_prompt_review`` primitive; the ``live_author`` snapshot contract
+    this class covers is identical on either path, since both reach it through
+    the one ``on_after_publish()`` hook."""
 
     @classmethod
     def setUpTestData(cls):
@@ -329,13 +356,7 @@ class AdminPublishPathTests(TestCase):
         self.client.force_login(self.editor)
 
     def _approved_prompt(self):
-        prompt = make_prompt(author=self.author)
-        prompt.move_to_review(by=self.author)
-        prompt.save()
-        prompt = refetch(prompt)
-        prompt.approve(by=self.editor)
-        prompt.save()
-        return refetch(prompt)
+        return approved_prompt(author=self.author, editor=self.editor)
 
     def test_admin_publish_action_creates_the_snapshot(self):
         prompt = self._approved_prompt()
@@ -411,11 +432,12 @@ class AdminPublishPathTests(TestCase):
 
 
 class EditorialViewPublishPathTests(TestCase):
-    """The generic ``content/views/editorial.py`` transition dispatch -
-    Prompt's own "review"/"approved" branches were rerouted onto C2A/C3A in
-    Beta 11.11C4B, but "published" was deliberately left on the shared
-    generic FSM + ``obj.save()`` path, and this must produce the identical
-    snapshot contract with no duplicated snapshot logic in the view."""
+    """The ``content/views/editorial.py`` transition dispatch. Prompt's
+    "review"/"approved" branches were rerouted onto C2A/C3A in Beta 11.11C4B
+    and "published" followed in Beta 11.11D2, so all three now run through
+    per-root primitives instead of the shared generic FSM + ``obj.save()``
+    path. This must still produce the identical snapshot contract, with no
+    duplicated snapshot logic in the view."""
 
     @classmethod
     def setUpTestData(cls):
@@ -427,13 +449,7 @@ class EditorialViewPublishPathTests(TestCase):
         cls.author.groups.add(Group.objects.get_or_create(name="Author")[0])
 
     def _approved_prompt(self):
-        prompt = make_prompt(author=self.author)
-        prompt.move_to_review(by=self.author)
-        prompt.save()
-        prompt = refetch(prompt)
-        prompt.approve(by=self.editor)
-        prompt.save()
-        return refetch(prompt)
+        return approved_prompt(author=self.author, editor=self.editor)
 
     def test_review_update_publish_transition_creates_the_snapshot(self):
         prompt = self._approved_prompt()

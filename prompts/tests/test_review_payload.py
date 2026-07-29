@@ -1215,22 +1215,29 @@ class NoRuntimeActivationTests(TestCase):
         # after a caller's own content mutation - itself not yet activated by
         # any production consumer (see
         # prompts/tests/test_review_edit_guard.py::NoRuntimeActivationTests).
-        # Beta 11.11C4J added prompts/admin.py as the fourth and, so far,
-        # final one: PromptAdmin._invalidate_reverted_prompt_if_binding_invalid()
+        # Beta 11.11C4J added prompts/admin.py as the fourth:
+        # PromptAdmin._invalidate_reverted_prompt_if_binding_invalid()
         # rebuilds the same canonical payload to detect a stale fingerprint a
         # django-reversion revert restored onto an otherwise payload-unchanged
         # row - see test_admin_module_only_uses_the_builder_in_the_sanctioned_helper
         # below (renamed from test_admin_module_never_imports_the_builder).
-        # All four are allowed importers alongside the builder's own module.
-        # The builder is still not wired into any model/view/signal/search
-        # path - that is covered by C2A's/C3A's/C4G's own no-runtime-activation
-        # tests and by the admin-scoped test below.
+        # Beta 11.11D2 added prompts/review_publish.py as the fifth and, so
+        # far, final one: publish_prompt_review() re-checks the same canonical
+        # payload against the stored approved fingerprint immediately before
+        # the publish transition, so content that changed after approval can
+        # never go live unreviewed. All five are allowed importers alongside
+        # the builder's own module. The builder is still not wired into any
+        # model/signal/search path - that is covered by C2A's/C3A's/C4G's/D2's
+        # own no-runtime-activation tests and by the admin-scoped test below.
+        import prompts.review_publish as review_publish_module
+
         allowed_files = {
             pathlib.Path(review_payload_module.__file__).resolve(),
             pathlib.Path(review_submission_module.__file__).resolve(),
             pathlib.Path(review_approval_module.__file__).resolve(),
             pathlib.Path(review_edit_guard_module.__file__).resolve(),
             pathlib.Path(prompts_admin_module.__file__).resolve(),
+            pathlib.Path(review_publish_module.__file__).resolve(),
         }
 
         project_root = pathlib.Path(review_payload_module.__file__).resolve().parents[1]

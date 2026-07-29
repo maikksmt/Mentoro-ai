@@ -17,6 +17,11 @@ from prompts.review_approval import (
     PromptReviewApprovalErrorCode,
     approve_prompt_review,
 )
+from prompts.review_publish import (
+    PromptReviewPublishError,
+    PromptReviewPublishErrorCode,
+    publish_prompt_review,
+)
 from prompts.review_submission import (
     PromptReviewSubmissionError,
     PromptReviewSubmissionErrorCode,
@@ -135,6 +140,67 @@ def _approve_prompt_review_via_primitive(request, obj: Prompt) -> None:
     messages.success(request, _("Status updated."))
 
 
+def _publish_prompt_review_via_primitive(request, obj: Prompt) -> None:
+    """
+    Beta 11.11D2: routes a Prompt's "published" transition through the
+    atomic, per-root ``publish_prompt_review()`` primitive instead of the
+    generic ``publish()`` + ``obj.save()`` path this module still uses for
+    every other editorial type.
+
+    That generic path was the weaker of the two publish routes: no
+    transaction of its own, no reversion revision at all, no
+    ``last_published_revision_id`` and - decisively - no check that the
+    approval binding or the approved fingerprint still described the content
+    being published. D2 owns all of that, so nothing is opened or saved here.
+
+    ``STATUS_NOT_PUBLISHABLE`` reuses this view's existing "wrong state"
+    message and ``OBJECT_NOT_FOUND`` its existing 404 contract, exactly as the
+    submit and approve delegations do. ``REVIEW_PAYLOAD_CHANGED`` and the two
+    translation-completeness codes get their own messages: all three are real
+    editorial states an author can act on, not technical failures. Everything
+    else (``REVIEW_BINDING_INVALID``, ``APPROVED_BINDING_INVALID``,
+    ``ACTIVE_REVERSION_CONTEXT``, missing/ambiguous root version, failed
+    postconditions, alias/actor errors) is an integrity failure and is left to
+    propagate - never disguised as a harmless status message.
+    """
+    try:
+        publish_prompt_review(obj, actor=request.user, using=_prompt_database_alias(obj))
+    except PromptReviewPublishError as exc:
+        if exc.code == PromptReviewPublishErrorCode.STATUS_NOT_PUBLISHABLE:
+            messages.error(request, _("Transition not allowed from current state."))
+            return
+        if exc.code == PromptReviewPublishErrorCode.OBJECT_NOT_FOUND:
+            raise Http404("Prompt not found.") from exc
+        if exc.code == PromptReviewPublishErrorCode.PERMISSION_DENIED:
+            messages.error(
+                request, _("You are not allowed to perform this transition.")
+            )
+            return
+        if exc.code == PromptReviewPublishErrorCode.REVIEW_PAYLOAD_CHANGED:
+            messages.error(
+                request,
+                _(
+                    "The approved prompt content has changed. Submit it for "
+                    "review again before publishing."
+                ),
+            )
+            return
+        if exc.code in (
+            PromptReviewPublishErrorCode.NO_PUBLISHABLE_TRANSLATION,
+            PromptReviewPublishErrorCode.INCOMPLETE_TRANSLATION,
+        ):
+            messages.error(
+                request,
+                _(
+                    "This prompt has no complete translation to publish. Every "
+                    "published language needs a title and a slug."
+                ),
+            )
+            return
+        raise
+    messages.success(request, _("Status updated."))
+
+
 @login_required
 def my_content(request: HttpRequest) -> HttpResponse:
     user = request.user
@@ -240,6 +306,9 @@ def my_content_update(request: HttpRequest) -> HttpResponse:
     if _is_concrete_prompt(obj) and new_status == "approved":
         _approve_prompt_review_via_primitive(request, obj)
         return redirect("content:editorial:my_content")
+    if _is_concrete_prompt(obj) and new_status == "published":
+        _publish_prompt_review_via_primitive(request, obj)
+        return redirect("content:editorial:my_content")
 
     if not hasattr(obj, method_name):
         messages.error(request, _("Transition not available on this object."))
@@ -309,6 +378,9 @@ def review_update(request: HttpRequest) -> HttpResponse:
         return redirect("content:editorial:review_queue")
     if _is_concrete_prompt(obj) and new_status == "approved":
         _approve_prompt_review_via_primitive(request, obj)
+        return redirect("content:editorial:review_queue")
+    if _is_concrete_prompt(obj) and new_status == "published":
+        _publish_prompt_review_via_primitive(request, obj)
         return redirect("content:editorial:review_queue")
 
     if not hasattr(obj, method_name):

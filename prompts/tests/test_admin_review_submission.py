@@ -367,9 +367,17 @@ class ActionDispatchMalformedIndexSecurityTests(PromptAdminSubmissionTestCase):
         C3A's own fail-closed ``ACTIVE_REVERSION_CONTEXT`` guard would then
         raise - loudly, not silently, exactly the security property this
         class exists to prove, but not what *this* test (about submit, not
-        approval) is checking. ``action_publish`` takes over as the "other"
-        value: still non-isolated, and a harmless no-op here since the prompt
-        is a draft and publish only proceeds from ``approved``.
+        approval) is checking. ``action_publish`` took over as the "other"
+        value: still non-isolated back then, and a harmless no-op since the
+        prompt is a draft and publish only proceeds from ``approved``.
+
+        Beta 11.11D2 isolated ``action_publish`` as well, and its primitive
+        checks for an active reversion context *before* the status gate, so
+        publish is no longer a no-op here - it would raise the very same
+        ACTIVE_REVERSION_CONTEXT this class proves elsewhere, masking the
+        submit-specific assertion. The decoy therefore moves on again, to
+        ``action_restore_draft``: non-isolated, and genuinely inert on a draft
+        because its transition only proceeds from ``archived``.
         """
         prompt = make_prompt(status=Workflow.STATUS_DRAFT, author=self.author)
         revisions_before = Revision.objects.count()
@@ -377,7 +385,7 @@ class ActionDispatchMalformedIndexSecurityTests(PromptAdminSubmissionTestCase):
             self.client.post(
                 CHANGELIST_URL,
                 data={
-                    "action": [SUBMIT_ACTION, "action_publish"],
+                    "action": [SUBMIT_ACTION, "action_restore_draft"],
                     "_selected_action": [str(prompt.pk)],
                     "index": "2",
                 },

@@ -23,10 +23,12 @@ no-fallback.
 """
 import itertools
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils import translation
 from django.utils.translation import override as override_language
 
 from core.models.editorial import EditorialWorkflowMixin as Workflow
@@ -70,6 +72,15 @@ class D1TestCase(TestCase):
 
     def setUp(self):
         self.client.force_login(self.editor)
+        # Several tests here fetch a `/de/` URL to prove the no-fallback
+        # language contract. Django's LocaleMiddleware activates that language
+        # for the request and never deactivates it afterwards, so without this
+        # cleanup German stays active for the rest of the process and any
+        # later test that reverse()s an i18n URL or asserts on a translated
+        # string silently gets the German one. Same pattern as
+        # core/tests/test_admin_richtext_security.py and
+        # catalog/tests/test_filters_and_pagination.py.
+        self.addCleanup(translation.activate, settings.LANGUAGE_CODE)
 
     # -- construction helpers ------------------------------------------
 

@@ -51,6 +51,11 @@ from .review_edit_guard import (
     invalidate_prompt_review_if_payload_changed,
 )
 from .review_payload import build_prompt_review_payload
+from .review_publish import (
+    PromptReviewPublishError,
+    PromptReviewPublishErrorCode,
+    publish_prompt_review,
+)
 from .review_submission import (
     PromptReviewSubmissionError,
     PromptReviewSubmissionErrorCode,
@@ -212,13 +217,15 @@ def _selected_action_name(request):
 
 #: The Prompt admin actions that must run outside VersionAdmin's shared
 #: revision context because each hands its selection to a per-root C3-series
-#: primitive (Beta 11.11C2A / C3A) that opens its own atomic transaction and
-#: reversion revision per object. Extended in Beta 11.11C3B to cover approval
-#: alongside submission - see ``PromptAdmin.changelist_view``.
+#: primitive (Beta 11.11C2A / C3A / D2) that opens its own atomic transaction
+#: and reversion revision per object. Extended in Beta 11.11C3B to cover
+#: approval alongside submission, and in Beta 11.11D2 to cover publishing -
+#: see ``PromptAdmin.changelist_view``.
 _ISOLATED_PROMPT_ACTIONS = frozenset(
     {
         "action_submit_for_review",
         "action_approve",
+        "action_publish",
     }
 )
 
@@ -302,25 +309,27 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
 
     def changelist_view(self, request, extra_context=None):
         """
-        Run the prompt submit-for-review and approve actions *outside*
-        VersionAdmin's shared revision context (Beta 11.11C2B, hardened in
-        Beta 11.11C2B1A, extended to approval in Beta 11.11C3B).
+        Run the prompt submit-for-review, approve and publish actions
+        *outside* VersionAdmin's shared revision context (Beta 11.11C2B,
+        hardened in Beta 11.11C2B1A, extended to approval in Beta 11.11C3B
+        and to publishing in Beta 11.11D2).
 
         ``reversion.admin.VersionAdmin.changelist_view`` wraps the entire
         changelist POST - including admin-action dispatch - in one
         ``reversion.create_revision()`` block. That is exactly what the shared
-        editorial submit/approve actions relied on to batch every selected
-        object into a single revision. This admin's submit and approve actions
-        instead delegate each prompt to ``submit_prompt_for_review`` (Beta
-        11.11C2A) or ``approve_prompt_review`` (Beta 11.11C3A), each of which
-        opens its own per-root revision and, by design, refuses to run inside
-        an outer reversion context. So for either of those two actions
+        editorial submit/approve/publish actions relied on to batch every
+        selected object into a single revision. This admin's submit, approve
+        and publish actions instead delegate each prompt to
+        ``submit_prompt_for_review`` (Beta 11.11C2A), ``approve_prompt_review``
+        (Beta 11.11C3A) or ``publish_prompt_review`` (Beta 11.11D2), each of
+        which opens its own per-root revision and, by design, refuses to run
+        inside an outer reversion context. So for any of those three actions
         (:data:`_ISOLATED_PROMPT_ACTIONS`) we dispatch through
         ``ModelAdmin.changelist_view`` (``super(VersionAdmin, self)``),
         skipping only VersionAdmin's revision wrapper; every other request -
-        the GET changelist, and the rework/publish/archive/restore actions
-        that still write directly inside a revision - keeps VersionAdmin's
-        normal behaviour.
+        the GET changelist, and the rework/archive/restore actions that still
+        write directly inside a revision - keeps VersionAdmin's normal
+        behaviour.
 
         Which action was actually selected is decided by
         ``_selected_action_name``, not by a bare ``request.POST.get("action")``
@@ -329,7 +338,7 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
         counts. See that function's docstring for the exact contract,
         including its fail-closed behaviour for a negative or out-of-range
         index. That contract is reused verbatim here - only the set of action
-        names it is compared against grew from one to two.
+        names it is compared against grew from one to three.
         """
         if request.method == "POST" and _selected_action_name(request) in _ISOLATED_PROMPT_ACTIONS:
             return super(VersionAdmin, self).changelist_view(request, extra_context)
@@ -640,6 +649,220 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
                 request,
                 _(
                     "Some prompts could not be approved because of a server "
+                    "configuration problem. Please contact an administrator."
+                ),
+                level=messages.ERROR,
+            )
+
+    #: D2 error codes the admin recovers from per prompt: it counts them,
+    #: warns in aggregate, and keeps processing the rest of the selection.
+    #: These are all legitimate editorial states of a *selected but not
+    #: publishable* prompt, never technical failures - a prompt that is not
+    #: approved, whose approved content has since changed (C4G/C4H/D1 will
+    #: have moved it back to draft), that has no complete translation, or
+    #: that someone else deleted meanwhile.
+    _RECOVERABLE_PUBLISH_CODES = frozenset(
+        {
+            PromptReviewPublishErrorCode.STATUS_NOT_PUBLISHABLE,
+            PromptReviewPublishErrorCode.REVIEW_PAYLOAD_CHANGED,
+            PromptReviewPublishErrorCode.NO_PUBLISHABLE_TRANSLATION,
+            PromptReviewPublishErrorCode.INCOMPLETE_TRANSLATION,
+            PromptReviewPublishErrorCode.OBJECT_NOT_FOUND,
+            PromptReviewPublishErrorCode.PERMISSION_DENIED,
+        }
+    )
+    #: Request/configuration problems (bad alias or actor): fail closed - stop
+    #: processing further prompts and show one generic error - but leave every
+    #: prompt already committed by D2's own per-root transaction untouched.
+    _CONFIG_PUBLISH_CODES = frozenset(
+        {
+            PromptReviewPublishErrorCode.INVALID_DATABASE_ALIAS,
+            PromptReviewPublishErrorCode.DATABASE_ALIAS_MISMATCH,
+            PromptReviewPublishErrorCode.INVALID_ACTOR,
+            PromptReviewPublishErrorCode.ACTOR_DATABASE_ALIAS_MISMATCH,
+        }
+    )
+
+    @admin.action(description=_("Publish (Approved → Published)"))
+    def action_publish(self, request, queryset):
+        """
+        Prompt-specific override of the shared editorial publish action
+        (Beta 11.11D2).
+
+        The shared ``EditorialWorkflowAdminMixin.action_publish`` wraps the
+        *whole* selection in one ``transaction.atomic()`` and one
+        ``reversion.create_revision()``, calls the FSM transition with a
+        ``note`` that overwrites ``review_note``, saves, and then asks
+        ``set_last_published_revision()`` for the marker - a helper that
+        resolves it with an unordered ``Version.objects...first()`` from
+        *inside* the still-open revision block, before reversion has written
+        that revision's versions at all, so the marker could only ever point
+        at an older version. It also validated no binding and no fingerprint,
+        so a prompt whose approved content had since changed was published
+        anyway.
+
+        This override instead hands each prompt to
+        ``prompts.review_publish.publish_prompt_review`` (Beta 11.11D2), which
+        gives every prompt its own atomic transaction and its own reversion
+        revision, re-validates the review and approval bindings and the
+        approved fingerprint against what is on disk immediately before the
+        transition, applies the public-slug policy before the live snapshot is
+        built, and resolves the marker by an exact
+        ``(revision, content_type, object_id, db)`` lookup after the revision
+        is closed. A publish that cannot satisfy all of that is rolled back
+        whole rather than half-applied.
+
+        Consequently the admin itself opens no ``transaction.atomic()`` and no
+        ``reversion.create_revision()``, calls no FSM transition and no model
+        save, computes no payload or fingerprint, writes no marker, and never
+        touches ``set_user``/``set_comment`` - all of that is D2's
+        responsibility. A failure on one prompt therefore cannot roll back
+        another's already-committed publish.
+
+        The selection is materialised in a stable primary-key order *before*
+        any publish runs, for the same reason as the submit and approve
+        overrides: a successful publish changes a prompt's status and would
+        otherwise shift a still-evaluating queryset. The per-object editorial
+        permission check (``content.publish``) is preserved exactly, and
+        denied objects are skipped without ever reaching D2 - so no revision
+        or version is written for them.
+
+        D2 error codes are classified, never blanket-caught: recoverable
+        (:data:`_RECOVERABLE_PUBLISH_CODES`) are counted and warned in
+        aggregate; request/configuration codes
+        (:data:`_CONFIG_PUBLISH_CODES`) fail closed with one generic message
+        and stop processing; anything else - an invalid binding, a missing or
+        ambiguous root version, a failed postcondition - is re-raised, never
+        disguised as a harmless skip.
+        """
+        # Materialise the selection once, in a stable order, so a published
+        # prompt leaving the queryset's implicit filter cannot skew iteration.
+        selected_prompts = list(queryset.order_by("pk"))
+        db_alias = queryset.db
+
+        published = 0
+        not_publishable = 0
+        stale = 0
+        incomplete = 0
+        missing = 0
+        permission_denied = 0
+        config_error = False
+
+        for prompt in selected_prompts:
+            if not self._user_has_perm(request, "publish", prompt):
+                permission_denied += 1
+                continue
+            try:
+                publish_prompt_review(prompt, actor=request.user, using=db_alias)
+            except PromptReviewPublishError as exc:
+                if exc.code == PromptReviewPublishErrorCode.STATUS_NOT_PUBLISHABLE:
+                    not_publishable += 1
+                    continue
+                if exc.code == PromptReviewPublishErrorCode.REVIEW_PAYLOAD_CHANGED:
+                    stale += 1
+                    continue
+                if exc.code in (
+                    PromptReviewPublishErrorCode.NO_PUBLISHABLE_TRANSLATION,
+                    PromptReviewPublishErrorCode.INCOMPLETE_TRANSLATION,
+                ):
+                    incomplete += 1
+                    continue
+                if exc.code == PromptReviewPublishErrorCode.OBJECT_NOT_FOUND:
+                    missing += 1
+                    continue
+                if exc.code == PromptReviewPublishErrorCode.PERMISSION_DENIED:
+                    # The admin already checked, so this means the locked row
+                    # disagrees with the copy the changelist loaded - e.g. the
+                    # author changed concurrently. A skip, not a server error.
+                    permission_denied += 1
+                    continue
+                if exc.code in self._CONFIG_PUBLISH_CODES:
+                    config_error = True
+                    break
+                # Integrity/programmer error - not a routine skip. Re-raise so
+                # it surfaces; prompts already committed by D2 remain committed.
+                raise
+            published += 1
+
+        if published:
+            self.message_user(
+                request,
+                ngettext(
+                    "%(count)d prompt was published.",
+                    "%(count)d prompts were published.",
+                    published,
+                )
+                % {"count": published},
+                level=messages.SUCCESS,
+            )
+        if not_publishable:
+            self.message_user(
+                request,
+                ngettext(
+                    "%(count)d prompt was skipped because its status does not allow "
+                    "publishing.",
+                    "%(count)d prompts were skipped because their status does not allow "
+                    "publishing.",
+                    not_publishable,
+                )
+                % {"count": not_publishable},
+                level=messages.WARNING,
+            )
+        if stale:
+            self.message_user(
+                request,
+                ngettext(
+                    "%(count)d prompt was skipped because its approved content has "
+                    "changed and needs a new review.",
+                    "%(count)d prompts were skipped because their approved content has "
+                    "changed and needs a new review.",
+                    stale,
+                )
+                % {"count": stale},
+                level=messages.WARNING,
+            )
+        if incomplete:
+            self.message_user(
+                request,
+                ngettext(
+                    "%(count)d prompt was skipped because it has no complete "
+                    "translation to publish.",
+                    "%(count)d prompts were skipped because they have no complete "
+                    "translation to publish.",
+                    incomplete,
+                )
+                % {"count": incomplete},
+                level=messages.WARNING,
+            )
+        if missing:
+            self.message_user(
+                request,
+                ngettext(
+                    "%(count)d selected prompt no longer exists and was skipped.",
+                    "%(count)d selected prompts no longer exist and were skipped.",
+                    missing,
+                )
+                % {"count": missing},
+                level=messages.WARNING,
+            )
+        if permission_denied:
+            self.message_user(
+                request,
+                ngettext(
+                    "%(count)d prompt was skipped because you are not allowed to "
+                    "publish it.",
+                    "%(count)d prompts were skipped because you are not allowed to "
+                    "publish them.",
+                    permission_denied,
+                )
+                % {"count": permission_denied},
+                level=messages.WARNING,
+            )
+        if config_error:
+            self.message_user(
+                request,
+                _(
+                    "Some prompts could not be published because of a server "
                     "configuration problem. Please contact an administrator."
                 ),
                 level=messages.ERROR,
