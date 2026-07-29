@@ -53,6 +53,37 @@ class TranslatableTinyMCEMixin(TranslatableAdmin):
 
         return form
 
+    def get_language_tabs(self, request, obj, available_languages, css_class=None):
+        """
+        Beta 11.11D3B: bind parler's per-language "delete translation" link to
+        the same permission its own view already enforces.
+
+        ``parler.utils.views.get_language_tabs()`` sets
+        ``tabs.allow_deletion`` purely from
+        ``len(available_languages) > 1`` - it consults no permission at all -
+        while ``TranslatableAdmin.delete_translation()`` gates the actual
+        deletion on ``has_delete_permission(request, translation)``. Any role
+        without the model's ``delete_*`` permission (Author and Editor, see
+        ``accounts/signals.py::ensure_editorial_groups``) was therefore
+        offered a delete link on every language tab that answered 403 when
+        followed.
+
+        This narrows the *link* to the permission that already governs the
+        *action*; it never widens it. ``allow_deletion`` stays false whenever
+        parler already said so (a single remaining translation), and the
+        server-side check in ``delete_translation()`` is untouched - so a
+        direct URL is still refused independently of what is rendered.
+
+        The permission is resolved through ``self.has_delete_permission()``,
+        i.e. whichever implementation the concrete admin actually uses
+        (``EditorialWorkflowAdminMixin``, ``ChildOfGuideOwnershipMixin``, or
+        plain ``ModelAdmin``). No group name is hardcoded here, and Admin-group
+        members and superusers keep the link exactly as before.
+        """
+        tabs = super().get_language_tabs(request, obj, available_languages, css_class=css_class)
+        tabs.allow_deletion = tabs.allow_deletion and self.has_delete_permission(request, obj)
+        return tabs
+
 
 class TranslatableTinyMCEInlineMixin:
     """
@@ -638,7 +669,31 @@ class ChildOfGuideOwnershipMixin(admin.ModelAdmin):
         return getattr(guide, "author_id", None) == user.id
 
     def _get_parent_guide(self, obj):
-        return getattr(obj, "guide", None)
+        """
+        The owning ``Guide`` of whatever object a permission check was handed.
+
+        A ``GuideSection`` carries ``guide`` directly. A
+        ``GuideSectionTranslation`` does not: parler's
+        ``TranslatableAdmin.delete_translation()`` passes the *translation*
+        row to ``has_delete_permission()``, and that row reaches its guide only
+        through ``master`` (the section). Resolving just the direct attribute
+        therefore returned ``None`` for every per-language delete and refused
+        it for every role - including the Admin group and superusers, who are
+        entitled to it.
+
+        Exactly these two shapes are resolved; anything else (``None``, an
+        unsaved row whose FK raises, an unrelated object) stays ``None``, and
+        every caller treats ``None`` as "deny".
+        """
+        guide = getattr(obj, "guide", None)
+        if guide is not None:
+            return guide
+
+        master = getattr(obj, "master", None)
+        if master is not None:
+            return getattr(master, "guide", None)
+
+        return None
 
     def has_change_permission(self, request, obj=None):
         base = super().has_change_permission(request, obj)
