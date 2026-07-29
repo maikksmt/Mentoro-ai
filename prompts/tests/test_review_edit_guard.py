@@ -520,7 +520,7 @@ class PayloadChangeReviewTests(GuardTestCase):
         self.assertEqual(result.current_status, Workflow.STATUS_DRAFT)
         self.assertFalse(result.had_live_snapshot)
 
-    def test_target_status_is_rework_with_a_live_snapshot(self):
+    def test_target_status_is_draft_even_with_a_live_snapshot(self):
         prompt = submitted_prompt(actor=self.actor)
         Prompt.objects.filter(pk=prompt.pk).update(live_i18n={"en": {"title": "Live"}})
 
@@ -530,7 +530,10 @@ class PayloadChangeReviewTests(GuardTestCase):
             PromptTranslation.objects.filter(master_id=p.pk).update(title="Changed")
 
         result = self._guarded(prompt, mutate)
-        self.assertEqual(result.current_status, Workflow.STATUS_REWORK)
+        # Beta 11.11D1: an automatic payload invalidation always targets
+        # draft. had_live_snapshot stays truthful - it is what keeps the
+        # prompt publicly visible - but no longer decides the status.
+        self.assertEqual(result.current_status, Workflow.STATUS_DRAFT)
         self.assertTrue(result.had_live_snapshot)
 
 
@@ -551,14 +554,15 @@ class PayloadChangeApprovedTests(GuardTestCase):
         self.assertIsNone(reloaded.approved_revision_id)
         self.assertIsNone(reloaded.review_revision_id)
 
-    def test_target_status_is_rework_with_a_live_snapshot_when_approved(self):
+    def test_target_status_is_draft_with_a_live_snapshot_when_approved(self):
         prompt = approved_prompt(actor=self.actor)
         Prompt.objects.filter(pk=prompt.pk).update(live_i18n={"en": {"title": "Live"}})
         with transaction.atomic():
             baseline = capture_prompt_review_edit_baseline(prompt)
             prompt.tags.add("guard-approved-tag")
             result = invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
-        self.assertEqual(result.current_status, Workflow.STATUS_REWORK)
+        # Beta 11.11D1: always draft, live snapshot or not.
+        self.assertEqual(result.current_status, Workflow.STATUS_DRAFT)
 
 
 # ======================================================================

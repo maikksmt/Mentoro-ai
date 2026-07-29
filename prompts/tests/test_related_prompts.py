@@ -63,8 +63,12 @@ class RelatedPromptsQuerySetTests(TestCase):
 
     def test_review_with_live_revision_can_still_be_recommended(self):
         current = make_prompt(slug="current-5", languages=("en",))
+        # Beta 11.11D1: see test_language_visibility - is_published plus a
+        # real snapshot is the publication proof now.
         make_prompt(slug="review-live", status=EditorialWorkflowMixin.STATUS_REVIEW,
-                    published_at=None, languages=("en",), last_published_revision_id=1)
+                    published_at=None, languages=("en",), last_published_revision_id=1,
+                    is_published=True,
+                    live_i18n={"en": {"title": "Live", "slug": "review-live-en"}})
         result = related_prompts(current, language_code="en")
         self.assertEqual(len(result), 1)
 

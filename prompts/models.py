@@ -17,8 +17,25 @@ class PromptQuerySet(EditorialQuerySet):
         never a fallback from another language. Unlike active_translations()
         (used by Guide/UseCase), this never lets an EN-only prompt leak onto
         the DE list or vice versa.
+
+        Beta 11.11D1 added the live-snapshot language gate
+        (``EditorialQuerySet.live_snapshot_language_q``) that Use Case and
+        Comparison already carried since Beta 11.7/11.9. ``translated()``
+        alone only asks whether a translation *row* exists, so a prompt
+        published in English and given a German translation afterwards
+        counted as publicly visible in German and served that
+        never-published draft under ``/de/``. D1 makes that gap load-bearing
+        rather than cosmetic - it widens :meth:`visible_on_site` to ``draft``,
+        so an edited prompt now stays in the public queryset and would carry
+        its unreviewed German draft along - so the gate closes here too.
         """
-        return self.visible_on_site().translated(language_code).language(language_code).distinct()
+        return (
+            self.visible_on_site()
+            .filter(self.live_snapshot_language_q(language_code))
+            .translated(language_code)
+            .language(language_code)
+            .distinct()
+        )
 
 
 PromptManager = EditorialManager.from_queryset(PromptQuerySet)

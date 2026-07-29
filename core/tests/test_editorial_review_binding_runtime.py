@@ -316,7 +316,27 @@ class DowngradedVisibilityTests(ReviewBindingRuntimeTestCase):
         }
     }
 
-    def _make(self, model, *, status, snapshot, marker, slug, extra=None):
+    def _make(self, model, *, status, snapshot, marker, slug, extra=None,
+              is_published=None):
+        """
+        Beta 11.11D1: ``is_published`` now models "was this ever really
+        published", and defaults to whether the fixture asked for a live
+        snapshot.
+
+        Before D1 the public querysets proved a past publication with
+        ``last_published_revision_id`` alone, so these fixtures only ever set
+        that marker. D1 replaced the proof with ``is_published`` plus a real
+        snapshot, because the marker is a legacy ``reversion.Version`` id that
+        only ``core.admin``'s publish action writes - the editorial-view
+        publish path leaves it NULL (Beta 11.11C4J-R3 audit). Every one of the
+        four types sets ``is_published = True`` in its own
+        ``on_after_publish()``, so a genuinely published row always carries
+        it, and a row that only carries the marker is a state production does
+        not produce. Deriving the default from ``snapshot`` keeps each
+        existing call site meaning exactly what it always meant - "previously
+        published" where it passes a snapshot, "never published" where it
+        passes ``{}`` - without having to restate it at every call.
+        """
         obj = model.objects.create(author=self.author)
         obj.create_translation(
             "en",
@@ -330,6 +350,7 @@ class DowngradedVisibilityTests(ReviewBindingRuntimeTestCase):
             status=status,
             live_i18n=snapshot,
             last_published_revision_id=marker,
+            is_published=bool(snapshot) if is_published is None else is_published,
         )
         return refetch(obj)
 

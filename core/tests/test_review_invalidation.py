@@ -216,33 +216,31 @@ class InternalTransitionTests(TestCase):
     """Representative across all four concrete types, since the transitions
     live once on the shared abstract ``EditorialWorkflowMixin``."""
 
-    def test_review_to_draft_and_review_to_rework_on_every_type(self):
+    def test_review_to_draft_on_every_type(self):
         for model in EDITORIAL_TYPES:
             with self.subTest(model=model._meta.label, target="draft"):
                 obj = model.objects.create(status=Workflow.STATUS_REVIEW)
                 obj._invalidate_review_to_draft()
                 self.assertEqual(obj.status, Workflow.STATUS_DRAFT)
-            with self.subTest(model=model._meta.label, target="rework"):
-                obj = model.objects.create(status=Workflow.STATUS_REVIEW)
-                obj._invalidate_review_to_rework()
-                self.assertEqual(obj.status, Workflow.STATUS_REWORK)
+            # Beta 11.11D1 removed the rework counterpart entirely - an
+            # automatic invalidation never targets rework any more.
+            with self.subTest(model=model._meta.label, target="no rework path"):
+                self.assertFalse(hasattr(model, "_invalidate_review_to_rework"))
 
-    def test_approved_to_draft_and_approved_to_rework_on_every_type(self):
+    def test_approved_to_draft_on_every_type(self):
         for model in EDITORIAL_TYPES:
             with self.subTest(model=model._meta.label, target="draft"):
                 obj = model.objects.create(status=Workflow.STATUS_APPROVED)
                 obj._invalidate_review_to_draft()
                 self.assertEqual(obj.status, Workflow.STATUS_DRAFT)
-            with self.subTest(model=model._meta.label, target="rework"):
-                obj = model.objects.create(status=Workflow.STATUS_APPROVED)
-                obj._invalidate_review_to_rework()
-                self.assertEqual(obj.status, Workflow.STATUS_REWORK)
+            with self.subTest(model=model._meta.label, target="no rework path"):
+                self.assertFalse(hasattr(model, "_invalidate_review_to_rework"))
 
     def test_disallowed_sources_are_rejected_by_the_fsm_itself(self):
         from django_fsm import TransitionNotAllowed
 
         for status in UNTOUCHED_STATUSES:
-            for method_name in ("_invalidate_review_to_draft", "_invalidate_review_to_rework"):
+            for method_name in ("_invalidate_review_to_draft",):
                 with self.subTest(status=status, method=method_name):
                     guide = Guide.objects.create(status=status)
                     with self.assertRaises(TransitionNotAllowed):
@@ -271,7 +269,7 @@ class InternalTransitionTests(TestCase):
         revisions_before = Revision.objects.count()
         versions_before = Version.objects.count()
         guide = Guide.objects.create(status=Workflow.STATUS_REVIEW)
-        guide._invalidate_review_to_rework()
+        guide._invalidate_review_to_draft()
         self.assertEqual(Revision.objects.count(), revisions_before)
         self.assertEqual(Version.objects.count(), versions_before)
 
@@ -330,23 +328,30 @@ class PerTypeInvalidationMatrixTests(InvalidationTestCase):
                     model, obj.pk, expected_live_entries=None
                 )
 
-    def test_review_with_snapshot_becomes_rework(self):
+    def test_review_with_snapshot_also_becomes_draft(self):
+        """
+        Beta 11.11D1: the live snapshot no longer redirects the target to
+        ``rework``. ``had_live_snapshot`` is still reported truthfully - the
+        snapshot is what keeps the row publicly visible - it just no longer
+        decides the workflow status.
+        """
         for model in EDITORIAL_TYPES:
             with self.subTest(model=model._meta.label):
                 obj = self._make(model, status=Workflow.STATUS_REVIEW, has_snapshot=True)
                 result = invalidate_editorial_review_state(obj)
-                self.assertEqual(result.current_status, Workflow.STATUS_REWORK)
+                self.assertEqual(result.current_status, Workflow.STATUS_DRAFT)
                 self.assertTrue(result.had_live_snapshot)
                 self._assert_fields_cleared_and_content_preserved(
                     model, obj.pk, expected_live_entries=[]
                 )
 
-    def test_approved_with_snapshot_becomes_rework(self):
+    def test_approved_with_snapshot_also_becomes_draft(self):
+        """Beta 11.11D1 - see ``test_review_with_snapshot_also_becomes_draft``."""
         for model in EDITORIAL_TYPES:
             with self.subTest(model=model._meta.label):
                 obj = self._make(model, status=Workflow.STATUS_APPROVED, has_snapshot=True)
                 result = invalidate_editorial_review_state(obj)
-                self.assertEqual(result.current_status, Workflow.STATUS_REWORK)
+                self.assertEqual(result.current_status, Workflow.STATUS_DRAFT)
                 self._assert_fields_cleared_and_content_preserved(
                     model, obj.pk, expected_live_entries=[]
                 )
@@ -406,12 +411,18 @@ class PerTypeInvalidationMatrixTests(InvalidationTestCase):
 
 
 class ComparisonSpecialMatrixTests(TestCase):
+    #: Beta 11.11D1 collapsed the target column to a single value: an
+    #: automatic invalidation always lands in ``draft``. The
+    #: ``live_i18n``/``live_entries`` combinations are kept because they still
+    #: drive ``had_live_snapshot`` - and therefore whether the row keeps
+    #: serving its published page - which the matrix below still exercises
+    #: through ``ComparisonQuerySet.visible_on_site()``.
     CASES = (
         ({}, None, Workflow.STATUS_DRAFT),
         ({}, [], Workflow.STATUS_DRAFT),
         ({"en": {"title": "T"}}, None, Workflow.STATUS_DRAFT),
-        ({"en": {"title": "T"}}, [], Workflow.STATUS_REWORK),
-        ({"en": {"title": "T"}}, [{"tool_id": 1, "position": 0, "translations": {}}], Workflow.STATUS_REWORK),
+        ({"en": {"title": "T"}}, [], Workflow.STATUS_DRAFT),
+        ({"en": {"title": "T"}}, [{"tool_id": 1, "position": 0, "translations": {}}], Workflow.STATUS_DRAFT),
     )
 
     def test_the_full_matrix_from_review(self):
@@ -424,9 +435,12 @@ class ComparisonSpecialMatrixTests(TestCase):
                 self.assertEqual(result.current_status, expected)
 
     def test_the_boundary_cases_from_approved_too(self):
+        # Beta 11.11D1: both boundary cases now target draft - live_entries
+        # still decides `had_live_snapshot` (and therefore public
+        # visibility), but no longer the workflow status.
         boundary_cases = (
             ({"en": {"title": "T"}}, None, Workflow.STATUS_DRAFT),
-            ({"en": {"title": "T"}}, [], Workflow.STATUS_REWORK),
+            ({"en": {"title": "T"}}, [], Workflow.STATUS_DRAFT),
         )
         for live_i18n, live_entries, expected in boundary_cases:
             with self.subTest(live_i18n=live_i18n, live_entries=live_entries):
@@ -442,7 +456,9 @@ class ComparisonSpecialMatrixTests(TestCase):
         )
         result = invalidate_editorial_review_state(obj)
         self.assertTrue(result.had_live_snapshot)
-        self.assertEqual(result.current_status, Workflow.STATUS_REWORK)
+        # Beta 11.11D1: a real snapshot still reports had_live_snapshot, but
+        # the automatic target is always draft.
+        self.assertEqual(result.current_status, Workflow.STATUS_DRAFT)
 
 
 # ======================================================================
@@ -595,7 +611,10 @@ class StaleCallerStateTests(TestCase):
         # `stale` is not refreshed.
         self.assertEqual(stale.live_i18n, {})
         result = invalidate_editorial_review_state(stale)
-        self.assertEqual(result.current_status, Workflow.STATUS_REWORK)
+        # Beta 11.11D1: the status target is unconditionally draft, so the
+        # DB-wins property now shows up in `had_live_snapshot` - which is
+        # what drives public visibility - rather than in the status.
+        self.assertEqual(result.current_status, Workflow.STATUS_DRAFT)
         self.assertTrue(result.had_live_snapshot)
 
     def test_guide_db_loses_its_snapshot_after_the_caller_loaded_it(self):
@@ -622,7 +641,13 @@ class StaleCallerStateTests(TestCase):
         self.assertEqual(result.current_status, Workflow.STATUS_PUBLISHED)
         self.assertEqual(refetch(guide).status, Workflow.STATUS_PUBLISHED)
 
-    def test_comparison_db_entries_null_to_empty_list_flips_the_target(self):
+    def test_comparison_db_entries_null_to_empty_list_flips_the_snapshot_flag(self):
+        """
+        Beta 11.11D1 renamed this from "...flips_the_target": the *target* no
+        longer flips (it is always draft), but the freshly read DB row still
+        decides ``had_live_snapshot``, which is what keeps the comparison
+        publicly visible. The DB-wins-over-stale-caller property is unchanged.
+        """
         comparison = Comparison.objects.create(
             status=Workflow.STATUS_REVIEW, live_i18n={"en": {"title": "T"}}, live_entries=None
         )
@@ -631,9 +656,10 @@ class StaleCallerStateTests(TestCase):
         Comparison.objects.filter(pk=comparison.pk).update(live_entries=[])
 
         result = invalidate_editorial_review_state(stale)
-        self.assertEqual(result.current_status, Workflow.STATUS_REWORK)
+        self.assertEqual(result.current_status, Workflow.STATUS_DRAFT)
+        self.assertTrue(result.had_live_snapshot)
 
-    def test_comparison_db_entries_empty_list_to_null_flips_the_target(self):
+    def test_comparison_db_entries_empty_list_to_null_flips_the_snapshot_flag(self):
         comparison = Comparison.objects.create(
             status=Workflow.STATUS_REVIEW, live_i18n={"en": {"title": "T"}}, live_entries=[]
         )
@@ -643,6 +669,7 @@ class StaleCallerStateTests(TestCase):
 
         result = invalidate_editorial_review_state(stale)
         self.assertEqual(result.current_status, Workflow.STATUS_DRAFT)
+        self.assertFalse(result.had_live_snapshot)
 
 
 # ======================================================================
@@ -825,7 +852,8 @@ class ExistingRevisionContextTests(TestCase):
             content_type__model="comparison", object_id=str(comparison.pk)
         )
         fields = json.loads(comparison_version.serialized_data)[0]["fields"]
-        self.assertEqual(fields["status"], Workflow.STATUS_REWORK)
+        # Beta 11.11D1: the recorded final status is draft, not rework.
+        self.assertEqual(fields["status"], Workflow.STATUS_DRAFT)
         self.assertIsNone(fields["review_revision"])
         self.assertIsNone(fields["approved_revision"])
 

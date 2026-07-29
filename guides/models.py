@@ -35,12 +35,27 @@ class GuideQuerySet(EditorialQuerySet):
         query (see Beta 8.10 report for the confirmed 404/500/wrong-language
         detail-page bugs this closes).
 
-        Status rule uses visible_on_site() (published, or review/approved
-        with an existing live revision) - not the stricter published() -
-        so a guide with an in-progress revision keeps showing its last
-        published live version instead of disappearing from public view.
+        Status rule uses visible_on_site() (published, or one of the editing
+        statuses with a provable past publication) - not the stricter
+        published() - so a guide with an in-progress revision keeps showing
+        its last published live version instead of disappearing from public
+        view.
+
+        Beta 11.11D1 added the live-snapshot language gate
+        (``EditorialQuerySet.live_snapshot_language_q``) that Use Case and
+        Comparison already carried since Beta 11.7/11.9, for the same reason
+        spelled out on ``PromptQuerySet.visible_in_language``:
+        ``translated()`` alone only proves a translation *row* exists, and
+        D1's widening of visible_on_site() to ``draft`` would otherwise let
+        an edited guide serve a never-published translation.
         """
-        return self.visible_on_site().translated(language_code).language(language_code).distinct()
+        return (
+            self.visible_on_site()
+            .filter(self.live_snapshot_language_q(language_code))
+            .translated(language_code)
+            .language(language_code)
+            .distinct()
+        )
 
 
 GuideManager = EditorialManager.from_queryset(GuideQuerySet)

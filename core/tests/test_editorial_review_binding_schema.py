@@ -290,6 +290,11 @@ class LiveEditingStatusContractTests(TestCase):
         self.assertEqual(
             EditorialQuerySet.LIVE_EDITING_STATUSES,
             (
+                # Beta 11.11D1 added STATUS_DRAFT: every automatic
+                # invalidation now lands there, so excluding it would take
+                # exactly the pages offline that B2A's rework detour existed
+                # to keep online.
+                EditorialWorkflowMixin.STATUS_DRAFT,
                 EditorialWorkflowMixin.STATUS_REVIEW,
                 EditorialWorkflowMixin.STATUS_APPROVED,
                 EditorialWorkflowMixin.STATUS_REWORK,
@@ -308,10 +313,15 @@ class LiveEditingStatusContractTests(TestCase):
             EditorialWorkflowMixin.STATUS_REWORK, EditorialQuerySet.LIVE_EDITING_STATUSES
         )
 
-    def test_archived_and_draft_stay_out(self):
-        for status in (
+    def test_archived_stays_out(self):
+        """
+        Beta 11.11D1 narrowed this to ``archived`` alone - ``draft`` joined
+        the set (see ``test_the_literals_match_the_status_constants``).
+        Archiving is still the deliberate public withdrawal and outranks any
+        snapshot on record; it is additionally excluded by the publication
+        proof, because ``archive()`` clears ``is_published``.
+        """
+        self.assertNotIn(
             EditorialWorkflowMixin.STATUS_ARCHIVED,
-            EditorialWorkflowMixin.STATUS_DRAFT,
-        ):
-            with self.subTest(status=status):
-                self.assertNotIn(status, EditorialQuerySet.LIVE_EDITING_STATUSES)
+            EditorialQuerySet.LIVE_EDITING_STATUSES,
+        )

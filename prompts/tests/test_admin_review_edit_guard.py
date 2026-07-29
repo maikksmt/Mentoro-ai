@@ -150,7 +150,7 @@ class PayloadChangeReviewTests(AdminGuardTestCase):
             reloaded.translations.get(language_code="en").title, "Changed via admin"
         )
 
-    def test_translation_change_invalidates_to_rework_with_live_snapshot(self):
+    def test_translation_change_invalidates_to_draft_even_with_live_snapshot(self):
         prompt = self.submitted(author=self.editor)
         Prompt.objects.filter(pk=prompt.pk).update(live_i18n={"en": {"title": "Live"}})
         self.client.post(
@@ -158,7 +158,9 @@ class PayloadChangeReviewTests(AdminGuardTestCase):
             base_payload(prompt, author=self.editor, title="Changed with live snapshot"),
         )
         reloaded = refetch(prompt)
-        self.assertEqual(reloaded.status, Workflow.STATUS_REWORK)
+        # Beta 11.11D1: automatic invalidation targets draft regardless of the
+        # live snapshot; the snapshot keeps the page public instead.
+        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
         self.assertIsNone(reloaded.review_revision_id)
 
     def test_new_translation_language_invalidates(self):
@@ -231,14 +233,15 @@ class PayloadChangeApprovedTests(AdminGuardTestCase):
         self.assertIsNone(reloaded.approved_revision_id)
         self.assertEqual(reloaded.review_payload_fingerprint, "")
 
-    def test_translation_change_invalidates_approved_to_rework_with_live_snapshot(self):
+    def test_translation_change_invalidates_approved_to_draft_with_live_snapshot(self):
         prompt = self.approved(author=self.editor)
         Prompt.objects.filter(pk=prompt.pk).update(live_i18n={"en": {"title": "Live"}})
         self.client.post(
             change_url(prompt), base_payload(prompt, author=self.editor, intro="Changed approved intro")
         )
         reloaded = refetch(prompt)
-        self.assertEqual(reloaded.status, Workflow.STATUS_REWORK)
+        # Beta 11.11D1: see the review-side counterpart above.
+        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
         self.assertIsNone(reloaded.approved_revision_id)
 
 

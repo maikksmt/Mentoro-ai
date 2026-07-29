@@ -442,22 +442,41 @@ def has_provable_live_snapshot(obj: Any) -> bool:
 
 def target_status_after_review_invalidation(obj: Any) -> str:
     """
-    The status a future invalidation mechanism would move ``obj`` to - purely
-    computed, never applied. Does not read or validate ``obj.status``, does
-    not consult ``last_published_revision_id``, and does not check permissions
-    or transition legality; it answers exactly one question: is there a
-    provable live snapshot to fall back to?
+    The status an automatic review/approval invalidation moves ``obj`` to -
+    purely computed, never applied. Beta 11.11D1: **always**
+    ``EditorialWorkflowMixin.STATUS_DRAFT``.
 
-    * yes -> ``EditorialWorkflowMixin.STATUS_REWORK``.
-    * no  -> ``EditorialWorkflowMixin.STATUS_DRAFT``.
+    Until D1 this returned ``STATUS_REWORK`` whenever
+    :func:`has_provable_live_snapshot` was true. That was never a redactional
+    decision about the *content*: it existed only so the row would land
+    inside ``EditorialQuerySet.LIVE_EDITING_STATUSES`` and keep serving its
+    already-published page while the new draft was worked on (see the Beta
+    11.11B2A migration cleanup, which applied the same rule to historical
+    rows). It had the side effect of overloading ``rework`` with two
+    incompatible meanings: "an editor asked for changes" and "the system
+    noticed the content drifted away from what was reviewed".
 
-    Mirrors the Beta 11.11B2A migration cleanup's own target-status decision
-    (see ``guides/migrations/0009_guide_approved_revision_and_more.py`` and
-    its sibling migrations), now available as a reusable pure function. Does
-    not mutate ``obj``, create a revision, or emit a signal.
+    D1 separates the two concerns that were conflated there:
+
+    * the workflow status now records only what an editor actually decided,
+      so ``rework`` is produced exclusively by the explicit
+      ``request_rework`` transition, never by an automatic invalidation;
+    * staying publicly visible is decided by proof of a previous
+      publication (``is_published`` plus a usable live snapshot, and never
+      ``archived``) in
+      :meth:`~core.models.editorial.EditorialQuerySet.visible_on_site`,
+      which now admits ``draft`` on exactly that proof - so nothing goes
+      offline because of this change.
+
+    ``obj`` is still accepted (and still type-checked through
+    :func:`has_provable_live_snapshot`) so that an unsupported model keeps
+    failing loudly here rather than silently invalidating; the snapshot's
+    *value* no longer influences the result. Does not read ``obj.status``,
+    does not consult ``last_published_revision_id``, does not check
+    permissions or transition legality, does not mutate ``obj``, create a
+    revision, or emit a signal.
     """
-    if has_provable_live_snapshot(obj):
-        return EditorialWorkflowMixin.STATUS_REWORK
+    has_provable_live_snapshot(obj)  # type contract only - see docstring
     return EditorialWorkflowMixin.STATUS_DRAFT
 
 
@@ -605,10 +624,12 @@ def invalidate_editorial_review_state(
     --------------------------------------------------
     1. The target status is computed once, via the existing
        :func:`target_status_after_review_invalidation` - no separate or
-       duplicated snapshot logic.
-    2. The matching internal FSM transition
-       (``_invalidate_review_to_draft`` or ``_invalidate_review_to_rework``,
-       on :class:`~core.models.editorial.EditorialWorkflowMixin`) runs on the
+       duplicated status logic. Since Beta 11.11D1 that is always
+       ``draft``; a live snapshot no longer redirects the row to ``rework``
+       (see that function's docstring for why, and for where public
+       visibility is decided instead).
+    2. The internal FSM transition ``_invalidate_review_to_draft`` on
+       :class:`~core.models.editorial.EditorialWorkflowMixin` runs on the
        locked instance - a real django-fsm transition, never a bare
        ``status =`` assignment (the field is ``protected=True`` and would
        reject that).
@@ -722,12 +743,12 @@ def invalidate_editorial_review_state(
                 no_op_reason=ReviewInvalidationNoOpReason.STATUS_NOT_REVIEWABLE,
             )
 
+        # Beta 11.11D1: always `draft`. Still routed through the pure target
+        # function rather than hardcoded here, so "which status does an
+        # automatic invalidation produce" stays answerable in exactly one
+        # place - and so an unsupported model still fails loudly there.
         target_status = target_status_after_review_invalidation(locked)
-
-        if target_status == EditorialWorkflowMixin.STATUS_REWORK:
-            locked._invalidate_review_to_rework()
-        else:
-            locked._invalidate_review_to_draft()
+        locked._invalidate_review_to_draft()
 
         locked.review_revision = None
         locked.approved_revision = None

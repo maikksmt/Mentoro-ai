@@ -429,7 +429,7 @@ class RevertPayloadChangeTests(RevertGuardTestCase):
         self.assertIsNone(reloaded.reviewed_by_id)
         self.assertEqual(reloaded.translations.get(language_code="en").title, "Content A")
 
-    def test_revert_to_review_snapshot_invalidates_to_rework_with_live_snapshot(self):
+    def test_revert_to_review_snapshot_invalidates_to_draft_with_live_snapshot(self):
         """
         ``live_i18n`` is a plain local field on Prompt, not excluded from
         reversion's follow-graph - a revert restores it to whatever it was
@@ -455,7 +455,10 @@ class RevertPayloadChangeTests(RevertGuardTestCase):
         )
         self.assertEqual(resp.status_code, 302)
         reloaded = refetch(prompt)
-        self.assertEqual(reloaded.status, Workflow.STATUS_REWORK)
+        # Beta 11.11D1: an automatic invalidation targets draft even when a
+        # live snapshot exists - the snapshot keeps the prompt publicly
+        # visible instead of steering the workflow status.
+        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
         self.assertIsNone(reloaded.review_revision_id)
         self.assertEqual(reloaded.translations.get(language_code="en").title, "Content A")
 
@@ -1106,7 +1109,7 @@ class RecoverTests(RevertGuardTestCase):
         self.assertIsNone(recovered.approved_revision_id)
         self.assertEqual(recovered.review_payload_fingerprint, "")
 
-    def test_recover_of_review_prompt_invalidates_with_live_snapshot_to_rework(self):
+    def test_recover_of_review_prompt_invalidates_with_live_snapshot_to_draft(self):
         """``live_i18n`` must be set *before* the submit whose revision gets
         recovered - see the analogous note on the revert-side live-snapshot
         test above; a later ``.update()`` would not be part of that
@@ -1121,7 +1124,8 @@ class RecoverTests(RevertGuardTestCase):
         )
         self.assertEqual(resp.status_code, 302)
         recovered = Prompt.objects.get(pk=pk)
-        self.assertEqual(recovered.status, Workflow.STATUS_REWORK)
+        # Beta 11.11D1: fail-closed recovery invalidation targets draft.
+        self.assertEqual(recovered.status, Workflow.STATUS_DRAFT)
 
     def test_recover_of_draft_prompt_is_a_b2b2_noop(self):
         prompt = self.edit_via_admin(self.make_prompt(author=self.editor, title="Draft content"))
@@ -1183,7 +1187,7 @@ class RecoverTests(RevertGuardTestCase):
             getattr(captured_requests[0], "_mentoro_prompt_review_edit_baselines", {}), {}
         )
 
-    def test_recover_of_approved_prompt_with_live_snapshot_invalidates_to_rework(self):
+    def test_recover_of_approved_prompt_with_live_snapshot_invalidates_to_draft(self):
         """The approved-side counterpart of
         ``test_recover_of_review_prompt_invalidates_with_live_snapshot_to_rework``
         above (Abnahme-Korrekturrunde Blocker 3)."""
@@ -1198,7 +1202,8 @@ class RecoverTests(RevertGuardTestCase):
         )
         self.assertEqual(resp.status_code, 302)
         recovered = Prompt.objects.get(pk=pk)
-        self.assertEqual(recovered.status, Workflow.STATUS_REWORK)
+        # Beta 11.11D1: see the review-side counterpart above.
+        self.assertEqual(recovered.status, Workflow.STATUS_DRAFT)
         self.assertIsNone(recovered.approved_revision_id)
         self.assertIsNone(recovered.review_revision_id)
 

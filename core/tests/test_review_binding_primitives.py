@@ -1023,17 +1023,23 @@ class InvalidationTargetTests(TestCase):
         comparison = Comparison.objects.create(live_i18n={}, live_entries=None)
         self.assertEqual(target_status_after_review_invalidation(comparison), Workflow.STATUS_DRAFT)
 
-    def test_every_type_with_a_snapshot_targets_rework(self):
+    def test_every_type_with_a_snapshot_still_targets_draft(self):
+        """
+        Beta 11.11D1: a live snapshot no longer redirects the automatic
+        target to ``rework`` on any type. Staying publicly visible is decided
+        by ``EditorialQuerySet.visible_on_site()`` instead, so the two
+        concerns the old rule conflated are now separate.
+        """
         for model in (Guide, Prompt, UseCase):
             with self.subTest(model=model._meta.label):
                 obj = model.objects.create(live_i18n={"en": {}})
-                self.assertEqual(target_status_after_review_invalidation(obj), Workflow.STATUS_REWORK)
+                self.assertEqual(target_status_after_review_invalidation(obj), Workflow.STATUS_DRAFT)
         comparison = Comparison.objects.create(live_i18n={"en": {}}, live_entries=[])
-        self.assertEqual(target_status_after_review_invalidation(comparison), Workflow.STATUS_REWORK)
+        self.assertEqual(target_status_after_review_invalidation(comparison), Workflow.STATUS_DRAFT)
 
-    def test_comparison_with_empty_entries_list_targets_rework(self):
+    def test_comparison_with_empty_entries_list_also_targets_draft(self):
         comparison = Comparison.objects.create(live_i18n={"en": {}}, live_entries=[])
-        self.assertEqual(target_status_after_review_invalidation(comparison), Workflow.STATUS_REWORK)
+        self.assertEqual(target_status_after_review_invalidation(comparison), Workflow.STATUS_DRAFT)
 
     def test_comparison_with_null_entries_targets_draft(self):
         comparison = Comparison.objects.create(live_i18n={"en": {}}, live_entries=None)

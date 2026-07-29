@@ -51,13 +51,29 @@ class BasePublishableSitemap(Sitemap):
     model = None
 
     def items(self):
+        """
+        Beta 11.11D1: the shared ``visible_in_language()`` contract - the same
+        queryset the list, detail, related and search surfaces use - instead
+        of the stricter ``published()`` this base carried before.
+
+        ``UseCaseSitemap`` already made exactly this move in Beta 11.7 and
+        documented the reasoning; D1 promotes it to the base because the gap
+        it closes is not use-case-specific. The sitemap advertised only
+        ``status=published`` rows while the site itself served
+        ``visible_in_language()``, so any page kept online through an
+        editorial round by its live snapshot was publicly reachable but
+        absent from the sitemap - it dropped out and back in on every round.
+        D1 makes that mismatch the common case rather than the exception,
+        because every automatic invalidation now lands in ``draft``.
+
+        The advertised URL is unaffected: ``location()`` resolves through
+        ``get_absolute_url()``, which reads the live snapshot, so a row being
+        edited keeps advertising its *published* slug, never the new draft
+        one. ``visible_in_language()`` also carries the language gate, so a
+        language without a published snapshot is still never advertised.
+        """
         lang = get_language() or DEFAULT_LANG
-        return (
-            self.model.objects.published()
-            .translated(lang)
-            .language(lang)
-            .distinct()
-        )
+        return self.model.objects.visible_in_language(lang)
 
     def lastmod(self, obj):
         for field in (
@@ -84,24 +100,11 @@ class PromptSitemap(BasePublishableSitemap):
 
 
 class UseCaseSitemap(BasePublishableSitemap):
+    #: Beta 11.7's local ``items()`` override moved into
+    #: ``BasePublishableSitemap`` in Beta 11.11D1 - its reasoning was never
+    #: use-case-specific, and Guide, Prompt and Comparison need it too. See
+    #: the base method for the full contract.
     model = UseCase
-
-    def items(self):
-        """
-        Beta 11.7: the same visible_in_language() contract the use-case
-        list, detail, related and search surfaces use - published, or
-        review/approved with a live revision, and only in languages that
-        actually have a published snapshot.
-
-        Overridden here rather than in BasePublishableSitemap because that
-        base class is shared with Guide, Prompt and Comparison, whose status
-        rules are out of scope for this slice. The effect is that a use case
-        being revised keeps its sitemap entry (under its live slug) instead
-        of dropping out and back in on every editing round, and that a
-        language with no published revision is no longer advertised.
-        """
-        lang = get_language() or DEFAULT_LANG
-        return self.model.objects.visible_in_language(lang)
 
 
 class ComparisonSitemap(BasePublishableSitemap):

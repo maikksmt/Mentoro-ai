@@ -69,8 +69,12 @@ class UseCaseVisibleInLanguageTests(TestCase):
     def test_review_with_a_live_revision_is_included(self):
         # The Beta 11.7 contract: a previously published use case keeps its
         # public presence through a new review round.
+        # Beta 11.11D1: proof of a past publication is is_published plus a
+        # real live snapshot - see guides/tests/test_language_safety.py.
         u = make_usecase(slug="review-with-live", status=EditorialWorkflowMixin.STATUS_REVIEW,
-                          published_at=None, languages=("en",), last_published_revision_id=1)
+                          published_at=None, languages=("en",), last_published_revision_id=1,
+                          is_published=True,
+                          live_i18n={"en": {"title": "Live", "slug": "review-with-live-en"}})
         self.assertIn(u, UseCase.objects.visible_in_language("en"))
 
     def test_no_duplicates_from_translation_join(self):

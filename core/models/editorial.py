@@ -68,7 +68,7 @@ class EditorialQuerySet(TranslatableQuerySet):
         return self.filter(status=EditorialWorkflowMixin.STATUS_PUBLISHED).order_by("published_at")
 
     #: Editing states in which content that was already published keeps its
-    #: public presence, provided a live revision marker exists.
+    #: public presence, provided the publication itself is still provable.
     #:
     #: STATUS_REWORK joined this set in Beta 11.11B2A. Use cases already had it
     #: (Beta 11.7A) and comparisons too (Beta 11.9), each via a local override
@@ -78,36 +78,86 @@ class EditorialQuerySet(TranslatableQuerySet):
     #: round is a defect rather than a safety measure. Guide and Prompt were
     #: simply never migrated to that conclusion.
     #:
-    #: B2A forces the issue, because its fail-closed cleanup moves exactly the
-    #: affected rows: a guide or prompt sitting in review/approved with a valid
-    #: live snapshot becomes ``rework``, and without this entry it would have
-    #: dropped off every public surface (detail, list, search) even though its
-    #: published snapshot is intact and still authoritative.
+    #: STATUS_DRAFT joined in Beta 11.11D1. Until then it was excluded on the
+    #: grounds that "the FSM only reaches draft from archived via restore(),
+    #: i.e. after a withdrawal" - true at the time, but no longer: D1 makes
+    #: every automatic review/approval invalidation target ``draft`` (see
+    #: ``core.review_binding.target_status_after_review_invalidation``), so
+    #: draft is now the ordinary state of a published page whose next version
+    #: is being written. Excluding it would take exactly the pages offline
+    #: that B2A's rework detour existed to keep online. The archived ->
+    #: restore() path stays excluded on a different, stronger ground: the
+    #: publication proof below, since ``archive()`` clears ``is_published``.
     #:
     #: STATUS_ARCHIVED stays out - archiving *is* the deliberate public
-    #: withdrawal and outranks any snapshot still on record. STATUS_DRAFT stays
-    #: out too: the FSM only reaches it from archived via restore(), i.e. after
-    #: a withdrawal, and B2A routes rows without a provable live state there.
+    #: withdrawal and outranks any snapshot still on record.
     #:
     #: Spelled as literals rather than ``EditorialWorkflowMixin.STATUS_*``
     #: because that class is defined further down this module and a class-body
     #: reference would raise NameError at import time. The two stay in lockstep
     #: through an explicit contract test rather than through an import cycle.
-    LIVE_EDITING_STATUSES = ("review", "approved", "rework")
+    LIVE_EDITING_STATUSES = ("draft", "review", "approved", "rework")
+
+    def live_snapshot_language_q(self, language_code: str) -> Q:
+        """
+        Beta 11.11D1: the language half of the public contract, shared by
+        every editorial type so the three surfaces that used to spell it out
+        separately cannot drift apart.
+
+        Mirrors ``core/projections.py``'s three snapshot states exactly:
+
+        * ``live_i18n`` has an entry for ``language_code`` - published here;
+        * ``live_i18n`` is entirely empty/NULL - a record predating the
+          snapshot mechanism, kept on its pre-snapshot behaviour (only ever
+          reachable through the ``published`` branch of
+          :meth:`visible_on_site`, which is the one branch that does not
+          require a snapshot);
+        * ``live_i18n`` is non-empty but lacks this language - published in
+          other languages only, so there is no public revision *here*.
+          Excluded, with no cross-language fallback.
+        """
+        return (
+            Q(**{"live_i18n__has_key": language_code})
+            | Q(live_i18n={})
+            | Q(live_i18n__isnull=True)
+        )
 
     def visible_on_site(self):
         """
-        Public visibility filter:
-        includes published items and items in one of
-        :attr:`LIVE_EDITING_STATUSES` that already have a
-        last_published_at/live revision, preventing premature exposure.
+        Public visibility filter, language-agnostic half.
+
+        Beta 11.11D1 replaced the previous proof of a past publication -
+        ``last_published_revision_id IS NOT NULL`` - with ``is_published``
+        plus a non-empty live snapshot, for two independent reasons found in
+        the Beta 11.11C4J-R3 audit:
+
+        * ``last_published_revision_id`` is a *legacy* marker holding a
+          ``reversion.Version`` id, and only ``core.admin``'s publish action
+          ever writes it - the editorial-view publish path does not, so a
+          perfectly ordinary publish could leave a row that this filter would
+          later drop off the site the moment it was edited;
+        * it says nothing about whether the content was *withdrawn* again.
+
+        ``is_published`` is written by every type's ``on_after_publish()`` and
+        cleared by ``archive()`` (and by ``core.admin``'s archive/restore
+        actions), so it tracks "is this content currently meant to be public"
+        across both publish paths. Requiring a non-empty ``live_i18n`` on top
+        keeps the widened branch fail-closed: a row that claims to be
+        published but has nothing to serve stays offline rather than falling
+        back to unreviewed draft fields.
+
+        ``published`` itself is admitted unconditionally, exactly as before -
+        records predating the snapshot mechanism must keep working.
+        ``archived`` is admitted by neither branch.
         """
         return (
             self.filter(
                 Q(status=EditorialWorkflowMixin.STATUS_PUBLISHED)
-                | Q(
-                    status__in=self.LIVE_EDITING_STATUSES,
-                    last_published_revision_id__isnull=False,
+                | (
+                    Q(status__in=self.LIVE_EDITING_STATUSES)
+                    & Q(is_published=True)
+                    & ~Q(live_i18n={})
+                    & Q(live_i18n__isnull=False)
                 )
             ).order_by("updated_at")
         )
@@ -338,7 +388,22 @@ class EditorialWorkflowMixin(models.Model):
         """
         Soft-delete: marks content as archived without destroying history;
         excluded from public queries.
+
+        Beta 11.11D1 also clears :attr:`is_published` here. ``core.admin``'s
+        ``action_archive`` already did that alongside the transition, but the
+        editorial view calls this transition bare, so the two paths disagreed
+        on what "archived" means for the publication flag. That inconsistency
+        became load-bearing once D1 made ``is_published`` the proof of a past
+        publication in
+        :meth:`~core.models.editorial.EditorialQuerySet.visible_on_site`:
+        without this line, archiving through the editorial view and then
+        restoring would return the row to ``draft`` still carrying
+        ``is_published=True`` and its old snapshot, silently republishing
+        content that had been deliberately withdrawn. Archiving *is* the
+        withdrawal, so the flag belongs to the transition rather than to one
+        of its two callers.
         """
+        self.is_published = False
         if note:
             self.review_note = note
 
@@ -350,40 +415,37 @@ class EditorialWorkflowMixin(models.Model):
         if note:
             self.review_note = note
 
-    # --- Internal review-invalidation transitions (Beta 11.11B2B2) ---
+    # --- Internal review-invalidation transition (Beta 11.11B2B2/D1) ---
     #
-    # Not a public workflow action: no admin action calls these, no view calls
-    # these, and they take no `by`/`note` arguments the way the transitions
-    # above do. The sole caller is
-    # `core.review_binding.invalidate_editorial_review_state()`, which decides
-    # the target status on a freshly `select_for_update()`-locked row and then
-    # calls exactly one of the two methods below to make the FSM state change
-    # itself go through a real django-fsm transition rather than a bare
-    # attribute assignment (`status` is `protected=True`; direct assignment
-    # raises `AttributeError`).
+    # Not a public workflow action: no admin action calls it, no view calls
+    # it, and it takes no `by`/`note` arguments the way the transitions above
+    # do. The sole caller is
+    # `core.review_binding.invalidate_editorial_review_state()`, which runs it
+    # on a freshly `select_for_update()`-locked row so the FSM state change
+    # goes through a real django-fsm transition rather than a bare attribute
+    # assignment (`status` is `protected=True`; direct assignment raises
+    # `AttributeError`).
     #
-    # Distinct methods, not one method with a wider source list, because
-    # `request_rework` above already defines a `STATUS_REVIEW -> STATUS_REWORK`
-    # transition; django-fsm tracks transitions per decorated *method*
-    # (`func._django_fsm`), so this being a separate method - not an edit to
-    # `request_rework` - is what avoids colliding with it.
+    # Beta 11.11D1 removed its sibling `_invalidate_review_to_rework`. That
+    # method existed solely to route an automatic invalidation to `rework`
+    # when a live snapshot was present, which D1 abolished: `rework` is now
+    # produced exclusively by the explicit `request_rework` transition above,
+    # and staying public is decided by `EditorialQuerySet.visible_on_site()`
+    # instead. With B2B2 as its only caller, dropping the transition also
+    # removes the last runtime path that could reach `rework` automatically -
+    # the property `prompts/tests/test_d1_draft_and_visibility.py` asserts.
+    # The historical Beta 11.11B2A data migrations that once set `rework` on
+    # existing rows are untouched; they carry their own frozen logic.
     #
-    # Deliberately do nothing beyond the state change: no metadata clearing, no
-    # `save()`, no revision, no other side effect. Clearing
+    # Deliberately does nothing beyond the state change: no metadata clearing,
+    # no `save()`, no revision, no other side effect. Clearing
     # `review_revision`/`approved_revision`/`review_payload_fingerprint`/
     # `reviewed_by`/`reviewed_at`/`submitted_for_review_at` and persisting the
-    # result happens once, in the caller, after whichever of these two ran -
-    # keeping "what changes" in exactly one place.
+    # result happens once, in the caller - keeping "what changes" in exactly
+    # one place.
 
     @transition(field=status, source=[STATUS_REVIEW, STATUS_APPROVED], target=STATUS_DRAFT)
     def _invalidate_review_to_draft(self):
-        """FSM-only state change for a review/approved row with no provable
-        live snapshot. See the section docstring above."""
-        pass
-
-    @transition(field=status, source=[STATUS_REVIEW, STATUS_APPROVED], target=STATUS_REWORK)
-    def _invalidate_review_to_rework(self):
-        """FSM-only state change for a review/approved row that has a
-        provable live snapshot to fall back to. See the section docstring
-        above."""
+        """FSM-only state change for an automatically invalidated
+        review/approved row. See the section docstring above."""
         pass
