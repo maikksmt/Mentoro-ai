@@ -27,6 +27,7 @@ the same "direct call for an edge case the real form can't reach" convention
 ``TagsAndToolsTests``/``MissingBaselineFailClosedTests`` already use.
 """
 import itertools
+import json
 from unittest import mock
 
 from django.contrib import admin as django_admin
@@ -40,7 +41,11 @@ import reversion
 from reversion.models import Revision, Version
 
 from core.models.editorial import EditorialWorkflowMixin as Workflow
-from core.review_binding import invalidate_editorial_review_state
+from core.review_binding import (
+    fingerprint_review_payload,
+    invalidate_editorial_review_state,
+    validate_review_binding,
+)
 from prompts.admin import (
     PromptAdmin,
     PromptRevisionGuardResult,
@@ -51,6 +56,7 @@ from prompts.admin import (
 from prompts.models import Prompt
 from prompts.review_approval import approve_prompt_review
 from prompts.review_edit_guard import capture_prompt_review_edit_baseline
+from prompts.review_payload import build_prompt_review_payload
 from prompts.review_submission import submit_prompt_for_review
 
 User = get_user_model()
@@ -411,7 +417,11 @@ class RevertGuardTestCase(TestCase):
 
 
 class RevertPayloadChangeTests(RevertGuardTestCase):
-    def test_revert_to_review_snapshot_invalidates_approved_to_draft(self):
+    def test_revert_to_review_snapshot_restores_the_review_state(self):
+        """Beta 11.11D3C. Reverting an ``approved`` row onto its own earlier
+        *submit* snapshot restores ``review`` and rebinds it to exactly that
+        snapshot's revision. Until D3C this landed in ``draft``, purely
+        because a submit revision cannot serialize its own id."""
         prompt, stage_a_version, _approved_a, _review_b, _approved_b, current = self.build_two_generation_history()
         self.assertEqual(current.live_i18n, {})
 
@@ -422,14 +432,13 @@ class RevertPayloadChangeTests(RevertGuardTestCase):
         self.assertEqual(resp.status_code, 302)
 
         reloaded = refetch(prompt)
-        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
-        self.assertIsNone(reloaded.review_revision_id)
+        self.assertEqual(reloaded.status, Workflow.STATUS_REVIEW)
+        self.assertEqual(reloaded.review_revision_id, stage_a_version.revision_id)
         self.assertIsNone(reloaded.approved_revision_id)
-        self.assertEqual(reloaded.review_payload_fingerprint, "")
-        self.assertIsNone(reloaded.reviewed_by_id)
+        self.assertEqual(len(reloaded.review_payload_fingerprint), 64)
         self.assertEqual(reloaded.translations.get(language_code="en").title, "Content A")
 
-    def test_revert_to_review_snapshot_invalidates_to_draft_with_live_snapshot(self):
+    def test_revert_to_review_snapshot_restores_review_with_a_live_snapshot(self):
         """
         ``live_i18n`` is a plain local field on Prompt, not excluded from
         reversion's follow-graph - a revert restores it to whatever it was
@@ -455,14 +464,23 @@ class RevertPayloadChangeTests(RevertGuardTestCase):
         )
         self.assertEqual(resp.status_code, 302)
         reloaded = refetch(prompt)
-        # Beta 11.11D1: an automatic invalidation targets draft even when a
-        # live snapshot exists - the snapshot keeps the prompt publicly
-        # visible instead of steering the workflow status.
-        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
-        self.assertIsNone(reloaded.review_revision_id)
+        # Beta 11.11D3C: the restored live snapshot does not steer the
+        # workflow status either way - the selected revision does. Its
+        # ``review`` state is provable, so it is restored and rebound.
+        self.assertEqual(reloaded.status, Workflow.STATUS_REVIEW)
+        self.assertEqual(reloaded.review_revision_id, stage_a_version.revision_id)
+        self.assertEqual(reloaded.live_i18n, {"en": {"title": "Live"}})
         self.assertEqual(reloaded.translations.get(language_code="en").title, "Content A")
 
-    def test_revert_to_approved_snapshot_invalidates_to_draft(self):
+    def test_revert_to_approved_snapshot_preserves_the_approved_state(self):
+        """Beta 11.11D3C. An approve snapshot carries a genuinely provable
+        binding (C3A binds ``approved_revision`` *before* its own save inside
+        the revision), and a pure rollback restores content whose fingerprint
+        still matches it - so the restored ``approved`` state stands.
+
+        Until D3C this landed in ``draft``, because C4J compared the restored
+        payload against the pre-revert baseline and read "differs from the
+        state the user just discarded" as an edit."""
         prompt, _stage_a, approved_a_version, _review_b, _approved_b, current = self.build_two_generation_history()
 
         resp = self.client.post(
@@ -471,11 +489,20 @@ class RevertPayloadChangeTests(RevertGuardTestCase):
         )
         self.assertEqual(resp.status_code, 302)
         reloaded = refetch(prompt)
-        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
-        self.assertIsNone(reloaded.approved_revision_id)
-        self.assertIsNone(reloaded.review_revision_id)
+        self.assertEqual(reloaded.status, Workflow.STATUS_APPROVED)
+        self.assertIsNotNone(reloaded.review_revision_id)
+        self.assertEqual(reloaded.approved_revision_id, reloaded.review_revision_id)
+        self.assertEqual(len(reloaded.review_payload_fingerprint), 64)
+        # ... and it is generation A's binding, not the one the row carried.
+        self.assertNotEqual(reloaded.review_revision_id, current.review_revision_id)
+        self.assertEqual(reloaded.translations.get(language_code="en").title, "Content A")
 
-    def test_revert_produces_exactly_one_b2b2_invalidation(self):
+    def test_a_provable_revert_invokes_no_b2b2_invalidation_at_all(self):
+        """Beta 11.11D3C: a revert runs neither C4G's baseline compare nor
+        B2B2 when the restored binding is provably reconstructable - there is
+        nothing to invalidate. The unprovable cases still do; see
+        :class:`RevertReviewBindingFailClosedTests` and
+        ``test_revert_with_stale_fingerprint_invalidates_via_real_post``."""
         prompt, stage_a_version, _approved_a, _review_b, _approved_b, _current = self.build_two_generation_history()
         with mock.patch(
             "prompts.admin.invalidate_editorial_review_state",
@@ -488,10 +515,9 @@ class RevertPayloadChangeTests(RevertGuardTestCase):
                 revision_url(prompt, stage_a_version),
                 self.confirm_payload(prompt, title="Content A"),
             )
-        # The genuine-change path goes through Beta 11.11C4G's own module,
-        # not the direct admin-level helper - exactly one call in total.
         self.assertEqual(invalidate.call_count, 0)
-        self.assertEqual(invalidate_via_guard.call_count, 1)
+        self.assertEqual(invalidate_via_guard.call_count, 0)
+        self.assertEqual(refetch(prompt).status, Workflow.STATUS_REVIEW)
 
 
 # ======================================================================
@@ -505,14 +531,15 @@ class RevertFieldMatrixTests(RevertGuardTestCase):
     Each test here isolates exactly one C1-v2 payload field, reverts a real
     admin-form POST back to a genuinely captured, genuinely approved
     historical version carrying that field's "A" value, and proves: the
-    field is restored, the payload is recognised as changed, the binding is
-    invalidated, the correct target status is reached, and exactly one
-    persistent revision exists afterwards. Title and body already have
+    field is restored, the approved state stored in that revision is
+    preserved together with its binding (Beta 11.11D3C - before that the
+    binding was invalidated and the row landed in ``draft``), and exactly
+    one persistent revision exists afterwards. Title and body already have
     dedicated coverage in ``RevertPayloadChangeTests``/``build_two_generation_history()``
     and are intentionally not repeated here.
     """
 
-    def test_revert_restores_intro_and_invalidates(self):
+    def test_revert_restores_intro_and_preserves_the_approved_state(self):
         prompt, version_a, current = self.build_field_variant_history(
             field="intro", value_a="Intro A", value_b="Intro B",
         )
@@ -526,14 +553,14 @@ class RevertFieldMatrixTests(RevertGuardTestCase):
 
         reloaded = refetch(prompt)
         self.assertEqual(reloaded.translations.get(language_code="en").intro, "Intro A")
-        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
-        self.assertIsNone(reloaded.review_revision_id)
-        self.assertIsNone(reloaded.approved_revision_id)
-        self.assertEqual(reloaded.review_payload_fingerprint, "")
+        self.assertEqual(reloaded.status, Workflow.STATUS_APPROVED)
+        self.assertIsNotNone(reloaded.review_revision_id)
+        self.assertEqual(reloaded.approved_revision_id, reloaded.review_revision_id)
+        self.assertEqual(len(reloaded.review_payload_fingerprint), 64)
         self.assertEqual(Revision.objects.count(), revisions_before + 1)
         self.assertNotEqual(current.review_revision_id, reloaded.review_revision_id)
 
-    def test_revert_restores_outro_and_invalidates(self):
+    def test_revert_restores_outro_and_preserves_the_approved_state(self):
         prompt, version_a, current = self.build_field_variant_history(
             field="outro", value_a="Outro A", value_b="Outro B",
         )
@@ -547,13 +574,14 @@ class RevertFieldMatrixTests(RevertGuardTestCase):
 
         reloaded = refetch(prompt)
         self.assertEqual(reloaded.translations.get(language_code="en").outro, "Outro A")
-        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
-        self.assertIsNone(reloaded.review_revision_id)
-        self.assertEqual(reloaded.review_payload_fingerprint, "")
+        self.assertEqual(reloaded.status, Workflow.STATUS_APPROVED)
+        self.assertIsNotNone(reloaded.review_revision_id)
+        self.assertEqual(reloaded.approved_revision_id, reloaded.review_revision_id)
+        self.assertEqual(len(reloaded.review_payload_fingerprint), 64)
         self.assertEqual(Revision.objects.count(), revisions_before + 1)
         self.assertNotEqual(current.review_revision_id, reloaded.review_revision_id)
 
-    def test_revert_restores_slug_and_invalidates(self):
+    def test_revert_restores_slug_and_preserves_the_approved_state(self):
         slug_a = f"c4j-field-slug-a-{next(_slug_counter)}"
         slug_b = f"c4j-field-slug-b-{next(_slug_counter)}"
         prompt, version_a, current = self.build_field_variant_history(
@@ -569,13 +597,14 @@ class RevertFieldMatrixTests(RevertGuardTestCase):
 
         reloaded = refetch(prompt)
         self.assertEqual(reloaded.translations.get(language_code="en").slug, slug_a)
-        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
-        self.assertIsNone(reloaded.review_revision_id)
-        self.assertEqual(reloaded.review_payload_fingerprint, "")
+        self.assertEqual(reloaded.status, Workflow.STATUS_APPROVED)
+        self.assertIsNotNone(reloaded.review_revision_id)
+        self.assertEqual(reloaded.approved_revision_id, reloaded.review_revision_id)
+        self.assertEqual(len(reloaded.review_payload_fingerprint), 64)
         self.assertEqual(Revision.objects.count(), revisions_before + 1)
         self.assertNotEqual(current.review_revision_id, reloaded.review_revision_id)
 
-    def test_revert_restores_public_slug_and_invalidates(self):
+    def test_revert_restores_public_slug_and_preserves_the_approved_state(self):
         """
         Abnahme-Korrekturrunde 2, Blocker 1: a real ``VersionAdmin`` revert
         POST must restore the *historical* ``public_slug`` value exactly, and
@@ -606,13 +635,14 @@ class RevertFieldMatrixTests(RevertGuardTestCase):
         self.assertEqual(
             reloaded.translations.get(language_code="en").public_slug, public_slug_a
         )
-        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
-        self.assertIsNone(reloaded.review_revision_id)
-        self.assertEqual(reloaded.review_payload_fingerprint, "")
+        self.assertEqual(reloaded.status, Workflow.STATUS_APPROVED)
+        self.assertIsNotNone(reloaded.review_revision_id)
+        self.assertEqual(reloaded.approved_revision_id, reloaded.review_revision_id)
+        self.assertEqual(len(reloaded.review_payload_fingerprint), 64)
         self.assertEqual(Revision.objects.count(), revisions_before + 1)
         self.assertNotEqual(current.review_revision_id, reloaded.review_revision_id)
 
-    def test_revert_restores_author_id_and_invalidates(self):
+    def test_revert_restores_author_id_and_preserves_the_approved_state(self):
         prompt, version_a, current = self.build_author_variant_history(
             author_a=self.author, author_b=self.other_author,
         )
@@ -626,9 +656,10 @@ class RevertFieldMatrixTests(RevertGuardTestCase):
 
         reloaded = refetch(prompt)
         self.assertEqual(reloaded.author_id, self.author.pk)
-        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
-        self.assertIsNone(reloaded.review_revision_id)
-        self.assertEqual(reloaded.review_payload_fingerprint, "")
+        self.assertEqual(reloaded.status, Workflow.STATUS_APPROVED)
+        self.assertIsNotNone(reloaded.review_revision_id)
+        self.assertEqual(reloaded.approved_revision_id, reloaded.review_revision_id)
+        self.assertEqual(len(reloaded.review_payload_fingerprint), 64)
         self.assertEqual(Revision.objects.count(), revisions_before + 1)
         self.assertNotEqual(current.review_revision_id, reloaded.review_revision_id)
 
@@ -644,11 +675,13 @@ class RevertStatusMatrixTests(RevertGuardTestCase):
     ``draft``/``rework``/``published``/``archived`` are not in B2B2's own
     ``_INVALIDATABLE_STATUSES`` (only ``review``/``approved`` are) - a revert
     landing on one of them, even with genuinely different content, must
-    leave the status exactly as reversion restored it. Beta 11.11C4G's
-    compare (``invalidate_prompt_review_if_payload_changed()``) is still
-    called unconditionally whenever the payload differs - it is B2B2's own
-    existing, pre-existing no-op contract that leaves the row untouched, not
-    a new status rule C4J invents for these four values.
+    leave the status exactly as reversion restored it.
+
+    Beta 11.11D3C: the route there changed. C4G's baseline compare is no
+    longer run for a revert at all; the admin-level restored-binding check
+    returns early for any non-``review``/``approved`` status, so B2B2 is
+    never reached. The observable contract for these four values is
+    unchanged - the status is whatever the selected revision stored.
     """
 
     def test_revert_to_draft_snapshot_with_payload_change_stays_draft(self):
@@ -669,9 +702,11 @@ class RevertStatusMatrixTests(RevertGuardTestCase):
                 self.confirm_payload(prompt, title="Content A"),
             )
         self.assertEqual(resp.status_code, 302)
-        # C4G's compare is still called (payload genuinely differs) - it is
-        # B2B2's own no-op for a non-invalidatable status, not a skipped call.
-        self.assertEqual(invalidate.call_count, 1)
+        # Beta 11.11D3C: a revert consults the *restored* binding, and the
+        # restored status is not one B2B2 would ever act on - so B2B2 is not
+        # called at all any more. The outcome is identical (draft stays
+        # draft); only the pointless call is gone.
+        self.assertEqual(invalidate.call_count, 0)
 
         reloaded = refetch(prompt)
         self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
@@ -883,17 +918,19 @@ class RevertNoPayloadChangeTests(RevertGuardTestCase):
     # (Abnahme-Korrekturrunde Blocker 4)
     # ------------------------------------------------------------------
 
-    def test_revert_to_review_snapshot_with_identical_payload_invalidates_via_real_post(self):
+    def test_revert_to_review_snapshot_with_identical_payload_rebinds_via_real_post(self):
         """
-        The mandatory Blocker 4 case, reached without any manual binding
-        tampering at all: Beta 11.11C2A deliberately never binds
-        ``review_revision`` inside the revision it captures (see
-        ``build_two_generation_history()``'s own docstring - "the root
-        version in this revision is deliberately not self-referential") -
-        so ``review_b_version``'s own restored ``review_revision`` is
-        genuinely ``None``. Content is identical to the current live payload
-        throughout (both "Content B"), so the payload compare alone would
-        report "unchanged"; the structural binding check is what invalidates.
+        Beta 11.11C2A deliberately never binds ``review_revision`` inside the
+        revision it captures (see ``build_two_generation_history()``'s own
+        docstring - "the root version in this revision is deliberately not
+        self-referential"), so ``review_b_version``'s own restored
+        ``review_revision`` is genuinely ``None``.
+
+        Beta 11.11D3C: that is exactly the gap the reconstruction closes. The
+        content here is identical to the current live payload throughout
+        (both "Content B"), the selected revision provably contains the root,
+        and the restored fingerprint still matches - so the binding is
+        reconstructed onto the selected revision instead of being cleared.
         """
         prompt, _stage_a, _approved_a, review_b_version, _approved_b, current = (
             self.build_two_generation_history()
@@ -907,10 +944,10 @@ class RevertNoPayloadChangeTests(RevertGuardTestCase):
         self.assertEqual(resp.status_code, 302)
 
         reloaded = refetch(prompt)
-        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
-        self.assertIsNone(reloaded.review_revision_id)
+        self.assertEqual(reloaded.status, Workflow.STATUS_REVIEW)
+        self.assertEqual(reloaded.review_revision_id, review_b_version.revision_id)
         self.assertIsNone(reloaded.approved_revision_id)
-        self.assertEqual(reloaded.review_payload_fingerprint, "")
+        self.assertEqual(len(reloaded.review_payload_fingerprint), 64)
         # the payload itself never changed - content stays "Content B"
         self.assertEqual(reloaded.translations.get(language_code="en").title, "Content B")
         self.assertEqual(Revision.objects.count(), revisions_before + 1)
@@ -1396,12 +1433,17 @@ class ErrorAndRollbackTests(RevertGuardTestCase):
         )
         self.assertEqual(Revision.objects.count(), revisions_before)
 
-    def test_compare_failure_rolls_back_everything(self):
+    def test_binding_evaluation_failure_rolls_back_everything(self):
+        """Beta 11.11D3C: the post-revert binding evaluation now starts with
+        the reconstruction attempt, so that is where a hard failure has to be
+        injected. Whichever of the two evaluators blows up, the whole revert
+        transaction must roll back and leave no new revision behind."""
         prompt, stage_a_version, _approved_a, _review_b, _approved_b, current = self.build_two_generation_history()
         revisions_before = Revision.objects.count()
 
-        with mock.patch(
-            "prompts.admin.invalidate_prompt_review_if_payload_changed",
+        with mock.patch.object(
+            PromptAdmin,
+            "_restore_reverted_prompt_review_binding_if_provable",
             side_effect=RuntimeError("compare boom"),
         ):
             with self.assertRaises(RuntimeError):
@@ -1487,8 +1529,9 @@ class ErrorAndRollbackTests(RevertGuardTestCase):
         self.approve(refetch(prompt), actor=self.editor)
         revisions_before = Revision.objects.count()
 
-        with mock.patch(
-            "prompts.admin.invalidate_prompt_review_if_payload_changed",
+        with mock.patch.object(
+            PromptAdmin,
+            "_invalidate_reverted_prompt_if_binding_invalid",
             side_effect=RuntimeError("compare boom"),
         ):
             with self.assertRaises(RuntimeError):
@@ -1552,7 +1595,16 @@ class RequestStateLifecycleTests(RevertGuardTestCase):
     def test_state_dataclass_carries_no_model_or_user_instances(self):
         fields = _PromptReversionGuardState.__dataclass_fields__
         self.assertEqual(
-            set(fields), {"source", "prompt_id", "database_alias", "baseline"}
+            set(fields),
+            # Beta 11.11D3C added ``target_revision_id`` - a plain int id, not
+            # a Revision instance, so the "no model instances" contract holds.
+            {
+                "source",
+                "prompt_id",
+                "database_alias",
+                "baseline",
+                "target_revision_id",
+            },
         )
         self.assertTrue(hasattr(_PromptReversionGuardState, "__dataclass_fields__"))
         # frozen + slots, mirroring PromptReviewEditBaseline's own contract
@@ -1618,7 +1670,7 @@ class QueryAndLockContractTests(RevertGuardTestCase):
 
 
 class PermissionsTests(RevertGuardTestCase):
-    def test_author_can_revert_their_own_prompt_and_it_invalidates(self):
+    def test_author_can_revert_their_own_prompt(self):
         prompt = self.make_prompt(author=self.author, title="Content A")
         self.submit(prompt, actor=self.editor)
         stage_a_version = self.version_for(prompt, self.latest_revision())
@@ -1633,7 +1685,10 @@ class PermissionsTests(RevertGuardTestCase):
             self.confirm_payload(prompt, author=self.author, title="Content A"),
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(refetch(prompt).status, Workflow.STATUS_DRAFT)
+        # Beta 11.11D3C: the selected submit snapshot is provable, so the
+        # revert restores its ``review`` state. Permissions are unchanged -
+        # this test is about *who* may revert, not about the outcome status.
+        self.assertEqual(refetch(prompt).status, Workflow.STATUS_REVIEW)
 
     def test_author_cannot_revert_someone_elses_prompt(self):
         prompt, stage_a_version, _approved_a, _review_b, _approved_b, current = self.build_two_generation_history(
@@ -1658,7 +1713,7 @@ class PermissionsTests(RevertGuardTestCase):
             self.confirm_payload(prompt, author=self.author, title="Content A"),
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(refetch(prompt).status, Workflow.STATUS_DRAFT)
+        self.assertEqual(refetch(prompt).status, Workflow.STATUS_REVIEW)
 
     def test_staff_without_editorial_role_cannot_revert(self):
         plain_staff = User.objects.create_user("c4j-plain-staff", password="pw", is_staff=True)
@@ -1824,3 +1879,228 @@ class StaticSafetyTests(TestCase):
         self.assertNotIn("construct_instance", source)
         # public_slug is only ever read (preserved), never recomputed from slug.
         self.assertNotIn('public_slug", row["slug"]', source)
+
+
+# ======================================================================
+# Beta 11.11D3C: reconstructing a provable review binding after a revert
+# ======================================================================
+
+
+class RevertReviewBindingReconstructionTests(RevertGuardTestCase):
+    """
+    A submit revision cannot store its own ``review_revision``: while the
+    revision is being written its id does not exist yet, so
+    ``prompts.review_submission`` binds it in a second, targeted save *after*
+    the reversion context closes (that module's steps 22-23). The serialized
+    snapshot therefore carries ``status="review"`` and the real canonical
+    fingerprint, but ``review_revision = None``.
+
+    Beta 11.11D3C: that purely technical gap must not degrade an otherwise
+    provable exact rollback to ``draft``. The selected revision *is* the
+    submit revision, it provably contains the prompt's root version, and the
+    restored fingerprint still matches the restored content - so the binding
+    is reconstructed and the historical ``review`` state stands. Anything that
+    cannot be proven stays fail-closed (see
+    :class:`RevertReviewBindingFailClosedTests`).
+    """
+
+    def build_submit_revision(self, *, title="Content A"):
+        prompt = self.make_prompt(author=self.editor, title=title)
+        self.submit(prompt, actor=self.editor)
+        submit_revision = self.latest_revision()
+        return prompt, submit_revision, self.version_for(prompt, submit_revision)
+
+    def serialized(self, version):
+        return json.loads(version.serialized_data)[0]["fields"]
+
+    def test_a_submit_revision_serializes_review_without_its_own_binding(self):
+        prompt, submit_revision, version_a = self.build_submit_revision()
+        fields = self.serialized(version_a)
+
+        self.assertEqual(fields["status"], Workflow.STATUS_REVIEW)
+        self.assertIsNone(fields["review_revision"])
+        self.assertIsNone(fields["approved_revision"])
+        self.assertEqual(len(fields["review_payload_fingerprint"]), 64)
+        # The live row was bound immediately afterwards, outside the revision.
+        self.assertEqual(refetch(prompt).review_revision_id, submit_revision.pk)
+
+    def test_revert_to_a_submit_revision_restores_the_review_state(self):
+        prompt, submit_revision, version_a = self.build_submit_revision()
+        self.approve(refetch(prompt), actor=self.editor)
+        self.edit_via_admin(refetch(prompt), title="Content B")
+        self.assertEqual(refetch(prompt).status, Workflow.STATUS_DRAFT)
+        revisions_before = Revision.objects.count()
+
+        resp = self.client.post(
+            revision_url(prompt, version_a),
+            self.confirm_payload(prompt, title="Content A"),
+        )
+        self.assertEqual(resp.status_code, 302)
+
+        reloaded = refetch(prompt)
+        self.assertEqual(reloaded.status, Workflow.STATUS_REVIEW)
+        self.assertEqual(reloaded.review_revision_id, submit_revision.pk)
+        self.assertIsNone(reloaded.approved_revision_id)
+        self.assertEqual(reloaded.translations.get(language_code="en").title, "Content A")
+        # Exactly one new audit revision - the reconstruction save happens
+        # inside VersionAdmin's own already-open revision block.
+        self.assertEqual(Revision.objects.count(), revisions_before + 1)
+
+    def test_the_reconstructed_binding_validates_centrally(self):
+        prompt, _submit_revision, version_a = self.build_submit_revision()
+        self.edit_via_admin(refetch(prompt), title="Content B")
+
+        self.client.post(
+            revision_url(prompt, version_a),
+            self.confirm_payload(prompt, title="Content A"),
+        )
+
+        reloaded = refetch(prompt)
+        self.assertTrue(validate_review_binding(reloaded).is_valid)
+        self.assertEqual(
+            reloaded.review_payload_fingerprint,
+            fingerprint_review_payload(build_prompt_review_payload(reloaded)),
+        )
+
+    def test_an_extra_edit_in_the_revert_form_is_fail_closed(self):
+        prompt, _submit_revision, version_a = self.build_submit_revision()
+        self.edit_via_admin(refetch(prompt), title="Content B")
+
+        resp = self.client.post(
+            revision_url(prompt, version_a),
+            self.confirm_payload(prompt, title="Content A", intro="Edited in the form"),
+        )
+        self.assertEqual(resp.status_code, 302)
+
+        reloaded = refetch(prompt)
+        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
+        self.assertIsNone(reloaded.review_revision_id)
+        self.assertIsNone(reloaded.approved_revision_id)
+        self.assertEqual(reloaded.review_payload_fingerprint, "")
+        # The edited value is still saved, per the ordinary form contract.
+        self.assertEqual(
+            reloaded.translations.get(language_code="en").intro, "Edited in the form"
+        )
+
+    def test_a_normal_edit_after_the_reconstruction_still_invalidates(self):
+        prompt, _submit_revision, version_a = self.build_submit_revision()
+        self.edit_via_admin(refetch(prompt), title="Content B")
+        self.client.post(
+            revision_url(prompt, version_a),
+            self.confirm_payload(prompt, title="Content A"),
+        )
+        self.assertEqual(refetch(prompt).status, Workflow.STATUS_REVIEW)
+
+        self.edit_via_admin(refetch(prompt), title="Content C")
+
+        reloaded = refetch(prompt)
+        self.assertEqual(reloaded.status, Workflow.STATUS_DRAFT)
+        self.assertIsNone(reloaded.review_revision_id)
+        self.assertEqual(reloaded.translations.get(language_code="en").title, "Content C")
+
+    def test_an_approved_target_keeps_its_own_binding_not_the_selected_revision(self):
+        """The reconstruction is scoped to ``review``. An approved rollback
+        keeps the binding the revision itself stored - the *submit* revision -
+        never the selected (approve) revision."""
+        prompt = self.make_prompt(author=self.editor, title="Content A")
+        self.submit(prompt, actor=self.editor)
+        submit_revision = self.latest_revision()
+        self.approve(refetch(prompt), actor=self.editor)
+        approve_revision = self.latest_revision()
+        version_a = self.version_for(prompt, approve_revision)
+        self.edit_via_admin(refetch(prompt), title="Content B")
+
+        self.client.post(
+            revision_url(prompt, version_a),
+            self.confirm_payload(prompt, title="Content A"),
+        )
+
+        reloaded = refetch(prompt)
+        self.assertEqual(reloaded.status, Workflow.STATUS_APPROVED)
+        self.assertEqual(reloaded.review_revision_id, submit_revision.pk)
+        self.assertEqual(reloaded.approved_revision_id, submit_revision.pk)
+        self.assertNotEqual(reloaded.review_revision_id, approve_revision.pk)
+
+
+class RevertReviewBindingFailClosedTests(RevertGuardTestCase):
+    """
+    The reconstruction may only ever run on proof. Each case below removes
+    exactly one proof and must fall back to the existing fail-closed
+    draft/invalidation contract - never a partial or invented binding.
+
+    Anomalies a real submit path cannot produce (an empty or malformed stored
+    fingerprint, a contradictory approval binding, a revision that does not
+    contain this prompt) are injected with a targeted ``QuerySet.update()`` or
+    a foreign revision id and the helper is called directly - the same "direct
+    call for an edge case the real form cannot reach" convention the rest of
+    this module already uses. No database constraint is bypassed.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.admin = django_admin.site._registry[Prompt]
+
+    def build_reverted_review_row(self):
+        """A prompt genuinely in ``review`` plus its own submit revision, with
+        the binding nulled out exactly as ``revert()`` restores it."""
+        prompt = self.make_prompt(author=self.editor, title="Content A")
+        self.submit(prompt, actor=self.editor)
+        submit_revision = self.latest_revision()
+        Prompt.objects.filter(pk=prompt.pk).update(review_revision=None)
+        return refetch(prompt), submit_revision
+
+    def restore(self, prompt, revision_id):
+        return self.admin._restore_reverted_prompt_review_binding_if_provable(
+            prompt, revision_id=revision_id, using="default"
+        )
+
+    def test_the_provable_case_reconstructs(self):
+        prompt, submit_revision = self.build_reverted_review_row()
+        self.assertTrue(self.restore(prompt, submit_revision.pk))
+        self.assertEqual(refetch(prompt).review_revision_id, submit_revision.pk)
+
+    def test_a_missing_fingerprint_is_not_provable(self):
+        prompt, submit_revision = self.build_reverted_review_row()
+        Prompt.objects.filter(pk=prompt.pk).update(review_payload_fingerprint="")
+        self.assertFalse(self.restore(refetch(prompt), submit_revision.pk))
+        self.assertIsNone(refetch(prompt).review_revision_id)
+
+    def test_a_malformed_fingerprint_is_not_provable(self):
+        prompt, submit_revision = self.build_reverted_review_row()
+        Prompt.objects.filter(pk=prompt.pk).update(
+            review_payload_fingerprint="NOT-A-SHA256"
+        )
+        self.assertFalse(self.restore(refetch(prompt), submit_revision.pk))
+        self.assertIsNone(refetch(prompt).review_revision_id)
+
+    def test_a_stale_fingerprint_is_not_provable(self):
+        prompt, submit_revision = self.build_reverted_review_row()
+        Prompt.objects.filter(pk=prompt.pk).update(review_payload_fingerprint="0" * 64)
+        self.assertFalse(self.restore(refetch(prompt), submit_revision.pk))
+        self.assertIsNone(refetch(prompt).review_revision_id)
+
+    def test_a_revision_without_this_prompt_is_not_provable(self):
+        prompt, _submit_revision = self.build_reverted_review_row()
+        other = self.make_prompt(author=self.editor, title="Other")
+        self.submit(other, actor=self.editor)
+        foreign_revision = self.latest_revision()
+
+        self.assertFalse(self.restore(refetch(prompt), foreign_revision.pk))
+        self.assertIsNone(refetch(prompt).review_revision_id)
+
+    def test_a_missing_revision_id_is_not_provable(self):
+        prompt, _submit_revision = self.build_reverted_review_row()
+        self.assertFalse(self.restore(refetch(prompt), None))
+        self.assertIsNone(refetch(prompt).review_revision_id)
+
+    def test_a_contradictory_approval_binding_is_not_provable(self):
+        prompt, submit_revision = self.build_reverted_review_row()
+        Prompt.objects.filter(pk=prompt.pk).update(approved_revision=submit_revision)
+        self.assertFalse(self.restore(refetch(prompt), submit_revision.pk))
+        self.assertIsNone(refetch(prompt).review_revision_id)
+
+    def test_a_non_review_status_is_never_reconstructed(self):
+        prompt, submit_revision = self.build_reverted_review_row()
+        Prompt.objects.filter(pk=prompt.pk).update(review_revision=submit_revision)
+        self.approve(refetch(prompt), actor=self.editor)
+        self.assertFalse(self.restore(refetch(prompt), submit_revision.pk))

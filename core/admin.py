@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 import reversion
 from django.conf import settings
 from django.contrib import admin, messages
@@ -145,10 +147,66 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
 
     actions = workflow_actions
 
+    #: Beta 11.11D3C: the rollback form gets an explicit warning that the
+    #: current editing state - later translations, sections and entries
+    #: included - is replaced and that the workflow/publication status is
+    #: restored too. Only ``revision_form_template`` is redirected;
+    #: ``recover_form_template`` stays at reversion's default because that
+    #: wording would be wrong for a deleted object (nothing is replaced and
+    #: no later work is removed).
+    revision_form_template = "admin/editorial/revision_form.html"
+
+    #: Beta 11.11D3C: request-local marker for "this request is inside
+    #: django-reversion's revert/recover form". Set for the duration of the
+    #: reversion view only, removed in ``finally``. Never a module global,
+    #: never a ``ContextVar`` or thread-local, never persisted.
+    _REVERSION_FORM_REQUEST_ATTR = "_mentoro_editorial_reversion_form"
+
     # ---- internal helper ----
 
     def _get_transition(self, obj, name: str):
         return getattr(obj, name, None)
+
+    # ---- Beta 11.11D3C: reversion revert/recover form context ----
+
+    def _is_reversion_form_request(self, request) -> bool:
+        return bool(getattr(request, self._REVERSION_FORM_REQUEST_ATTR, False))
+
+    @contextmanager
+    def _reversion_form_request(self, request):
+        setattr(request, self._REVERSION_FORM_REQUEST_ATTR, True)
+        try:
+            yield
+        finally:
+            try:
+                delattr(request, self._REVERSION_FORM_REQUEST_ATTR)
+            except AttributeError:  # pragma: no cover - defensive only
+                pass
+
+    def revision_view(self, request, object_id, version_id, extra_context=None):
+        """
+        Beta 11.11D3C: mark the request while django-reversion restores and
+        re-saves the selected revision.
+
+        ``VersionAdmin._reversion_revisionform_view()`` runs
+        ``version.revision.revert(delete=True)`` and *then* the ordinary
+        ``changeform_view()``. Without the marker, the shared auto-review
+        below sees a ``published`` row plus a ``form.has_changed()`` that is
+        true even for an unmodified confirmation (parler's translated-field
+        initials lag the same-transaction write) and immediately moves the
+        just-restored row to ``review`` - overwriting exactly the state the
+        rollback was meant to reproduce.
+
+        Resolved through ``super()``, which reaches ``VersionAdmin`` via the
+        concrete admin's MRO; every editorial root admin is a ``VersionAdmin``.
+
+        Deliberately *only* ``revision_view``. ``recover_view`` restores a
+        previously hard-deleted object rather than replacing a working state;
+        it keeps its pre-D3C contract, auto-review included, and therefore
+        gets no override here at all.
+        """
+        with self._reversion_form_request(request):
+            return super().revision_view(request, object_id, version_id, extra_context)
 
     def _user_has_perm(self, request, perm_codename: str, obj) -> bool:
         """
@@ -235,7 +293,14 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
         """
         Automatically moves an already published object to REVIEW,
         If the user is allowed and the transition is available.
+
+        Beta 11.11D3C: never inside a reversion revert/recover form - there
+        the selected revision is the source of truth for the workflow state,
+        not a form-change signal (see :meth:`revision_view`).
         """
+        if self._is_reversion_form_request(request):
+            return
+
         if not self._user_has_perm(request, "submit_for_review", obj):
             return
 
@@ -349,13 +414,18 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
         """
         Central auto-review logic for changes to inlines
         for all editorial modeladmins.
+
+        Beta 11.11D3C: skipped inside a reversion revert/recover form for the
+        same reason as :meth:`_auto_transition_to_review` - restoring a
+        revision that legitimately contains sections or entries must not read
+        as "an editor just changed the inlines".
         """
         obj = form.instance
         inline_changed = self._inlines_changed(formsets)
 
-        if inline_changed and getattr(obj, "status", None) == getattr(
-                obj, "STATUS_PUBLISHED", "published"
-        ):
+        if inline_changed and not self._is_reversion_form_request(request) and getattr(
+                obj, "status", None
+        ) == getattr(obj, "STATUS_PUBLISHED", "published"):
             if self._user_has_perm(request, "submit_for_review", obj):
                 transition = self._get_transition(obj, "move_to_review")
                 if transition and can_proceed(transition):

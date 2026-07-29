@@ -1153,22 +1153,60 @@ class StaticSafetyTests(TestCase):
         self.assertGreaterEqual(len(visitor.hits), 2)
 
     def test_no_direct_binding_or_status_field_writes_in_admin(self):
+        """
+        ``status``, ``approved_revision`` and ``review_payload_fingerprint``
+        are never written by this admin - they belong to the central
+        primitives (C2A submit, C3A approve, D2 publish, B2B2 invalidation).
+
+        Beta 11.11D3C adds exactly one sanctioned exception, and only for
+        ``review_revision``: reverting to a submit revision restores a row
+        whose binding is missing purely because a revision cannot serialize
+        its own id, and no existing primitive expresses "rebind this reverted
+        prompt to the revision the user selected". That write lives in
+        ``_restore_reverted_prompt_review_binding_if_provable()`` alone, only
+        runs after the central membership/fingerprint proofs, and is
+        re-checked by ``validate_review_binding()`` immediately afterwards.
+        Enforced per enclosing function rather than as a blanket ban, so the
+        exception stays a single named, reviewable site instead of a hole.
+        """
         import ast
         import pathlib
 
         source = pathlib.Path("prompts/admin.py").read_text(encoding="utf-8")
         tree = ast.parse(source)
-        forbidden_attrs = {
-            "review_revision", "approved_revision", "review_payload_fingerprint", "status",
+
+        always_forbidden = {"approved_revision", "review_payload_fingerprint", "status"}
+        review_revision_allowed_in = {
+            "_restore_reverted_prompt_review_binding_if_provable"
         }
-        offenders = [
-            node.targets
-            for node in ast.walk(tree)
-            if isinstance(node, ast.Assign)
-            for target in node.targets
-            if isinstance(target, ast.Attribute) and target.attr in forbidden_attrs
-        ]
-        self.assertEqual(offenders, [])
+
+        class _AssignVisitor(ast.NodeVisitor):
+            def __init__(self):
+                self.stack: list[str] = []
+                self.offenders: list[tuple[str | None, str]] = []
+
+            def visit_FunctionDef(self, node):  # noqa: N802 - ast.NodeVisitor API
+                self.stack.append(node.name)
+                self.generic_visit(node)
+                self.stack.pop()
+
+            def visit_Assign(self, node):  # noqa: N802 - ast.NodeVisitor API
+                enclosing = self.stack[-1] if self.stack else None
+                for target in node.targets:
+                    if not isinstance(target, ast.Attribute):
+                        continue
+                    if target.attr in always_forbidden:
+                        self.offenders.append((enclosing, target.attr))
+                    elif (
+                        target.attr == "review_revision"
+                        and enclosing not in review_revision_allowed_in
+                    ):
+                        self.offenders.append((enclosing, target.attr))
+                self.generic_visit(node)
+
+        visitor = _AssignVisitor()
+        visitor.visit(tree)
+        self.assertEqual(visitor.offenders, [])
 
     def test_no_broad_exception_handling_in_new_admin_code(self):
         import ast

@@ -4830,6 +4830,21 @@ msgstr ""
 "genehmigt werden. Bitte wende dich an eine Administratorin oder einen "
 "Administrator."
 
+#: templates/admin/editorial/revision_form.html:11
+msgid ""
+"Warning: Restoring this revision replaces the current editing state with "
+"the selected version. Changes made after this revision—including "
+"translations, sections, and entries—may be removed. The workflow and "
+"publication status will also be restored to the state stored in this "
+"revision."
+msgstr ""
+"Achtung: Beim Wiederherstellen dieser Revision wird der aktuelle "
+"Bearbeitungsstand durch die ausgewählte Version ersetzt. Spätere "
+"Änderungen – einschließlich Übersetzungen, Abschnitten und Einträgen – "
+"können dabei entfernt werden. Auch der Workflow- und "
+"Veröffentlichungsstatus wird auf den in dieser Revision gespeicherten "
+"Stand zurückgesetzt."
+
 #~ msgid "Search is coming soon"
 #~ msgstr "Die Suche kommt bald"
 

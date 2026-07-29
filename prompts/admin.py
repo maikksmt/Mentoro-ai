@@ -20,7 +20,7 @@ from django.utils.translation import (
 )
 from parler.utils.context import switch_language
 from reversion.admin import VersionAdmin
-from reversion.models import Version
+from reversion.models import Revision, Version
 
 from content.templatetags.richtext import richtext
 from core.admin import TranslatableTinyMCEMixin, EditorialWorkflowAdminMixin
@@ -34,6 +34,7 @@ from core.review_binding import (
     ReviewInvalidationResult,
     fingerprint_review_payload,
     invalidate_editorial_review_state,
+    revision_contains_object,
     validate_approved_binding,
     validate_review_binding,
 )
@@ -120,12 +121,22 @@ class _PromptReversionGuardState:
     :data:`_PromptReversionGuardSource.NORMAL_CHANGEFORM`); it is always
     ``None`` for :data:`_PromptReversionGuardSource.RECOVERY`, since no prior
     row exists to baseline against.
+
+    Beta 11.11D3C adds :attr:`target_revision_id` - the id of the revision the
+    user actually selected, taken from the ``Version``
+    ``revision_view()`` already resolved deterministically through
+    ``_get_prompt_version_or_404()`` (content type *and* object id verified).
+    It is a plain integer, never a ``Revision`` instance, and it is set only
+    for :data:`_PromptReversionGuardSource.REVISION_REVERT`; a normal
+    changeform and a recovery both leave it ``None``, because neither has a
+    selected revision to restore a binding from.
     """
 
     source: _PromptReversionGuardSource
     prompt_id: int
     database_alias: str
     baseline: PromptReviewEditBaseline | None
+    target_revision_id: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -138,14 +149,17 @@ class PromptRevisionGuardResult:
     (Django's own admin machinery never reads a ``save_related()`` return
     value).
 
-    ``payload_changed`` is ``None`` only for
-    :data:`_PromptReversionGuardSource.RECOVERY`, where there is no prior
-    baseline to compare against. ``invalidation`` carries the real
+    ``payload_changed`` is ``None`` for
+    :data:`_PromptReversionGuardSource.RECOVERY` (no prior row to baseline
+    against) and, since Beta 11.11D3C, also for
+    :data:`_PromptReversionGuardSource.REVISION_REVERT` (the pre-revert
+    baseline is deliberately not consulted - see
+    ``_finish_prompt_review_guard()``). ``invalidation`` carries the real
     ``core.review_binding.ReviewInvalidationResult`` verbatim whenever B2B2
-    actually ran - via Beta 11.11C4G's compare on a genuine payload change,
-    via the Beta 11.11C4J stale-binding check on an unchanged revert payload,
-    or via the Beta 11.11C4J unconditional recovery invalidation - and is
-    ``None`` whenever B2B2 never ran at all.
+    actually ran - via Beta 11.11C4G's compare on a genuine changeform edit,
+    via the Beta 11.11C4J restored-binding check after a revert, or via the
+    Beta 11.11C4J unconditional recovery invalidation - and is ``None``
+    whenever B2B2 never ran at all.
     """
 
     prompt_id: int
@@ -1094,19 +1108,42 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
 
         * :data:`_PromptReversionGuardSource.NORMAL_CHANGEFORM` - unchanged
           Beta 11.11C4H behaviour: one Beta 11.11C4G compare, returned as-is.
-        * :data:`_PromptReversionGuardSource.REVISION_REVERT` - the same
-          Beta 11.11C4G compare against the pre-revert baseline. A genuine
-          payload change is handled identically to a normal edit (B2B2 via
-          C4G). An *unchanged* payload additionally gets its final,
-          reversion-restored ``review``/``approved`` binding checked for
-          structural validity (``core.review_binding.validate_review_binding``/
+        * :data:`_PromptReversionGuardSource.REVISION_REVERT` - only the
+          *restored* binding is judged, never the pre-revert baseline.
+
+          Beta 11.11C4J originally compared the restored payload against the
+          Beta 11.11C4G baseline captured before ``revert()`` and treated any
+          difference as an ordinary edit. For a rollback that comparison is
+          almost always true and asks the wrong question: the user
+          deliberately discarded the pre-revert state, so "differs from what
+          I just threw away" says nothing about whether the restored row is
+          self-consistent. Its practical effect was that rolling back to a
+          genuinely ``approved`` revision landed in ``draft``, destroying the
+          very state the rollback was meant to reproduce (Beta 11.11D3C).
+
+          D3C therefore always runs
+          ``_invalidate_reverted_prompt_if_binding_invalid()`` instead: the
+          restored ``review``/``approved`` binding is checked for structural
+          validity (``core.review_binding.validate_review_binding``/
           ``validate_approved_binding``) and for a stale fingerprint (the
-          stored ``review_payload_fingerprint`` compared against the live
+          restored ``review_payload_fingerprint`` compared against the live
           canonical fingerprint, both already-computed values - never a
-          re-derived hashing/serialization implementation) - see
-          ``_invalidate_reverted_prompt_if_binding_invalid()``. Only an
-          invalid or stale binding is invalidated; a still-valid one is left
-          untouched, per the Beta 11.11C4J product decision.
+          re-derived hashing/serialization implementation). That check is
+          *content-based*, so it doubles as the discriminator D3C needs
+          without any POST or form heuristic: a pure rollback restores a
+          fingerprint that still matches its own content and is preserved,
+          while a rollback the user additionally edited in the same form no
+          longer matches and is invalidated through the ordinary B2B2 path.
+          A revision whose stored binding was never provable in the first
+          place (Beta 11.11C2A never binds ``review_revision`` inside the
+          revision it captures) stays fail-closed and invalidates, exactly as
+          C4J intended.
+
+          ``payload_changed`` is therefore ``None`` here, as it already is
+          for recovery - no baseline comparison is performed at all. The
+          baseline is still captured in ``revision_view()``: a capture
+          failure must still abort the whole revert before it mutates
+          anything.
         * :data:`_PromptReversionGuardSource.RECOVERY` - no baseline exists
           (the row did not exist before), so no payload compare is possible
           or meaningful. The final, fully-restored row is handed to B2B2
@@ -1127,22 +1164,31 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
                 invalidation=invalidation,
             )
 
-        guard_result = invalidate_prompt_review_if_payload_changed(
-            instance, baseline=state.baseline, using=state.database_alias,
-        )
-
         if state.source == _PromptReversionGuardSource.NORMAL_CHANGEFORM:
-            return guard_result
+            return invalidate_prompt_review_if_payload_changed(
+                instance, baseline=state.baseline, using=state.database_alias,
+            )
 
         # _PromptReversionGuardSource.REVISION_REVERT
-        if guard_result.payload_changed:
+        #
+        # Beta 11.11D3C: a restored ``review`` row first gets the chance to
+        # have its binding provably reconstructed against the selected
+        # revision. Only if that cannot be proven does the existing
+        # fail-closed check run and take the row to ``draft``. Every other
+        # restored status skips the reconstruction entirely (the helper
+        # returns False for them) and is handled exactly as before.
+        if self._restore_reverted_prompt_review_binding_if_provable(
+            instance,
+            revision_id=state.target_revision_id,
+            using=state.database_alias,
+        ):
             return PromptRevisionGuardResult(
                 prompt_id=state.prompt_id,
                 database_alias=state.database_alias,
                 source=state.source,
-                payload_changed=True,
-                invalidated=guard_result.invalidated,
-                invalidation=guard_result.invalidation,
+                payload_changed=None,
+                invalidated=False,
+                invalidation=None,
             )
 
         stale_invalidation = self._invalidate_reverted_prompt_if_binding_invalid(
@@ -1152,10 +1198,96 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
             prompt_id=state.prompt_id,
             database_alias=state.database_alias,
             source=state.source,
-            payload_changed=False,
+            payload_changed=None,
             invalidated=stale_invalidation is not None and stale_invalidation.changed,
             invalidation=stale_invalidation,
         )
+
+    def _restore_reverted_prompt_review_binding_if_provable(
+        self, instance, *, revision_id, using
+    ):
+        """
+        Beta 11.11D3C: rebind a reverted ``review`` prompt to the revision the
+        user actually selected - but only on proof.
+
+        Why this is needed at all. ``prompts.review_submission`` cannot store
+        a submit revision's own id inside that revision: while the revision is
+        being written the id does not exist yet, so the binding is set in a
+        second, targeted save *after* the reversion context closes (that
+        module's steps 22-23). A submit snapshot therefore serializes
+        ``status="review"`` and the real canonical fingerprint, but
+        ``review_revision = None``. Reverting to it restores a row whose
+        binding looks missing, which
+        ``_invalidate_reverted_prompt_if_binding_invalid()`` rightly refuses -
+        and the exact rollback collapsed to ``draft`` purely because of that
+        technical gap.
+
+        The gap is closable without weakening anything, because the selected
+        revision *is* the missing value: it provably contains this prompt's
+        root version, and the fingerprint it restored still describes the
+        content it restored. Both facts are checked here with the existing
+        central primitives - never a re-derived membership, payload, hashing
+        or validation rule.
+
+        Returns ``True`` only when every one of these holds:
+
+        1. a target revision id was carried through the request-local state;
+        2. the restored row really is ``review``;
+        3. no contradictory approval binding is present;
+        4. the revision row still exists on this alias;
+        5. it contains a root version of exactly this prompt;
+        6. the canonical payload of the restored content fingerprints to the
+           restored ``review_payload_fingerprint`` (an empty or malformed
+           stored value can never equal a freshly computed lowercase digest,
+           so this subsumes the format check - which the central validator in
+           step 8 then re-applies explicitly anyway);
+        7. writing ``review_revision`` succeeds;
+        8. ``validate_review_binding()`` accepts the result.
+
+        Anything else returns ``False`` and the caller falls back to the
+        existing fail-closed path, which clears the binding and lands the row
+        in ``draft`` - so no partial binding can survive, not even the write
+        in step 7.
+
+        ``approved_revision`` is never set here: a review binding has none by
+        contract, and step 3 refuses to reconstruct on top of one.
+
+        Only ``Revision.DoesNotExist`` is caught, and only because a dangling
+        target is an ordinary "not provable" outcome. ``IntegrityError``,
+        ``ProgrammingError``, alias/routing problems and every other
+        unexpected error propagate and roll the whole revert transaction back.
+        No new revision is created: this runs inside ``save_related()``, i.e.
+        inside the single ``reversion.create_revision()`` block VersionAdmin
+        already opened.
+        """
+        if revision_id is None:
+            return False
+
+        current = Prompt._default_manager.using(using).get(pk=instance.pk)
+
+        if current.status != EditorialWorkflowMixin.STATUS_REVIEW:
+            return False
+        if current.approved_revision_id is not None:
+            return False
+
+        try:
+            revision = Revision.objects.using(using).get(pk=revision_id)
+        except Revision.DoesNotExist:
+            return False
+
+        if not revision_contains_object(revision, current, using=using):
+            return False
+
+        live_fingerprint = fingerprint_review_payload(
+            build_prompt_review_payload(current, using=using)
+        )
+        if current.review_payload_fingerprint != live_fingerprint:
+            return False
+
+        current.review_revision = revision
+        current.save(update_fields=["review_revision"])
+
+        return validate_review_binding(current, using=using).is_valid
 
     def _invalidate_reverted_prompt_if_binding_invalid(self, instance, *, using):
         """
@@ -1312,6 +1444,10 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
                 prompt_id=prompt_id,
                 database_alias=db_alias,
                 baseline=baseline,
+                # Beta 11.11D3C: the selected revision, straight off the
+                # already-verified Version - never re-derived from the URL in
+                # the final hook, never "the newest revision".
+                target_revision_id=version.revision_id,
             )
             try:
                 return super().revision_view(request, object_id, version_id, extra_context)
