@@ -170,7 +170,15 @@ class UseCaseDetailView(SeoMixin, DetailView):
             "inLanguage": lang,
             "mainEntityOfPage": canonical,
         }
-        tools = list(getattr(obj, "tools").all()) if hasattr(obj, "tools") else []
+        # Beta 11.11D4B: previously `obj.tools.all()` - the unfiltered M2M -
+        # which fed both this JSON-LD `about` block and the template's tool
+        # cards, so a tool whose detail view answers 404 (`published_at > now`,
+        # gated since Beta 8.14a) was advertised in structured data with an
+        # absolute URL and linked on the page. Resolved through the same
+        # canonical `Tool.objects.public()` query every other public surface
+        # uses, in one JOIN, keeping the M2M's own ordering. Membership stays
+        # the M2M - UseCase has no tool snapshot to consult.
+        tools = list(obj.tools.public()) if hasattr(obj, "tools") else []
         if tools:
             json_ld["about"] = [
                 {
@@ -200,6 +208,10 @@ class UseCaseDetailView(SeoMixin, DetailView):
         ctx.setdefault("display_body", obj.display_body)
         ctx.setdefault("display_outro", obj.display_outro)
         ctx.setdefault("display_persona", obj.display_persona)
+        # Beta 11.11D4B: the already-filtered list from above, so the template
+        # renders exactly what the structured data advertises and never runs a
+        # query of its own.
+        ctx["tools"] = tools
         rel_qs = related_usecases(obj, limit=3, language_code=lang)
         ctx["similar"] = [to_teaser_item(u, "usecase") for u in rel_qs]
         ctx["crumbs"] = [

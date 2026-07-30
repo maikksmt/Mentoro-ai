@@ -62,10 +62,13 @@ def build_draft_usecase_context(usecase, language_code: str) -> dict:
     ``{% trans %}``, ``reverse()`` and the related-content lookups all resolve
     in the previewed language rather than the editor's ambient one.
 
-    ``object.tools.all``, ``object.author``, ``object.published_at`` and
-    ``object.updated_at`` are read straight off ``usecase`` by the template -
-    none of them are translated or snapshotted, so the preview shows them
-    exactly as the public page already would.
+    ``object.author``, ``object.published_at`` and ``object.updated_at`` are
+    read straight off ``usecase`` by the template - none of them are
+    translated or snapshotted, so the preview shows them exactly as the public
+    page already would. Since Beta 11.11D4B the linked tools are the one
+    exception: they are passed explicitly, because the public view now filters
+    them through ``Tool.objects.public()`` while the preview keeps showing the
+    saved draft M2M.
 
     Related content deliberately reuses the ordinary public helper: it runs
     against ``visible_in_language()`` and the live-revision-safe teaser
@@ -99,6 +102,14 @@ def build_draft_usecase_context(usecase, language_code: str) -> dict:
         "display_body": body,
         "display_outro": outro,
         "display_persona": persona,
+        # Beta 11.11D4B: the template now renders the `tools` context variable
+        # instead of `object.tools.all`, so the preview has to supply it too.
+        # It deliberately passes the *saved draft* M2M unfiltered: the preview
+        # exists to show the editor the draft as saved, and D4B is scoped to
+        # the public projection only (the public view passes
+        # `obj.tools.public()`). Preview output is therefore byte-identical to
+        # before this slice.
+        "tools": list(usecase.tools.all()),
         "similar": [
             to_teaser_item(u, "usecase", language_code=language_code) for u in related
         ],

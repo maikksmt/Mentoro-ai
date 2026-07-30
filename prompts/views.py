@@ -182,6 +182,18 @@ class PromptDetailView(SeoMixin, DetailView):
         ctx.setdefault("display_body", obj.display_body)
         ctx.setdefault("display_outro", obj.display_outro)
 
+        # Beta 11.11D4B: the template used to iterate `object.tools.all` - the
+        # unfiltered M2M - so a prompt could render a full card linking to a
+        # tool whose own detail view answers 404 (`Tool` has been gated by
+        # `published_at <= now` since Beta 8.14a). The same canonical
+        # `Tool.objects.public()` query every other public surface uses is
+        # applied here instead, in one JOIN, keeping the M2M's own ordering.
+        # Tool membership itself is deliberately untouched: unlike
+        # Comparison's `live_entries`, Prompt has no tool snapshot, so the M2M
+        # remains the single membership source and only its *visibility* is
+        # filtered.
+        ctx["tools"] = list(obj.tools.public())
+
         rel_qs = related_prompts(obj, limit=3, language_code=lang)
         ctx["more"] = [to_teaser_item(p, "prompt") for p in rel_qs]
 
