@@ -1203,6 +1203,41 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
             invalidation=stale_invalidation,
         )
 
+    def _live_review_payload_fingerprint(self, prompt, *, using):
+        """
+        Beta 11.11D3C1: the single sanctioned place in this whole module that
+        touches the canonical payload builder directly.
+
+        Beta 11.11C4J established the contract that ``prompts/admin.py`` reuses
+        :func:`prompts.review_payload.build_prompt_review_payload` from exactly
+        one call site - not because a second *purpose* would be illegitimate,
+        but so that "which payload does the admin compare against?" has exactly
+        one answer, reviewable in one place, with no chance of a second site
+        drifting into a differently-built (locale-, alias- or refresh-dependent)
+        payload while still calling itself canonical. Beta 11.11D3C then needed
+        the very same value for a second, genuinely different question (is the
+        restored fingerprint still provably the fingerprint of the restored
+        content?) and added a second direct call, which broke that contract
+        rather than reusing it.
+
+        Both questions need one and the same value: the canonical fingerprint
+        of the row as it currently stands on ``using``. So both go through here.
+
+        Deliberately nothing but ``builder -> fingerprint``: no status change,
+        no binding write, no invalidation, no caching, no refresh of its own, no
+        request-local state, no swallowed exception. ``prompt`` must already be
+        the freshly read row the caller wants judged (both callers re-read it on
+        ``using`` themselves), and ``using`` is always passed on explicitly -
+        never defaulted to ``"default"`` - so a revert running on a non-default
+        alias is fingerprinted on that alias too. Every
+        :class:`~prompts.review_payload.PromptReviewPayloadError` and every
+        :class:`core.review_binding.ReviewPayloadFingerprintError` propagates
+        unchanged and aborts the surrounding revert transaction.
+        """
+        return fingerprint_review_payload(
+            build_prompt_review_payload(prompt, using=using)
+        )
+
     def _restore_reverted_prompt_review_binding_if_provable(
         self, instance, *, revision_id, using
     ):
@@ -1237,10 +1272,12 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
         4. the revision row still exists on this alias;
         5. it contains a root version of exactly this prompt;
         6. the canonical payload of the restored content fingerprints to the
-           restored ``review_payload_fingerprint`` (an empty or malformed
-           stored value can never equal a freshly computed lowercase digest,
-           so this subsumes the format check - which the central validator in
-           step 8 then re-applies explicitly anyway);
+           restored ``review_payload_fingerprint`` - obtained through this
+           admin's one sanctioned ``_live_review_payload_fingerprint()`` access
+           point, i.e. bit-for-bit the value the stale check below judges by
+           (an empty or malformed stored value can never equal a freshly
+           computed lowercase digest, so this subsumes the format check - which
+           the central validator in step 8 then re-applies explicitly anyway);
         7. writing ``review_revision`` succeeds;
         8. ``validate_review_binding()`` accepts the result.
 
@@ -1278,9 +1315,7 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
         if not revision_contains_object(revision, current, using=using):
             return False
 
-        live_fingerprint = fingerprint_review_payload(
-            build_prompt_review_payload(current, using=using)
-        )
+        live_fingerprint = self._live_review_payload_fingerprint(current, using=using)
         if current.review_payload_fingerprint != live_fingerprint:
             return False
 
@@ -1307,10 +1342,11 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
         is left alone, mirroring B2B2's own ``_INVALIDATABLE_STATUSES``
         contract rather than re-deriving it. Reuses exactly the existing
         public primitives: ``core.review_binding.validate_review_binding``/
-        ``validate_approved_binding`` for structural validity, and the
-        already-canonical ``build_prompt_review_payload()``/
-        ``fingerprint_review_payload()`` pair for the live comparison value -
-        never a new binding or hashing implementation. Invalidates via the
+        ``validate_approved_binding`` for structural validity, and - since Beta
+        11.11D3C1 - this admin's one sanctioned
+        ``_live_review_payload_fingerprint()`` access point to the
+        already-canonical builder/fingerprint pair for the live comparison
+        value - never a new binding or hashing implementation. Invalidates via the
         existing Beta 11.11B2B2 ``invalidate_editorial_review_state()``
         exactly once, and only when actually necessary; returns ``None`` when
         the restored binding is already valid and current, leaving it
@@ -1332,9 +1368,7 @@ class PromptAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Version
         if not validation.is_valid:
             return invalidate_editorial_review_state(current, using=using)
 
-        live_fingerprint = fingerprint_review_payload(
-            build_prompt_review_payload(current, using=using)
-        )
+        live_fingerprint = self._live_review_payload_fingerprint(current, using=using)
         if current.review_payload_fingerprint == live_fingerprint:
             return None
 

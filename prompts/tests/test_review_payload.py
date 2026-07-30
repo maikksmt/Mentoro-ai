@@ -1229,6 +1229,13 @@ class NoRuntimeActivationTests(TestCase):
         # the builder's own module. The builder is still not wired into any
         # model/signal/search path - that is covered by C2A's/C3A's/C4G's/D2's
         # own no-runtime-activation tests and by the admin-scoped test below.
+        # Beta 11.11D3C added a second admin question needing that very same
+        # value (is a reverted review binding provably reconstructable?), so
+        # Beta 11.11D3C1 moved the admin's one direct builder call into the
+        # small pure PromptAdmin._live_review_payload_fingerprint() access
+        # point both admin consumers now go through - the file list here and
+        # the "exactly one direct call site in prompts/admin.py" guarantee
+        # below are both unchanged by that.
         import prompts.review_publish as review_publish_module
 
         allowed_files = {
@@ -1276,12 +1283,24 @@ class NoRuntimeActivationTests(TestCase):
         Abnahme-Korrekturrunde Phase 9 tightening: this must hold precisely,
         not just "confined to some function" - the exact file
         (``prompts/admin.py``, resolved by path, not merely by module name),
-        the exact enclosing function
-        (``PromptAdmin._invalidate_reverted_prompt_if_binding_invalid``,
-        verified as an actual method of the ``PromptAdmin`` class, not just
-        any function with that name), and the exact call-site count (1, no
-        more, no fewer) are all asserted - together with proof that no
-        *other* method of ``PromptAdmin`` calls it at all.
+        the exact enclosing function (verified as an actual method of the
+        ``PromptAdmin`` class, not just any function with that name), and the
+        exact call-site count (1, no more, no fewer) are all asserted -
+        together with proof that no *other* method of ``PromptAdmin`` calls it
+        at all.
+
+        Beta 11.11D3C1 moves *which* method that is, and only that: Beta
+        11.11D3C's provable review-binding reconstruction genuinely needs the
+        same live canonical fingerprint as the C4J stale check, so a second
+        direct call appeared in
+        ``_restore_reverted_prompt_review_binding_if_provable()``. The honest
+        repair is one shared access point rather than two call sites: the
+        direct call now lives in the small, pure, side-effect-free
+        ``PromptAdmin._live_review_payload_fingerprint()``, and both consumers
+        route through it - which is additionally asserted below, so the single
+        call site cannot be satisfied by a consumer quietly re-deriving the
+        value some other way. The count stays exactly 1; it was never raised
+        to 2.
         """
         import ast
         import pathlib
@@ -1299,10 +1318,11 @@ class NoRuntimeActivationTests(TestCase):
             node for node in ast.walk(tree)
             if isinstance(node, ast.ClassDef) and node.name == "PromptAdmin"
         )
+        sanctioned_helper = "_live_review_payload_fingerprint"
         target_method = next(
             item for item in prompt_admin_class.body
             if isinstance(item, ast.FunctionDef)
-            and item.name == "_invalidate_reverted_prompt_if_binding_invalid"
+            and item.name == sanctioned_helper
         )
 
         def call_sites(node):
@@ -1330,6 +1350,48 @@ class NoRuntimeActivationTests(TestCase):
             if call_sites(item):
                 offenders.append(item.name)
         self.assertEqual(offenders, [])
+
+        # Beta 11.11D3C1: the single call site is only meaningful if it really
+        # is the shared access point - so both admin consumers of the live
+        # canonical fingerprint must reach it through this helper.
+        def calls_the_helper(node):
+            return any(
+                isinstance(call.func, ast.Attribute) and call.func.attr == sanctioned_helper
+                for call in ast.walk(node)
+                if isinstance(call, ast.Call)
+            )
+
+        consumers = (
+            "_invalidate_reverted_prompt_if_binding_invalid",
+            "_restore_reverted_prompt_review_binding_if_provable",
+        )
+        methods = {
+            item.name: item
+            for item in prompt_admin_class.body
+            if isinstance(item, ast.FunctionDef)
+        }
+        for consumer in consumers:
+            with self.subTest(consumer=consumer):
+                self.assertIn(consumer, methods)
+                self.assertTrue(calls_the_helper(methods[consumer]))
+
+        # The sanctioned helper itself stays a pure builder+fingerprint read:
+        # no assignment to any model field, no save, no invalidation.
+        self.assertEqual(
+            [
+                name
+                for call in ast.walk(target_method)
+                if isinstance(call, ast.Call)
+                for name in [getattr(call.func, "attr", None) or getattr(call.func, "id", None)]
+                if name
+                not in ("build_prompt_review_payload", "fingerprint_review_payload")
+            ],
+            [],
+        )
+        self.assertEqual(
+            [node for node in ast.walk(target_method) if isinstance(node, ast.Assign)],
+            [],
+        )
 
     def test_admin_module_has_no_own_json_or_hashing_code(self):
         """
