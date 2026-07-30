@@ -209,7 +209,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-TEST_RUNNER = "django.test.runner.DiscoverRunner"
+# Beta 11.12D1: Djangos DiscoverRunner plus ein test-only Passwort-Hasher.
+# Nur "manage.py test" instanziiert diesen Runner - kein runserver, kein shell,
+# kein migrate und kein Produktionsprozess liest TEST_RUNNER. Siehe
+# core/test_runner.py.
+TEST_RUNNER = "core.test_runner.MentoroTestRunner"
 
 # Internationalization
 
