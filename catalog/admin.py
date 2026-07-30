@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _, get_language
 from parler.admin import TranslatableTabularInline
 from parler.forms import TranslatableModelForm
@@ -210,6 +211,80 @@ class ToolAdmin(TranslatableTinyMCEMixin):
             lang = request.GET.get("language") or get_language()
             kwargs["queryset"] = Category.objects.language(lang)
         return super().formfield_for_manytomany(db_field, request, **kwargs)
+
+    # ------------------------------------------------------------------
+    # Beta 11.11D4C: never hard-delete a tool a comparison entry still needs
+    # ------------------------------------------------------------------
+
+    def tools_blocked_by_comparison_entries(self, objs):
+        """
+        The tools among ``objs`` that at least one ``ComparisonToolEntry``
+        references, resolved in **one** bundled query.
+
+        ``ComparisonToolEntry.tool`` is ``on_delete=CASCADE`` and the entry is
+        not a join row: it carries ``position`` plus its own translated
+        ``label``/``summary``/``pros``/``cons``/``special`` content in every
+        language. Deleting the tool destroys all of that silently - reproduced
+        before this guard existed (one tool, one entry, two translations: the
+        entry and both translations went to zero while the comparison
+        survived).
+
+        Reached through Tool's own reverse accessor (``related_name=
+        "comparison_entries"``), so ``catalog`` needs no import from
+        ``compare``. An empty selection issues no query at all.
+        """
+        pks = [obj.pk for obj in objs if getattr(obj, "pk", None) is not None]
+        if not pks:
+            return []
+        return list(
+            Tool.objects.filter(pk__in=pks, comparison_entries__isnull=False)
+            .distinct()
+            .order_by("pk")
+        )
+
+    def get_deleted_objects(self, objs, request):
+        """
+        Adds those tools to Django's own ``protected`` list.
+
+        This single hook covers both deletion paths, because both consult
+        ``protected`` *before* deciding to delete:
+        ``ModelAdmin._delete_view`` (``if request.POST and not protected``) and
+        ``django.contrib.admin.actions.delete_selected``
+        (``if request.POST.get("post") and not protected``). Consequences that
+        fall out of that, rather than being re-implemented here:
+
+        * a confirmed POST on a protected tool deletes nothing, even when the
+          delete button was never rendered and the request was hand-crafted;
+        * a bulk selection containing one protected tool is blocked *as a
+          whole* - no partial deletion of the unprotected tools alongside it;
+        * Django renders its own "Cannot delete" page naming the blocking
+          entries, and its success message is never produced.
+
+        Deliberately not a model, queryset or signal guard and no ``on_delete``
+        change: a direct ``tool.delete()`` outside the admin still cascades
+        exactly as before (see
+        ``catalog/tests/test_admin_tool_deletion_guard.py``).
+        """
+        to_delete, model_count, perms_needed, protected = super().get_deleted_objects(
+            objs, request
+        )
+
+        blocked = self.tools_blocked_by_comparison_entries(objs)
+        if blocked:
+            # Read off the same reverse relation the query above uses, so this
+            # module still needs no import from ``compare``.
+            entry_model = Tool._meta.get_field("comparison_entries").related_model
+            entry_label = capfirst(entry_model._meta.verbose_name)
+            protected = [
+                *protected,
+                *(
+                    _("%(entry)s: used by tool %(tool)s - remove or reassign the "
+                      "comparison entries first")
+                    % {"entry": entry_label, "tool": tool}
+                    for tool in blocked
+                ),
+            ]
+        return to_delete, model_count, perms_needed, protected
 
 
 @admin.register(Category)
