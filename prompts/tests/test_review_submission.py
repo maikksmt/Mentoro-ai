@@ -515,19 +515,48 @@ class PerRootIsolationTests(SubmissionTestCase):
 # ======================================================================
 
 
+#: ``submit_prompt_for_review`` connects one ``post_revision_commit`` receiver
+#: per call, under a ``prompts.review_submission:<token>`` dispatch_uid, and
+#: must disconnect it again in ``finally``.
+#:
+#: These tests used to prove that by asserting the whole signal had no
+#: listeners at all, which only held while this module was the signal's sole
+#: user. Beta 11.13D1B added a permanent, module-level receiver in
+#: ``core.editorial_actions`` (it writes the publish marker once a revision
+#: commits, and must therefore outlive every individual call). Counting *all*
+#: listeners would now measure that unrelated receiver instead of the leak
+#: these tests exist to catch, so the assertion is scoped to this module's own
+#: call-local dispatch_uids - the exact thing that must never accumulate.
+_CALL_LOCAL_DISPATCH_PREFIX = "prompts.review_submission:"
+
+
+def leaked_call_local_receivers():
+    """Dispatch uids of this module's per-call receivers still connected."""
+    leaked = []
+    # Django's ``Signal.receivers`` entries are ``(lookup_key, receiver)`` on
+    # older versions and ``(lookup_key, receiver, is_async)`` on newer ones;
+    # only the first element is read here so both shapes work.
+    for entry in post_revision_commit.receivers:
+        lookup_key = entry[0]
+        key = lookup_key[0] if isinstance(lookup_key, tuple) else lookup_key
+        if isinstance(key, str) and key.startswith(_CALL_LOCAL_DISPATCH_PREFIX):
+            leaked.append(key)
+    return leaked
+
+
 class SignalIsolationTests(SubmissionTestCase):
     def test_successful_call_leaves_no_receiver_and_resets_the_context_var(self):
         prompt = make_prompt(status=Workflow.STATUS_DRAFT)
         submit_prompt_for_review(prompt)
         self.assertIsNone(_active_submission_token.get())
-        self.assertFalse(post_revision_commit.has_listeners())
+        self.assertEqual(leaked_call_local_receivers(), [])
 
     def test_failed_call_leaves_no_receiver_and_resets_the_context_var(self):
         prompt = make_prompt(status=Workflow.STATUS_APPROVED)  # not submittable
         with self.assertRaises(PromptReviewSubmissionError):
             submit_prompt_for_review(prompt)
         self.assertIsNone(_active_submission_token.get())
-        self.assertFalse(post_revision_commit.has_listeners())
+        self.assertEqual(leaked_call_local_receivers(), [])
 
     def test_failed_call_inside_reversion_context_leaves_no_receiver(self):
         prompt = make_prompt(status=Workflow.STATUS_DRAFT)
@@ -535,12 +564,12 @@ class SignalIsolationTests(SubmissionTestCase):
             with self.assertRaises(RuntimeError):
                 submit_prompt_for_review(prompt)
         self.assertIsNone(_active_submission_token.get())
-        self.assertFalse(post_revision_commit.has_listeners())
+        self.assertEqual(leaked_call_local_receivers(), [])
 
     def test_repeated_calls_do_not_accumulate_receivers(self):
         for _ in range(3):
             submit_prompt_for_review(make_prompt(status=Workflow.STATUS_DRAFT))
-        self.assertFalse(post_revision_commit.has_listeners())
+        self.assertEqual(leaked_call_local_receivers(), [])
 
     def test_foreign_signal_in_a_different_execution_context_is_ignored(self):
         """

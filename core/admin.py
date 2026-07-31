@@ -10,8 +10,49 @@ from parler.admin import TranslatableAdmin
 from reversion.models import Version
 from tinymce.widgets import TinyMCE
 
+from core.editorial_actions import (
+    EditorialAction,
+    EditorialActionError,
+    EditorialActionErrorCode,
+    apply_editorial_action,
+    publish_marker_scope,
+)
+
+#: The one :class:`~core.editorial_actions.EditorialActionError` outcome that is
+#: an ordinary editorial result rather than a fault: the object simply is not in
+#: a state this transition may start from. Every action below turns it into the
+#: same "not executable" message it produced before Beta 11.13D1B. Any other
+#: code is an integrity problem and is re-raised, never reported as a skip.
+_NOT_EXECUTABLE_CODES = frozenset(
+    {
+        EditorialActionErrorCode.STATUS_NOT_ELIGIBLE,
+        EditorialActionErrorCode.TRANSITION_UNAVAILABLE,
+    }
+)
+
 
 def set_last_published_revision(obj):
+    """
+    Legacy publish-marker resolver.
+
+    No workflow *action* uses this any more. Beta 11.13D1B moved all six of
+    them to ``core.editorial_actions``, which resolves the marker from
+    ``post_revision_commit`` - once reversion has written the revision's
+    versions - by an exact ``(revision, content_type, object_id, db)`` lookup
+    against the publish's own root version.
+
+    This helper resolved it with an unordered
+    ``Version.objects.get_for_object(obj).first()`` from *inside* the
+    still-open revision block, i.e. before those versions existed, so it could
+    only ever point at an older revision - or, on a first publish, at nothing
+    at all.
+
+    It remains in place for the one caller D1B deliberately does not touch:
+    :meth:`EditorialWorkflowAdminMixin.save_model`, where it backfills a marker
+    for a published row saved through the admin changeform rather than through
+    a workflow action. Correcting that path is a separate concern from making
+    the two *action* surfaces agree, and is left to its own slice.
+    """
     latest = Version.objects.get_for_object(obj).first()
     if latest:
         obj.last_published_revision_id = latest.id
@@ -166,6 +207,31 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
 
     def _get_transition(self, obj, name: str):
         return getattr(obj, name, None)
+
+    def changelist_view(self, request, extra_context=None):
+        """
+        Beta 11.13D1B1: bound the pending publish markers to this request.
+
+        ``VersionAdmin.changelist_view`` wraps the whole changelist POST -
+        admin-action dispatch included - in one ``reversion.create_revision()``,
+        which is what keeps a bulk selection in a single shared revision. That
+        revision therefore commits *after* the action has already returned, and
+        ``post_revision_commit`` - the only thing that resolves a publish marker
+        - fires at that moment. So the marker scope has to enclose
+        ``VersionAdmin``'s context rather than sit inside the action, which is
+        why it is opened here and not in ``action_publish``.
+
+        Opening it around every changelist request (not only publishes) is
+        deliberate: it costs one ``ContextVar`` set/reset, and it means the
+        ``finally`` runs even when the revision is aborted by an action that
+        raises after some objects were already published - the path that
+        previously left an entry behind for the worker's next request.
+
+        Purely an in-memory lifecycle boundary: no query, no permission, no
+        message and no response behaviour changes here.
+        """
+        with publish_marker_scope():
+            return super().changelist_view(request, extra_context)
 
     # ---- Beta 11.11D3C: reversion revert/recover form context ----
 
@@ -462,23 +528,18 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
                         skipped.append((obj.pk, _("permission denied")))
                         continue
 
-                    transition = self._get_transition(obj, "move_to_review")
-                    if transition and can_proceed(transition):
-                        try:
-                            transition(
-                                by=request.user,
-                                note="Admin-Action: submit_for_review",
+                    try:
+                        apply_editorial_action(
+                            obj, EditorialAction.SUBMIT_FOR_REVIEW, actor=request.user
+                        )
+                    except EditorialActionError as exc:
+                        if exc.code in _NOT_EXECUTABLE_CODES:
+                            skipped.append(
+                                (obj.pk, _("Transition 'move_to_review' not executable"))
                             )
-                        except TypeError:
-                            transition()
-                        self._save_with_fields(
-                            obj, "status", "submitted_for_review_at", "updated_at"
-                        )
-                        moved += 1
-                    else:
-                        skipped.append(
-                            (obj.pk, _("Transition 'move_to_review' not executable"))
-                        )
+                            continue
+                        raise
+                    moved += 1
 
         if moved:
             self.message_user(
@@ -507,19 +568,19 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
                             _("You are not authorized to perform this action.")
                         )
 
-                    transition = self._get_transition(obj, "request_rework")
-                    if not transition or not can_proceed(transition):
-                        raise RuntimeError(_("Transition 'request_rework' not executable"))
-
-                    transition(by=request.user, note=note)
-                    self._save_with_fields(
-                        obj,
-                        "status",
-                        "review_note",
-                        "reviewed_at",
-                        "reviewed_by",
-                        "updated_at",
-                    )
+                    try:
+                        apply_editorial_action(
+                            obj,
+                            EditorialAction.REQUEST_REWORK,
+                            actor=request.user,
+                            note=note,
+                        )
+                    except EditorialActionError as exc:
+                        if exc.code in _NOT_EXECUTABLE_CODES:
+                            raise RuntimeError(
+                                _("Transition 'request_rework' not executable")
+                            ) from exc
+                        raise
                     ok += 1
                 except Exception as e:
                     self.message_user(
@@ -551,24 +612,17 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
                         skipped.append((obj.pk, _("permission denied")))
                         continue
 
-                    transition = self._get_transition(obj, "approve")
-                    if not transition or not can_proceed(transition):
-                        skipped.append((obj.pk, _("transition 'approve' not executable")))
-                        continue
-
                     try:
-                        transition(by=request.user, note=note)
-                    except TypeError:
-                        transition()
-
-                    self._save_with_fields(
-                        obj,
-                        "status",
-                        "review_note",
-                        "reviewed_at",
-                        "reviewed_by",
-                        "updated_at",
-                    )
+                        apply_editorial_action(
+                            obj, EditorialAction.APPROVE, actor=request.user, note=note
+                        )
+                    except EditorialActionError as exc:
+                        if exc.code in _NOT_EXECUTABLE_CODES:
+                            skipped.append(
+                                (obj.pk, _("transition 'approve' not executable"))
+                            )
+                            continue
+                        raise
                     approved += 1
 
         if approved:
@@ -603,29 +657,21 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
                     if getattr(obj, "status", None) == getattr(obj, "STATUS_PUBLISHED", "published"):
                         continue
 
-                    transition = self._get_transition(obj, "publish")
-                    if transition and can_proceed(transition):
-                        try:
-                            transition(by=request.user, note="Admin-Action publish")
-                        except TypeError:
-                            transition()
-
-                        try:
-                            with transaction.atomic():
-                                obj.save()
-                        except IntegrityError as exc:
-                            skipped.append((obj.pk, _("Could not publish: %(error)s") % {"error": exc}))
+                    try:
+                        apply_editorial_action(
+                            obj, EditorialAction.PUBLISH, actor=request.user
+                        )
+                    except EditorialActionError as exc:
+                        if exc.code in _NOT_EXECUTABLE_CODES:
+                            skipped.append(
+                                (obj.pk, _("Transition 'publish' not executable"))
+                            )
                             continue
-
-                        set_last_published_revision(obj)
-                        self._save_with_fields(
-                            obj, "last_published_revision_id"
-                        )
-                        published += 1
-                    else:
-                        skipped.append(
-                            (obj.pk, _("Transition 'publish' not executable"))
-                        )
+                        raise
+                    except IntegrityError as exc:
+                        skipped.append((obj.pk, _("Could not publish: %(error)s") % {"error": exc}))
+                        continue
+                    published += 1
 
         if published:
             self.message_user(
@@ -657,15 +703,16 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
                     continue
 
                 try:
-                    transition = self._get_transition(obj, "archive")
-                    if not transition or not can_proceed(transition):
-                        raise RuntimeError(_("Transition 'archive' not executable"))
-
-                    transition(by=request.user, note=note)
-                    obj.is_published = False
-                    self._save_with_fields(
-                        obj, "status", "review_note", "is_published", "updated_at"
-                    )
+                    try:
+                        apply_editorial_action(
+                            obj, EditorialAction.ARCHIVE, actor=request.user, note=note
+                        )
+                    except EditorialActionError as exc:
+                        if exc.code in _NOT_EXECUTABLE_CODES:
+                            raise RuntimeError(
+                                _("Transition 'archive' not executable")
+                            ) from exc
+                        raise
                     ok += 1
                 except Exception as e:
                     self.message_user(
@@ -697,15 +744,19 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
                     continue
 
                 try:
-                    transition = self._get_transition(obj, "restore")
-                    if not transition or not can_proceed(transition):
-                        raise RuntimeError(_("Transition 'restore' not executable"))
-
-                    transition(by=request.user, note=note)
-                    obj.is_published = False
-                    self._save_with_fields(
-                        obj, "status", "review_note", "is_published", "updated_at"
-                    )
+                    try:
+                        apply_editorial_action(
+                            obj,
+                            EditorialAction.RESTORE_TO_DRAFT,
+                            actor=request.user,
+                            note=note,
+                        )
+                    except EditorialActionError as exc:
+                        if exc.code in _NOT_EXECUTABLE_CODES:
+                            raise RuntimeError(
+                                _("Transition 'restore' not executable")
+                            ) from exc
+                        raise
                     ok += 1
                 except Exception as e:
                     self.message_user(

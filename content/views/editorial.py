@@ -4,11 +4,16 @@ from django.db import DEFAULT_DB_ALIAS
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
-from django_fsm import can_proceed
 
 from compare.models import Comparison
 from content.decorators import require_group
 from content.forms_editorial import SubmitToReviewForm, ReviewUpdateForm
+from core.editorial_actions import (
+    EditorialAction,
+    EditorialActionError,
+    EditorialActionErrorCode,
+    apply_editorial_action,
+)
 from core.models.editorial import EditorialWorkflowMixin
 from guides.models import Guide
 from prompts.models import Prompt
@@ -45,6 +50,52 @@ STATUS_TRANSITIONS: dict[str, tuple[str, str]] = {
     "archived": ("archive", "content.archive"),
     "draft": ("restore", "content.restore"),
 }
+
+#: Target status -> the shared, surface-independent action that performs it
+#: (Beta 11.13D1B). Before D1B this module ran the FSM transition and
+#: ``obj.save()`` itself, which produced no reversion revision, no revision
+#: user, no audit comment and - for Guide/Use Case/Comparison - no
+#: ``last_published_revision_id``, while the admin's equivalent action produced
+#: all four. Both surfaces now delegate to ``core.editorial_actions``, so the
+#: same editorial action leaves the same persistent state whichever surface it
+#: was triggered from.
+#:
+#: Prompt's ``review``/``approved``/``published`` never reach this table: they
+#: are intercepted above by the C2A/C3A/D2 primitives, which the shared action
+#: refuses to shadow.
+EDITORIAL_ACTIONS: dict[str, EditorialAction] = {
+    "review": EditorialAction.SUBMIT_FOR_REVIEW,
+    "rework": EditorialAction.REQUEST_REWORK,
+    "approved": EditorialAction.APPROVE,
+    "published": EditorialAction.PUBLISH,
+    "archived": EditorialAction.ARCHIVE,
+    "draft": EditorialAction.RESTORE_TO_DRAFT,
+}
+
+
+def _apply_shared_editorial_action(request, obj, target_status: str) -> None:
+    """
+    Run one workflow action through the shared primitive and render this
+    surface's existing messages for it.
+
+    Only ``STATUS_NOT_ELIGIBLE``/``TRANSITION_UNAVAILABLE`` are routine
+    editorial outcomes and reuse the wording this view already had. Everything
+    else is an integrity failure and is left to propagate - never flattened
+    into a status message that would tell an author their change had been
+    saved when it had not.
+    """
+    action = EDITORIAL_ACTIONS[target_status]
+    try:
+        apply_editorial_action(obj, action, actor=request.user)
+    except EditorialActionError as exc:
+        if exc.code in (
+            EditorialActionErrorCode.STATUS_NOT_ELIGIBLE,
+            EditorialActionErrorCode.TRANSITION_UNAVAILABLE,
+        ):
+            messages.error(request, _("Transition not allowed from current state."))
+            return
+        raise
+    messages.success(request, _("Status updated."))
 
 
 def get_editorial_model(key: str):
@@ -257,19 +308,7 @@ def submit_to_review(request):
         _submit_prompt_for_review_via_primitive(request, obj)
         return redirect("content:editorial:my_content")
 
-    if not hasattr(obj, method_name):
-        messages.error(request, _("Transition not available on this object."))
-        return redirect("content:editorial:my_content")
-    if not can_proceed(getattr(obj, method_name)):
-        messages.error(request, _("Transition not allowed from current state."))
-        return redirect("content:editorial:my_content")
-    try:
-        getattr(obj, method_name)(by=request.user)
-        obj.save()
-        messages.success(request, _("Status updated."))
-    except Exception as e:
-        messages.error(request, _(f"Could not change status: {e}"))
-
+    _apply_shared_editorial_action(request, obj, "review")
     return redirect("content:editorial:my_content")
 
 
@@ -310,22 +349,7 @@ def my_content_update(request: HttpRequest) -> HttpResponse:
         _publish_prompt_review_via_primitive(request, obj)
         return redirect("content:editorial:my_content")
 
-    if not hasattr(obj, method_name):
-        messages.error(request, _("Transition not available on this object."))
-        return redirect("content:editorial:my_content")
-
-    transition = getattr(obj, method_name)
-    if not can_proceed(transition):
-        messages.error(request, _("Transition not allowed from current state."))
-        return redirect("content:editorial:my_content")
-
-    try:
-        transition(by=request.user)
-        obj.save()
-        messages.success(request, _("Status updated."))
-    except Exception as e:
-        messages.error(request, _(f"Could not change status: {e}"))
-
+    _apply_shared_editorial_action(request, obj, new_status)
     return redirect("content:editorial:my_content")
 
 
@@ -383,16 +407,5 @@ def review_update(request: HttpRequest) -> HttpResponse:
         _publish_prompt_review_via_primitive(request, obj)
         return redirect("content:editorial:review_queue")
 
-    if not hasattr(obj, method_name):
-        messages.error(request, _("Transition not available on this object."))
-        return redirect("content:editorial:review_queue")
-    if not can_proceed(getattr(obj, method_name)):
-        messages.error(request, _("Transition not allowed from current state."))
-        return redirect("content:editorial:review_queue")
-    try:
-        getattr(obj, method_name)(by=request.user)
-        obj.save()
-        messages.success(request, _("Status updated."))
-    except Exception as e:
-        messages.error(request, _(f"Could not change status: {e}"))
+    _apply_shared_editorial_action(request, obj, new_status)
     return redirect("content:editorial:review_queue")
