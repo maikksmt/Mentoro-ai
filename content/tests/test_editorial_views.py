@@ -24,12 +24,13 @@ page.
 """
 import ast
 import itertools
+import re
 from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django.utils import translation
 from reversion.models import Revision
 
@@ -1021,3 +1022,222 @@ class OtherEditorialTypesUseTheGenericPathTests(TestCase):
         self.assertEqual(
             Comparison.objects.get(pk=comparison.pk).status, EditorialWorkflowMixin.STATUS_APPROVED
         )
+
+
+# ======================================================================
+# Beta 11.13D1C-R1: content editing is admin-only, the workspace is
+# workflow-only
+# ======================================================================
+#
+# D1C1a briefly built a full create/edit surface for editorial content inside
+# the workspace. That direction was reversed: the editorial workspace remains
+# a comfortable *workflow* surface only (submit, rework, approve, publish,
+# archive, restore) and never an alternative content editor. Every content
+# title continues to link into the Django admin change form, and does so in a
+# new tab so the workspace itself is never navigated away from.
+
+_ALL_EDITORIAL_MODELS = {
+    "guide": Guide,
+    "prompt": Prompt,
+    "usecase": UseCase,
+    "comparison": Comparison,
+}
+
+
+def make_editorial_object(model, *, author=None, status=EditorialWorkflowMixin.STATUS_DRAFT):
+    """A minimal, valid object of any of the four editorial types, with just
+    the fields each type's Parler translation actually declares."""
+    translated_fields = {f.name for f in model._parler_meta.root_model._meta.fields}
+    with translation.override("en"):
+        obj = model.objects.create(author=author, status=status)
+        values = {"title": f"T {_unique_slug('admin-link')}", "slug": _unique_slug("admin-link-slug")}
+        for optional in ("intro", "body", "outro", "persona"):
+            if optional in translated_fields:
+                values[optional] = f"{optional} text"
+        obj.create_translation("en", **values)
+    return model.objects.get(pk=obj.pk)
+
+
+class NoWorkspaceContentFormRoutesTests(TestCase):
+    """
+    D1C1a's create/edit surface must not exist: no routes, no named URLs, no
+    entry points anywhere in the rendered workspace pages.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.editor = User.objects.create_user(username="nowsf-editor", password="pass")
+        cls.editor.groups.add(Group.objects.get(name="Editor"))
+
+    def test_workspace_content_create_and_edit_urls_are_404(self):
+        guide = make_guide(status="draft", author=self.editor)
+        self.client.login(username="nowsf-editor", password="pass")
+        for content_type in ("guide", "prompt", "usecase", "comparison"):
+            with self.subTest(content_type=content_type, action="new"):
+                resp = self.client.get(f"/en/editorial/content/{content_type}/new/")
+                self.assertEqual(resp.status_code, 404)
+            with self.subTest(content_type=content_type, action="new-de"):
+                resp = self.client.get(f"/de/editorial/content/{content_type}/new/")
+                # LocaleMiddleware activates German for the duration of a
+                # `/de/...` request and does not reliably deactivate it
+                # afterwards, so it must be forced back here - not just
+                # before the request - or it leaks into every later test in
+                # this process (see the matching fix in
+                # ContentLinksOpenTheAdminInANewTabTests).
+                translation.activate("en")
+                self.assertEqual(resp.status_code, 404)
+            with self.subTest(content_type=content_type, action="edit"):
+                resp = self.client.get(f"/en/editorial/content/{content_type}/{guide.pk}/edit/")
+                self.assertEqual(resp.status_code, 404)
+            with self.subTest(content_type=content_type, action="edit-de"):
+                resp = self.client.get(f"/de/editorial/content/{content_type}/{guide.pk}/edit/")
+                translation.activate("en")
+                self.assertEqual(resp.status_code, 404)
+
+    def test_no_named_content_create_or_content_edit_url_exists(self):
+        for name in ("content:editorial:content_create", "content:editorial:content_edit"):
+            with self.subTest(name=name):
+                with self.assertRaises(NoReverseMatch):
+                    reverse(name, args=["guide"])
+
+    def test_my_content_has_no_create_controls_or_workspace_content_links(self):
+        make_guide(status="draft", author=self.editor)
+        self.client.login(username="nowsf-editor", password="pass")
+        html = self.client.get(reverse("content:editorial:my_content")).content.decode()
+        self.assertNotIn("/editorial/content/", html)
+        for label in ("Create Guide", "Create guide", "Create Comparison",
+                      "Create Prompt", "Create Use Case"):
+            self.assertNotIn(label, html)
+
+
+class ContentLinksOpenTheAdminInANewTabTests(TestCase):
+    """
+    Every content title in My Content and the Review Queue points at the
+    existing Django admin change form and opens it safely in a new tab.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.author = User.objects.create_user(username="link-author", password="pass")
+        cls.author.groups.add(Group.objects.get(name="Author"))
+        cls.editor = User.objects.create_user(username="link-editor", password="pass")
+        cls.editor.groups.add(Group.objects.get(name="Editor"))
+
+    def _admin_change_url(self, obj):
+        opts = obj._meta
+        return reverse(f"admin:{opts.app_label}_{opts.model_name}_change", args=[obj.pk])
+
+    def _link_tag_for(self, html, href):
+        match = re.search(
+            r'<a\s+href="%s"[^>]*>' % re.escape(href), html
+        )
+        self.assertIsNotNone(match, f"no <a> tag found for href={href!r}")
+        return match.group(0)
+
+    def test_my_content_links_every_type_to_its_admin_change_form_in_a_new_tab(self):
+        for key, model in _ALL_EDITORIAL_MODELS.items():
+            for ui_language in ("en", "de"):
+                with self.subTest(key=key, ui=ui_language):
+                    obj = make_editorial_object(model, author=self.author, status="draft")
+                    self.client.login(username="link-author", password="pass")
+                    with translation.override(ui_language):
+                        url = reverse("content:editorial:my_content")
+                    resp = self.client.get(url)
+                    translation.activate("en")
+                    html = resp.content.decode()
+
+                    admin_url = self._admin_change_url(obj)
+                    tag = self._link_tag_for(html, admin_url)
+                    self.assertIn('target="_blank"', tag)
+                    self.assertIn('rel="noopener noreferrer"', tag)
+                    self.assertNotIn(f"/editorial/content/{key}/{obj.pk}/edit/", html)
+
+    def test_review_queue_links_every_type_to_its_admin_change_form_in_a_new_tab(self):
+        for key, model in _ALL_EDITORIAL_MODELS.items():
+            for ui_language in ("en", "de"):
+                with self.subTest(key=key, ui=ui_language):
+                    obj = make_editorial_object(model, author=self.author, status="review")
+                    self.client.login(username="link-editor", password="pass")
+                    with translation.override(ui_language):
+                        url = reverse("content:editorial:review_queue")
+                    resp = self.client.get(url)
+                    translation.activate("en")
+                    html = resp.content.decode()
+
+                    admin_url = self._admin_change_url(obj)
+                    tag = self._link_tag_for(html, admin_url)
+                    self.assertIn('target="_blank"', tag)
+                    self.assertIn('rel="noopener noreferrer"', tag)
+                    self.assertNotIn(f"/editorial/content/{key}/{obj.pk}/edit/", html)
+
+    def test_my_content_status_and_workflow_buttons_still_render_alongside_the_link(self):
+        make_guide(status="approved", author=self.author)
+        self.client.login(username="link-author", password="pass")
+        html = self.client.get(reverse("content:editorial:my_content")).content.decode()
+        self.assertIn("approved", html)
+        self.assertIn("Publish", html)
+
+    def test_review_queue_actions_still_render_alongside_the_link(self):
+        make_guide(status="review", author=self.author)
+        self.client.login(username="link-editor", password="pass")
+        html = self.client.get(reverse("content:editorial:review_queue")).content.decode()
+        self.assertIn('name="review_note"', html)
+        self.assertIn("Approve", html)
+
+
+class NoLeakedTemplateCommentTests(TestCase):
+    """
+    Two multi-line ``{# ... #}`` comments in the D1G-a rework templates use a
+    syntax Django only supports on a single line; split across lines, the
+    engine renders the remainder as literal page text. Pinned here with the
+    exact wording so a reintroduction is caught immediately.
+    """
+
+    _LEAKED_SNIPPETS = (
+        "Beta 11.13D1G-a",
+        "the editor's reason belongs next to the",
+        "linebreaksbr, never mark_safe",
+        "always rendered rather than",
+        "revealed by script",
+        "is what actually enforces it",
+    )
+    _RAW_TEMPLATE_SYNTAX = ("{#", "#}", "{% comment %}", "{% endcomment %}")
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.author = User.objects.create_user(username="leak-author", password="pass")
+        cls.author.groups.add(Group.objects.get(name="Author"))
+        cls.editor = User.objects.create_user(username="leak-editor", password="pass")
+        cls.editor.groups.add(Group.objects.get(name="Editor"))
+
+    def test_my_content_renders_no_leaked_comment_text(self):
+        guide = make_guide(status="rework", author=self.author)
+        Guide.objects.filter(pk=guide.pk).update(review_note="Please revise the intro")
+        self.client.login(username="leak-author", password="pass")
+        for ui_language in ("en", "de"):
+            with self.subTest(ui=ui_language):
+                with translation.override(ui_language):
+                    url = reverse("content:editorial:my_content")
+                html = self.client.get(url).content.decode()
+                translation.activate("en")
+                for snippet in self._LEAKED_SNIPPETS:
+                    self.assertNotIn(snippet, html, f"leaked comment text: {snippet!r}")
+                for raw in self._RAW_TEMPLATE_SYNTAX:
+                    self.assertNotIn(raw, html, f"raw template syntax leaked: {raw!r}")
+                # the real feature the comment describes must still work
+                self.assertIn("Please revise the intro", html)
+
+    def test_review_queue_renders_no_leaked_comment_text(self):
+        make_guide(status="review", author=self.author)
+        self.client.login(username="leak-editor", password="pass")
+        for ui_language in ("en", "de"):
+            with self.subTest(ui=ui_language):
+                with translation.override(ui_language):
+                    url = reverse("content:editorial:review_queue")
+                html = self.client.get(url).content.decode()
+                translation.activate("en")
+                for snippet in self._LEAKED_SNIPPETS:
+                    self.assertNotIn(snippet, html, f"leaked comment text: {snippet!r}")
+                for raw in self._RAW_TEMPLATE_SYNTAX:
+                    self.assertNotIn(raw, html, f"raw template syntax leaked: {raw!r}")
+                self.assertIn('name="review_note"', html)

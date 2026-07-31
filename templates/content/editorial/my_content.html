@@ -25,14 +25,14 @@
                 <tr>
                     <td class="capitalize">{{ key }}</td>
                     <td>
-                        <a href="{% admin_change_url it %}" target="_blank" class="link"> {{ it.title }} </a>
+                        <a href="{% admin_change_url it %}" target="_blank" rel="noopener noreferrer" class="link"> {{ it.title }} </a>
 
                     </td>
                     <td>
                         {{ it.status }}
-                        {# Beta 11.13D1G-a: the editor's reason belongs next to the
+                        {% comment %}Beta 11.13D1G-a: the editor's reason belongs next to the
                            status it explains. Plain text: normal autoescaping plus
-                           linebreaksbr, never mark_safe. #}
+                           linebreaksbr, never mark_safe.{% endcomment %}
                         {% if it.status == "rework" and it.review_note %}
                             <div class="mt-1 text-sm opacity-80">
                                 <span class="font-semibold">{% trans "Rework requested" %}:</span>

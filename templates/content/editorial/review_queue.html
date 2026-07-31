@@ -20,7 +20,7 @@
                         <tbody>
                         {% for it in qs %}
                             <tr>
-                                <td><a href="{% admin_change_url it %}" target="_blank" class="link"> {{ it.title }} </a></td>
+                                <td><a href="{% admin_change_url it %}" target="_blank" rel="noopener noreferrer" class="link"> {{ it.title }} </a></td>
                                 <td>{% if it.author %}{{ it.author.get_full_name|default:it.author.username }}{% else %}
                                     —{% endif %}</td>
                                 <td>#{{ it.pk }}</td>
@@ -29,10 +29,10 @@
                                         {% csrf_token %}
                                         <input type="hidden" name="model" value="{{ key }}">
                                         <input type="hidden" name="object_id" value="{{ it.pk }}">
-                                        {# Beta 11.13D1G-a: always rendered rather than
+                                        {% comment %}Beta 11.13D1G-a: always rendered rather than
                                            revealed by script - no new JS dependency, and
                                            the server-side rule in ReviewUpdateForm.clean()
-                                           is what actually enforces it. #}
+                                           is what actually enforces it.{% endcomment %}
                                         <div class="text-left mb-2">
                                             <label class="label py-1" for="review-note-{{ key }}-{{ it.pk }}">
                                                 <span class="label-text">{% trans "Reason for rework" %}</span>
