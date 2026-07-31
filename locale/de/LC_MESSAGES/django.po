@@ -4845,6 +4845,34 @@ msgstr ""
 "Veröffentlichungsstatus wird auf den in dieser Revision gespeicherten "
 "Stand zurückgesetzt."
 
+#: templates/content/editorial/my_content.html:17
+msgid "Type"
+msgstr "Typ"
+
+#: templates/content/editorial/my_content.html:11
+msgid "Rich text layouts"
+msgstr "Richtext-Layouts"
+
+#: content/forms_editorial.py:56
+msgid "Reason for rework"
+msgstr "Grund für die Überarbeitung"
+
+#: content/forms_editorial.py:57
+msgid "Required when requesting rework."
+msgstr "Erforderlich, wenn du eine Überarbeitung anforderst."
+
+#: templates/content/editorial/my_content.html:46
+msgid "Submit again for review"
+msgstr "Erneut zur Prüfung einreichen"
+
+#: templates/content/editorial/my_content.html:35
+msgid "Rework requested"
+msgstr "Überarbeitung angefordert"
+
+#: content/forms_editorial.py:80
+msgid "Please give a short reason so the author knows what to change."
+msgstr "Bitte gib einen kurzen Grund an, damit klar ist, was geändert werden soll."
+
 #~ msgid "Search is coming soon"
 #~ msgstr "Die Suche kommt bald"
 
@@ -5140,9 +5168,6 @@ msgstr ""
 
 #~ msgid "Change status"
 #~ msgstr "Status ändern"
-
-#~ msgid "Type"
-#~ msgstr "Typ"
 
 #~ msgid "Object ID"
 #~ msgstr "Objekt-ID"

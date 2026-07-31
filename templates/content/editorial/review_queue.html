@@ -29,6 +29,22 @@
                                         {% csrf_token %}
                                         <input type="hidden" name="model" value="{{ key }}">
                                         <input type="hidden" name="object_id" value="{{ it.pk }}">
+                                        {# Beta 11.13D1G-a: always rendered rather than
+                                           revealed by script - no new JS dependency, and
+                                           the server-side rule in ReviewUpdateForm.clean()
+                                           is what actually enforces it. #}
+                                        <div class="text-left mb-2">
+                                            <label class="label py-1" for="review-note-{{ key }}-{{ it.pk }}">
+                                                <span class="label-text">{% trans "Reason for rework" %}</span>
+                                            </label>
+                                            <textarea name="review_note"
+                                                      id="review-note-{{ key }}-{{ it.pk }}"
+                                                      rows="2"
+                                                      class="textarea textarea-bordered textarea-sm w-full"
+                                                      aria-describedby="review-note-help-{{ key }}-{{ it.pk }}"></textarea>
+                                            <span id="review-note-help-{{ key }}-{{ it.pk }}"
+                                                  class="text-xs opacity-70">{% trans "Required when requesting rework." %}</span>
+                                        </div>
                                         <select name="status" class="select select-bordered select-sm mr-2">
                                             {% if it.status == "review" %}
                                                 <option value="approved">{% trans "Approve" %}</option>

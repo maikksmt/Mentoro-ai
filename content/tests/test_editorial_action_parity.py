@@ -53,6 +53,11 @@ _slug_counter = itertools.count()
 
 PASSWORD = "pw-parity"
 
+#: The reason the workspace sends with every rework request. The admin's bulk
+#: action has no equivalent input, which is the one place the two surfaces are
+#: allowed to differ - see ``EditorialActionParityTests._assert_parity``.
+WORKSPACE_REWORK_REASON = "Workspace reason: please tighten the introduction."
+
 #: The four editorial roots, keyed by the model key both surfaces already use
 #: (``content.views.editorial.EDITORIAL_MODEL_REGISTRY`` for the workspace,
 #: the admin changelist URL for the admin).
@@ -186,10 +191,13 @@ class EditorialParityBase(TestCase):
     def run_workspace(self, key, obj, status):
         client = self.client_class()
         client.login(username=self.workspace_actor.username, password=PASSWORD)
+        payload = {"model": key, "object_id": obj.pk, "status": status}
+        if status == "rework":
+            # Beta 11.13D1G-a made a reason mandatory for rework in the
+            # workspace, so the surface cannot be driven without one.
+            payload["review_note"] = WORKSPACE_REWORK_REASON
         return client.post(
-            reverse("content:editorial:review_update"),
-            {"model": key, "object_id": obj.pk, "status": status},
-            follow=True,
+            reverse("content:editorial:review_update"), payload, follow=True
         )
 
     def run_admin(self, key, objs, status):
@@ -257,9 +265,30 @@ class EditorialActionParityTests(EditorialParityBase):
             workspace["source_status"],
             f"{key}/{status}: the two surfaces did not start from the same state",
         )
+
+        workspace_signature = dict(workspace["signature"])
+        admin_signature = dict(admin["signature"])
+        if status == "rework":
+            # The single sanctioned divergence (Beta 11.13D1G-a): the workspace
+            # collects an explicit reason from the editor, while the admin's
+            # bulk action has no field to type one into and therefore still
+            # writes "". Asserted explicitly below rather than waved away, and
+            # narrowed to this one key of this one action - every other field,
+            # and every other action, stays fully compared.
+            self.assertEqual(
+                workspace_signature.pop("review_note"),
+                WORKSPACE_REWORK_REASON,
+                f"{key}/rework: the workspace did not store the editor's reason",
+            )
+            self.assertEqual(
+                admin_signature.pop("review_note"),
+                "",
+                f"{key}/rework: the admin bulk path unexpectedly stored a note",
+            )
+
         self.assertEqual(
-            workspace["signature"],
-            admin["signature"],
+            workspace_signature,
+            admin_signature,
             f"{key}/{status}: workspace and admin left different editorial state",
         )
         self.assertEqual(

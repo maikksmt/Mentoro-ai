@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from compare.models import Comparison
 from content.decorators import require_group
-from content.forms_editorial import SubmitToReviewForm, ReviewUpdateForm
+from content.forms_editorial import REWORK_STATUS, SubmitToReviewForm, ReviewUpdateForm
 from core.editorial_actions import (
     EditorialAction,
     EditorialActionError,
@@ -73,10 +73,27 @@ EDITORIAL_ACTIONS: dict[str, EditorialAction] = {
 }
 
 
-def _apply_shared_editorial_action(request, obj, target_status: str) -> None:
+def _review_form_error(form) -> str | None:
+    """
+    The first ``review_note`` error, if that is why the form failed.
+
+    Beta 11.13D1G-a: a missing rework reason is a normal editorial mistake and
+    deserves to say so, while every other invalid payload keeps the existing
+    generic wording - those are malformed requests, not user errors worth
+    describing in detail.
+    """
+    errors = form.errors.get("review_note")
+    return errors[0] if errors else None
+
+
+def _apply_shared_editorial_action(request, obj, target_status: str, note: str | None = None) -> None:
     """
     Run one workflow action through the shared primitive and render this
     surface's existing messages for it.
+
+    ``note`` is only ever passed for rework (Beta 11.13D1G-a); every other
+    action leaves it ``None`` so the primitive keeps writing its own canonical
+    note and stays byte-identical to the admin path.
 
     Only ``STATUS_NOT_ELIGIBLE``/``TRANSITION_UNAVAILABLE`` are routine
     editorial outcomes and reuse the wording this view already had. Everything
@@ -86,7 +103,7 @@ def _apply_shared_editorial_action(request, obj, target_status: str) -> None:
     """
     action = EDITORIAL_ACTIONS[target_status]
     try:
-        apply_editorial_action(obj, action, actor=request.user)
+        apply_editorial_action(obj, action, actor=request.user, note=note)
     except EditorialActionError as exc:
         if exc.code in (
             EditorialActionErrorCode.STATUS_NOT_ELIGIBLE,
@@ -320,7 +337,7 @@ def my_content_update(request: HttpRequest) -> HttpResponse:
 
     form = ReviewUpdateForm(request.POST, user=request.user)
     if not form.is_valid():
-        messages.error(request, _("Invalid request."))
+        messages.error(request, _review_form_error(form) or _("Invalid request."))
         return redirect("content:editorial:my_content")
 
     model_key = form.cleaned_data["model"]
@@ -349,8 +366,17 @@ def my_content_update(request: HttpRequest) -> HttpResponse:
         _publish_prompt_review_via_primitive(request, obj)
         return redirect("content:editorial:my_content")
 
-    _apply_shared_editorial_action(request, obj, new_status)
+    _apply_shared_editorial_action(
+        request, obj, new_status, note=_rework_note(form, new_status)
+    )
     return redirect("content:editorial:my_content")
+
+
+def _rework_note(form, target_status: str) -> str | None:
+    """The validated reason, but only for the action that carries one."""
+    if target_status != REWORK_STATUS:
+        return None
+    return form.cleaned_data.get("review_note") or None
 
 
 @require_group("Editor", "Admin")
@@ -378,7 +404,7 @@ def review_update(request: HttpRequest) -> HttpResponse:
     # POST
     form = ReviewUpdateForm(request.POST, user=request.user)
     if not form.is_valid():
-        messages.error(request, _("Invalid request."))
+        messages.error(request, _review_form_error(form) or _("Invalid request."))
         return redirect("content:editorial:review_queue")
 
     model_key = form.cleaned_data["model"]
@@ -407,5 +433,7 @@ def review_update(request: HttpRequest) -> HttpResponse:
         _publish_prompt_review_via_primitive(request, obj)
         return redirect("content:editorial:review_queue")
 
-    _apply_shared_editorial_action(request, obj, new_status)
+    _apply_shared_editorial_action(
+        request, obj, new_status, note=_rework_note(form, new_status)
+    )
     return redirect("content:editorial:review_queue")

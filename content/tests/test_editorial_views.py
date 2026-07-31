@@ -303,10 +303,14 @@ class MyContentUpdateWorkflowTests(TestCase):
         cls.author.groups.add(Group.objects.get(name="Author"))
 
     def _post(self, guide, status):
+        payload = {"model": "guide", "object_id": guide.pk, "status": status}
+        if status == "rework":
+            # Beta 11.13D1G-a: a rework request carries a mandatory reason on
+            # every surface, so the payload must be valid for this test to
+            # still reach - and therefore still prove - the permission check.
+            payload["review_note"] = "reason supplied, permission still missing"
         return self.client.post(
-            reverse("content:editorial:my_content_update"),
-            {"model": "guide", "object_id": guide.pk, "status": status},
-            follow=True,
+            reverse("content:editorial:my_content_update"), payload, follow=True
         )
 
     def test_author_publishes_own_approved_guide(self):
@@ -456,10 +460,14 @@ class ReviewUpdateWorkflowTests(TestCase):
         cls.author = User.objects.create_user(username="ru-wf-author", password="pass")
 
     def _post(self, guide, status):
+        payload = {"model": "guide", "object_id": guide.pk, "status": status}
+        if status == "rework":
+            # Beta 11.13D1G-a: rework needs a reason. Supplied here so this
+            # class keeps testing the transition itself; the reason's own
+            # validation lives in content/tests/test_editorial_rework_loop.py.
+            payload["review_note"] = "please revise the introduction"
         return self.client.post(
-            reverse("content:editorial:review_update"),
-            {"model": "guide", "object_id": guide.pk, "status": status},
-            follow=True,
+            reverse("content:editorial:review_update"), payload, follow=True
         )
 
     def test_editor_approves_someone_elses_review_item(self):
@@ -837,7 +845,13 @@ class PromptOtherTransitionsRemainGenericTests(TestCase):
         self.client.login(username="prompt-generic-editor", password="pass")
         resp = self.client.post(
             reverse("content:editorial:review_update"),
-            {"model": "prompt", "object_id": prompt.pk, "status": "rework"},
+            {
+                "model": "prompt",
+                "object_id": prompt.pk,
+                "status": "rework",
+                # Beta 11.13D1G-a: rework carries a mandatory reason.
+                "review_note": "prompt needs another pass",
+            },
             follow=True,
         )
         reloaded = refetch_prompt(prompt)

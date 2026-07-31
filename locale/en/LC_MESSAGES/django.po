@@ -4193,3 +4193,31 @@ msgid ""
 "Practical AI use cases with clear examples, benefits and guidance for "
 "business tasks, research and creative work."
 msgstr ""
+
+#: templates/content/editorial/my_content.html:17
+msgid "Type"
+msgstr ""
+
+#: templates/content/editorial/my_content.html:11
+msgid "Rich text layouts"
+msgstr ""
+
+#: content/forms_editorial.py:56
+msgid "Reason for rework"
+msgstr ""
+
+#: content/forms_editorial.py:57
+msgid "Required when requesting rework."
+msgstr ""
+
+#: templates/content/editorial/my_content.html:46
+msgid "Submit again for review"
+msgstr ""
+
+#: templates/content/editorial/my_content.html:35
+msgid "Rework requested"
+msgstr ""
+
+#: content/forms_editorial.py:80
+msgid "Please give a short reason so the author knows what to change."
+msgstr ""
