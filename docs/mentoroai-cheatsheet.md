@@ -137,6 +137,96 @@ make test-app APP=search   # nur die Search-App
 
 ---
 
+## Editorial Workspace (Workflow, Beta 11)
+
+Der Editorial Workspace unter `/en/editorial/` bzw. `/de/editorial/` ist
+**ausschließlich eine Workflow-Oberfläche**, keine Content-Management-Fläche.
+Erstellung und Bearbeitung von Guide/Prompt/UseCase/Comparison — inklusive
+übersetzter Felder, Rich Text, Guide Sections/Items, Comparison Tool Entries
+und direkter Relationen — bleiben vollständig dem Django Admin vorbehalten
+(`content/urls_editorial.py` registriert keine Create-/Edit-Route).
+
+**Tatsächlich registrierte Routen** (`content/urls_editorial.py`):
+
+- `me/content/` (`my_content`) – eigene Inhalte, Statusanzeige, Reworkgrund
+- `me/submit/` (`submit_to_review`) – Submit/Resubmit (POST)
+- `me/update/` (`my_content_update`) – Statuswechsel durch Author/Editor (POST)
+- `review/` (`review_queue`) – Review Queue für Editor/Admin
+- `review/update/` (`review_update`) – Approve/Rework/Publish/Archive/Restore (POST)
+- `layout-examples/` – statische Richtext-Referenzseite
+
+Inhaltstitel in „My Content“ und der „Review Queue“ verlinken auf die
+bestehende Admin-Change-Seite des Objekts (`{% admin_change_url %}`) und
+öffnen dort mit `target="_blank" rel="noopener noreferrer"` in einem neuen
+Tab. Ein Nutzer ohne Admin-Zugriff kann dadurch bewusst keine Inhalte
+erstellen oder bearbeiten — es werden keine zusätzlichen Rechte und kein
+`is_staff` über den Workspace vergeben.
+
+**Rework-/Resubmit-Kreislauf** (Beta 11.13D1G-a)
+
+- Editor muss bei „Request rework“ einen Grund angeben; ein leerer oder
+  reiner Whitespace-Grund wird serverseitig abgelehnt
+- der Grund wird als Plain Text gespeichert (normales Autoescaping, kein
+  `mark_safe`) und ist Teil der Reversion-Revision
+- der Author sieht den Grund in „My Content“ und kann den Inhalt über
+  denselben Submit-Endpunkt erneut zur Prüfung einreichen
+- gilt einheitlich für Guide, Prompt, Use Case und Comparison
+
+**Gemeinsame Workflowprimitiven** (Beta 11.13D1B/D1B1, `core/editorial_actions.py`)
+
+- Admin und Workspace delegieren für fachlich gleiche Aktionen (Submit,
+  Rework, Approve, Publish, Archive, Restore) an dieselbe
+  `apply_editorial_action()`-Primitive statt an zwei getrennte Implementierungen
+- eine Admin-Bulkauswahl bleibt in einer gemeinsamen Revision; eine
+  Workspace-Aktion öffnet ihren eigenen Revisionskontext
+- der Publishmarker (`last_published_revision_id`) wird über einen
+  explizit begrenzten, leakfreien `ContextVar`-Scope
+  (`publish_marker_scope()`) gesetzt, erst nachdem Reversion die
+  zugehörigen `Version`-Zeilen tatsächlich geschrieben hat
+- Prompt behält seinen spezialisierten Submit-/Approve-/Publish-Vertrag
+  (Review-Payload, Fingerprint, Bindings, Live-Author-Snapshot) unverändert;
+  die gemeinsame Primitive ersetzt diesen Pfad nicht
+
+**Reversion- und Publish-Semantik**
+
+- django-reversion ist die zentrale Revisionsbasis für alle vier
+  Editorialtypen
+- `last_published_revision_id` trägt trotz des historischen Namens eine
+  `reversion.Version`-ID, nicht die `Revision`-ID der zugehörigen Revision
+- Review-/Approval-Bindings referenzieren konkrete, geprüfte Versionen
+- ein veröffentlichter Live-Snapshot bleibt öffentlich unverändert
+  sichtbar, während intern neue Draft-/Reviewänderungen vorbereitet werden;
+  diese Draftänderungen leaken nicht vor dem nächsten Publish
+- Exact Reversion (Revert auf eine Revision) ist ein destruktiver
+  Admin-Vorgang (`revision.revert(delete=True)`); Recovery gelöschter
+  Objekte bleibt ebenso eine Admin-Funktion
+- Archive/Restore stehen Author und Editor gemäß Rollenvertrag zur
+  Verfügung; Hard Delete bleibt Admin/Superuser vorbehalten
+
+**Tool-Lifecycle** (`catalog/`)
+
+- öffentliche Guide-/Prompt-/UseCase-Ausgaben verwenden ausschließlich
+  `Tool.objects.public()`; nicht öffentliche bzw. archivierte Tools
+  erscheinen dadurch nicht versehentlich in öffentlichen Editorialinhalten
+- eine Tool-Löschung wird im Admin blockiert (`get_deleted_objects()`
+  meldet das Tool an Djangos eigene `protected`-Liste), sobald mindestens
+  ein `ComparisonToolEntry` das Tool referenziert — sowohl Einzel- als auch
+  Bulk-Löschung; eine Auswahl mit einem geschützten Tool wird als Ganzes
+  blockiert, keine Teillöschung
+- reine direkte M2M-Beziehungen (`Guide.tools`, `Prompt.tools`,
+  `UseCase.tools`) ohne `ComparisonToolEntry` sind nach diesem Vertrag
+  **kein** zusätzlicher Delete-Blocker
+- zur Cache-Konsistenz des Public-Inventory-Caches (bis zu 300 s Eventual
+  Consistency) siehe Abschnitt „Cache (Production-Voraussetzung)“ oben
+
+**Raw**
+
+```bash
+make test-app APP=content   # Workspace-Views, Rework-Loop, Action-Parity
+```
+
+---
+
 ## Tests & Coverage
 
 - `make test` – Alle Django-Tests mit Coverage (mit `.coveragerc` & Settings).

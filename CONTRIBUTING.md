@@ -90,6 +90,32 @@ Review checklist:
 - Always cite external sources and data
 - Do not include copyrighted material without permission
 
+### Where content is created and edited
+
+Guides, prompts, use cases, and comparisons — including their translated
+fields, rich-text body content, guide sections/items, comparison tool
+entries, and direct relations (categories, tools) — are created and edited
+exclusively in the **Django Admin**. This is a deliberate product decision,
+not a temporary limitation: the Admin is, and stays, the single content
+management surface for all four editorial types.
+
+The **Editorial Workspace** (`/en/editorial/`, `/de/editorial/`) is a
+separate, workflow-only surface. It covers the existing review lifecycle —
+submit for review, request rework (with a required reason) and resubmit,
+approve, publish, archive, restore — plus the "My Content" and "Review
+Queue" overviews, for the roles the underlying rules already allow. It does
+**not** offer content creation, content editing, translation forms, child
+editing (sections, items, comparison entries), preview, revision history, or
+recovery; content titles in the workspace open the corresponding Admin
+change form in a new tab (`target="_blank" rel="noopener noreferrer"`) so a
+user with the necessary Admin permission can edit there, while a user
+without Admin access simply cannot create or edit content — no additional
+permissions or `is_staff` are granted through the workspace.
+
+If you are contributing code, do not reintroduce content create/edit forms
+into the Editorial Workspace; that direction was deliberately reversed
+during Beta 11 in favor of this Admin-only contract.
+
 ---
 
 ## License & Contributor Agreement

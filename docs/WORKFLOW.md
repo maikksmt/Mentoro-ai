@@ -10,16 +10,16 @@ based on the current branching and merge rules.
 | Branch                  | Purpose                                     |
 |-------------------------|---------------------------------------------|
 | `main`                  | Stable production releases                  |
-| `development`           | Active development base for features        |
+| `dev`                   | Active development base for features        |
 | `feature/<description>` | Short-lived feature branches                |
 | `hotfix/<description>`  | Urgent production fixes derived from `main` |
 
 **Principles**
 
 - `main` is never edited directly — only through PRs
-- `development` is the integration branch
-- New features branch from `development`
-- Releases merge from `development` → `main`
+- `dev` is the integration branch
+- New features branch from `dev`
+- Releases merge from `dev` → `main`
 
 ---
 
@@ -33,7 +33,7 @@ based on the current branching and merge rules.
 - Allow **Merge commits** (for releases)
 - Disallow force pushes or deletions
 
-### 🔹 development
+### 🔹 dev
 
 - Require PR before merging
 - Enforce **linear history** ✅
@@ -46,8 +46,8 @@ based on the current branching and merge rules.
 
 | From → To                 | Method                  | Purpose                          |
 |---------------------------|-------------------------|----------------------------------|
-| `feature/* → development` | **Squash and Merge**    | Clean, single-commit history     |
-| `development → main`      | **Create Merge Commit** | Release bundle with full history |
+| `feature/* → dev`         | **Squash and Merge**    | Clean, single-commit history     |
+| `dev → main`              | **Create Merge Commit** | Release bundle with full history |
 | `hotfix/* → main`         | **Create Merge Commit** | Urgent production fix            |
 
 > 💡 **No squash for releases!**  
@@ -73,15 +73,15 @@ chore(ci): add GitHub Actions cache
 
 Before merging a feature branch:
 
-- In PyCharm: Branch → **Update from development**  
-  (rebases with latest `development`)
+- In PyCharm: Branch → **Update from dev**<br>
+  (rebases with latest `dev`)
 - Resolve conflicts in editor → commit merge result
 
 ---
 
 ## Release Process
 
-1. Ensure `development` is stable (tests + manual check passed)
+1. Ensure `dev` is stable (tests + manual check passed)
 
    Minimum pre-release checks:
 
@@ -101,11 +101,11 @@ Before merging a feature branch:
    Deployment prerequisite: the `DatabaseCache` table must exist on the target
    host (`python manage.py createcachetable`) — see `README.md`.
 
-2. Create PR → `development → main`
+2. Create PR → `dev → main`
 3. Title: `release: vX.Y.Z`
 4. Merge method: **Create Merge Commit**
 5. On GitHub: **Releases → Draft new release → Tag** (`vX.Y.Z`)
-6. After release: update `development` from `main` to sync
+6. After release: update `dev` from `main` to sync
 
 ---
 
@@ -114,7 +114,7 @@ Before merging a feature branch:
 1. Branch → **New Branch → hotfix/<description>** (from `main`)
 2. Commit & push fix
 3. PR → `main`, merge commit
-4. Sync `main` → `development` afterwards
+4. Sync `main` → `dev` afterwards
 
 ---
 
@@ -151,10 +151,10 @@ Before merging a feature branch:
 
 ## TL;DR
 
-1. Work in `development`
+1. Work in `dev`
 2. Create feature branch → commit & push
-3. PR → `development` → Squash & Merge
-4. Release PR `development → main` → Merge Commit
+3. PR → `dev` → Squash & Merge
+4. Release PR `dev → main` → Merge Commit
 5. Tag release `vX.Y.Z`
 
 ---
