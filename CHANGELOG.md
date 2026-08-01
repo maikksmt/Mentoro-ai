@@ -24,6 +24,23 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   reason is stored as part of the revision, the author sees it in "My Content"
   and can resubmit for review through the same workflow contract — for Guide,
   Prompt, Use Case and Comparison alike
+- review and approval bindings for Guide, Prompt, Use Case and Comparison: a
+  submitted review and a granted approval are now bound to the concrete
+  revision they were given for (`review_revision`, `approved_revision`),
+  instead of being a status value that any later edit could silently outdate
+- Prompt review payload v2 with a stored payload fingerprint
+  (`review_payload_fingerprint`): the reviewed state of a prompt is captured
+  canonically, so a later content change invalidates the approval instead of
+  publishing something that was never reviewed
+- live-author snapshot for Prompt (`live_author`): the author name shown on a
+  published prompt is frozen at publish time and only changes on a conscious
+  republish, so renaming an account no longer rewrites already published pages
+- draft-preview and object-reference hardening for the admin preview
+  endpoints: an unsupported language, a missing translation and an object the
+  requester may not preview all fail closed with the same 404
+- public tool filter: public guide, prompt and use-case output resolves tools
+  exclusively through `Tool.objects.public()`, so non-public or archived tools
+  can no longer surface in published editorial content
 
 ### Changed
 
@@ -60,7 +77,16 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   editorial-workspace state was verified with a focused ~166-test scope run
   normally, `--reverse`, and with two `--shuffle` seeds — not a repeated full
   suite
-- no migrations, no new dependencies
+- Beta 11 includes six schema and data-backfill migrations across the
+  Comparison, Guide, Prompt and Use Case editorial models: `review_revision`,
+  `approved_revision` and `review_payload_fingerprint` are added to all four
+  root types, Prompt additionally receives the review-payload v2 data
+  migration and the `live_author` snapshot field with its backfill
+- no new dependencies: `requirements.txt` is unchanged against `dev`
+- Beta 11 establishes the editorial review, preview, revision, publishing,
+  and snapshot foundation. Final role-ownership hardening and editorial
+  workflow notification badges are scheduled for Beta 12 and are required
+  before the next production release.
 
 ---
 
