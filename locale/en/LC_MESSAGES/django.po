@@ -3982,15 +3982,11 @@ msgstr ""
 
 #: templates/partials/features_open.html:30
 msgid ""
-"Unified search across Tools, Guides, Prompts, Use-Cases with filters and "
-"tags."
+"Filters and tags on top of unified search across Tools, Guides, Prompts, "
+"Use-Cases and Comparisons."
 msgstr ""
 
 #: templates/partials/features_open.html:31
-msgid "Compare view: side-by-side feature comparison for tools and prompts."
-msgstr ""
-
-#: templates/partials/features_open.html:32
 msgid "RSS/Atom feeds for new and updated content."
 msgstr ""
 
@@ -4009,6 +4005,39 @@ msgstr ""
 
 #: templates/partials/features_open.html:40
 msgid "Glossary hover cards for terms used in content."
+msgstr ""
+
+#: templates/partials/features_open.html:43
+msgid "Editorial roles & permissions"
+msgstr ""
+
+#: templates/partials/features_open.html:45
+msgid ""
+"Finer-grained editorial roles with clearly separated editing and review "
+"rights."
+msgstr ""
+
+#: templates/partials/features_open.html:46
+msgid ""
+"Ownership-based management of content, translations and content building "
+"blocks."
+msgstr ""
+
+#: templates/partials/features_open.html:47
+msgid ""
+"Tightened, ownership-based access to preview, revision history and recovery."
+msgstr ""
+
+#: templates/partials/features_open.html:48
+msgid ""
+"A counter on the Reviews menu showing how many items are currently waiting "
+"for review."
+msgstr ""
+
+#: templates/partials/features_open.html:49
+msgid ""
+"A notice on My Content when a submitted item has been approved or sent "
+"back for changes."
 msgstr ""
 
 #: templates/partials/features_open.html:44

@@ -4497,19 +4497,13 @@ msgstr "Entdecken & Navigieren"
 
 #: templates/partials/features_open.html:30
 msgid ""
-"Unified search across Tools, Guides, Prompts, Use-Cases with filters and "
-"tags."
+"Filters and tags on top of unified search across Tools, Guides, Prompts, "
+"Use-Cases and Comparisons."
 msgstr ""
-"Einheitliche Suche zwischen Tools, Leitfäden, Prompts, Anwendungsfall mit "
-"Filtern und Tags."
+"Filter und Tags zusätzlich zur einheitlichen Suche über Tools, Leitfäden, "
+"Prompts, Anwendungsfälle und Vergleiche."
 
 #: templates/partials/features_open.html:31
-msgid "Compare view: side-by-side feature comparison for tools and prompts."
-msgstr ""
-"Vergleichsansicht: Side-by-Side-Feature-Vergleich für Tools und "
-"Eingabeaufforderungen."
-
-#: templates/partials/features_open.html:32
 msgid "RSS/Atom feeds for new and updated content."
 msgstr "RSS/Atom-Feeds für neue und aktualisierte Inhalte."
 
@@ -4531,6 +4525,49 @@ msgstr "Lesemodi: kompaktes vs. komfortables Layout."
 #: templates/partials/features_open.html:40
 msgid "Glossary hover cards for terms used in content."
 msgstr "Glossar-Hover-Karten für Begriffe, die in Inhalten verwendet werden."
+
+#: templates/partials/features_open.html:43
+msgid "Editorial roles & permissions"
+msgstr "Redaktionelle Rollen & Berechtigungen"
+
+#: templates/partials/features_open.html:45
+msgid ""
+"Finer-grained editorial roles with clearly separated editing and review "
+"rights."
+msgstr ""
+"Feinere redaktionelle Rollen mit klar getrennten Bearbeitungs- und "
+"Reviewrechten."
+
+#: templates/partials/features_open.html:46
+msgid ""
+"Ownership-based management of content, translations and content building "
+"blocks."
+msgstr ""
+"Eigentümerbezogene Verwaltung von Inhalten, Übersetzungen und "
+"Inhaltsbausteinen."
+
+#: templates/partials/features_open.html:47
+msgid ""
+"Tightened, ownership-based access to preview, revision history and recovery."
+msgstr ""
+"Verschärfter, eigentümerbezogener Zugriff auf Vorschau, Versionshistorie und "
+"Wiederherstellung."
+
+#: templates/partials/features_open.html:48
+msgid ""
+"A counter on the Reviews menu showing how many items are currently waiting "
+"for review."
+msgstr ""
+"Ein Zähler am Menüpunkt „Reviews“, der zeigt, wie viele Inhalte gerade auf "
+"ein Review warten."
+
+#: templates/partials/features_open.html:49
+msgid ""
+"A notice on My Content when a submitted item has been approved or sent "
+"back for changes."
+msgstr ""
+"Ein Hinweis unter „My Content“, wenn ein eingereichter Inhalt genehmigt oder "
+"zur Nacharbeit zurückgeschickt wurde."
 
 #: templates/partials/features_open.html:44
 msgid "Prompt Studio"
