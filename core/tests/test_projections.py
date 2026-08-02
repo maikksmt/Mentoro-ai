@@ -154,9 +154,8 @@ class PublicContentValueTests(ProjectionBaseTests):
             },
         )
         for language_code in ("", None):
-            with self.subTest(language_code=language_code):
-                with self.assertRaisesMessage(ValueError, "language_code is required"):
-                    public_content_value(guide, "title", language_code=language_code)
+            with self.subTest(language_code=language_code), self.assertRaisesMessage(ValueError, "language_code is required"):
+                public_content_value(guide, "title", language_code=language_code)
 
     def test_ignores_ambient_language(self):
         guide = make_published_guide(

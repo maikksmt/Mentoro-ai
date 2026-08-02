@@ -15,5 +15,5 @@ def jsonld(value):
     """
     try:
         return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
-    except Exception:
+    except Exception:  # noqa: BLE001 - template filter must never break rendering
         return "{}"

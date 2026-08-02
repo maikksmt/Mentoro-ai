@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
+from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.urls import reverse_lazy
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -7,7 +7,11 @@ from django.views.generic import FormView, TemplateView
 
 from .forms import SubscriptionForm, UnsubscribeForm
 from .models import Subscriber
-from .security import enforce_subscribe_limits, NewsletterAbuseError, NewsletterEmailTemporarilyUnavailable
+from .security import (
+    NewsletterAbuseError,
+    NewsletterEmailTemporarilyUnavailable,
+    enforce_subscribe_limits,
+)
 from .services import send_double_opt_in_email
 
 
@@ -42,7 +46,7 @@ class SubscribeView(FormView):
                 gettext("The confirmation email could not be sent right now. Please try again later."),
             )
             return super().form_valid(form)
-        subscriber, created = Subscriber.objects.get_or_create(email=email)
+        subscriber, _created = Subscriber.objects.get_or_create(email=email)
         if subscriber.is_subscribed:
             messages.success(self.request, gettext("You are already subscribed."))
             return super().form_valid(form)

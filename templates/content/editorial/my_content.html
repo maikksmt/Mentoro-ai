@@ -8,14 +8,14 @@
     <div class="container mx-auto">
         <h1 class="text-2xl font-bold mb-4">{% blocktrans %}My Content{% endblocktrans %}</h1>
         <a href="{% url 'content:editorial:layout_examples' %}" target="_blank" rel="noopener" class="btn btn-sm btn-outline">
-            Richtext-Layouts
+            {% trans "Rich text layouts" %}
         </a>
 
         <table class="table">
             <thead>
             <tr>
-                <th>{% trans "Typ" %}</th>
-                <th>{% trans "Titel" %}</th>
+                <th>{% trans "Type" %}</th>
+                <th>{% trans "Title" %}</th>
                 <th>{% trans "Status" %}</th>
                 <th></th>
             </tr>
@@ -25,21 +25,34 @@
                 <tr>
                     <td class="capitalize">{{ key }}</td>
                     <td>
-                        <a href="{% admin_change_url it %}" target="_blank" class="link"> {{ it.title }} </a>
+                        <a href="{% admin_change_url it %}" target="_blank" rel="noopener noreferrer" class="link"> {{ it.title }} </a>
 
                     </td>
-                    <td>{{ it.status }}</td>
+                    <td>
+                        {{ it.status }}
+                        {% comment %}Beta 11.13D1G-a: the editor's reason belongs next to the
+                           status it explains. Plain text: normal autoescaping plus
+                           linebreaksbr, never mark_safe.{% endcomment %}
+                        {% if it.status == "rework" and it.review_note %}
+                            <div class="mt-1 text-sm opacity-80">
+                                <span class="font-semibold">{% trans "Rework requested" %}:</span>
+                                <span class="break-words">{{ it.review_note|linebreaksbr }}</span>
+                            </div>
+                        {% endif %}
+                    </td>
                     <td class="text-right flex gap-2 justify-end">
 
                         {# Draft/Rework/Approved → Review #}
-                        {% if it.status != "review" and it.status != "archived" %}
+                        {% if it.status == "draft" or it.status == "rework" or it.status == "approved" or it.status == "published" %}
                             <form method="post" action="{% url 'content:editorial:submit_to_review' %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="model" value="{{ key }}">
                                 <input type="hidden" name="object_id" value="{{ it.pk }}">
                                 {% if it.status == "draft" %}
                                     <button class="btn btn-sm btn-primary">{% trans "Submit for review" %}</button>
-                                {% elif it.status == "approved" or it.status == "published" %}
+                                {% elif it.status == "rework" %}
+                                    <button class="btn btn-sm btn-primary">{% trans "Submit again for review" %}</button>
+                                {% else %}
                                     <button class="btn btn-sm btn-warning">{% trans "Roll-Back to review" %}</button>
                                 {% endif %}
                             </form>

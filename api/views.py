@@ -1,4 +1,4 @@
-from rest_framework import viewsets, serializers
+from rest_framework import serializers, viewsets
 
 from catalog.models import Tool
 
@@ -6,7 +6,7 @@ from catalog.models import Tool
 class ToolSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tool
-        fields = ["id", "name", "slug", "short_description", "free_tier", "rating"]
+        fields = ("id", "name", "slug", "short_description", "free_tier", "rating")
 
 
 class ToolViewSet(viewsets.ReadOnlyModelViewSet):

@@ -6,7 +6,12 @@
         </div>
         <article>
             <header class="mb-6 detail-reading-header">
-                <h1 class="page-title">{{ obj.title }}</h1>
+                {% comment %}
+                    Beta 11.9: display_* are the published snapshot values;
+                    obj.title/intro/body are raw parler descriptors, i.e. the
+                    current draft.
+                {% endcomment %}
+                <h1 class="page-title">{{ display_title }}</h1>
                 <div class="mt-2 flex flex-wrap items-center gap-3 text-sm text-base-content/80">
                     {% if object.reading_time %}
                         <span class="inline-flex items-center gap-1">
@@ -43,13 +48,13 @@
                 </div>
             </header>
 
-            {% if obj.intro %}
-                <div class="prose reading-column page-lead">{{ obj.intro|richtext|safe }}</div>
+            {% if display_intro %}
+                <div class="prose reading-column page-lead">{{ display_intro|richtext|safe }}</div>
             {% endif %}
 
-            {% if obj.body %}
+            {% if display_body %}
                 <section class="prose reading-column my-6">
-                    {{ obj.body|richtext|safe }}
+                    {{ display_body|richtext|safe }}
                 </section>
             {% endif %}
 

@@ -31,9 +31,9 @@ Required behavior AFTER the fix:
 from django.test import TestCase
 from django.utils import timezone, translation
 
+from compare.models import Comparison
 from core.models.editorial import EditorialWorkflowMixin
 from core.services import related_comparisons, to_teaser_item
-from compare.models import Comparison
 
 
 def make_comparison(*, slug, languages=("en", "de"),

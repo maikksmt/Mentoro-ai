@@ -13,8 +13,8 @@ Requires PostgreSQL.
 from datetime import timedelta
 from unittest import skipUnless
 
-from django.db import connection
 from django.conf import settings
+from django.db import connection
 from django.test import TestCase
 from django.utils import timezone, translation
 
@@ -768,18 +768,16 @@ class ResultShapeTests(ToolAdapterTestCase):
 class FailClosedTests(ToolAdapterTestCase):
     def test_unsearchable_query_is_rejected_before_any_database_access(self):
         query = NormalizedSearchQuery(value="a", issue=SearchQueryIssue.TOO_SHORT)
-        with self.assertNumQueries(0):
-            with self.assertRaises(ValueError):
-                self.adapter.search(query=query, language_code="en")
+        with self.assertNumQueries(0), self.assertRaises(ValueError):
+            self.adapter.search(query=query, language_code="en")
 
     def test_unsupported_language_is_rejected_before_any_database_access(self):
         from search.fts import UnsupportedSearchLanguage
 
-        with self.assertNumQueries(0):
-            with self.assertRaises(UnsupportedSearchLanguage):
-                self.adapter.search(
-                    query=normalize_search_query("machine"), language_code="fr"
-                )
+        with self.assertNumQueries(0), self.assertRaises(UnsupportedSearchLanguage):
+            self.adapter.search(
+                query=normalize_search_query("machine"), language_code="fr"
+            )
 
     def test_non_postgresql_backend_fails_closed(self):
         from unittest.mock import patch

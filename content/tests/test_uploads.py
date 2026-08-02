@@ -1,3 +1,4 @@
+import io
 import os
 import tempfile
 from types import SimpleNamespace
@@ -8,8 +9,15 @@ from django.core.files.storage import FileSystemStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
+from PIL import Image
 
 User = get_user_model()
+
+
+def _png_bytes() -> bytes:
+    buf = io.BytesIO()
+    Image.new("RGB", (10, 10), (0, 128, 255)).save(buf, format="PNG")
+    return buf.getvalue()
 
 
 class TinymceUploadPermissionTests(TestCase):
@@ -76,7 +84,10 @@ class TinymceUploadStaffTests(TestCase):
         self.assertEqual(resp.json(), {"error": "Invalid request"})
 
     def test_valid_upload_saves_under_tinymce_and_returns_location(self):
-        upload = SimpleUploadedFile("photo.png", b"binarydata", content_type="image/png")
+        # Beta 11.1: request.FILES["file"] must now be a real, Pillow-
+        # decodable image - see content/tests/test_upload_security.py for
+        # the full content-validation matrix this hardening added.
+        upload = SimpleUploadedFile("photo.png", _png_bytes(), content_type="image/png")
         resp = self.client.post(reverse("tinymce_upload"), {"file": upload})
 
         self.assertEqual(resp.status_code, 200)
@@ -86,12 +97,17 @@ class TinymceUploadStaffTests(TestCase):
         tinymce_dir = os.path.join(self._tmpdir.name, "tinymce")
         saved_files = os.listdir(tinymce_dir)
         self.assertEqual(len(saved_files), 1)
-        self.assertTrue(saved_files[0].endswith("_photo.png"))
+        self.assertTrue(saved_files[0].endswith(".png"))
         self.assertIn(saved_files[0], data["location"])
 
-    def test_upload_filename_gets_unique_uuid_prefix(self):
-        upload_a = SimpleUploadedFile("same.png", b"a", content_type="image/png")
-        upload_b = SimpleUploadedFile("same.png", b"b", content_type="image/png")
+    def test_upload_filename_gets_unique_server_generated_name(self):
+        # Beta 11.1: the stored name is now fully server-generated (uuid4
+        # hex + the Pillow-detected extension) rather than
+        # f"{uuid4}_{original_name}" - see
+        # content/tests/test_upload_security.py::SafeFilenameTests for why
+        # (no path/unicode/original-name component is ever carried over).
+        upload_a = SimpleUploadedFile("same.png", _png_bytes(), content_type="image/png")
+        upload_b = SimpleUploadedFile("same.png", _png_bytes(), content_type="image/png")
 
         self.client.post(reverse("tinymce_upload"), {"file": upload_a})
         self.client.post(reverse("tinymce_upload"), {"file": upload_b})
@@ -100,15 +116,14 @@ class TinymceUploadStaffTests(TestCase):
         self.assertEqual(len(saved_files), 2)
         self.assertNotEqual(saved_files[0], saved_files[1])
         for name in saved_files:
-            self.assertTrue(name.endswith("_same.png"))
+            self.assertTrue(name.endswith(".png"))
+            self.assertNotIn("same", name)
 
     def test_path_traversal_filename_cannot_escape_tinymce_directory(self):
-        # Django's MultiPartParser.sanitize_file_name() strips path
-        # separators and rejects "." / ".." segments while parsing the
-        # incoming multipart request, so by the time the view sees
-        # request.FILES["file"].name it is already just "evil.txt" - the
-        # upload succeeds, but confined to the tinymce/ directory.
-        upload = SimpleUploadedFile("../../evil.txt", b"data")
+        # Beta 11.1: the stored filename is fully server-generated (uuid4
+        # hex + detected extension), so the original name - path
+        # components included - is never used at all, not just sanitized.
+        upload = SimpleUploadedFile("../../evil.png", _png_bytes(), content_type="image/png")
         resp = self.client.post(reverse("tinymce_upload"), {"file": upload})
 
         self.assertEqual(resp.status_code, 200)
@@ -118,10 +133,10 @@ class TinymceUploadStaffTests(TestCase):
                 written.append(os.path.join(root, f))
         self.assertEqual(len(written), 1)
         self.assertEqual(os.path.dirname(written[0]), os.path.join(self._tmpdir.name, "tinymce"))
-        self.assertTrue(os.path.basename(written[0]).endswith("_evil.txt"))
+        self.assertNotIn("evil", os.path.basename(written[0]))
 
     def test_response_never_leaks_the_local_filesystem_path(self):
-        upload = SimpleUploadedFile("photo.png", b"data", content_type="image/png")
+        upload = SimpleUploadedFile("photo.png", _png_bytes(), content_type="image/png")
         resp = self.client.post(reverse("tinymce_upload"), {"file": upload})
         data = resp.json()
         self.assertNotIn(self._tmpdir.name, data["location"])

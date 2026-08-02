@@ -11,9 +11,9 @@ database-independent.
 """
 from unittest import skipUnless
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import connection
-from django.conf import settings
 from django.test import TestCase
 from django.utils import translation
 from parler.utils.context import switch_language
@@ -308,9 +308,15 @@ class SnapshotAuthorityTests(GuideAdapterTestCase):
             body="Draftneedle Body",
             slug="draftneedle-adapter-de",
         )
-        # The guide now has a German translation row, so it passes
-        # visible_in_language("de") - but it has no published German revision.
-        self.assertIn(
+        # Beta 11.11D1: the guide has a German translation row but no
+        # published German revision, and visible_in_language() now says so -
+        # it gained the live-snapshot language gate that Use Case and
+        # Comparison already had. Before D1 this row passed the queryset and
+        # only the adapter's own snapshot authority kept it out of the
+        # results; now both layers agree. The assertions below are unchanged
+        # and still prove the adapter never surfaces the unpublished German
+        # draft.
+        self.assertNotIn(
             guide.pk,
             list(Guide.objects.visible_in_language("de").values_list("pk", flat=True)),
         )
@@ -651,11 +657,10 @@ class FullTextBehaviourTests(GuideAdapterTestCase):
 class FailClosedTests(GuideAdapterTestCase):
     def test_unsearchable_query_is_rejected(self):
         for raw in (None, "", "a", "x" * 101):
-            with self.subTest(raw=raw):
-                with self.assertRaises(ValueError):
-                    self.adapter.search(
-                        query=normalize_search_query(raw), language_code="en"
-                    )
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                self.adapter.search(
+                    query=normalize_search_query(raw), language_code="en"
+                )
 
     def test_unsupported_language_is_rejected(self):
         with self.assertRaises(UnsupportedSearchLanguage):
@@ -665,16 +670,14 @@ class FailClosedTests(GuideAdapterTestCase):
 
     def test_query_is_validated_before_the_database_is_touched(self):
         query = NormalizedSearchQuery(value="a", issue=SearchQueryIssue.TOO_SHORT)
-        with self.assertNumQueries(0):
-            with self.assertRaises(ValueError):
-                self.adapter.search(query=query, language_code="en")
+        with self.assertNumQueries(0), self.assertRaises(ValueError):
+            self.adapter.search(query=query, language_code="en")
 
     def test_language_is_validated_before_the_database_is_touched(self):
-        with self.assertNumQueries(0):
-            with self.assertRaises(UnsupportedSearchLanguage):
-                self.adapter.search(
-                    query=normalize_search_query("machine"), language_code="xx"
-                )
+        with self.assertNumQueries(0), self.assertRaises(UnsupportedSearchLanguage):
+            self.adapter.search(
+                query=normalize_search_query("machine"), language_code="xx"
+            )
 
     def test_non_postgresql_backend_fails_closed(self):
         from unittest.mock import patch

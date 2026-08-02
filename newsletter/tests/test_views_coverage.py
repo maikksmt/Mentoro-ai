@@ -27,7 +27,7 @@ from django.urls import reverse
 from django.utils import timezone, translation
 
 from newsletter.models import Subscriber
-from newsletter.security import NewsletterEmailTemporarilyUnavailable, RATE_LIMITS
+from newsletter.security import RATE_LIMITS, NewsletterEmailTemporarilyUnavailable
 
 User = get_user_model()
 

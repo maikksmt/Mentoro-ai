@@ -1,15 +1,17 @@
 from django.conf import settings
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.translation import gettext as _, get_language, override
-from django.views.generic import ListView, DetailView, View
+from django.utils.translation import get_language, override
+from django.utils.translation import gettext as _
+from django.views.generic import DetailView, ListView, View
 
 from core.seo.types import AltHref
-from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
+from core.seo.utils import absolute_url, get_og_image, localized_alternates, seo_text
 from core.views import SeoMixin
+
 from .models import GlossaryTerm
 
 

@@ -1,6 +1,5 @@
 import logging
 import smtplib
-import socket
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
@@ -9,6 +8,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 
 from newsletter.security import NewsletterEmailTemporarilyUnavailable
+
 from .models import Subscriber
 
 logger = logging.getLogger(__name__)
@@ -55,12 +55,7 @@ def send_double_opt_in_email(subscriber: Subscriber, request) -> bool:
     try:
         sent = message.send(fail_silently=False)
         return bool(sent)
-    except (
-            smtplib.SMTPException,
-            socket.timeout,
-            TimeoutError,
-            OSError,
-    ) as exc:
+    except (smtplib.SMTPException, TimeoutError, OSError) as exc:
         logger.exception(
             "Newsletter DOI email sending failed",
             extra={

@@ -7,7 +7,7 @@ pagination - a view calls this and renders the response.
 """
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from search.adapters.base import SearchAdapter
 from search.exceptions import SearchExecutionError

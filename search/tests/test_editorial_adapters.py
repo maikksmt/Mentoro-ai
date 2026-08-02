@@ -882,37 +882,32 @@ class AdapterContractTests(EditorialAdapterTestCase):
 
     def test_search_is_keyword_only(self):
         for spec in ADAPTER_SPECS:
-            with self.subTest(adapter=spec.name):
-                with self.assertRaises(TypeError):
-                    spec.build_adapter().search(normalize_search_query("x y"), "en")
+            with self.subTest(adapter=spec.name), self.assertRaises(TypeError):
+                spec.build_adapter().search(normalize_search_query("x y"), "en")
 
     def test_unsearchable_query_is_rejected_before_any_database_access(self):
         for spec in ADAPTER_SPECS:
             with self.subTest(adapter=spec.name):
                 query = NormalizedSearchQuery(value="a", issue=SearchQueryIssue.TOO_SHORT)
-                with self.assertNumQueries(0):
-                    with self.assertRaises(ValueError):
-                        spec.build_adapter().search(query=query, language_code="en")
+                with self.assertNumQueries(0), self.assertRaises(ValueError):
+                    spec.build_adapter().search(query=query, language_code="en")
 
     def test_unsupported_language_is_rejected_before_any_database_access(self):
         for spec in ADAPTER_SPECS:
-            with self.subTest(adapter=spec.name):
-                with self.assertNumQueries(0):
-                    with self.assertRaises(UnsupportedSearchLanguage):
-                        spec.build_adapter().search(
-                            query=normalize_search_query("machine"),
-                            language_code="fr",
-                        )
+            with self.subTest(adapter=spec.name), self.assertNumQueries(0), self.assertRaises(UnsupportedSearchLanguage):
+                spec.build_adapter().search(
+                    query=normalize_search_query("machine"),
+                    language_code="fr",
+                )
 
     def test_non_postgresql_backend_fails_closed(self):
         from unittest.mock import patch
 
         for spec in ADAPTER_SPECS:
-            with self.subTest(adapter=spec.name):
-                with patch("search.fts.connection") as fake_connection:
-                    fake_connection.vendor = "sqlite"
-                    with self.assertRaises(SearchBackendUnavailable):
-                        spec.build_adapter().search(
-                            query=normalize_search_query("machine"),
-                            language_code="en",
-                        )
+            with self.subTest(adapter=spec.name), patch("search.fts.connection") as fake_connection:
+                fake_connection.vendor = "sqlite"
+                with self.assertRaises(SearchBackendUnavailable):
+                    spec.build_adapter().search(
+                        query=normalize_search_query("machine"),
+                        language_code="en",
+                    )

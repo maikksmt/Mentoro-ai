@@ -43,7 +43,16 @@ from usecases.models import UseCase
 
 def make_usecase(*, slug, status=EditorialWorkflowMixin.STATUS_PUBLISHED,
                   published_at=None, personas=None, **extra):
-    """personas: dict of {language_code: persona_text}."""
+    """
+    personas: dict of {language_code: persona_text}.
+
+    Beta 11.7B: related_usecases() now ranks on the live snapshot persona
+    (live_i18n[lang]["persona"]), so a PUBLISHED fixture needs a real
+    snapshot - see the identical note in test_persona_case_ranking.py. A
+    language absent from `personas` gets no translation and, correctly, no
+    snapshot entry either - exactly the "missing target translation" shape
+    several tests below rely on.
+    """
     if published_at is None and status == EditorialWorkflowMixin.STATUS_PUBLISHED:
         published_at = timezone.now()
     u = UseCase.objects.create(status=status, published_at=published_at, **extra)
@@ -52,6 +61,16 @@ def make_usecase(*, slug, status=EditorialWorkflowMixin.STATUS_PUBLISHED,
             lang, title=f"Title {slug} {lang}", intro="i", body="b", outro="o",
             slug=f"{slug}-{lang}", persona=persona,
         )
+    if status == EditorialWorkflowMixin.STATUS_PUBLISHED and personas:
+        u.live_i18n = {
+            lang: {
+                "slug": f"{slug}-{lang}", "public_slug": None,
+                "title": f"Title {slug} {lang}", "intro": "i", "body": "b",
+                "outro": "o", "persona": persona,
+            }
+            for lang, persona in personas.items()
+        }
+        u.save(update_fields=["live_i18n"])
     return u
 
 

@@ -115,9 +115,8 @@ class DetermineMatchTierTests(SimpleTestCase):
 
     def test_unsearchable_query_is_rejected(self):
         for raw in (None, "", "a", "x" * 101):
-            with self.subTest(raw=raw):
-                with self.assertRaisesMessage(ValueError, "unsearchable query"):
-                    determine_match_tier(build(), normalize_search_query(raw))
+            with self.subTest(raw=raw), self.assertRaisesMessage(ValueError, "unsearchable query"):
+                determine_match_tier(build(), normalize_search_query(raw))
 
     def test_tier_ordering_is_ascending_by_specificity(self):
         self.assertLess(SearchMatchTier.FULL_TEXT, SearchMatchTier.METADATA)
@@ -297,7 +296,7 @@ class RecencyTests(SimpleTestCase):
         )
 
     def test_naive_and_aware_datetimes_are_comparable(self):
-        naive_newer = build(object_id=1, published_at=datetime(2026, 1, 2))
+        naive_newer = build(object_id=1, published_at=datetime(2026, 1, 2))  # noqa: DTZ001 - naive datetime is the point of this test
         aware_older = build(object_id=2, published_at=datetime(2026, 1, 1, tzinfo=UTC))
         self.assertEqual(
             sort_search_results([aware_older, naive_newer], query=QUERY),

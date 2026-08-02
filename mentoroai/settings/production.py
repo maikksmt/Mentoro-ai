@@ -2,8 +2,8 @@ import os
 
 from django.core.exceptions import ImproperlyConfigured
 
-from .base import *  # noqa: F403,F401
-from .base import ADMINS, INSTALLED_APPS, SECRET_KEY, DATABASES  # noqa: F401
+from .base import *
+from .base import ADMINS, DATABASES, INSTALLED_APPS, SECRET_KEY  # noqa: F401
 
 
 def env_bool(name: str, default: bool) -> bool:

@@ -188,9 +188,8 @@ class LengthBudgetTests(SimpleTestCase):
 
     def test_non_positive_max_length_is_rejected(self):
         for max_length in (0, -1):
-            with self.subTest(max_length=max_length):
-                with self.assertRaisesMessage(ValueError, "max_length must be positive"):
-                    snippet("text", max_length=max_length)
+            with self.subTest(max_length=max_length), self.assertRaisesMessage(ValueError, "max_length must be positive"):
+                snippet("text", max_length=max_length)
 
 
 class WordBoundaryTests(SimpleTestCase):

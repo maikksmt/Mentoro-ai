@@ -1,12 +1,14 @@
 from django.db.models import Q
 from django.http import Http404
 from django.urls import reverse
-from django.utils.translation import gettext as _, get_language
-from django.views.generic import ListView, DetailView
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
+from django.views.generic import DetailView, ListView
 
-from core.seo.utils import absolute_url, localized_alternates, get_og_image, seo_text
+from core.seo.utils import absolute_url, get_og_image, localized_alternates, seo_text
 from core.views import SeoMixin
-from .models import Tool, Category
+
+from .models import Category, Tool
 
 
 class ToolListView(SeoMixin, ListView):

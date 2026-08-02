@@ -26,7 +26,7 @@ class ContentEditorialAuthTests(TestCase):
             password="pass",
             is_staff=True,
         )
-        editor_group, created = Group.objects.get_or_create(name='Editor')
+        editor_group, _created = Group.objects.get_or_create(name='Editor')
         staff.groups.add(editor_group.id)
         cls.staff = staff
         cls.user = User.objects.create_user(

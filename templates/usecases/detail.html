@@ -57,11 +57,14 @@
             {% endif %}
         </article>
 
-        {% if object.tools.all %}
+        {# Beta 11.11D4B: `tools` is the pre-filtered public list built by the
+           view (public detail) or the preview context builder - never the raw
+           `object.tools.all` M2M, which could link to a 404 tool detail. #}
+        {% if tools %}
             <section class="mt-10">
                 <h2 class="section-title mb-4">{% trans "Tools used" %}</h2>
                 <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    {% for t in object.tools.all %}
+                    {% for t in tools %}
                         <a href="{% url 'catalog:detail' slug=t.slug %}"
                            class="card border rounded-md hover:shadow-xl transition-shadow h-full">
                             <div class="card-body">

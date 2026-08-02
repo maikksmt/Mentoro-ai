@@ -22,9 +22,8 @@ class SearchConfigTests(SimpleTestCase):
 
     def test_unknown_language_fails_closed(self):
         for language_code in ("fr", "", "EN", "en-gb", "xx"):
-            with self.subTest(language_code=language_code):
-                with self.assertRaises(UnsupportedSearchLanguage):
-                    resolve_search_config(language_code)
+            with self.subTest(language_code=language_code), self.assertRaises(UnsupportedSearchLanguage):
+                resolve_search_config(language_code)
 
     def test_unknown_language_never_falls_back_to_english(self):
         # A silent fallback would stem German text with English rules.
@@ -76,11 +75,10 @@ class BackendGuardTests(SimpleTestCase):
 
     def test_other_backends_fail_closed(self):
         for vendor in ("sqlite", "mysql", "oracle"):
-            with self.subTest(vendor=vendor):
-                with patch("search.fts.connection") as fake_connection:
-                    fake_connection.vendor = vendor
-                    with self.assertRaises(SearchBackendUnavailable):
-                        require_postgresql()
+            with self.subTest(vendor=vendor), patch("search.fts.connection") as fake_connection:
+                fake_connection.vendor = vendor
+                with self.assertRaises(SearchBackendUnavailable):
+                    require_postgresql()
 
     def test_error_names_the_actual_backend(self):
         with patch("search.fts.connection") as fake_connection:

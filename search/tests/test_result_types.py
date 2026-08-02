@@ -79,21 +79,18 @@ class SearchResultValidationTests(SimpleTestCase):
 
     def test_infinite_rank_is_rejected(self):
         for rank in (float("inf"), float("-inf")):
-            with self.subTest(rank=rank):
-                with self.assertRaises(ValueError):
-                    build(rank=rank)
+            with self.subTest(rank=rank), self.assertRaises(ValueError):
+                build(rank=rank)
 
     def test_non_positive_object_id_is_rejected(self):
         for object_id in (0, -1):
-            with self.subTest(object_id=object_id):
-                with self.assertRaisesMessage(ValueError, "object_id must be positive"):
-                    build(object_id=object_id)
+            with self.subTest(object_id=object_id), self.assertRaisesMessage(ValueError, "object_id must be positive"):
+                build(object_id=object_id)
 
     def test_blank_title_is_rejected(self):
         for title in ("", "   "):
-            with self.subTest(title=title):
-                with self.assertRaisesMessage(ValueError, "title must not be empty"):
-                    build(title=title)
+            with self.subTest(title=title), self.assertRaisesMessage(ValueError, "title must not be empty"):
+                build(title=title)
 
     def test_blank_url_is_rejected(self):
         with self.assertRaisesMessage(ValueError, "url must not be empty"):

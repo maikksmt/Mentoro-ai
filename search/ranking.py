@@ -6,9 +6,9 @@ input always yields the same order, whenever it runs.
 """
 from __future__ import annotations
 
+from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
-from typing import Iterable
 
 from search.query import NormalizedSearchQuery, normalize_text
 from search.result_types import SearchMatchedField, SearchResult, SearchResultKind

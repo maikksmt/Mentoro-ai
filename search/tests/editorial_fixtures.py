@@ -8,7 +8,8 @@ the current one.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field as dataclass_field
+from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 
 from django.contrib.auth import get_user_model
 from parler.utils.context import switch_language
@@ -74,7 +75,9 @@ ADAPTER_SPECS: tuple[AdapterSpec, ...] = (
         kind=SearchResultKind.USE_CASE,
         url_prefix="usecases",
         text_fields=("intro", "body", "outro"),
-        review_with_live_revision_is_public=False,
+        # Beta 11.7 moved UseCaseQuerySet.visible_in_language() from
+        # published() to visible_on_site(), matching guide and prompt.
+        review_with_live_revision_is_public=True,
         required_extra={"persona": ""},
     ),
     AdapterSpec(
@@ -84,7 +87,11 @@ ADAPTER_SPECS: tuple[AdapterSpec, ...] = (
         kind=SearchResultKind.COMPARISON,
         url_prefix="compare",
         text_fields=("intro", "body"),
-        review_with_live_revision_is_public=False,
+        # Beta 11.9 moved ComparisonQuerySet.visible_in_language() from
+        # published() to visible_on_site(), matching guide, prompt and use
+        # case. The widened branch additionally requires a published entry
+        # snapshot, which the real publish() in this module writes.
+        review_with_live_revision_is_public=True,
     ),
 )
 

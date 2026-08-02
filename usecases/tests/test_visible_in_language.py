@@ -58,13 +58,24 @@ class UseCaseVisibleInLanguageTests(TestCase):
         self.assertNotIn(u, UseCase.objects.visible_in_language("en"))
         self.assertNotIn(u, UseCase.objects.visible_in_language("de"))
 
-    def test_existing_status_rule_preserved_review_without_live_revision_excluded(self):
-        # visible_in_language() uses .published() (strict), matching
-        # UseCaseListView's pre-existing status rule - review status without
-        # a live revision must stay excluded (not widened to visible_on_site()).
+    def test_review_without_a_live_revision_stays_excluded(self):
+        # Beta 11.7 widened visible_in_language() to visible_on_site(), but
+        # that branch still requires last_published_revision_id - a use case
+        # sent to review before it was ever published must stay invisible.
         u = make_usecase(slug="review-strict", status=EditorialWorkflowMixin.STATUS_REVIEW,
                           published_at=None, languages=("en",))
         self.assertNotIn(u, UseCase.objects.visible_in_language("en"))
+
+    def test_review_with_a_live_revision_is_included(self):
+        # The Beta 11.7 contract: a previously published use case keeps its
+        # public presence through a new review round.
+        # Beta 11.11D1: proof of a past publication is is_published plus a
+        # real live snapshot - see guides/tests/test_language_safety.py.
+        u = make_usecase(slug="review-with-live", status=EditorialWorkflowMixin.STATUS_REVIEW,
+                          published_at=None, languages=("en",), last_published_revision_id=1,
+                          is_published=True,
+                          live_i18n={"en": {"title": "Live", "slug": "review-with-live-en"}})
+        self.assertIn(u, UseCase.objects.visible_in_language("en"))
 
     def test_no_duplicates_from_translation_join(self):
         for i in range(5):

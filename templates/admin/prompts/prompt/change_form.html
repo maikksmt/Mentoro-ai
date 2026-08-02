@@ -12,4 +12,18 @@
             </a>
         </li>
     {% endif %}
+    {% comment %}
+        Beta 11.5: only for a saved prompt, only for users who may preview it,
+        and only for the language tab currently open (which is guaranteed to
+        have a stored translation - see PromptAdmin.render_change_form).
+    {% endcomment %}
+    {% if show_draft_preview %}
+        <li>
+            <a href="{% url 'admin:prompts_prompt_draft_preview' original.pk draft_preview_language %}"
+               class="viewsitelink" target="_blank" rel="noopener"
+               title="{% trans 'Open the saved draft as a full public page' %}">
+                {% trans "Preview saved draft" %}
+            </a>
+        </li>
+    {% endif %}
 {% endblock %}

@@ -67,9 +67,8 @@ class AdapterSignatureTests(SimpleTestCase):
 
     def test_positional_arguments_are_rejected(self):
         for adapter_class in ADAPTER_CLASSES:
-            with self.subTest(adapter=adapter_class.__name__):
-                with self.assertRaises(TypeError):
-                    adapter_class().search(normalize_search_query("machine"), "en")
+            with self.subTest(adapter=adapter_class.__name__), self.assertRaises(TypeError):
+                adapter_class().search(normalize_search_query("machine"), "en")
 
 
 @postgresql_only
@@ -79,48 +78,41 @@ class AdapterFailClosedTests(TestCase):
             for issue in SearchQueryIssue:
                 with self.subTest(adapter=adapter_class.__name__, issue=issue):
                     query = NormalizedSearchQuery(value="a", issue=issue)
-                    with self.assertNumQueries(0):
-                        with self.assertRaises(ValueError):
-                            adapter_class().search(query=query, language_code="en")
+                    with self.assertNumQueries(0), self.assertRaises(ValueError):
+                        adapter_class().search(query=query, language_code="en")
 
     def test_unsupported_language_is_rejected_before_any_database_access(self):
         for adapter_class in ADAPTER_CLASSES:
             for language_code in ("fr", "", "EN", "de-at"):
-                with self.subTest(
-                    adapter=adapter_class.__name__, language=language_code
-                ):
-                    with self.assertNumQueries(0):
-                        with self.assertRaises(UnsupportedSearchLanguage):
-                            adapter_class().search(
-                                query=normalize_search_query("machine"),
-                                language_code=language_code,
-                            )
+                with self.subTest(adapter=adapter_class.__name__, language=language_code), self.assertNumQueries(0), self.assertRaises(UnsupportedSearchLanguage):
+                    adapter_class().search(
+                        query=normalize_search_query("machine"),
+                        language_code=language_code,
+                    )
 
     def test_non_postgresql_backend_fails_closed(self):
         for adapter_class in ADAPTER_CLASSES:
-            with self.subTest(adapter=adapter_class.__name__):
-                with patch("search.fts.connection") as fake_connection:
-                    fake_connection.vendor = "sqlite"
-                    with self.assertRaises(SearchBackendUnavailable):
-                        adapter_class().search(
-                            query=normalize_search_query("machine"),
-                            language_code="en",
-                        )
+            with self.subTest(adapter=adapter_class.__name__), patch("search.fts.connection") as fake_connection:
+                fake_connection.vendor = "sqlite"
+                with self.assertRaises(SearchBackendUnavailable):
+                    adapter_class().search(
+                        query=normalize_search_query("machine"),
+                        language_code="en",
+                    )
 
     def test_no_adapter_swallows_a_failure_into_an_empty_result(self):
         # A failed search and an empty result must never look the same.
         for adapter_class in ADAPTER_CLASSES:
-            with self.subTest(adapter=adapter_class.__name__):
-                with patch("search.fts.connection") as fake_connection:
-                    fake_connection.vendor = "sqlite"
-                    try:
-                        result = adapter_class().search(
-                            query=normalize_search_query("machine"),
-                            language_code="en",
-                        )
-                    except SearchBackendUnavailable:
-                        continue
-                    self.fail(f"returned {result!r} instead of raising")
+            with self.subTest(adapter=adapter_class.__name__), patch("search.fts.connection") as fake_connection:
+                fake_connection.vendor = "sqlite"
+                try:
+                    result = adapter_class().search(
+                        query=normalize_search_query("machine"),
+                        language_code="en",
+                    )
+                except SearchBackendUnavailable:
+                    continue
+                self.fail(f"returned {result!r} instead of raising")
 
 
 @postgresql_only

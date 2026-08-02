@@ -1,7 +1,7 @@
 import os
 
-from .base import *  # noqa: F403,F401
-from .base import INSTALLED_APPS, DATABASES  # noqa: F403,F401
+from .base import *
+from .base import DATABASES, INSTALLED_APPS
 
 DEBUG = True
 

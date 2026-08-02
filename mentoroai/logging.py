@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, Dict
+from typing import Any
 
 
 class JsonFormatter(logging.Formatter):
@@ -16,13 +16,13 @@ class JsonFormatter(logging.Formatter):
     message fields. Optional exception information is added when present.
     """
 
-    def format(self, record: logging.LogRecord) -> str:  # noqa: D401 - see class docstring
+    def format(self, record: logging.LogRecord) -> str:
         """
         Builds a dict from the LogRecord (including formatted time),
         conditionally attaches exc_info/stack, then json.dumps it;
         safe for production consoles and JSON log pipelines.
         """
-        payload: Dict[str, Any] = {
+        payload: dict[str, Any] = {
             "timestamp": self.formatTime(record, self.datefmt),
             "level": record.levelname,
             "message": record.getMessage(),

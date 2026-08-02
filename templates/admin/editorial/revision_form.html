@@ -1,0 +1,20 @@
+{% extends "reversion/revision_form.html" %}
+{% load i18n %}
+
+{# Beta 11.11D3C: a rollback replaces the current editing state and restores  #}
+{# the workflow/publication status stored in the selected revision. Extends   #}
+{# django-reversion's own form_top block via block.super so its "press save"  #}
+{# instruction is kept. Only revision_form_template points here - the recover #}
+{# form keeps reversion's default, where this wording would be wrong.         #}
+{% block form_top %}
+    {{ block.super }}
+    <p class="errornote" role="alert">
+        {% blocktrans trimmed %}
+            Warning: Restoring this revision replaces the current editing state with
+            the selected version. Changes made after this revision—including
+            translations, sections, and entries—may be removed. The workflow and
+            publication status will also be restored to the state stored in this
+            revision.
+        {% endblocktrans %}
+    </p>
+{% endblock %}
