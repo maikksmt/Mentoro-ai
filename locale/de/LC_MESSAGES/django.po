@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-23 10:19+0200\n"
-"PO-Revision-Date: 2026-07-20 18:37+0200\n"
+"POT-Creation-Date: 2026-08-02 14:18+0200\n"
+"PO-Revision-Date: 2026-08-02 14:17+0200\n"
 "Last-Translator: Maik Kusmat <maik.kusmat@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -33,11 +33,11 @@ msgstr ""
 msgid "Your profile has been updated."
 msgstr "Ihr Profil wurde aktualisiert."
 
-#: catalog/admin.py:15
+#: catalog/admin.py:16
 msgid "Language support"
 msgstr "Sprachunterstützung"
 
-#: catalog/admin.py:18
+#: catalog/admin.py:19
 msgid ""
 "Comma-separated language codes (ISO-639-1), e.g. "
 "en,es,de,fr,pt,it,nl,jp,ko,cn,hi,ar,tr,ru - all other languages needs full "
@@ -47,34 +47,43 @@ msgstr ""
 "alle anderen Sprachen benötigen den vollständigen Namen. Nutze \"+\" für "
 "weitere"
 
-#: catalog/admin.py:57
+#: catalog/admin.py:58
 msgid "Features"
 msgstr "Merkmale"
 
-#: catalog/admin.py:60
+#: catalog/admin.py:61
 msgid "One feature per line (stored as a list per language)."
 msgstr "Ein Feature pro Zeile (gespeichert als Liste pro Sprache)."
 
-#: catalog/admin.py:165 compare/admin.py:94
+#: catalog/admin.py:166 compare/admin.py:185
 msgid "Content"
 msgstr "Inhalt"
 
-#: catalog/admin.py:174
+#: catalog/admin.py:175
 msgid "Classification"
 msgstr "Klassifizierung"
 
-#: catalog/admin.py:183
+#: catalog/admin.py:184
 msgid "Pricing & Highlight"
 msgstr "Preisgestaltung & Highlight"
 
-#: catalog/admin.py:194 guides/admin.py:86 prompts/admin.py:60
+#: catalog/admin.py:195 guides/admin.py:86 prompts/admin.py:281
 #: usecases/admin.py:60
 msgid "Meta"
 msgstr "Meta"
 
-#: catalog/models.py:15 catalog/models.py:79 compare/models.py:153
-#: glossary/models.py:11 guides/models.py:56 prompts/models.py:35
-#: usecases/models.py:130
+#: catalog/admin.py:281
+#, python-format
+msgid ""
+"%(entry)s: used by tool %(tool)s - remove or reassign the comparison entries "
+"first"
+msgstr ""
+"%(entry)s: wird von Tool %(tool)s verwendet – entfernen oder ändern Sie "
+"zuerst die Einträge im Vergleich."
+
+#: catalog/models.py:15 catalog/models.py:79 compare/models.py:144
+#: glossary/models.py:11 guides/models.py:71 prompts/models.py:69
+#: usecases/models.py:104
 msgid "Slug"
 msgstr "Slug"
 
@@ -179,144 +188,145 @@ msgstr ""
 "Dieses KI-Tool verbessert moderne Arbeitsabläufe und hilft dabei, wichtige "
 "Aufgaben zu optimieren."
 
-#: compare/admin.py:85 guides/admin.py:77 prompts/admin.py:51
+#: compare/admin.py:176 guides/admin.py:77 prompts/admin.py:272
 #: usecases/admin.py:51
 msgid "Editorial"
 msgstr "Redaktion"
 
-#: compare/admin.py:101
+#: compare/admin.py:192
 msgid "Slug & URLs"
 msgstr "Slug & URLs"
 
-#: compare/admin.py:107
+#: compare/admin.py:198
 msgid "Timestamps"
 msgstr "Zeitstempel"
 
-#: compare/admin.py:114
+#: compare/admin.py:205
 msgid "[Tools] Overview"
 msgstr "[Tools] Übersicht"
 
-#: compare/admin.py:145 compare/models.py:150 guides/admin.py:142
-#: guides/admin.py:146 guides/models.py:53 guides/models.py:197
-#: guides/models.py:287 prompts/admin.py:118 prompts/models.py:31
+#: compare/admin.py:316 compare/models.py:141 guides/admin.py:142
+#: guides/admin.py:146 guides/models.py:68 guides/models.py:212
+#: guides/models.py:302 prompts/admin.py:1555 prompts/models.py:65
+#: templates/content/editorial/my_content.html:18
 #: templates/content/editorial/review_queue.html:14
-#: templates/ops/seo_check.html:41 usecases/admin.py:108 usecases/models.py:126
+#: templates/ops/seo_check.html:41 usecases/admin.py:108 usecases/models.py:100
 msgid "Title"
 msgstr "Titel"
 
-#: compare/admin.py:150
+#: compare/admin.py:321
 msgid "No tools selected"
 msgstr "Keine Tools ausgewählt"
 
-#: compare/admin.py:156
+#: compare/admin.py:327
 msgid "Tools in comparison"
 msgstr "Tools im Vergleich"
 
-#: compare/admin.py:163
+#: compare/admin.py:334
 msgid "Updated"
 msgstr "Aktualisiert"
 
-#: compare/admin.py:170
+#: compare/admin.py:341
 msgid "Published"
 msgstr "Veröffentlicht"
 
-#: compare/admin.py:176 templates/content/editorial/my_content.html:19
+#: compare/admin.py:347 templates/content/editorial/my_content.html:19
 #: templates/ops/seo_check.html:40
 msgid "Status"
 msgstr "Status"
 
-#: compare/models.py:151 guides/models.py:54 prompts/models.py:32
-#: usecases/models.py:127
+#: compare/models.py:142 guides/models.py:69 prompts/models.py:66
+#: usecases/models.py:101
 msgid "Intro"
 msgstr "Intro"
 
-#: compare/models.py:151
+#: compare/models.py:142
 msgid "Short introduction shown in lists and above the comparison."
 msgstr "Kurze Einführung in Listen und über dem Vergleich."
 
-#: compare/models.py:152 guides/models.py:55 guides/models.py:198
-#: prompts/models.py:33 usecases/models.py:128
+#: compare/models.py:143 guides/models.py:70 guides/models.py:213
+#: prompts/models.py:67 usecases/models.py:102
 msgid "Body"
 msgstr "Body"
 
-#: compare/models.py:152
+#: compare/models.py:143
 msgid "Optional longer text with context, recommendations or wrap-up."
 msgstr ""
 "Optionaler längerer Text mit Kontext, Empfehlungen oder Zusammenfassung."
 
-#: compare/models.py:153
+#: compare/models.py:144
 msgid "Internal slug, used for the default detail URL."
 msgstr "Interner Slug, der für die Standarddetail-URL verwendet wird."
 
-#: compare/models.py:155 guides/models.py:57 prompts/models.py:36
-#: usecases/models.py:131
+#: compare/models.py:146 guides/models.py:72 prompts/models.py:70
+#: usecases/models.py:105
 msgid "Public slug"
 msgstr "Public slug"
 
-#: compare/models.py:160
+#: compare/models.py:151
 msgid "Optional public slug. If empty, slug will be used on publish."
 msgstr ""
 "Optionaler öffentlicher Slug. Wenn leer, wird Slug bei der Veröffentlichung "
 "verwendet."
 
-#: compare/models.py:168
+#: compare/models.py:159
 msgid "Tool comparison"
 msgstr "Tool-Vergleich"
 
-#: compare/models.py:169
+#: compare/models.py:160
 msgid "Tool comparisons"
 msgstr "Tool-Vergleiche"
 
-#: compare/models.py:338
+#: compare/models.py:329
 msgid "Order in which tools are displayed in this comparison."
 msgstr "Reihenfolge, in der Tools in diesem Vergleich angezeigt werden."
 
-#: compare/models.py:343
+#: compare/models.py:334
 msgid "Label / heading"
 msgstr "Etikett / Überschrift"
 
-#: compare/models.py:346
+#: compare/models.py:337
 msgid "Optional headline for this tool within the comparison."
 msgstr "Optionale Überschrift für dieses Tool im Vergleich."
 
-#: compare/models.py:349
+#: compare/models.py:340
 msgid "Summary"
 msgstr "Zusammenfassung"
 
-#: compare/models.py:351
+#: compare/models.py:342
 msgid "Free text: main description for this tool in the comparison."
 msgstr "Freier Text: Hauptbeschreibung für dieses Tool im Vergleich."
 
-#: compare/models.py:354
+#: compare/models.py:345
 msgid "Strengths / advantages"
 msgstr "Stärken / Vorteile"
 
-#: compare/models.py:356
+#: compare/models.py:347
 msgid "Use bullet lists in TinyMCE to highlight strengths."
 msgstr "Verwenden Sie Aufzählungslisten in TinyMCE, um Stärken hervorzuheben."
 
-#: compare/models.py:359
+#: compare/models.py:350
 msgid "Weaknesses / limitations"
 msgstr "Schwächen / Einschränkungen"
 
-#: compare/models.py:361
+#: compare/models.py:352
 msgid "Use bullet lists in TinyMCE to highlight weaknesses."
 msgstr ""
 "Verwenden Sie Aufzählungslisten in TinyMCE, um Schwächen hervorzuheben."
 
-#: compare/models.py:364
+#: compare/models.py:355
 msgid "Special features / notes"
 msgstr "Besonderheiten / Hinweise"
 
-#: compare/models.py:366
+#: compare/models.py:357
 msgid "Anything unique, edge cases, or important caveats."
 msgstr "Alles Einzigartige, Grenzfälle oder wichtige Vorbehalte."
 
-#: compare/models.py:371
+#: compare/models.py:362
 msgid "Tool comparison entry"
 msgstr "Tool-Vergleich Eintrag"
 
-#: compare/models.py:372
+#: compare/models.py:363
 msgid "Tool comparison entries"
 msgstr "Tool-Vergleich Einträge"
 
@@ -339,50 +349,78 @@ msgstr ""
 msgid "Comparisons"
 msgstr "Vergleiche"
 
-#: content/views/editorial.py:72
-msgid "My Content - Guides, Prompts, Usecases, Comparisons"
-msgstr "Meine Inhalte - Leitfäden, Prompts, Anwendungsfälle, Vergleiche"
+#: content/forms_editorial.py:68
+#: templates/content/editorial/review_queue.html:39
+msgid "Reason for rework"
+msgstr "Grund für die Überarbeitung"
 
-#: content/views/editorial.py:86 content/views/editorial.py:124
-#: content/views/editorial.py:187
-msgid "Invalid request."
-msgstr "Ungültige Anfrage."
+#: content/forms_editorial.py:69
+#: templates/content/editorial/review_queue.html:47
+msgid "Required when requesting rework."
+msgstr "Erforderlich, wenn du eine Überarbeitung anforderst."
 
-#: content/views/editorial.py:95 content/views/editorial.py:136
-#: content/views/editorial.py:199
-msgid "Unknown/unsupported target status."
-msgstr "Unbekannter/nicht unterstützter Zielstatus."
+#: content/forms_editorial.py:94
+msgid "Please give a short reason so the author knows what to change."
+msgstr ""
+"Bitte gib einen kurzen Grund an, damit klar ist, was geändert werden soll."
 
-#: content/views/editorial.py:98
-msgid "You are not allowed to submit this item for review."
-msgstr "Sie dürfen diesen Artikel nicht zur Überprüfung einreichen."
-
-#: content/views/editorial.py:101 content/views/editorial.py:144
-#: content/views/editorial.py:207
-msgid "Transition not available on this object."
-msgstr "Übergang für dieses Objekt nicht verfügbar."
-
-#: content/views/editorial.py:104 content/views/editorial.py:149
-#: content/views/editorial.py:210
+#: content/views/editorial.py:112 content/views/editorial.py:164
+#: content/views/editorial.py:194 content/views/editorial.py:238
 msgid "Transition not allowed from current state."
 msgstr "Übergang vom aktuellen Zustand nicht erlaubt."
 
-#: content/views/editorial.py:109 content/views/editorial.py:155
-#: content/views/editorial.py:215
+#: content/views/editorial.py:115 content/views/editorial.py:169
+#: content/views/editorial.py:208 content/views/editorial.py:269
 msgid "Status updated."
 msgstr "Status aktualisiert."
 
-#: content/views/editorial.py:129
+#: content/views/editorial.py:202
 msgid ""
-"The reviewed prompt content has changed. Submit it for review again "
-"before approval."
+"The reviewed prompt content has changed. Submit it for review again before "
+"approval."
 msgstr ""
 "Der geprüfte Prompt-Inhalt wurde geändert. Reiche ihn vor der Genehmigung "
 "erneut zur Prüfung ein."
 
-#: content/views/editorial.py:140 content/views/editorial.py:203
+#: content/views/editorial.py:244 content/views/editorial.py:356
+#: content/views/editorial.py:423
 msgid "You are not allowed to perform this transition."
 msgstr "Sie dürfen diese Aktion nicht durchführen."
+
+#: content/views/editorial.py:251
+msgid ""
+"The approved prompt content has changed. Submit it for review again before "
+"publishing."
+msgstr ""
+"Der genehmigte Prompt-Inhalt hat sich geändert. Reichen Sie ihn vor der "
+"Veröffentlichung erneut zur Überprüfung ein."
+
+#: content/views/editorial.py:263
+msgid ""
+"This prompt has no complete translation to publish. Every published language "
+"needs a title and a slug."
+msgstr ""
+"Für diesen Prompt gibt es keine vollständige Übersetzung zur "
+"Veröffentlichung. Jede veröffentlichte Sprache benötigt einen Titel und "
+"einen Slug."
+
+#: content/views/editorial.py:295
+msgid "My Content - Guides, Prompts, Usecases, Comparisons"
+msgstr "Meine Inhalte - Leitfäden, Prompts, Anwendungsfälle, Vergleiche"
+
+#: content/views/editorial.py:309 content/views/editorial.py:340
+#: content/views/editorial.py:407
+msgid "Invalid request."
+msgstr "Ungültige Anfrage."
+
+#: content/views/editorial.py:318 content/views/editorial.py:352
+#: content/views/editorial.py:419
+msgid "Unknown/unsupported target status."
+msgstr "Unbekannter/nicht unterstützter Zielstatus."
+
+#: content/views/editorial.py:321
+msgid "You are not allowed to submit this item for review."
+msgstr "Sie dürfen diesen Artikel nicht zur Überprüfung einreichen."
 
 #: content/views/home.py:33
 msgid "AI tools, guides & usecases for beginners and professionals"
@@ -457,106 +495,106 @@ msgstr ""
 "Informationen zu Urheberrechten, Open-Source-Lizenzen (GPLv3) und Nutzung "
 "von Inhalten und Marken für MentoroAI."
 
-#: core/admin.py:113
+#: core/admin.py:187
 msgid "Auto: Change in the admin form"
 msgstr "Auto: Änderung im Admin-Formular"
 
-#: core/admin.py:289
+#: core/admin.py:451
 msgid "Auto: Change to inline content"
 msgstr "Auto: Änderung in Inline-Inhalten"
 
-#: core/admin.py:350
+#: core/admin.py:517 prompts/admin.py:361
 msgid "Send to review"
 msgstr "Zum Review senden (→ Review)"
 
-#: core/admin.py:361 core/admin.py:450 core/admin.py:499
+#: core/admin.py:528 core/admin.py:612 core/admin.py:654
 msgid "permission denied"
 msgstr "Zugriff verweigert"
 
-#: core/admin.py:379
+#: core/admin.py:538
 msgid "Transition 'move_to_review' not executable"
 msgstr "Übergang 'Zum Review senden' nicht ausführbar"
 
-#: core/admin.py:385
+#: core/admin.py:547
 #, python-format
 msgid "%(n)d item(s) → Review."
 msgstr "%(n)d Artikel → Review."
 
-#: core/admin.py:392 core/admin.py:484 core/admin.py:539
+#: core/admin.py:554 core/admin.py:639 core/admin.py:686
 #, python-format
 msgid "%(n)d skipped: %(detail)s"
 msgstr "%(n)d übersprungen: %(detail)s"
 
-#: core/admin.py:396
+#: core/admin.py:558
 msgid "Request changes (→ Rework)"
 msgstr "Änderungen anfordern (→ Nacharbeiten)"
 
-#: core/admin.py:406 core/admin.py:553 core/admin.py:593
+#: core/admin.py:568 core/admin.py:700 core/admin.py:741
 msgid "You are not authorized to perform this action."
 msgstr "Du bist nicht berechtigt, diese Aktion auszuführen."
 
-#: core/admin.py:411
+#: core/admin.py:581
 msgid "Transition 'request_rework' not executable"
 msgstr "Übergang 'request_rework' nicht ausführbar"
 
-#: core/admin.py:433
+#: core/admin.py:595
 #, python-format
 msgid "%(n)d item(s) → Rework."
 msgstr "%(n)d Artikel → Nacharbeiten."
 
-#: core/admin.py:437
+#: core/admin.py:599 prompts/admin.py:517
 msgid "Approve (Review → Approved)"
 msgstr "Genehmigen (Review → Genehmigt)"
 
-#: core/admin.py:455
+#: core/admin.py:622
 msgid "transition 'approve' not executable"
 msgstr "Übergang 'Genehmigen' nicht ausführbar"
 
-#: core/admin.py:476
+#: core/admin.py:631
 #, python-format
 msgid "%(n)d item(s) approved."
 msgstr "%(n)d Artikel genehmigt."
 
-#: core/admin.py:488
+#: core/admin.py:643
 msgid "Publish selected item(s)"
 msgstr "Ausgewählte Objekte veröffentlichen"
 
-#: core/admin.py:516
+#: core/admin.py:667
+msgid "Transition 'publish' not executable"
+msgstr "Übergang 'Veröffentlichen' nicht ausführbar"
+
+#: core/admin.py:672
 #, python-format
 msgid "Could not publish: %(error)s"
 msgstr "Konnte nicht veröffentlicht werden: %(error)s"
 
-#: core/admin.py:526
-msgid "Transition 'publish' not executable"
-msgstr "Übergang 'Veröffentlichen' nicht ausführbar"
-
-#: core/admin.py:532
+#: core/admin.py:679
 #, python-format
 msgid "%(n)d item(s) published."
 msgstr "%(n)d Artikel veröffentlicht."
 
-#: core/admin.py:543
+#: core/admin.py:690
 msgid "Archive (Soft Delete)"
 msgstr "Archivieren (Soft Delete)"
 
-#: core/admin.py:561
+#: core/admin.py:713
 msgid "Transition 'archive' not executable"
 msgstr "Übergang 'Archivieren' nicht ausführbar"
 
-#: core/admin.py:579
+#: core/admin.py:727
 #, python-format
 msgid "%(n)d item(s) archived."
 msgstr "%(n)d Artikel archiviert."
 
-#: core/admin.py:583
+#: core/admin.py:731
 msgid "Restore (→ Draft)"
 msgstr "Wiederherstellen (→ Entwurf)"
 
-#: core/admin.py:601
+#: core/admin.py:757
 msgid "Transition 'restore' not executable"
 msgstr "Übergang 'Wiederherstellen' nicht ausführbar"
 
-#: core/admin.py:619
+#: core/admin.py:771
 #, python-format
 msgid "%(n)d item(s) restored (draft)."
 msgstr "%(n)d Artikel wiederhergestellt (Entwurf)"
@@ -611,35 +649,35 @@ msgstr ""
 msgid "Relations"
 msgstr "Beziehungen"
 
-#: guides/admin.py:100 prompts/admin.py:70 usecases/admin.py:69
+#: guides/admin.py:100 prompts/admin.py:291 usecases/admin.py:69
 msgid "Routing"
 msgstr "Routing"
 
-#: guides/admin.py:103 prompts/admin.py:73 usecases/admin.py:72
+#: guides/admin.py:103 prompts/admin.py:294 usecases/admin.py:72
 msgid "Content (translated)"
 msgstr "Inhalt (übersetzt)"
 
-#: guides/admin.py:105 prompts/admin.py:75 usecases/admin.py:75
+#: guides/admin.py:105 prompts/admin.py:296 usecases/admin.py:75
 msgid "These fields are language-specific. Use the language tabs above."
 msgstr ""
 "Diese Felder sind sprachspezifisch. Verwende die Sprachregisterkarten oben."
 
-#: guides/models.py:62
+#: guides/models.py:77
 msgid "Starter guide"
 msgstr "Starter Leitfaden"
 
-#: guides/models.py:64
+#: guides/models.py:79
 msgid "Shown first in the guide list and used as the homepage starter CTA."
 msgstr ""
 "Wird in der Leitfaden-Liste zuerst angezeigt und als Start-CTA auf der "
 "Homepage verwendet."
 
-#: guides/models.py:70 search/presentation.py:31
+#: guides/models.py:85 search/presentation.py:31
 #: templates/partials/_editorial_card.html:7
 msgid "Guide"
 msgstr "Leitfaden"
 
-#: guides/models.py:71 guides/presentation.py:192 guides/views.py:113
+#: guides/models.py:86 guides/presentation.py:192 guides/views.py:113
 #: guides/views.py:203 search/presentation.py:31 templates/base.html:123
 #: templates/base.html:155 templates/base.html:277
 #: templates/content/home.html:54 templates/content/what-to-find.html:32
@@ -647,32 +685,32 @@ msgstr "Leitfaden"
 msgid "Guides"
 msgstr "Leitfäden"
 
-#: guides/models.py:77 guides/models.py:99
+#: guides/models.py:92 guides/models.py:114
 msgid "Another guide is already published as the starter guide."
 msgstr ""
 "Ein weiterer Leitfaden wurde bereits als Einstiegsleitfaden veröffentlicht."
 
-#: guides/models.py:203
+#: guides/models.py:218
 msgid "Guide Section"
 msgstr "Leitfaden-Abschnitt"
 
-#: guides/models.py:204
+#: guides/models.py:219
 msgid "Guide Sections"
 msgstr "Leitfaden Abschnitte"
 
-#: guides/models.py:288
+#: guides/models.py:303
 msgid "Teaser"
 msgstr "Teaser"
 
-#: guides/models.py:296
+#: guides/models.py:311
 msgid "Guide Item"
 msgstr "Leitfaden Item"
 
-#: guides/models.py:297
+#: guides/models.py:312
 msgid "Guide Items"
 msgstr "Leitfaden Items"
 
-#: guides/models.py:333
+#: guides/models.py:348
 msgid "Either content_object (content_type + object_id) OR a URL."
 msgstr ""
 "Entweder content_object (content_type + object_id) ODER eine URL angeben."
@@ -762,37 +800,213 @@ msgstr "Diese E-Mail ist bereits abgemeldet."
 msgid "You have been unsubscribed."
 msgstr "Du wurdest abgemeldet."
 
-#: prompts/admin.py:77 usecases/admin.py:78
+#: prompts/admin.py:298 usecases/admin.py:78
 msgid "Internals"
 msgstr "Intern"
 
-#: prompts/models.py:34 usecases/models.py:129
+#: prompts/admin.py:439
+#, python-format
+msgid "%(count)d prompt was submitted for review."
+msgid_plural "%(count)d prompts were submitted for review."
+msgstr[0] "%(count)d Prompt wurde zur Prüfung eingereicht."
+msgstr[1] "%(count)d Prompts wurden zur Prüfung eingereicht."
+
+#: prompts/admin.py:450
+#, python-format
+msgid ""
+"%(count)d prompt was skipped because its status does not allow submission "
+"for review."
+msgid_plural ""
+"%(count)d prompts were skipped because their status does not allow "
+"submission for review."
+msgstr[0] ""
+"%(count)d Prompt wurde übersprungen, weil sein Status keine Einreichung zur "
+"Prüfung erlaubt."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, weil ihr Status keine Einreichung zur "
+"Prüfung erlaubt."
+
+#: prompts/admin.py:463 prompts/admin.py:641 prompts/admin.py:855
+#, python-format
+msgid "%(count)d selected prompt no longer exists and was skipped."
+msgid_plural "%(count)d selected prompts no longer exist and were skipped."
+msgstr[0] ""
+"%(count)d ausgewählter Prompt existiert nicht mehr und wurde übersprungen."
+msgstr[1] ""
+"%(count)d ausgewählte Prompts existieren nicht mehr und wurden übersprungen."
+
+#: prompts/admin.py:474
+#, python-format
+msgid "%(count)d prompt was skipped because you are not allowed to submit it."
+msgid_plural ""
+"%(count)d prompts were skipped because you are not allowed to submit them."
+msgstr[0] ""
+"%(count)d Prompt wurde übersprungen, weil du ihn nicht einreichen darfst."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, weil du sie nicht einreichen darfst."
+
+#: prompts/admin.py:487
+msgid ""
+"Some prompts could not be submitted because of a server configuration "
+"problem. Please contact an administrator."
+msgstr ""
+"Einige Prompts konnten wegen eines Server-Konfigurationsproblems nicht "
+"eingereicht werden. Bitte wende dich an eine Administratorin oder einen "
+"Administrator."
+
+#: prompts/admin.py:604
+#, python-format
+msgid "%(count)d prompt was approved."
+msgid_plural "%(count)d prompts were approved."
+msgstr[0] "%(count)d Prompt wurde genehmigt."
+msgstr[1] "%(count)d Prompts wurden genehmigt."
+
+#: prompts/admin.py:615
+#, python-format
+msgid ""
+"%(count)d prompt was skipped because its status does not allow approval."
+msgid_plural ""
+"%(count)d prompts were skipped because their status does not allow approval."
+msgstr[0] ""
+"%(count)d Prompt wurde übersprungen, weil sein Status keine Genehmigung "
+"erlaubt."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, weil ihr Status keine Genehmigung "
+"erlaubt."
+
+#: prompts/admin.py:628
+#, python-format
+msgid "%(count)d prompt was skipped because its reviewed content has changed."
+msgid_plural ""
+"%(count)d prompts were skipped because their reviewed content has changed."
+msgstr[0] ""
+"%(count)d Prompt wurde übersprungen, weil sein geprüfter Inhalt sich "
+"geändert hat."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, weil ihr geprüfter Inhalt sich "
+"geändert hat."
+
+#: prompts/admin.py:652
+#, python-format
+msgid "%(count)d prompt was skipped because you are not allowed to approve it."
+msgid_plural ""
+"%(count)d prompts were skipped because you are not allowed to approve them."
+msgstr[0] ""
+"%(count)d Prompt wurde übersprungen, weil du ihn nicht genehmigen darfst."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, weil du sie nicht genehmigen darfst."
+
+#: prompts/admin.py:665
+msgid ""
+"Some prompts could not be approved because of a server configuration "
+"problem. Please contact an administrator."
+msgstr ""
+"Einige Prompts konnten wegen eines Server-Konfigurationsproblems nicht "
+"genehmigt werden. Bitte wende dich an eine Administratorin oder einen "
+"Administrator."
+
+#: prompts/admin.py:700
+msgid "Publish (Approved → Published)"
+msgstr "Veröffentlichen (Genehmigt → Veröffentlicht)"
+
+#: prompts/admin.py:805
+#, python-format
+msgid "%(count)d prompt was published."
+msgid_plural "%(count)d prompts were published."
+msgstr[0] "%(count)d Prompt wurde veröffentlicht."
+msgstr[1] "%(count)d Prompts wurden veröffentlicht."
+
+#: prompts/admin.py:816
+#, python-format
+msgid ""
+"%(count)d prompt was skipped because its status does not allow publishing."
+msgid_plural ""
+"%(count)d prompts were skipped because their status does not allow "
+"publishing."
+msgstr[0] ""
+"%(count)d Prompt wurde übersprungen, da sein Status keine Veröffentlichung "
+"zulässt."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, da der Status keine Veröffentlichung "
+"zulässt."
+
+#: prompts/admin.py:829
+#, python-format
+msgid ""
+"%(count)d prompt was skipped because its approved content has changed and "
+"needs a new review."
+msgid_plural ""
+"%(count)d prompts were skipped because their approved content has changed "
+"and needs a new review."
+msgstr[0] ""
+"%(count)d Prompt wurde übersprungen, da sich der genehmigte Inhalt geändert "
+"hat und eine erneute Überprüfung erforderlich ist."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, da sich ihr genehmigter Inhalt "
+"geändert hat und eine erneute Überprüfung erforderlich ist."
+
+#: prompts/admin.py:842
+#, python-format
+msgid ""
+"%(count)d prompt was skipped because it has no complete translation to "
+"publish."
+msgid_plural ""
+"%(count)d prompts were skipped because they have no complete translation to "
+"publish."
+msgstr[0] ""
+"%(count)d Prompt wurde übersprungen, da keine vollständige Übersetzung zur "
+"Veröffentlichung vorliegt. "
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, da keine vollständige Übersetzung zur "
+"Veröffentlichung vorliegt."
+
+#: prompts/admin.py:866
+#, python-format
+msgid "%(count)d prompt was skipped because you are not allowed to publish it."
+msgid_plural ""
+"%(count)d prompts were skipped because you are not allowed to publish them."
+msgstr[0] ""
+"%(count)d Prompt wurde übersprungen, da Sie nicht berechtigt sind, ihn zu "
+"veröffentlichen."
+msgstr[1] ""
+"%(count)d Prompts wurden übersprungen, da Sie nicht berechtigt sind, sie zu "
+"veröffentlichen."
+
+#: prompts/admin.py:879
+msgid ""
+"Some prompts could not be published because of a server configuration "
+"problem. Please contact an administrator."
+msgstr ""
+"Einige Prompts konnten aufgrund eines Serverkonfigurationsproblems nicht "
+"veröffentlicht werden. Bitte wenden Sie sich an einen Administrator."
+
+#: prompts/models.py:68 usecases/models.py:103
 msgid "Outro"
 msgstr "Outro"
 
-#: prompts/models.py:39
+#: prompts/models.py:73
 msgid "Select the AI tool for which this prompt has been optimized."
 msgstr "Wähle das KI-Tool aus, für das dieser Prompt optimiert wurde."
 
-#: prompts/models.py:45 prompts/views.py:183 search/presentation.py:32
+#: prompts/models.py:79 prompts/views.py:202 search/presentation.py:32
 #: templates/partials/_editorial_card.html:9
-#: templates/prompts/prompt_detail.html:43
+#: templates/prompts/prompt_detail.html:52
 msgid "Prompt"
 msgstr "Prompt"
 
-#: prompts/models.py:46 prompts/presentation.py:92 prompts/views.py:105
-#: prompts/views.py:182 search/presentation.py:32 templates/base.html:127
+#: prompts/models.py:80 prompts/presentation.py:103 prompts/views.py:108
+#: prompts/views.py:201 search/presentation.py:32 templates/base.html:127
 #: templates/base.html:159 templates/base.html:278
 #: templates/content/home.html:55 templates/content/what-to-find.html:33
 #: templates/partials/_entry_cards.html:46 templates/prompts/prompt_list.html:6
 msgid "Prompts"
 msgstr "Prompts"
 
-#: prompts/views.py:85
+#: prompts/views.py:88
 msgid "AI prompts · MentoroAI"
 msgstr "KI Prompts · MentoroAI"
 
-#: prompts/views.py:86
+#: prompts/views.py:89
 msgid ""
 "Browse ready-made AI prompts for writing, coding, learning, marketing and "
 "more."
@@ -812,7 +1026,7 @@ msgid "Tools"
 msgstr "Tools"
 
 #: search/presentation.py:34 templates/partials/_editorial_card.html:11
-#: usecases/views.py:207
+#: usecases/views.py:219
 msgid "Use case"
 msgstr "Anwendungsfall"
 
@@ -1580,6 +1794,33 @@ msgstr ""
 msgid "Manage e-mail addresses"
 msgstr "E-Mail-Adressen verwalten"
 
+#: templates/admin/compare/comparison/change_form.html:17
+#: templates/admin/guides/guide/change_form.html:24
+#: templates/admin/prompts/prompt/change_form.html:25
+#: templates/admin/usecases/usecase/change_form.html:24
+msgid "Open the saved draft as a full public page"
+msgstr "Den gespeicherten Entwurf als vollständige öffentliche Seite öffnen"
+
+#: templates/admin/compare/comparison/change_form.html:18
+#: templates/admin/guides/guide/change_form.html:25
+#: templates/admin/prompts/prompt/change_form.html:26
+#: templates/admin/usecases/usecase/change_form.html:25
+msgid "Preview saved draft"
+msgstr "Gespeicherten Entwurf ansehen"
+
+#: templates/admin/editorial/revision_form.html:12
+msgid ""
+"Warning: Restoring this revision replaces the current editing state with the "
+"selected version. Changes made after this revision—including translations, "
+"sections, and entries—may be removed. The workflow and publication status "
+"will also be restored to the state stored in this revision."
+msgstr ""
+"Achtung: Beim Wiederherstellen dieser Revision wird der aktuelle "
+"Bearbeitungsstand durch die ausgewählte Version ersetzt. Spätere Änderungen "
+"– einschließlich Übersetzungen, Abschnitten und Einträgen – können dabei "
+"entfernt werden. Auch der Workflow- und Veröffentlichungsstatus wird auf den "
+"in dieser Revision gespeicherten Stand zurückgesetzt."
+
 #: templates/admin/guides/guide/change_form.html:9
 #: templates/admin/prompts/prompt/change_form.html:10
 #: templates/admin/usecases/usecase/change_form.html:9
@@ -1591,18 +1832,6 @@ msgstr "Entwurf mit Live vergleichen"
 #: templates/admin/usecases/usecase/change_form.html:10
 msgid "Draft ↔ Live"
 msgstr "Entwurf ↔ Live"
-
-#: templates/admin/guides/guide/change_form.html:24
-#: templates/admin/prompts/prompt/change_form.html:25
-#: templates/admin/usecases/usecase/change_form.html:24
-msgid "Open the saved draft as a full public page"
-msgstr "Den gespeicherten Entwurf als vollständige öffentliche Seite öffnen"
-
-#: templates/admin/guides/guide/change_form.html:25
-#: templates/admin/prompts/prompt/change_form.html:26
-#: templates/admin/usecases/usecase/change_form.html:25
-msgid "Preview saved draft"
-msgstr "Gespeicherten Entwurf ansehen"
 
 #: templates/admin/guides/guide_diff.html:43
 msgid "Draft vs. Live"
@@ -1852,13 +2081,13 @@ msgid "Similar tools"
 msgstr "Ähnliche Tools"
 
 #: templates/catalog/tool_detail.html:182 templates/content/home.html:121
-#: templates/prompts/prompt_detail.html:86 templates/usecases/detail.html:92
+#: templates/prompts/prompt_detail.html:98 templates/usecases/detail.html:95
 msgid "Rating"
 msgstr "Bewertung"
 
 #: templates/catalog/tool_detail.html:185 templates/catalog/tool_list.html:227
-#: templates/content/home.html:123 templates/prompts/prompt_detail.html:89
-#: templates/usecases/detail.html:95
+#: templates/content/home.html:123 templates/prompts/prompt_detail.html:101
+#: templates/usecases/detail.html:98
 msgid "Details"
 msgstr "Details"
 
@@ -1960,7 +2189,8 @@ msgstr "Letzte Aktualisierung:"
 
 #: templates/compare/comparison_detail.html:37
 #: templates/guides/guide_detail.html:31
-#: templates/prompts/prompt_detail.html:31 templates/usecases/detail.html:34
+#: templates/prompts/prompt_detail.html:32
+#: templates/prompts/prompt_detail.html:40 templates/usecases/detail.html:34
 msgid "Author: "
 msgstr "Autor:"
 
@@ -1992,40 +2222,48 @@ msgstr "Suche Vergleiche..."
 msgid "No comparisons available."
 msgstr "Keine Vergleiche verfügbar."
 
+#: templates/content/editorial/my_content.html:11
+msgid "Rich text layouts"
+msgstr "Richtext-Layouts"
+
 #: templates/content/editorial/my_content.html:17
-msgid "Typ"
+msgid "Type"
 msgstr "Typ"
 
-#: templates/content/editorial/my_content.html:18
-msgid "Titel"
-msgstr "Titel"
+#: templates/content/editorial/my_content.html:39
+msgid "Rework requested"
+msgstr "Überarbeitung angefordert"
 
-#: templates/content/editorial/my_content.html:41
+#: templates/content/editorial/my_content.html:53
 msgid "Submit for review"
 msgstr "Zum Review einreichen"
 
-#: templates/content/editorial/my_content.html:43
+#: templates/content/editorial/my_content.html:55
+msgid "Submit again for review"
+msgstr "Erneut zur Prüfung einreichen"
+
+#: templates/content/editorial/my_content.html:57
 msgid "Roll-Back to review"
 msgstr "Zurücksetzen zu Review"
 
-#: templates/content/editorial/my_content.html:55
-#: templates/content/editorial/review_queue.html:38
+#: templates/content/editorial/my_content.html:69
+#: templates/content/editorial/review_queue.html:55
 msgid "Publish"
 msgstr "Veröffentlichen"
 
-#: templates/content/editorial/my_content.html:66
-#: templates/content/editorial/review_queue.html:36
-#: templates/content/editorial/review_queue.html:40
-#: templates/content/editorial/review_queue.html:43
-#: templates/content/editorial/review_queue.html:48
+#: templates/content/editorial/my_content.html:80
+#: templates/content/editorial/review_queue.html:53
+#: templates/content/editorial/review_queue.html:57
+#: templates/content/editorial/review_queue.html:60
+#: templates/content/editorial/review_queue.html:65
 msgid "Archive"
 msgstr "Archivieren"
 
-#: templates/content/editorial/my_content.html:77
+#: templates/content/editorial/my_content.html:91
 msgid "Restore"
 msgstr "Wiederherstellen"
 
-#: templates/content/editorial/my_content.html:84
+#: templates/content/editorial/my_content.html:98
 msgid "No entries"
 msgstr "Keine Einträge"
 
@@ -2037,28 +2275,28 @@ msgstr "Review-Warteschlange"
 msgid "Author"
 msgstr "Autor"
 
-#: templates/content/editorial/review_queue.html:34
+#: templates/content/editorial/review_queue.html:51
 msgid "Approve"
 msgstr "Genehmigen"
 
-#: templates/content/editorial/review_queue.html:35
+#: templates/content/editorial/review_queue.html:52
 msgid "Request rework"
 msgstr "Nacharbeit anfordern"
 
-#: templates/content/editorial/review_queue.html:39
-#: templates/content/editorial/review_queue.html:42
+#: templates/content/editorial/review_queue.html:56
+#: templates/content/editorial/review_queue.html:59
 msgid "Back to review"
 msgstr "Zurück zum Review"
 
-#: templates/content/editorial/review_queue.html:45
+#: templates/content/editorial/review_queue.html:62
 msgid "Restore to draft"
 msgstr "Zurücksetzen auf Entwurf"
 
-#: templates/content/editorial/review_queue.html:51
+#: templates/content/editorial/review_queue.html:68
 msgid "Apply changes"
 msgstr "Änderungen übernehmen"
 
-#: templates/content/editorial/review_queue.html:58
+#: templates/content/editorial/review_queue.html:75
 msgid "No posts in review process"
 msgstr "Keine Beiträge im Review-Prozess"
 
@@ -2115,8 +2353,8 @@ msgid "Current content"
 msgstr "Aktuelle Inhalte"
 
 #: templates/content/home.html:56 templates/usecases/list.html:8
-#: usecases/models.py:141 usecases/presentation.py:106 usecases/views.py:115
-#: usecases/views.py:206
+#: usecases/models.py:115 usecases/presentation.py:117 usecases/views.py:115
+#: usecases/views.py:218
 msgid "Usecases"
 msgstr "Anwendungsfälle"
 
@@ -4224,11 +4462,12 @@ msgstr "Veröffentlicht oder Aktualisiert am"
 msgid "Persona:"
 msgstr "Persona:"
 
-#: templates/partials/_editorial_card.html:70
+#: templates/partials/_editorial_card.html:71
+#: templates/partials/_editorial_card.html:77
 msgid "from"
 msgstr "Von"
 
-#: templates/partials/_editorial_card.html:77
+#: templates/partials/_editorial_card.html:84
 #, python-format
 msgid "about %(title)s"
 msgstr "über %(title)s"
@@ -4497,8 +4736,8 @@ msgstr "Entdecken & Navigieren"
 
 #: templates/partials/features_open.html:30
 msgid ""
-"Filters and tags on top of unified search across Tools, Guides, Prompts, "
-"Use-Cases and Comparisons."
+"Filters and tags on top of unified search across Tools, Guides, Prompts, Use-"
+"Cases and Comparisons."
 msgstr ""
 "Filter und Tags zusätzlich zur einheitlichen Suche über Tools, Leitfäden, "
 "Prompts, Anwendungsfälle und Vergleiche."
@@ -4507,22 +4746,22 @@ msgstr ""
 msgid "RSS/Atom feeds for new and updated content."
 msgstr "RSS/Atom-Feeds für neue und aktualisierte Inhalte."
 
-#: templates/partials/features_open.html:36
+#: templates/partials/features_open.html:35
 msgid "Quality & accessibility"
 msgstr "Qualität & Zugänglichkeit"
 
-#: templates/partials/features_open.html:38
+#: templates/partials/features_open.html:37
 msgid ""
 "A11y passes (focus states, landmarks, color contrast) and keyboard-first UX."
 msgstr ""
 "A11y-Pässe (Fokuszustände, Orientierungspunkte, Farbkontrast) und Tastatur-"
 "First-UX."
 
-#: templates/partials/features_open.html:39
+#: templates/partials/features_open.html:38
 msgid "Reading modes: compact vs. comfortable layout."
 msgstr "Lesemodi: kompaktes vs. komfortables Layout."
 
-#: templates/partials/features_open.html:40
+#: templates/partials/features_open.html:39
 msgid "Glossary hover cards for terms used in content."
 msgstr "Glossar-Hover-Karten für Begriffe, die in Inhalten verwendet werden."
 
@@ -4563,21 +4802,21 @@ msgstr ""
 
 #: templates/partials/features_open.html:49
 msgid ""
-"A notice on My Content when a submitted item has been approved or sent "
-"back for changes."
+"A notice on My Content when a submitted item has been approved or sent back "
+"for changes."
 msgstr ""
 "Ein Hinweis unter „My Content“, wenn ein eingereichter Inhalt genehmigt oder "
 "zur Nacharbeit zurückgeschickt wurde."
 
-#: templates/partials/features_open.html:44
+#: templates/partials/features_open.html:53
 msgid "Prompt Studio"
 msgstr "Prompt-Studio"
 
-#: templates/partials/features_open.html:45
+#: templates/partials/features_open.html:54
 msgid "planned"
 msgstr "geplant"
 
-#: templates/partials/features_open.html:47
+#: templates/partials/features_open.html:56
 msgid ""
 "Model picker for each prompt (e.g., GPT-4 class, Claude, Llama) and per-"
 "model tips."
@@ -4585,40 +4824,40 @@ msgstr ""
 "Modellauswahl für jede Eingabeaufforderung (z. B. GPT-4-Klasse, Claude, "
 "Llama) und Tipps pro Modell."
 
-#: templates/partials/features_open.html:48
+#: templates/partials/features_open.html:57
 msgid ""
 "Structured prompt templates with variables, examples, and tone/style presets."
 msgstr ""
 "Strukturierte Eingabeaufforderungsvorlagen mit Variablen, Beispielen und "
 "Ton-/Stilvoreinstellungen."
 
-#: templates/partials/features_open.html:49
+#: templates/partials/features_open.html:58
 msgid "Guardrails: context hints, do/don’t lists, and input validation."
 msgstr "Leitplanken: Kontexthinweise, Do/Don't-Listen und Eingabevalidierung."
 
-#: templates/partials/features_open.html:50
+#: templates/partials/features_open.html:59
 msgid "One-click copy, shareable links, and export (Markdown/JSON)."
 msgstr "Ein-Klick-Kopieren, teilbare Links und Export (Markdown/JSON)."
 
-#: templates/partials/features_open.html:51
+#: templates/partials/features_open.html:60
 msgid "Execution notes: record outputs to compare iterations."
 msgstr ""
 "Hinweise zur Ausführung: Ergebnisse aufzeichnen, um Iterationen zu "
 "vergleichen."
 
-#: templates/partials/features_open.html:55
+#: templates/partials/features_open.html:64
 msgid "Performance & reliability"
 msgstr "Leistung & Zuverlässigkeit"
 
-#: templates/partials/features_open.html:57
+#: templates/partials/features_open.html:66
 msgid "Image optimization and smart caching."
 msgstr "Bildoptimierung und intelligentes Caching."
 
-#: templates/partials/features_open.html:58
+#: templates/partials/features_open.html:67
 msgid "Offline-friendly error pages and graceful fallbacks."
 msgstr "Offline-freundliche Fehlerseiten und anmutige Fallbacks."
 
-#: templates/partials/features_open.html:63
+#: templates/partials/features_open.html:72
 msgid ""
 "Heads-up: Priorities may shift based on user feedback. If a feature is "
 "critical for you, please tell us!"
@@ -4626,11 +4865,11 @@ msgstr ""
 "Heads-up: Die Prioritäten können sich je nach Benutzerfeedback ändern. Wenn "
 "eine Funktion für dich entscheidend ist, sage es uns bitte!"
 
-#: templates/partials/features_open.html:69
+#: templates/partials/features_open.html:78
 msgid "Close"
 msgstr "Schließen"
 
-#: templates/partials/features_open.html:77
+#: templates/partials/features_open.html:86
 msgid "Close modal"
 msgstr "Modal schließen"
 
@@ -4663,19 +4902,19 @@ msgstr "Öffne den Start-Leitfaden"
 msgid "Browse beginner-friendly tools"
 msgstr "Anfängerfreundliche Tools durchsuchen"
 
-#: templates/prompts/prompt_detail.html:44
+#: templates/prompts/prompt_detail.html:53
 msgid "Copy prompt"
 msgstr "Prompt kopieren"
 
-#: templates/prompts/prompt_detail.html:56
+#: templates/prompts/prompt_detail.html:68
 msgid "Suitable tools"
 msgstr "Geeignete Tools"
 
-#: templates/prompts/prompt_detail.html:94
+#: templates/prompts/prompt_detail.html:106
 msgid "No tools linked."
 msgstr "Keine Tools verknüpft."
 
-#: templates/prompts/prompt_detail.html:102
+#: templates/prompts/prompt_detail.html:114
 msgid "More Prompts"
 msgstr "Weitere Prompts"
 
@@ -4732,11 +4971,11 @@ msgstr "GitHub verbinden"
 msgid "Continue with GitHub"
 msgstr "Continue with GitHub"
 
-#: templates/usecases/detail.html:62
+#: templates/usecases/detail.html:65
 msgid "Tools used"
 msgstr "Verwendete Tools"
 
-#: templates/usecases/detail.html:106
+#: templates/usecases/detail.html:109
 msgid "Similar use cases"
 msgstr "Ähnliche Anwendungsfälle"
 
@@ -4748,11 +4987,11 @@ msgstr "Praktische Anwendungsbeispiele für KI in Ihrem Alltag und Beruf."
 msgid "No published use cases found."
 msgstr "Keine veröffentlichten Anwendungsfälle gefunden."
 
-#: usecases/models.py:132
+#: usecases/models.py:106
 msgid "Persona"
 msgstr "Persona"
 
-#: usecases/models.py:140
+#: usecases/models.py:114
 msgid "Usecase"
 msgstr "Anwendungsfall"
 
@@ -4768,147 +5007,14 @@ msgstr ""
 "Praktische KI-Anwendungsfälle mit klaren Beispielen, Vorteilen und "
 "Anleitungen für geschäftliche Aufgaben, Forschung und kreative Arbeit."
 
-#: prompts/admin.py:191
-#, python-format
-msgid "%(count)d prompt was submitted for review."
-msgid_plural "%(count)d prompts were submitted for review."
-msgstr[0] "%(count)d Prompt wurde zur Prüfung eingereicht."
-msgstr[1] "%(count)d Prompts wurden zur Prüfung eingereicht."
+#~ msgid "Transition not available on this object."
+#~ msgstr "Übergang für dieses Objekt nicht verfügbar."
 
-#: prompts/admin.py:202
-#, python-format
-msgid ""
-"%(count)d prompt was skipped because its status does not allow submission for "
-"review."
-msgid_plural ""
-"%(count)d prompts were skipped because their status does not allow submission "
-"for review."
-msgstr[0] ""
-"%(count)d Prompt wurde übersprungen, weil sein Status keine Einreichung zur "
-"Prüfung erlaubt."
-msgstr[1] ""
-"%(count)d Prompts wurden übersprungen, weil ihr Status keine Einreichung zur "
-"Prüfung erlaubt."
+#~ msgid "Typ"
+#~ msgstr "Typ"
 
-#: prompts/admin.py:215
-#, python-format
-msgid "%(count)d selected prompt no longer exists and was skipped."
-msgid_plural "%(count)d selected prompts no longer exist and were skipped."
-msgstr[0] "%(count)d ausgewählter Prompt existiert nicht mehr und wurde übersprungen."
-msgstr[1] ""
-"%(count)d ausgewählte Prompts existieren nicht mehr und wurden übersprungen."
-
-#: prompts/admin.py:226
-#, python-format
-msgid "%(count)d prompt was skipped because you are not allowed to submit it."
-msgid_plural ""
-"%(count)d prompts were skipped because you are not allowed to submit them."
-msgstr[0] "%(count)d Prompt wurde übersprungen, weil du ihn nicht einreichen darfst."
-msgstr[1] ""
-"%(count)d Prompts wurden übersprungen, weil du sie nicht einreichen darfst."
-
-#: prompts/admin.py:240
-msgid ""
-"Some prompts could not be submitted because of a server configuration "
-"problem. Please contact an administrator."
-msgstr ""
-"Einige Prompts konnten wegen eines Server-Konfigurationsproblems nicht "
-"eingereicht werden. Bitte wende dich an eine Administratorin oder einen "
-"Administrator."
-
-#: prompts/admin.py:460
-#, python-format
-msgid "%(count)d prompt was approved."
-msgid_plural "%(count)d prompts were approved."
-msgstr[0] "%(count)d Prompt wurde genehmigt."
-msgstr[1] "%(count)d Prompts wurden genehmigt."
-
-#: prompts/admin.py:471
-#, python-format
-msgid ""
-"%(count)d prompt was skipped because its status does not allow approval."
-msgid_plural ""
-"%(count)d prompts were skipped because their status does not allow "
-"approval."
-msgstr[0] ""
-"%(count)d Prompt wurde übersprungen, weil sein Status keine Genehmigung "
-"erlaubt."
-msgstr[1] ""
-"%(count)d Prompts wurden übersprungen, weil ihr Status keine Genehmigung "
-"erlaubt."
-
-#: prompts/admin.py:484
-#, python-format
-msgid "%(count)d prompt was skipped because its reviewed content has changed."
-msgid_plural ""
-"%(count)d prompts were skipped because their reviewed content has changed."
-msgstr[0] ""
-"%(count)d Prompt wurde übersprungen, weil sein geprüfter Inhalt sich "
-"geändert hat."
-msgstr[1] ""
-"%(count)d Prompts wurden übersprungen, weil ihr geprüfter Inhalt sich "
-"geändert hat."
-
-#: prompts/admin.py:508
-#, python-format
-msgid "%(count)d prompt was skipped because you are not allowed to approve it."
-msgid_plural ""
-"%(count)d prompts were skipped because you are not allowed to approve them."
-msgstr[0] "%(count)d Prompt wurde übersprungen, weil du ihn nicht genehmigen darfst."
-msgstr[1] ""
-"%(count)d Prompts wurden übersprungen, weil du sie nicht genehmigen darfst."
-
-#: prompts/admin.py:521
-msgid ""
-"Some prompts could not be approved because of a server configuration "
-"problem. Please contact an administrator."
-msgstr ""
-"Einige Prompts konnten wegen eines Server-Konfigurationsproblems nicht "
-"genehmigt werden. Bitte wende dich an eine Administratorin oder einen "
-"Administrator."
-
-#: templates/admin/editorial/revision_form.html:11
-msgid ""
-"Warning: Restoring this revision replaces the current editing state with "
-"the selected version. Changes made after this revision—including "
-"translations, sections, and entries—may be removed. The workflow and "
-"publication status will also be restored to the state stored in this "
-"revision."
-msgstr ""
-"Achtung: Beim Wiederherstellen dieser Revision wird der aktuelle "
-"Bearbeitungsstand durch die ausgewählte Version ersetzt. Spätere "
-"Änderungen – einschließlich Übersetzungen, Abschnitten und Einträgen – "
-"können dabei entfernt werden. Auch der Workflow- und "
-"Veröffentlichungsstatus wird auf den in dieser Revision gespeicherten "
-"Stand zurückgesetzt."
-
-#: templates/content/editorial/my_content.html:17
-msgid "Type"
-msgstr "Typ"
-
-#: templates/content/editorial/my_content.html:11
-msgid "Rich text layouts"
-msgstr "Richtext-Layouts"
-
-#: content/forms_editorial.py:56
-msgid "Reason for rework"
-msgstr "Grund für die Überarbeitung"
-
-#: content/forms_editorial.py:57
-msgid "Required when requesting rework."
-msgstr "Erforderlich, wenn du eine Überarbeitung anforderst."
-
-#: templates/content/editorial/my_content.html:46
-msgid "Submit again for review"
-msgstr "Erneut zur Prüfung einreichen"
-
-#: templates/content/editorial/my_content.html:35
-msgid "Rework requested"
-msgstr "Überarbeitung angefordert"
-
-#: content/forms_editorial.py:80
-msgid "Please give a short reason so the author knows what to change."
-msgstr "Bitte gib einen kurzen Grund an, damit klar ist, was geändert werden soll."
+#~ msgid "Titel"
+#~ msgstr "Titel"
 
 #~ msgid "Search is coming soon"
 #~ msgstr "Die Suche kommt bald"
@@ -5650,10 +5756,6 @@ msgstr "Bitte gib einen kurzen Grund an, damit klar ist, was geändert werden so
 
 #~ msgid "In Review senden"
 #~ msgstr "Zur Überprüfung einreichen."
-
-#, python-format
-#~ msgid "%(n)d prompt(s) published."
-#~ msgstr "%(n)d Prompt(s) veröffentlicht."
 
 #, python-format
 #~ msgid "%(n)d prompt(s) reverted to draft."
