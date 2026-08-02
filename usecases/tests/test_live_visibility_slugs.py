@@ -163,8 +163,9 @@ class HistoricalRecordsKeepResolvingTests(TestCase):
         self.addCleanup(translation.activate, settings.LANGUAGE_CODE)
 
     def test_published_usecase_without_a_snapshot_still_resolves(self):
-        from core.models.editorial import EditorialWorkflowMixin
         from django.utils import timezone
+
+        from core.models.editorial import EditorialWorkflowMixin
 
         usecase = UseCase.objects.create(
             status=EditorialWorkflowMixin.STATUS_PUBLISHED, published_at=timezone.now()

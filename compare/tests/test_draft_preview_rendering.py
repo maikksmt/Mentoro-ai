@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.utils import translation
 
 from compare.models import Comparison
-from core.models.editorial import EditorialWorkflowMixin
 from compare.tests.draft_preview_fixtures import (
     make_draft_comparison,
     make_user,
@@ -18,6 +17,7 @@ from compare.tests.draft_preview_fixtures import (
     save_translation_edit,
     start_review_round,
 )
+from core.models.editorial import EditorialWorkflowMixin
 
 
 def preview_url(comparison_pk, language_code="en"):

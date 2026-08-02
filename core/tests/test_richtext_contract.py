@@ -15,6 +15,9 @@ Two current behaviours are load-bearing and deliberately asserted as-is
   globs).
 * ``data:`` is an allowed URL protocol, so ``<img src="data:...">`` is kept.
 """
+import dataclasses
+from typing import ClassVar
+
 from django.test import SimpleTestCase
 from django.utils.safestring import SafeString, mark_safe
 
@@ -32,7 +35,7 @@ class AllowedTagContractTests(SimpleTestCase):
     validly-nested snippet."""
 
     # tag -> (input, opening-tag substring that must survive)
-    TAG_SNIPPETS = {
+    TAG_SNIPPETS: ClassVar[dict[str, tuple[str, str]]] = {
         "p": ("<p>x</p>", "<p"),
         "br": ("<p>a<br>b</p>", "<br"),
         "hr": ("<hr>", "<hr"),
@@ -91,7 +94,7 @@ class ForbiddenTagContractTests(SimpleTestCase):
     text content may remain, exactly as ``strip=True`` has always done)."""
 
     # tag -> input using that tag; the element must not survive
-    FORBIDDEN = {
+    FORBIDDEN: ClassVar[dict[str, str]] = {
         "script": "<script>alert(1)</script>keep",
         "style": "<style>.x{color:red}</style>keep",
         "iframe": '<iframe src="https://e.com"></iframe>keep',
@@ -268,7 +271,7 @@ class ReturnTypeContractTests(SimpleTestCase):
 class IdempotencyContractTests(SimpleTestCase):
     """render_content(render_content(v)) == render_content(v)."""
 
-    FIXTURES = {
+    FIXTURES: ClassVar[dict[str, str]] = {
         "plain": "plain text no markup",
         "paragraph": "<p>Hello world</p>",
         "headings_list": "<h2>H</h2><ul><li>a</li></ul>",
@@ -296,7 +299,7 @@ class GoldenMasterTests(SimpleTestCase):
     from the pre-Beta-11.2 filter. Any drift here is a public-rendering
     change and must fail."""
 
-    GOLDEN = {
+    GOLDEN: ClassVar[dict[str, tuple[str, str]]] = {
         "paragraph": ("<p>Hello world</p>", "<p>Hello world</p>"),
         "h2": ("<h2>Heading two</h2>", "<h2>Heading two</h2>"),
         "h3": ("<h3>Heading three</h3>", "<h3>Heading three</h3>"),
@@ -312,10 +315,14 @@ class GoldenMasterTests(SimpleTestCase):
             '<img src="https://example.com/x.png" alt="alt" title="t" width="10" height="20" loading="lazy">',
         ),
         "table": (
-            '<table border="1" cellpadding="2" cellspacing="0"><thead><tr><th colspan="2">H</th></tr></thead>'
-            '<tbody><tr><td rowspan="2">c</td></tr></tbody></table>',
-            '<table border="1" cellpadding="2" cellspacing="0"><thead><tr><th colspan="2">H</th></tr></thead>'
-            '<tbody><tr><td rowspan="2">c</td></tr></tbody></table>',
+            (
+                '<table border="1" cellpadding="2" cellspacing="0"><thead><tr><th colspan="2">H</th></tr></thead>'
+                '<tbody><tr><td rowspan="2">c</td></tr></tbody></table>'
+            ),
+            (
+                '<table border="1" cellpadding="2" cellspacing="0"><thead><tr><th colspan="2">H</th></tr></thead>'
+                '<tbody><tr><td rowspan="2">c</td></tr></tbody></table>'
+            ),
         ),
         "blockquote": ("<blockquote>quoted</blockquote>", "<blockquote>quoted</blockquote>"),
         "inline_code": ("<p>use <code>x=1</code> here</p>", "<p>use <code>x=1</code> here</p>"),
@@ -325,12 +332,16 @@ class GoldenMasterTests(SimpleTestCase):
             '<div class="callout callout-tip" id="c1">Tip content</div>',
         ),
         "nested": (
-            '<section><header><h2>Title</h2></header><div class="box"><p>Para with '
-            '<strong>bold</strong> and <em>em</em> and <a href="mailto:a@b.co">mail</a>.</p>'
-            "<ul><li>li1</li></ul></div><footer>foot</footer></section>",
-            '<section><header><h2>Title</h2></header><div class="box"><p>Para with '
-            '<strong>bold</strong> and <em>em</em> and <a href="mailto:a@b.co">mail</a>.</p>'
-            "<ul><li>li1</li></ul></div><footer>foot</footer></section>",
+            (
+                '<section><header><h2>Title</h2></header><div class="box"><p>Para with '
+                '<strong>bold</strong> and <em>em</em> and <a href="mailto:a@b.co">mail</a>.</p>'
+                "<ul><li>li1</li></ul></div><footer>foot</footer></section>"
+            ),
+            (
+                '<section><header><h2>Title</h2></header><div class="box"><p>Para with '
+                '<strong>bold</strong> and <em>em</em> and <a href="mailto:a@b.co">mail</a>.</p>'
+                "<ul><li>li1</li></ul></div><footer>foot</footer></section>"
+            ),
         ),
     }
 
@@ -360,5 +371,5 @@ class ContractStructureTests(SimpleTestCase):
         )
 
     def test_contract_is_frozen(self):
-        with self.assertRaises(Exception):
+        with self.assertRaises(dataclasses.FrozenInstanceError):
             RICHTEXT_CONTRACT.tags = ()  # type: ignore[misc]

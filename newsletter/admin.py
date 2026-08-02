@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from core.admin import TranslatableTinyMCEMixin
+
 from .models import Subscriber
 
 admin.site.site_header = "MentoroAI – Admin"

@@ -145,8 +145,9 @@ class RelatedUseCaseRankingLimitTests(TestCase):
         self.assertLessEqual(len(result), 3)
 
     def test_no_duplicates(self):
-        from catalog.models import Tool
         from parler.utils.context import switch_language
+
+        from catalog.models import Tool
 
         tool = Tool.objects.create(slug="dup-check-tool", website="https://example.com/dup")
         with switch_language(tool, "en"):

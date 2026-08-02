@@ -7,6 +7,7 @@ from django.views.generic import TemplateView
 
 from core.seo.utils import absolute_url, get_og_image
 from core.views import SeoMixin
+
 from .forms import UserAccountForm
 
 

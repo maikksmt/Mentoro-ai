@@ -63,9 +63,8 @@ class CompetingPublishedStarterTests(TestCase):
         second = Guide.objects.create(status=EditorialWorkflowMixin.STATUS_PUBLISHED, published_at=timezone.now())
         second.create_translation("en", slug="second-starter-en", title="Second", intro="i", body="b")
         second.is_starter = True
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                Guide.objects.filter(pk=second.pk).update(is_starter=True)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Guide.objects.filter(pk=second.pk).update(is_starter=True)
 
     def test_unpublishing_the_starter_frees_the_position(self):
         self.first.archive(by=None)

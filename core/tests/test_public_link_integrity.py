@@ -89,7 +89,7 @@ class PublicLinkIntegrityTests(TestCase):
             href = raw.split("#", 1)[0].strip()
             if not href or not href.startswith("/"):
                 continue
-            if href.startswith("/admin") or href.startswith("/static") or href.startswith("/media"):
+            if href.startswith(("/admin", "/static", "/media")):
                 continue
             hrefs.add(href)
         return sorted(hrefs)

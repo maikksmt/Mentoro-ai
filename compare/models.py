@@ -2,12 +2,17 @@ from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _, get_language, override
+from django.utils.translation import get_language, override
+from django.utils.translation import gettext_lazy as _
 from parler.models import TranslatableModel, TranslatedFields
 from parler.utils.context import switch_language
 
 from catalog.models import Tool
-from core.models.editorial import EditorialManager, EditorialQuerySet, EditorialWorkflowMixin
+from core.models.editorial import (
+    EditorialManager,
+    EditorialQuerySet,
+    EditorialWorkflowMixin,
+)
 
 #: ComparisonToolEntry translated fields the public detail page renders.
 #: Frozen into ``Comparison.live_entries`` on publish - see
@@ -16,40 +21,30 @@ ENTRY_LIVE_FIELDS = ("label", "summary", "pros", "cons", "special")
 
 
 class ComparisonQuerySet(EditorialQuerySet):
-    #: Editing states in which an already published comparison keeps its
-    #: public presence, provided a live revision *and* a published entry
-    #: snapshot exist.
-    #:
-    #: Beta 11.9 adds these to the shared
-    #: EditorialQuerySet.visible_on_site() set, mirroring the Use-Case
-    #: decision from Beta 11.7A: leaving a comparison offline for the
-    #: duration of an editorial round was the defect, not the feature.
-    #:
-    #: STATUS_ARCHIVED is deliberately absent: archiving *is* the deliberate
-    #: public withdrawal and outranks any snapshot still on record.
-    #: STATUS_DRAFT is absent too - the FSM only reaches it from archived via
-    #: restore(), i.e. after a withdrawal.
-    LIVE_EDITING_STATUSES = (
-        EditorialWorkflowMixin.STATUS_REVIEW,
-        EditorialWorkflowMixin.STATUS_APPROVED,
-        EditorialWorkflowMixin.STATUS_REWORK,
-    )
-
+    #: Beta 11.11D1 removed this queryset's local ``LIVE_EDITING_STATUSES``
+    #: (Beta 11.9's copy of the Use-Case decision from Beta 11.7A); it is now
+    #: inherited from ``EditorialQuerySet``, which D1 widened to include
+    #: ``draft``. Only :meth:`visible_on_site` still needs overriding here,
+    #: for the comparison-specific ``live_entries`` guard.
     def visible_on_site(self):
         """
         Comparison-specific override of the shared editorial rule.
 
-        Two conditions guard the widened branch, and the second one is what
-        makes the widening safe at all:
+        The override survives Beta 11.11D1 for exactly one reason - the extra
+        ``live_entries`` condition, which has no counterpart on the other
+        three editorial types:
 
-        * ``last_published_revision_id`` - the live-revision marker every
-          editorial model already uses; and
+        * everything the shared base already checks (see
+          ``EditorialQuerySet.visible_on_site()``: ``published``
+          unconditionally, or one of ``LIVE_EDITING_STATUSES`` - which D1
+          widened to include ``draft`` - with ``is_published`` and a
+          non-empty ``live_i18n``); plus
         * a non-NULL ``live_entries`` snapshot, i.e. the comparison was
           published at least once *since* Beta 11.9 introduced the entry
           snapshot.
 
         Without the second condition a legacy comparison (published before
-        this slice, therefore ``live_entries IS NULL``) would stay online
+        that slice, therefore ``live_entries IS NULL``) would stay online
         through an editorial round while ``compare/presentation.py`` still
         had to read its tool entries from the live rows - publishing
         unreviewed entry edits. Requiring the snapshot keeps exactly those
@@ -59,17 +54,22 @@ class ComparisonQuerySet(EditorialQuerySet):
         ``compare/presentation.py::public_tool_entries()`` for the matching
         runtime states.
 
-        Overridden here rather than in EditorialQuerySet because that class
-        backs Guide, Prompt and Use Case as well. Ordering matches the base
+        D1 note: the widened branch's publication proof changed here in
+        lockstep with the base - from ``last_published_revision_id`` (a
+        legacy marker only ``core.admin``'s publish path writes) to
+        ``is_published`` plus a real ``live_i18n`` snapshot - because
+        ``LIVE_EDITING_STATUSES`` is now inherited and D1 routes every
+        automatic invalidation to ``draft``. Keeping the old proof here would
+        have taken every edited comparison offline. Ordering matches the base
         method so callers see no other behavioural difference.
         """
         return self.filter(
             Q(status=EditorialWorkflowMixin.STATUS_PUBLISHED)
             | (
-                Q(
-                    status__in=self.LIVE_EDITING_STATUSES,
-                    last_published_revision_id__isnull=False,
-                )
+                Q(status__in=self.LIVE_EDITING_STATUSES)
+                & Q(is_published=True)
+                & ~Q(live_i18n={})
+                & Q(live_i18n__isnull=False)
                 & Q(live_entries__isnull=False)
             )
         ).order_by("updated_at")
@@ -108,11 +108,7 @@ class ComparisonQuerySet(EditorialQuerySet):
         """
         return (
             self.visible_on_site()
-            .filter(
-                Q(**{"live_i18n__has_key": language_code})
-                | Q(live_i18n={})
-                | Q(live_i18n__isnull=True)
-            )
+            .filter(self.live_snapshot_language_q(language_code))
             .translated(language_code)
             .language(language_code)
             .distinct()

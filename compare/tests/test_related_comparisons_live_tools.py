@@ -29,7 +29,6 @@ from django.utils import timezone, translation
 
 from catalog.models import Category, Tool
 from compare.models import Comparison
-from core.services import related_comparisons, to_teaser_item
 from compare.tests.live_snapshot_fixtures import (
     add_entry,
     make_comparison,
@@ -38,6 +37,7 @@ from compare.tests.live_snapshot_fixtures import (
     publish,
     start_review_round,
 )
+from core.services import related_comparisons, to_teaser_item
 
 PAST = timezone.now() - timedelta(days=1)
 FUTURE = timezone.now() + timedelta(days=30)

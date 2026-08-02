@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Iterable, Tuple
+from collections.abc import Iterable
 
 from django.contrib.auth.models import Group, Permission
 from django.db.models import Q, QuerySet
 
-EDITORIAL_APPS: Tuple[str, ...] = (
+EDITORIAL_APPS: tuple[str, ...] = (
     "compare",
     "guides",
     "prompts",

@@ -17,6 +17,8 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import translation
 
+from core.tests.idor_probes import build_bounded_idor_probe_ids
+from prompts.models import Prompt
 from prompts.tests.draft_preview_fixtures import make_draft_prompt, make_user
 
 User = get_user_model()
@@ -94,12 +96,34 @@ class DraftPreviewPermissionTests(TestCase):
             self.client.logout()
 
     def test_guessing_a_neighbouring_id_does_not_leak_a_foreign_draft(self):
-        """IDOR guard: the object-level check runs server-side, so walking
-        ids as a non-owning author yields nothing but 404s."""
+        """
+        IDOR guard: the object-level check runs server-side, so a non-owning
+        author gets nothing but 404s - for the foreign draft's real id, for
+        the immediate neighbourhood of both drafts, for ``0`` and for an id
+        proven to be above every existing row.
+
+        Beta 11.12D2 replaced the original ``range(1, foreign.pk + 2)`` walk
+        with this bounded probe set. Primary keys come from a sequence that is
+        never reset between test classes, so inside the full suite that loop
+        issued one admin request per id the whole run had ever consumed -
+        thousands of them - while the ids in between belong to unrelated
+        fixtures and prove nothing this set does not. The probes below are
+        additionally asserted not to disclose the foreign draft's content,
+        which the original loop never checked.
+        """
+        probes = build_bounded_idor_probe_ids(
+            own_id=self.owned.pk,
+            foreign_id=self.foreign.pk,
+            existing_ids=tuple(Prompt.objects.values_list("pk", flat=True)),
+        )
+        self.assertIn(self.foreign.pk, probes)
+        self.assertNotIn(self.owned.pk, probes)
+        # The highest probe is meant to hit nothing at all - proven, not assumed.
+        self.assertFalse(Prompt.objects.filter(pk=max(probes)).exists())
+
         self.client.force_login(self.owner)
-        for pk in range(1, self.foreign.pk + 2):
-            if pk == self.owned.pk:
-                continue
+        for pk in probes:
             with self.subTest(pk=pk):
                 resp = self.client.get(preview_url(pk))
                 self.assertEqual(resp.status_code, 404)
+                self.assertNotContains(resp, "Foreign Prompt", status_code=404)

@@ -8,7 +8,8 @@ the current one.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field as dataclass_field
+from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 
 from django.contrib.auth import get_user_model
 from parler.utils.context import switch_language

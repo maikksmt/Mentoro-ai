@@ -6,21 +6,10 @@ class GuidesConfig(AppConfig):
     name = "guides"
 
     def ready(self):
-        import reversion
-        from reversion.revisions import RegistrationError
-        from django.apps import apps
+        # django-reversion registration lives in
+        # core.reversion_registration.register_editorial_reversion_models(),
+        # called from MentoroAdminConfig.ready() before admin autodiscovery
+        # (Beta 11.11B1). Registering it here ran too late - the admin had
+        # already auto-registered Guide - and the resulting RegistrationError
+        # was swallowed, so the intended follow=("translations",) never applied.
         from . import signals  # noqa: F401
-
-        Guide = apps.get_model("guides", "Guide")
-        translations_field = Guide._meta.get_field("translations")
-        TranslationModel = translations_field.related_model
-
-        try:
-            reversion.register(Guide, follow=("translations",))
-        except RegistrationError:
-            pass
-
-        try:
-            reversion.register(TranslationModel)
-        except RegistrationError:
-            pass

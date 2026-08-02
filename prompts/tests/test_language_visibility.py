@@ -55,9 +55,14 @@ class VisibleInLanguageQuerySetTests(TestCase):
         self.assertEqual(Prompt.objects.visible_in_language("de").count(), 0)
 
     def test_review_with_live_revision_stays_visible_per_visible_on_site_rule(self):
+        # Beta 11.11D1: "previously published" is proven by is_published
+        # plus a real live snapshot; last_published_revision_id is only a
+        # legacy audit marker and the editorial-view publish path never
+        # writes it (Beta 11.11C4J-R3 audit).
         p = make_prompt(slug="review-live", status=EditorialWorkflowMixin.STATUS_REVIEW,
                          published_at=None, languages=("en",),
-                         last_published_revision_id=1)
+                         last_published_revision_id=1, is_published=True,
+                         live_i18n={"en": {"title": "Live", "slug": "review-live-en"}})
         self.assertIn(p, Prompt.objects.visible_in_language("en"))
 
     def test_review_without_live_revision_is_not_visible(self):

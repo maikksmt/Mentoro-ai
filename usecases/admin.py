@@ -7,18 +7,20 @@ from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils import translation
 from django.utils.formats import date_format
-from django.utils.translation import gettext_lazy as _, get_language, get_language_info
+from django.utils.translation import get_language, get_language_info
+from django.utils.translation import gettext_lazy as _
 from parler.utils.context import switch_language
 from reversion.admin import VersionAdmin
 
 from content.templatetags.richtext import richtext
-from core.admin import TranslatableTinyMCEMixin, EditorialWorkflowAdminMixin
+from core.admin import EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin
 from core.editorial_preview import (
     apply_editorial_preview_headers,
     has_saved_translation,
     is_supported_preview_language,
 )
-from core.services import get_live_display_instance, build_field_diffs
+from core.services import build_field_diffs, get_live_display_instance
+
 from .models import UseCase
 from .presentation import build_draft_usecase_context
 
@@ -197,7 +199,7 @@ class UseCaseAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, Versio
     def diff_view(self, request, object_id, *args, **kwargs):
         obj = self.get_object(request, object_id)
         live_keys = set((obj.live_i18n or {}).keys()) if hasattr(obj, "live_i18n") else set()
-        obj_langs = set(getattr(obj, "get_available_languages", lambda: [])())  # Parler
+        obj_langs = set(getattr(obj, "get_available_languages", list)())  # Parler
         project_langs = {code for code, _ in getattr(settings, "LANGUAGES", [])}
         langs = []
         for code in list(project_langs) + list(obj_langs) + list(live_keys):

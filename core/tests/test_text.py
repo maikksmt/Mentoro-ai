@@ -96,7 +96,7 @@ class TruncateAtWordBoundaryTests(SimpleTestCase):
         for limit in range(5, len(source)):
             with self.subTest(limit=limit):
                 result = truncate_at_word_boundary(source, limit)
-                body = result[:-3] if result.endswith("...") else result
+                body = result.removesuffix("...")
                 for word in body.split():
                     self.assertIn(word, source.split())
 
@@ -106,7 +106,7 @@ class TruncateAtWordBoundaryTests(SimpleTestCase):
         for limit in range(first_word, len(source)):
             with self.subTest(limit=limit):
                 result = truncate_at_word_boundary(source, limit)
-                body = result[:-3] if result.endswith("...") else result
+                body = result.removesuffix("...")
                 self.assertLessEqual(len(body), limit)
 
     def test_dangling_punctuation_is_dropped_before_the_marker(self):

@@ -188,7 +188,8 @@ class EscapingTests(SearchTemplateTestCase):
         self.assertIn("&lt;script&gt;", html)
 
     def test_template_uses_no_safe_filters(self):
-        source = open("search/templates/search/results.html", encoding="utf-8").read()
+        with open("search/templates/search/results.html", encoding="utf-8") as _f:
+            source = _f.read()
         for unsafe in ("|safe", "mark_safe", "autoescape off"):
             with self.subTest(unsafe=unsafe):
                 self.assertNotIn(unsafe, source)

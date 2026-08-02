@@ -8,7 +8,11 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import translation
 
-from compare.tests.draft_preview_fixtures import make_draft_comparison, make_user, publish
+from compare.tests.draft_preview_fixtures import (
+    make_draft_comparison,
+    make_user,
+    publish,
+)
 
 
 class DraftPreviewButtonTests(TestCase):

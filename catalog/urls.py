@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import ToolListView, ToolDetailView
+from .views import ToolDetailView, ToolListView
 
 app_name = "catalog"
 

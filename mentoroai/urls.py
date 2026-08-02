@@ -12,14 +12,14 @@ from accounts.views import AccountDashboardView
 from content.views.seo_check import seo_check_view
 from content.views.uploads import tinymce_image_list, tinymce_upload
 from core.sitemaps import (
-    GuideSitemap,
-    PromptSitemap,
-    UseCaseSitemap,
     ComparisonSitemap,
-    ToolSitemap,
     GlossaryIndexSitemap,
     GlossaryTermSitemap,
+    GuideSitemap,
     LegalSitemap,
+    PromptSitemap,
+    ToolSitemap,
+    UseCaseSitemap,
 )
 from core.views_i18n import set_language_smart
 

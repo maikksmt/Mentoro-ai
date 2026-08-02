@@ -1,56 +1,35 @@
 from django.db import models
-from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _, get_language
+from django.utils.translation import get_language
+from django.utils.translation import gettext_lazy as _
 from parler.models import TranslatableModel, TranslatedFields
 from parler.utils.context import switch_language
 
 from catalog.models import Tool
-from core.models.editorial import EditorialManager, EditorialQuerySet, EditorialWorkflowMixin
+from core.models.editorial import (
+    EditorialManager,
+    EditorialQuerySet,
+    EditorialWorkflowMixin,
+)
 
 
 class UseCaseQuerySet(EditorialQuerySet):
-    #: Editing states in which a use case that was already published keeps its
-    #: public presence, provided a live revision exists.
+    #: Beta 11.11D1 removed this queryset's local ``LIVE_EDITING_STATUSES``
+    #: and ``visible_on_site()`` override entirely; both now come from
+    #: ``EditorialQuerySet``.
     #:
-    #: Beta 11.7A adds STATUS_REWORK to the shared
-    #: EditorialQuerySet.visible_on_site() set (published, review, approved).
-    #: "Rework" means the *new* draft needs another pass - it is not a
-    #: withdrawal, so the previously approved live snapshot stays valid and
-    #: must keep serving. Taking the page offline for the duration of an
-    #: editorial round was the exact defect Beta 11.7 set out to fix; leaving
-    #: rework out would have reopened it one transition later
-    #: (published -> review -> rework is a real, reachable path).
-    #:
-    #: STATUS_ARCHIVED is deliberately absent: archiving *is* the deliberate
-    #: public withdrawal, and it outranks any snapshot still on record.
-    #: STATUS_DRAFT is absent too - the FSM only reaches it from archived via
-    #: restore(), i.e. after a withdrawal, so a published use case never
-    #: legitimately returns to draft.
-    LIVE_EDITING_STATUSES = (
-        EditorialWorkflowMixin.STATUS_REVIEW,
-        EditorialWorkflowMixin.STATUS_APPROVED,
-        EditorialWorkflowMixin.STATUS_REWORK,
-    )
-
-    def visible_on_site(self):
-        """
-        Use-case-specific override of the shared editorial rule, widened by
-        STATUS_REWORK (see :attr:`LIVE_EDITING_STATUSES`).
-
-        Overridden here rather than in EditorialQuerySet because that class
-        backs Guide, Prompt and Comparison as well, and the rework decision
-        was taken for use cases only. Ordering matches the base method so
-        callers see no other behavioural difference.
-        """
-        return self.filter(
-            Q(status=EditorialWorkflowMixin.STATUS_PUBLISHED)
-            | Q(
-                status__in=self.LIVE_EDITING_STATUSES,
-                last_published_revision_id__isnull=False,
-            )
-        ).order_by("updated_at")
+    #: The override existed only because Beta 11.7A took the "rework must
+    #: stay public" decision for use cases before the shared base adopted it
+    #: (Beta 11.11B2A did, making the two identical apart from the constant).
+    #: D1 then had to widen the set again - ``draft`` is now where an
+    #: automatic invalidation lands - and had to replace the publication
+    #: proof (``last_published_revision_id``, which only ``core.admin``'s
+    #: publish path ever writes) with ``is_published`` plus a real snapshot.
+    #: Keeping a divergent copy of that here would have silently frozen use
+    #: cases on the pre-D1 rule and dropped every edited use case off the
+    #: site the moment B2B2 moved it to ``draft``. See
+    #: ``EditorialQuerySet.visible_on_site()`` for the full contract.
 
     def visible_in_language(self, language_code):
         """
@@ -95,14 +74,14 @@ class UseCaseQuerySet(EditorialQuerySet):
         * ``live_i18n`` is non-empty but lacks this language - published in
           other languages only, so there is no public revision here (state
           B). Excluded.
+
+        Beta 11.11D1 moved that three-state language rule verbatim into the
+        shared ``EditorialQuerySet.live_snapshot_language_q()`` so Guide and
+        Prompt could adopt it too; the semantics here are unchanged.
         """
         return (
             self.visible_on_site()
-            .filter(
-                Q(**{"live_i18n__has_key": language_code})
-                | Q(live_i18n={})
-                | Q(live_i18n__isnull=True)
-            )
+            .filter(self.live_snapshot_language_q(language_code))
             .translated(language_code)
             .language(language_code)
             .distinct()

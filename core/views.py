@@ -1,16 +1,16 @@
 from core.seo.context import defaults
-from core.seo.types import SeoMeta, AltHref
+from core.seo.types import AltHref, SeoMeta
 
 
 class SeoMixin:
-    NOINDEX_QUERY_KEYS = {
+    NOINDEX_QUERY_KEYS = frozenset({
         "category",
         "page",
         "letter",
         "q",
         "search",
         "sort",
-    }
+    })
 
     def _robots_for_request(self, request) -> str:
         if request.path.startswith("/admin/"):

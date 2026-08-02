@@ -151,8 +151,9 @@ class PersonaCaseVariantTests(TestCase):
         self.assertEqual(matched.persona_match, 0)
 
     def _make_tool(self, slug):
-        from catalog.models import Tool
         from parler.utils.context import switch_language
+
+        from catalog.models import Tool
 
         tool = Tool.objects.create(slug=slug, website=f"https://example.com/{slug}")
         with switch_language(tool, "en"):
@@ -258,8 +259,9 @@ class PersonaRankingWeightAndOrderTests(TestCase):
     semantics corrected."""
 
     def test_tool_match_still_outranks_persona_only_match(self):
-        from catalog.models import Tool
         from parler.utils.context import switch_language
+
+        from catalog.models import Tool
 
         tool = Tool.objects.create(slug="weight-tool-813", website="https://example.com/w")
         with switch_language(tool, "en"):
@@ -340,8 +342,9 @@ class PersonaEmptyValueTests(TestCase):
         unconditionally as translations__persona__iexact="", which matched
         the candidate's equally empty persona. Fixed: an empty source
         persona now short-circuits persona_match to a constant 0."""
-        from catalog.models import Tool
         from parler.utils.context import switch_language
+
+        from catalog.models import Tool
 
         tool = Tool.objects.create(slug="both-empty-tool-813a", website="https://example.com/e")
         with switch_language(tool, "en"):

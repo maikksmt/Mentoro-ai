@@ -19,7 +19,7 @@
 <meta name="title" content="{{ seo.title|default_if_none:'' }}">
 <meta name="description" content="{{ seo.description|default_if_none:'' }}">
 <meta name="date" content="{{ seo.date|default_if_none:'' }}">
-<meta name="author" content="{{ seo.author|default_if_none:'' }}">
+{% if seo.author %}<meta name="author" content="{{ seo.author }}">{% endif %}
 <meta name="publisher" content="mentoro-ai.com">
 <meta name="robots" content="{{ seo.robots|default:'index,follow' }}">
 

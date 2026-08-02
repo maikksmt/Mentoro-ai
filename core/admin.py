@@ -1,3 +1,6 @@
+from contextlib import contextmanager
+from typing import ClassVar
+
 import reversion
 from django.conf import settings
 from django.contrib import admin, messages
@@ -8,8 +11,49 @@ from parler.admin import TranslatableAdmin
 from reversion.models import Version
 from tinymce.widgets import TinyMCE
 
+from core.editorial_actions import (
+    EditorialAction,
+    EditorialActionError,
+    EditorialActionErrorCode,
+    apply_editorial_action,
+    publish_marker_scope,
+)
+
+#: The one :class:`~core.editorial_actions.EditorialActionError` outcome that is
+#: an ordinary editorial result rather than a fault: the object simply is not in
+#: a state this transition may start from. Every action below turns it into the
+#: same "not executable" message it produced before Beta 11.13D1B. Any other
+#: code is an integrity problem and is re-raised, never reported as a skip.
+_NOT_EXECUTABLE_CODES = frozenset(
+    {
+        EditorialActionErrorCode.STATUS_NOT_ELIGIBLE,
+        EditorialActionErrorCode.TRANSITION_UNAVAILABLE,
+    }
+)
+
 
 def set_last_published_revision(obj):
+    """
+    Legacy publish-marker resolver.
+
+    No workflow *action* uses this any more. Beta 11.13D1B moved all six of
+    them to ``core.editorial_actions``, which resolves the marker from
+    ``post_revision_commit`` - once reversion has written the revision's
+    versions - by an exact ``(revision, content_type, object_id, db)`` lookup
+    against the publish's own root version.
+
+    This helper resolved it with an unordered
+    ``Version.objects.get_for_object(obj).first()`` from *inside* the
+    still-open revision block, i.e. before those versions existed, so it could
+    only ever point at an older revision - or, on a first publish, at nothing
+    at all.
+
+    It remains in place for the one caller D1B deliberately does not touch:
+    :meth:`EditorialWorkflowAdminMixin.save_model`, where it backfills a marker
+    for a published row saved through the admin changeform rather than through
+    a workflow action. Correcting that path is a separate concern from making
+    the two *action* surfaces agree, and is left to its own slice.
+    """
     latest = Version.objects.get_for_object(obj).first()
     if latest:
         obj.last_published_revision_id = latest.id
@@ -23,7 +67,7 @@ class TranslatableTinyMCEMixin(TranslatableAdmin):
     tinymce_fields: tuple[str, ...] = ()
 
     class Media:
-        css = {
+        css: ClassVar[dict[str, tuple[str, ...]]] = {
             'all': ('admin/custom/wide-fields.css',)
         }
 
@@ -53,6 +97,37 @@ class TranslatableTinyMCEMixin(TranslatableAdmin):
 
         return form
 
+    def get_language_tabs(self, request, obj, available_languages, css_class=None):
+        """
+        Beta 11.11D3B: bind parler's per-language "delete translation" link to
+        the same permission its own view already enforces.
+
+        ``parler.utils.views.get_language_tabs()`` sets
+        ``tabs.allow_deletion`` purely from
+        ``len(available_languages) > 1`` - it consults no permission at all -
+        while ``TranslatableAdmin.delete_translation()`` gates the actual
+        deletion on ``has_delete_permission(request, translation)``. Any role
+        without the model's ``delete_*`` permission (Author and Editor, see
+        ``accounts/signals.py::ensure_editorial_groups``) was therefore
+        offered a delete link on every language tab that answered 403 when
+        followed.
+
+        This narrows the *link* to the permission that already governs the
+        *action*; it never widens it. ``allow_deletion`` stays false whenever
+        parler already said so (a single remaining translation), and the
+        server-side check in ``delete_translation()`` is untouched - so a
+        direct URL is still refused independently of what is rendered.
+
+        The permission is resolved through ``self.has_delete_permission()``,
+        i.e. whichever implementation the concrete admin actually uses
+        (``EditorialWorkflowAdminMixin``, ``ChildOfGuideOwnershipMixin``, or
+        plain ``ModelAdmin``). No group name is hardcoded here, and Admin-group
+        members and superusers keep the link exactly as before.
+        """
+        tabs = super().get_language_tabs(request, obj, available_languages, css_class=css_class)
+        tabs.allow_deletion = tabs.allow_deletion and self.has_delete_permission(request, obj)
+        return tabs
+
 
 class TranslatableTinyMCEInlineMixin:
     """
@@ -63,7 +138,7 @@ class TranslatableTinyMCEInlineMixin:
     wide_text_inputs: tuple[str, ...] = ("title", "label")
 
     class Media:
-        css = {
+        css: ClassVar[dict[str, tuple[str, ...]]] = {
             'all': ('admin/custom/wide-fields.css',)
         }
 
@@ -100,24 +175,105 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
     EDITOR_GROUP_NAMES = getattr(settings, "EDITOR_GROUP_NAMES", ["Editor", "Admin"])
     ADMIN_GROUP_NAMES = getattr(settings, "ADMIN_GROUP_NAMES", ["Admin"])
 
-    workflow_actions = [
+    workflow_actions = (
         "action_submit_for_review",
         "action_request_rework",
         "action_approve",
         "action_publish",
         "action_archive",
         "action_restore_draft",
-    ]
+    )
 
     # Standard description for auto review note; can be overwritten per admin class
     auto_review_note = _("Auto: Change in the admin form")
 
     actions = workflow_actions
 
+    #: Beta 11.11D3C: the rollback form gets an explicit warning that the
+    #: current editing state - later translations, sections and entries
+    #: included - is replaced and that the workflow/publication status is
+    #: restored too. Only ``revision_form_template`` is redirected;
+    #: ``recover_form_template`` stays at reversion's default because that
+    #: wording would be wrong for a deleted object (nothing is replaced and
+    #: no later work is removed).
+    revision_form_template = "admin/editorial/revision_form.html"
+
+    #: Beta 11.11D3C: request-local marker for "this request is inside
+    #: django-reversion's revert/recover form". Set for the duration of the
+    #: reversion view only, removed in ``finally``. Never a module global,
+    #: never a ``ContextVar`` or thread-local, never persisted.
+    _REVERSION_FORM_REQUEST_ATTR = "_mentoro_editorial_reversion_form"
+
     # ---- internal helper ----
 
     def _get_transition(self, obj, name: str):
         return getattr(obj, name, None)
+
+    def changelist_view(self, request, extra_context=None):
+        """
+        Beta 11.13D1B1: bound the pending publish markers to this request.
+
+        ``VersionAdmin.changelist_view`` wraps the whole changelist POST -
+        admin-action dispatch included - in one ``reversion.create_revision()``,
+        which is what keeps a bulk selection in a single shared revision. That
+        revision therefore commits *after* the action has already returned, and
+        ``post_revision_commit`` - the only thing that resolves a publish marker
+        - fires at that moment. So the marker scope has to enclose
+        ``VersionAdmin``'s context rather than sit inside the action, which is
+        why it is opened here and not in ``action_publish``.
+
+        Opening it around every changelist request (not only publishes) is
+        deliberate: it costs one ``ContextVar`` set/reset, and it means the
+        ``finally`` runs even when the revision is aborted by an action that
+        raises after some objects were already published - the path that
+        previously left an entry behind for the worker's next request.
+
+        Purely an in-memory lifecycle boundary: no query, no permission, no
+        message and no response behaviour changes here.
+        """
+        with publish_marker_scope():
+            return super().changelist_view(request, extra_context)
+
+    # ---- Beta 11.11D3C: reversion revert/recover form context ----
+
+    def _is_reversion_form_request(self, request) -> bool:
+        return bool(getattr(request, self._REVERSION_FORM_REQUEST_ATTR, False))
+
+    @contextmanager
+    def _reversion_form_request(self, request):
+        setattr(request, self._REVERSION_FORM_REQUEST_ATTR, True)
+        try:
+            yield
+        finally:
+            try:
+                delattr(request, self._REVERSION_FORM_REQUEST_ATTR)
+            except AttributeError:  # pragma: no cover - defensive only
+                pass
+
+    def revision_view(self, request, object_id, version_id, extra_context=None):
+        """
+        Beta 11.11D3C: mark the request while django-reversion restores and
+        re-saves the selected revision.
+
+        ``VersionAdmin._reversion_revisionform_view()`` runs
+        ``version.revision.revert(delete=True)`` and *then* the ordinary
+        ``changeform_view()``. Without the marker, the shared auto-review
+        below sees a ``published`` row plus a ``form.has_changed()`` that is
+        true even for an unmodified confirmation (parler's translated-field
+        initials lag the same-transaction write) and immediately moves the
+        just-restored row to ``review`` - overwriting exactly the state the
+        rollback was meant to reproduce.
+
+        Resolved through ``super()``, which reaches ``VersionAdmin`` via the
+        concrete admin's MRO; every editorial root admin is a ``VersionAdmin``.
+
+        Deliberately *only* ``revision_view``. ``recover_view`` restores a
+        previously hard-deleted object rather than replacing a working state;
+        it keeps its pre-D3C contract, auto-review included, and therefore
+        gets no override here at all.
+        """
+        with self._reversion_form_request(request):
+            return super().revision_view(request, object_id, version_id, extra_context)
 
     def _user_has_perm(self, request, perm_codename: str, obj) -> bool:
         """
@@ -177,26 +333,20 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
         # Inline-Formsets (Sections, Items)
         for fs in (formsets or []):
             # Django-admin Inline API (m2m / inlines)
-            if getattr(fs, "changed_objects", None):
-                if fs.changed_objects:
-                    return True
-            if getattr(fs, "new_objects", None):
-                if fs.new_objects:
-                    return True
-            if getattr(fs, "deleted_objects", None):
-                if fs.deleted_objects:
-                    return True
+            if getattr(fs, "changed_objects", None) and fs.changed_objects:
+                return True
+            if getattr(fs, "new_objects", None) and fs.new_objects:
+                return True
+            if getattr(fs, "deleted_objects", None) and fs.deleted_objects:
+                return True
 
             # Formset-API
-            if getattr(fs, "changed_forms", None):
-                if fs.changed_forms:
-                    return True
-            if getattr(fs, "new_forms", None):
-                if fs.new_forms:
-                    return True
-            if getattr(fs, "deleted_forms", None):
-                if fs.deleted_forms:
-                    return True
+            if getattr(fs, "changed_forms", None) and fs.changed_forms:
+                return True
+            if getattr(fs, "new_forms", None) and fs.new_forms:
+                return True
+            if getattr(fs, "deleted_forms", None) and fs.deleted_forms:
+                return True
 
         return False
 
@@ -204,7 +354,14 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
         """
         Automatically moves an already published object to REVIEW,
         If the user is allowed and the transition is available.
+
+        Beta 11.11D3C: never inside a reversion revert/recover form - there
+        the selected revision is the source of truth for the workflow state,
+        not a form-change signal (see :meth:`revision_view`).
         """
+        if self._is_reversion_form_request(request):
+            return
+
         if not self._user_has_perm(request, "submit_for_review", obj):
             return
 
@@ -253,13 +410,11 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         fields = list(super().get_readonly_fields(request, obj))
-        if not self._is_editor_user(request.user):
-            if "author" in [f.name for f in self.model._meta.fields]:
-                fields.append("author")
+        if not self._is_editor_user(request.user) and "author" in [f.name for f in self.model._meta.fields]:
+            fields.append("author")
 
-        if "published_at" in [f.name for f in self.model._meta.fields]:
-            if not self._is_admin_user(request.user):
-                fields.append("published_at")
+        if not self._is_admin_user(request.user) and "published_at" in [f.name for f in self.model._meta.fields]:
+            fields.append("published_at")
 
         return fields
 
@@ -318,30 +473,37 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
         """
         Central auto-review logic for changes to inlines
         for all editorial modeladmins.
+
+        Beta 11.11D3C: skipped inside a reversion revert/recover form for the
+        same reason as :meth:`_auto_transition_to_review` - restoring a
+        revision that legitimately contains sections or entries must not read
+        as "an editor just changed the inlines".
         """
         obj = form.instance
         inline_changed = self._inlines_changed(formsets)
 
-        if inline_changed and getattr(obj, "status", None) == getattr(
-                obj, "STATUS_PUBLISHED", "published"
+        if (
+            inline_changed
+            and not self._is_reversion_form_request(request)
+            and getattr(obj, "status", None) == getattr(obj, "STATUS_PUBLISHED", "published")
+            and self._user_has_perm(request, "submit_for_review", obj)
         ):
-            if self._user_has_perm(request, "submit_for_review", obj):
-                transition = self._get_transition(obj, "move_to_review")
-                if transition and can_proceed(transition):
-                    try:
-                        transition(
-                            by=request.user,
-                            note=self.auto_inline_review_note,
-                        )
-                    except TypeError:
-                        transition()
-                    self._save_with_fields(
-                        obj,
-                        "status",
-                        "submitted_for_review_at",
-                        "review_note",
-                        "updated_at",
+            transition = self._get_transition(obj, "move_to_review")
+            if transition and can_proceed(transition):
+                try:
+                    transition(
+                        by=request.user,
+                        note=self.auto_inline_review_note,
                     )
+                except TypeError:
+                    transition()
+                self._save_with_fields(
+                    obj,
+                    "status",
+                    "submitted_for_review_at",
+                    "review_note",
+                    "updated_at",
+                )
 
         return super().save_related(request, form, formsets, change)
 
@@ -351,33 +513,27 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
     def action_submit_for_review(self, request, queryset):
         moved, skipped = 0, []
 
-        with transaction.atomic():
-            with reversion.create_revision():
-                reversion.set_user(request.user)
-                reversion.set_comment("submit_for_review")
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(request.user)
+            reversion.set_comment("submit_for_review")
 
-                for obj in queryset.select_for_update():
-                    if not self._user_has_perm(request, "submit_for_review", obj):
-                        skipped.append((obj.pk, _("permission denied")))
-                        continue
+            for obj in queryset.select_for_update():
+                if not self._user_has_perm(request, "submit_for_review", obj):
+                    skipped.append((obj.pk, _("permission denied")))
+                    continue
 
-                    transition = self._get_transition(obj, "move_to_review")
-                    if transition and can_proceed(transition):
-                        try:
-                            transition(
-                                by=request.user,
-                                note="Admin-Action: submit_for_review",
-                            )
-                        except TypeError:
-                            transition()
-                        self._save_with_fields(
-                            obj, "status", "submitted_for_review_at", "updated_at"
-                        )
-                        moved += 1
-                    else:
+                try:
+                    apply_editorial_action(
+                        obj, EditorialAction.SUBMIT_FOR_REVIEW, actor=request.user
+                    )
+                except EditorialActionError as exc:
+                    if exc.code in _NOT_EXECUTABLE_CODES:
                         skipped.append(
                             (obj.pk, _("Transition 'move_to_review' not executable"))
                         )
+                        continue
+                    raise
+                moved += 1
 
         if moved:
             self.message_user(
@@ -406,21 +562,21 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
                             _("You are not authorized to perform this action.")
                         )
 
-                    transition = self._get_transition(obj, "request_rework")
-                    if not transition or not can_proceed(transition):
-                        raise RuntimeError(_("Transition 'request_rework' not executable"))
-
-                    transition(by=request.user, note=note)
-                    self._save_with_fields(
-                        obj,
-                        "status",
-                        "review_note",
-                        "reviewed_at",
-                        "reviewed_by",
-                        "updated_at",
-                    )
+                    try:
+                        apply_editorial_action(
+                            obj,
+                            EditorialAction.REQUEST_REWORK,
+                            actor=request.user,
+                            note=note,
+                        )
+                    except EditorialActionError as exc:
+                        if exc.code in _NOT_EXECUTABLE_CODES:
+                            raise RuntimeError(
+                                _("Transition 'request_rework' not executable")
+                            ) from exc
+                        raise
                     ok += 1
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 - one bad row must not abort the whole bulk action
                     self.message_user(
                         request, f"{obj}: {e}", level=messages.ERROR
                     )
@@ -438,37 +594,29 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
     def action_approve(self, request, queryset):
         approved, skipped = 0, []
 
-        with transaction.atomic():
-            with reversion.create_revision():
-                reversion.set_user(request.user)
-                reversion.set_comment("approve")
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(request.user)
+            reversion.set_comment("approve")
 
-                note = request.POST.get("review_note", "")
+            note = request.POST.get("review_note", "")
 
-                for obj in queryset.select_for_update():
-                    if not self._user_has_perm(request, "approve", obj):
-                        skipped.append((obj.pk, _("permission denied")))
-                        continue
+            for obj in queryset.select_for_update():
+                if not self._user_has_perm(request, "approve", obj):
+                    skipped.append((obj.pk, _("permission denied")))
+                    continue
 
-                    transition = self._get_transition(obj, "approve")
-                    if not transition or not can_proceed(transition):
-                        skipped.append((obj.pk, _("transition 'approve' not executable")))
-                        continue
-
-                    try:
-                        transition(by=request.user, note=note)
-                    except TypeError:
-                        transition()
-
-                    self._save_with_fields(
-                        obj,
-                        "status",
-                        "review_note",
-                        "reviewed_at",
-                        "reviewed_by",
-                        "updated_at",
+                try:
+                    apply_editorial_action(
+                        obj, EditorialAction.APPROVE, actor=request.user, note=note
                     )
-                    approved += 1
+                except EditorialActionError as exc:
+                    if exc.code in _NOT_EXECUTABLE_CODES:
+                        skipped.append(
+                            (obj.pk, _("transition 'approve' not executable"))
+                        )
+                        continue
+                    raise
+                approved += 1
 
         if approved:
             self.message_user(
@@ -489,42 +637,33 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
     def action_publish(self, request, queryset):
         published, skipped = 0, []
 
-        with transaction.atomic():
-            with reversion.create_revision():
-                reversion.set_user(request.user)
-                reversion.set_comment("Admin-Action: publish")
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(request.user)
+            reversion.set_comment("Admin-Action: publish")
 
-                for obj in queryset.select_for_update():
-                    if not self._user_has_perm(request, "publish", obj):
-                        skipped.append((obj.pk, _("permission denied")))
-                        continue
+            for obj in queryset.select_for_update():
+                if not self._user_has_perm(request, "publish", obj):
+                    skipped.append((obj.pk, _("permission denied")))
+                    continue
 
-                    if getattr(obj, "status", None) == getattr(obj, "STATUS_PUBLISHED", "published"):
-                        continue
+                if getattr(obj, "status", None) == getattr(obj, "STATUS_PUBLISHED", "published"):
+                    continue
 
-                    transition = self._get_transition(obj, "publish")
-                    if transition and can_proceed(transition):
-                        try:
-                            transition(by=request.user, note="Admin-Action publish")
-                        except TypeError:
-                            transition()
-
-                        try:
-                            with transaction.atomic():
-                                obj.save()
-                        except IntegrityError as exc:
-                            skipped.append((obj.pk, _("Could not publish: %(error)s") % {"error": exc}))
-                            continue
-
-                        set_last_published_revision(obj)
-                        self._save_with_fields(
-                            obj, "last_published_revision_id"
-                        )
-                        published += 1
-                    else:
+                try:
+                    apply_editorial_action(
+                        obj, EditorialAction.PUBLISH, actor=request.user
+                    )
+                except EditorialActionError as exc:
+                    if exc.code in _NOT_EXECUTABLE_CODES:
                         skipped.append(
                             (obj.pk, _("Transition 'publish' not executable"))
                         )
+                        continue
+                    raise
+                except IntegrityError as exc:
+                    skipped.append((obj.pk, _("Could not publish: %(error)s") % {"error": exc}))
+                    continue
+                published += 1
 
         if published:
             self.message_user(
@@ -556,17 +695,18 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
                     continue
 
                 try:
-                    transition = self._get_transition(obj, "archive")
-                    if not transition or not can_proceed(transition):
-                        raise RuntimeError(_("Transition 'archive' not executable"))
-
-                    transition(by=request.user, note=note)
-                    obj.is_published = False
-                    self._save_with_fields(
-                        obj, "status", "review_note", "is_published", "updated_at"
-                    )
+                    try:
+                        apply_editorial_action(
+                            obj, EditorialAction.ARCHIVE, actor=request.user, note=note
+                        )
+                    except EditorialActionError as exc:
+                        if exc.code in _NOT_EXECUTABLE_CODES:
+                            raise RuntimeError(
+                                _("Transition 'archive' not executable")
+                            ) from exc
+                        raise
                     ok += 1
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 - one bad row must not abort the whole bulk action
                     self.message_user(
                         request, f"{obj}: {e}", level=messages.ERROR
                     )
@@ -596,17 +736,21 @@ class EditorialWorkflowAdminMixin(admin.ModelAdmin):
                     continue
 
                 try:
-                    transition = self._get_transition(obj, "restore")
-                    if not transition or not can_proceed(transition):
-                        raise RuntimeError(_("Transition 'restore' not executable"))
-
-                    transition(by=request.user, note=note)
-                    obj.is_published = False
-                    self._save_with_fields(
-                        obj, "status", "review_note", "is_published", "updated_at"
-                    )
+                    try:
+                        apply_editorial_action(
+                            obj,
+                            EditorialAction.RESTORE_TO_DRAFT,
+                            actor=request.user,
+                            note=note,
+                        )
+                    except EditorialActionError as exc:
+                        if exc.code in _NOT_EXECUTABLE_CODES:
+                            raise RuntimeError(
+                                _("Transition 'restore' not executable")
+                            ) from exc
+                        raise
                     ok += 1
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 - one bad row must not abort the whole bulk action
                     self.message_user(
                         request, f"{obj}: {e}", level=messages.ERROR
                     )
@@ -638,7 +782,31 @@ class ChildOfGuideOwnershipMixin(admin.ModelAdmin):
         return getattr(guide, "author_id", None) == user.id
 
     def _get_parent_guide(self, obj):
-        return getattr(obj, "guide", None)
+        """
+        The owning ``Guide`` of whatever object a permission check was handed.
+
+        A ``GuideSection`` carries ``guide`` directly. A
+        ``GuideSectionTranslation`` does not: parler's
+        ``TranslatableAdmin.delete_translation()`` passes the *translation*
+        row to ``has_delete_permission()``, and that row reaches its guide only
+        through ``master`` (the section). Resolving just the direct attribute
+        therefore returned ``None`` for every per-language delete and refused
+        it for every role - including the Admin group and superusers, who are
+        entitled to it.
+
+        Exactly these two shapes are resolved; anything else (``None``, an
+        unsaved row whose FK raises, an unrelated object) stays ``None``, and
+        every caller treats ``None`` as "deny".
+        """
+        guide = getattr(obj, "guide", None)
+        if guide is not None:
+            return guide
+
+        master = getattr(obj, "master", None)
+        if master is not None:
+            return getattr(master, "guide", None)
+
+        return None
 
     def has_change_permission(self, request, obj=None):
         base = super().has_change_permission(request, obj)

@@ -1,6 +1,12 @@
 from django.urls import path
 
-from .views import ConfirmSubscriptionView, SubscribeView, UnsubscribeView, UnsubscribeDoneView, UnsubscribeConfirmView
+from .views import (
+    ConfirmSubscriptionView,
+    SubscribeView,
+    UnsubscribeConfirmView,
+    UnsubscribeDoneView,
+    UnsubscribeView,
+)
 
 app_name = "newsletter"
 

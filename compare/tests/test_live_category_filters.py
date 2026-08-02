@@ -25,14 +25,13 @@ an option it should still offer, purely from an unpublished edit.
 from datetime import timedelta
 
 from django.conf import settings
+from django.db import connection
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
-from django.db import connection
 from django.utils import timezone, translation
 
 from catalog.models import Category, Tool
 from compare.models import Comparison
-from compare.views import ComparisonListView
 from compare.tests.live_snapshot_fixtures import (
     add_entry,
     make_comparison,
@@ -40,6 +39,7 @@ from compare.tests.live_snapshot_fixtures import (
     publish,
     start_review_round,
 )
+from compare.views import ComparisonListView
 
 PAST = timezone.now() - timedelta(days=1)
 FUTURE = timezone.now() + timedelta(days=30)

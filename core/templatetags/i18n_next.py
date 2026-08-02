@@ -1,8 +1,10 @@
 # core/templatetags/i18n_next.py
 from __future__ import annotations
 
+from contextlib import suppress
+
 from django import template
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import FieldError, ObjectDoesNotExist
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import override as lang_override
 from parler.utils.context import switch_language
@@ -43,16 +45,12 @@ def _translated_slug_from_parler(obj, lang: str) -> str | None:
             has_public_slug = False
             has_slug = False
             if meta is not None:
-                try:
+                with suppress(FieldError):
                     meta.get_model_by_field("public_slug")
                     has_public_slug = True
-                except Exception:
-                    pass
-                try:
+                with suppress(FieldError):
                     meta.get_model_by_field("slug")
                     has_slug = True
-                except Exception:
-                    pass
             slug = None
             if has_public_slug:
                 slug = get("public_slug")
@@ -76,7 +74,7 @@ def _detail_url_for(obj, target_lang: str) -> str | None:
                    .first())
             with lang_override(target_lang):
                 return reverse("glossary:detail", kwargs={"slug": alt.slug}) if alt else reverse("glossary:list")
-        except Exception:
+        except Exception:  # noqa: BLE001 - a broken URL lookup must degrade to "no link", not crash the template
             return None
 
     slug = _translated_slug_from_live(obj, target_lang) or _translated_slug_from_parler(obj, target_lang)

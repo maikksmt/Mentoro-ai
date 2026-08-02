@@ -1,15 +1,14 @@
 from django.contrib import admin as django_admin
 from django.db import models
-from django.test import RequestFactory
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 
 from catalog.admin import (
-    ToolAdmin,
+    AffiliateInline,
     CategoryAdmin,
     PricingInline,
-    AffiliateInline,
+    ToolAdmin,
 )
-from catalog.models import Category, Tool, PricingTier, AffiliateProgram
+from catalog.models import AffiliateProgram, Category, PricingTier, Tool
 from core.admin import TranslatableTinyMCEMixin
 
 

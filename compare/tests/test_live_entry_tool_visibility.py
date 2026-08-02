@@ -18,9 +18,8 @@ from django.conf import settings
 from django.db import connection
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
-from django.utils import timezone, translation
-
 from django.urls import reverse
+from django.utils import timezone, translation
 
 from catalog.models import Tool
 from compare.models import Comparison

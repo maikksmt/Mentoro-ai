@@ -100,7 +100,7 @@ class Tool(TranslatableModel):
         long_description=models.TextField(blank=True),
     )
     objects = ToolManager()
-    ordering = ["id"]
+    ordering = ("id",)
 
     class Meta:
         verbose_name = "Tool"
@@ -135,11 +135,11 @@ class PricingTier(TranslatableModel):
 
 
 class AffiliateProgram(models.Model):
-    COMMISSION_CHOICES = [
+    COMMISSION_CHOICES = (
         ("flat", _("Flat")),
         ("percent", _("% of sales")),
         ("recurring", _("Recurring")),
-    ]
+    )
     tool = models.ForeignKey(Tool, on_delete=models.CASCADE, related_name="affiliates")
     network = models.CharField(max_length=250, blank=True)
     program_url = models.URLField(blank=True)

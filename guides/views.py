@@ -1,14 +1,16 @@
 from django.db.models import Prefetch, Q
 from django.http import Http404
 from django.urls import reverse
-from django.utils.translation import gettext as _, get_language
-from django.views.generic import ListView, DetailView
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
+from django.views.generic import DetailView, ListView
 
 from core.models.editorial import EditorialWorkflowMixin
-from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
+from core.seo.utils import absolute_url, get_og_image, localized_alternates, seo_text
 from core.services import related_guides, to_teaser_item
 from core.views import SeoMixin
-from .models import Guide, GuideSection, GuideItem
+
+from .models import Guide, GuideItem, GuideSection
 from .presentation import public_display_sections
 
 
@@ -55,7 +57,7 @@ def _resolve_guide_by_slug(qs, slug: str, language_code: str) -> Guide | None:
 
     compat_qs = (
         qs.filter(status=EditorialWorkflowMixin.STATUS_PUBLISHED)
-        .exclude(**{"live_i18n__has_key": language_code})
+        .exclude(live_i18n__has_key=language_code)
     )
     return (
         compat_qs.filter(

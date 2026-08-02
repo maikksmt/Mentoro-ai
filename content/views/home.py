@@ -1,9 +1,10 @@
 # content/views/home.py
-from django.utils.translation import gettext as _, get_language
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
 from django.views.generic import TemplateView
 
 from catalog.models import Tool
-from core.seo.utils import absolute_url, localized_alternates, get_og_image
+from core.seo.utils import absolute_url, get_og_image, localized_alternates
 from core.services import (
     get_latest_items,
     resolve_public_starter_guide,

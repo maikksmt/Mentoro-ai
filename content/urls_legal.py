@@ -1,6 +1,12 @@
 from django.urls import path
 
-from content.views.legal import LegalNoticeView, PrivacyPolicyView, CookiePolicyView, TermsOfUseView, CopyrightView
+from content.views.legal import (
+    CookiePolicyView,
+    CopyrightView,
+    LegalNoticeView,
+    PrivacyPolicyView,
+    TermsOfUseView,
+)
 
 app_name = "legal"
 

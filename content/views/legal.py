@@ -1,5 +1,6 @@
 # content/views_legal.py
-from django.utils.translation import gettext as _, get_language
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
 from django.views.generic import TemplateView
 
 from core.seo.utils import absolute_url, get_og_image

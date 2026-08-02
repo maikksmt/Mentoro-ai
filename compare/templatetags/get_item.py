@@ -15,5 +15,5 @@ def get_item(value, arg):
                 return ""
             return value[idx] if 0 <= idx < len(value) else ""
         return ""
-    except Exception:
+    except Exception:  # noqa: BLE001 - template filter must never break rendering
         return ""

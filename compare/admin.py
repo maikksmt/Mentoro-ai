@@ -4,12 +4,17 @@ from django.shortcuts import render
 from django.urls import path, reverse
 from django.utils import translation
 from django.utils.formats import date_format
-from django.utils.translation import gettext as _t, gettext_lazy as _
+from django.utils.translation import gettext as _t
+from django.utils.translation import gettext_lazy as _
 from parler.admin import TranslatableStackedInline
 from reversion.admin import VersionAdmin
 
 from content.templatetags.richtext import richtext
-from core.admin import TranslatableTinyMCEMixin, EditorialWorkflowAdminMixin, TranslatableTinyMCEInlineMixin
+from core.admin import (
+    EditorialWorkflowAdminMixin,
+    TranslatableTinyMCEInlineMixin,
+    TranslatableTinyMCEMixin,
+)
 from core.editorial_preview import (
     apply_editorial_preview_headers,
     build_preview_seo_meta,
@@ -18,6 +23,7 @@ from core.editorial_preview import (
 )
 from core.seo.utils import seo_text
 from core.services import related_comparisons, to_teaser_item
+
 from .models import Comparison, ComparisonToolEntry
 from .presentation import draft_tool_entries
 

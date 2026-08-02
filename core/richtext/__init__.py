@@ -12,4 +12,4 @@ Public API:
 from core.richtext.contract import RICHTEXT_CONTRACT, RichtextContract
 from core.richtext.render import render_content
 
-__all__ = ["render_content", "RICHTEXT_CONTRACT", "RichtextContract"]
+__all__ = ["RICHTEXT_CONTRACT", "RichtextContract", "render_content"]

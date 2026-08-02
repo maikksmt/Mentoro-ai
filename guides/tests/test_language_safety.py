@@ -93,8 +93,13 @@ class GuideVisibleInLanguageTests(TestCase):
         self.assertNotIn(g, Guide.objects.visible_in_language("de"))
 
     def test_review_with_live_revision_visible_per_visible_on_site(self):
+        # Beta 11.11D1: a past publication is proven by is_published plus a
+        # real live snapshot, not by the legacy last_published_revision_id
+        # marker (which only core.admin's publish path ever writes).
         g = make_guide(slug="review-live-strict", status=EditorialWorkflowMixin.STATUS_REVIEW,
-                        published_at=None, languages=("en",), last_published_revision_id=1)
+                        published_at=None, languages=("en",), last_published_revision_id=1,
+                        is_published=True,
+                        live_i18n={"en": {"title": "Live", "slug": "review-live-strict-en"}})
         self.assertIn(g, Guide.objects.visible_in_language("en"))
 
     def test_review_without_live_revision_not_visible(self):

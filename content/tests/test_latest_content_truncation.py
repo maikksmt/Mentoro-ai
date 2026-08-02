@@ -220,7 +220,7 @@ class LatestContentTruncationTests(TestCase):
                 self.assertNotIn("&amp;", text)
 
     def test_footer_link_title_badge_and_date_survive(self):
-        html, intros = self.cards()
+        _html, intros = self.cards()
         card, _ = self.intro_of(intros, "Titel lc-trunc-guide")
         self.assertIn("Weiterlesen", card)
         self.assertIn("badge-guide", card)

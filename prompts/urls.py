@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import PromptListView, PromptDetailView
+from .views import PromptDetailView, PromptListView
 
 app_name = "prompts"
 

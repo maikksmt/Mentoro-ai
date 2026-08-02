@@ -155,7 +155,14 @@ class MissingRevisionMarkerTests(BackfillBaseTestCase):
             slug="legacy-visible", title="Legacy Visible", persona="Legacy Persona",
             status=EditorialWorkflowMixin.STATUS_REVIEW,
         )
-        self.assertFalse(
+        # Beta 11.11D1 flipped this pre-condition on purpose: public
+        # visibility no longer depends on the legacy
+        # last_published_revision_id marker at all, so a legacy row with a
+        # real snapshot and is_published is already online *before* the
+        # backfill writes its marker. The property this test guards - the
+        # page survives the backfill - is unchanged and now strictly
+        # stronger, since there is no longer a window in which it is offline.
+        self.assertTrue(
             UseCase.objects.visible_in_language("en").filter(pk=usecase.pk).exists()
         )
 

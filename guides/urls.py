@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import GuideListView, GuideDetailView
+from .views import GuideDetailView, GuideListView
 
 app_name = "guides"
 
