@@ -545,9 +545,8 @@ class EditorialActionFailureTests(EditorialParityBase):
     """Refused and failing actions must leave nothing behind."""
 
     def test_invalid_source_status_mutates_nothing_and_records_no_revision(self):
-        for key in MODEL_BY_KEY:
+        for key, model in MODEL_BY_KEY.items():
             with self.subTest(key=key):
-                model = MODEL_BY_KEY[key]
                 obj = make_editorial_object(model, author=self.author)  # draft
                 before = Revision.objects.count()
 
@@ -570,9 +569,8 @@ class EditorialActionFailureTests(EditorialParityBase):
         with mock.patch(
             "core.editorial_actions._resolve_root_version",
             side_effect=RuntimeError("injected marker failure"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.run_workspace("guide", obj, "published")
+        ), self.assertRaises(RuntimeError):
+            self.run_workspace("guide", obj, "published")
 
         after = Guide.objects.get(pk=obj.pk)
         self.assertEqual(after.status, before_status, "status was not rolled back")
@@ -601,9 +599,8 @@ class EditorialActionFailureTests(EditorialParityBase):
         with mock.patch(
             "core.editorial_actions._persist",
             side_effect=RuntimeError("injected persistence failure"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.run_workspace("guide", obj, "published")
+        ), self.assertRaises(RuntimeError):
+            self.run_workspace("guide", obj, "published")
 
         after = Guide.objects.get(pk=obj.pk)
         self.assertEqual(after.status, EW.STATUS_APPROVED)
@@ -814,9 +811,8 @@ class PendingMarkerLifecycleTests(EditorialParityBase):
                 raise RuntimeError("second object fails inside the shared revision")
             return real_persist(obj, save_fields)
 
-        with mock.patch("core.editorial_actions._persist", failing_persist):
-            with self.assertRaises(RuntimeError):
-                self.run_admin("guide", [first, second], "published")
+        with mock.patch("core.editorial_actions._persist", failing_persist), self.assertRaises(RuntimeError):
+            self.run_admin("guide", [first, second], "published")
 
         # the shared revision was aborted, so nothing may have survived
         self.assertEqual(
@@ -845,9 +841,8 @@ class PendingMarkerLifecycleTests(EditorialParityBase):
                 raise RuntimeError("second object fails inside the shared revision")
             return real_persist(obj, save_fields)
 
-        with mock.patch("core.editorial_actions._persist", failing_persist):
-            with self.assertRaises(RuntimeError):
-                self.run_admin("guide", [first, second], "published")
+        with mock.patch("core.editorial_actions._persist", failing_persist), self.assertRaises(RuntimeError):
+            self.run_admin("guide", [first, second], "published")
 
         # No process restart: the very same execution context now runs an
         # unrelated publish. It must not inherit the aborted bulk's markers.
@@ -869,9 +864,8 @@ class PendingMarkerLifecycleTests(EditorialParityBase):
         with mock.patch(
             "core.editorial_actions._persist",
             side_effect=RuntimeError("injected before the revision commits"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.run_workspace("guide", obj, "published")
+        ), self.assertRaises(RuntimeError):
+            self.run_workspace("guide", obj, "published")
 
         row = Guide.objects.get(pk=obj.pk)
         self.assertEqual(row.status, EW.STATUS_APPROVED)
@@ -890,9 +884,8 @@ class PendingMarkerLifecycleTests(EditorialParityBase):
         with mock.patch(
             "core.editorial_actions._resolve_root_version",
             side_effect=RuntimeError("injected receiver failure"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.run_workspace("guide", obj, "published")
+        ), self.assertRaises(RuntimeError):
+            self.run_workspace("guide", obj, "published")
 
         row = Guide.objects.get(pk=obj.pk)
         self.assertEqual(row.status, EW.STATUS_APPROVED)
@@ -911,9 +904,8 @@ class PendingMarkerLifecycleTests(EditorialParityBase):
         with mock.patch(
             "core.editorial_actions._resolve_root_version",
             side_effect=RuntimeError("injected receiver failure"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.run_admin("guide", [first, second], "published")
+        ), self.assertRaises(RuntimeError):
+            self.run_admin("guide", [first, second], "published")
 
         self.assertEqual(list(Revision.objects.exclude(pk__in=known)), [])
         for obj in (first, second):
@@ -999,13 +991,12 @@ class PublishMarkerScopeGuardTests(EditorialParityBase):
         obj = self.build_source_object("workspace", "guide", "published")
         known = set(Revision.objects.values_list("pk", flat=True))
 
-        with self.assertRaises(editorial_actions.EditorialActionError) as ctx:
-            with reversion.create_revision():
-                editorial_actions.apply_editorial_action(
-                    obj,
-                    editorial_actions.EditorialAction.PUBLISH,
-                    actor=self.workspace_actor,
-                )
+        with self.assertRaises(editorial_actions.EditorialActionError) as ctx, reversion.create_revision():
+            editorial_actions.apply_editorial_action(
+                obj,
+                editorial_actions.EditorialAction.PUBLISH,
+                actor=self.workspace_actor,
+            )
         self.assertEqual(
             ctx.exception.code,
             editorial_actions.EditorialActionErrorCode.MARKER_SCOPE_MISSING,
@@ -1036,10 +1027,9 @@ class PublishMarkerScopeGuardTests(EditorialParityBase):
             editorial_actions._pending_publish_markers.reset(token)
 
     def test_scope_clears_entries_even_when_the_body_raises(self):
-        with self.assertRaises(RuntimeError):
-            with editorial_actions.publish_marker_scope():
-                pending_marker_entries().append("leftover")
-                raise RuntimeError("body failed")
+        with self.assertRaises(RuntimeError), editorial_actions.publish_marker_scope():
+            pending_marker_entries().append("leftover")
+            raise RuntimeError("body failed")
         self.assertIn(pending_marker_entries(), (None, []))
 
 

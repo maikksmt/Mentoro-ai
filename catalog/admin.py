@@ -1,12 +1,14 @@
 from django import forms
 from django.contrib import admin
 from django.utils.text import capfirst
-from django.utils.translation import gettext_lazy as _, get_language
+from django.utils.translation import get_language
+from django.utils.translation import gettext_lazy as _
 from parler.admin import TranslatableTabularInline
 from parler.forms import TranslatableModelForm
 
 from core.admin import TranslatableTinyMCEMixin
-from .models import Category, Tool, PricingTier, AffiliateProgram
+
+from .models import AffiliateProgram, Category, PricingTier, Tool
 
 admin.site.site_header = "MentoroAI – Admin"
 
@@ -147,7 +149,7 @@ class ToolAdmin(TranslatableTinyMCEMixin):
     readonly_fields = ("created_at", "updated_at")
     autocomplete_fields = ("categories",)
 
-    inlines = [PricingInline, AffiliateInline]
+    inlines = (PricingInline, AffiliateInline)
 
     fieldsets = (
         (

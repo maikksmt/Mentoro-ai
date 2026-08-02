@@ -344,13 +344,14 @@ class ArchitectureStaticTests(MigrationTestCase):
         return {}
 
     def test_migration_has_a_real_reverse(self):
-        add_field, run_python = _migration.Migration.operations
+        _add_field, run_python = _migration.Migration.operations
         self.assertIsNotNone(run_python.reverse_code)
 
     def test_migration_imports_no_runtime_modules(self):
         import ast
 
-        source = open(_migration.__file__, encoding="utf-8").read()
+        with open(_migration.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         tree = ast.parse(source)
         forbidden = (
             "prompts.models",
@@ -376,7 +377,8 @@ class ArchitectureStaticTests(MigrationTestCase):
     def test_migration_never_calls_save(self):
         import ast
 
-        source = open(_migration.__file__, encoding="utf-8").read()
+        with open(_migration.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         tree = ast.parse(source)
         offenders = [
             node.func.attr

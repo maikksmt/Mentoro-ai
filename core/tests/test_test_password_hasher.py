@@ -392,14 +392,12 @@ class RunnerHookOrderingTests(SimpleTestCase):
             DiscoverRunner,
             "teardown_test_environment",
             lambda *a, **kw: calls.append("parent_teardown"),
-        ):
-            with mock.patch.object(
-                MentoroTestRunner,
-                "_disable_fast_password_hasher",
-                side_effect=RuntimeError("disable boom"),
-            ):
-                with self.assertRaises(RuntimeError):
-                    runner.teardown_test_environment()
+        ), mock.patch.object(
+            MentoroTestRunner,
+            "_disable_fast_password_hasher",
+            side_effect=RuntimeError("disable boom"),
+        ), self.assertRaises(RuntimeError):
+            runner.teardown_test_environment()
         self.assertEqual(calls, ["parent_teardown"])
 
 
@@ -607,6 +605,7 @@ class OutsideTheTestRunnerTests(SimpleTestCase):
             capture_output=True,
             text=True,
             timeout=180,
+            check=False,
         )
         self.assertEqual(
             completed.returncode,

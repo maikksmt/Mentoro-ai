@@ -272,7 +272,8 @@ class NoForbiddenInternalsTests(MigrationTestCase):
     def test_migration_imports_no_runtime_app_modules(self):
         import ast
 
-        source = open(_migration.__file__, encoding="utf-8").read()
+        with open(_migration.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         tree = ast.parse(source)
         forbidden_modules = (
             "prompts.models",
@@ -295,7 +296,8 @@ class NoForbiddenInternalsTests(MigrationTestCase):
         self.assertEqual(offenders, [])
 
     def test_migration_uses_no_revision_ordering_heuristics(self):
-        source = open(_migration.__file__, encoding="utf-8").read()
+        with open(_migration.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         for forbidden in ("Revision.objects.first(", "Revision.objects.last(", '.order_by("-id")', ".order_by('-id')", "max(id"):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, source)
@@ -308,7 +310,8 @@ class NoForbiddenInternalsTests(MigrationTestCase):
         unwanted revision."""
         import ast
 
-        source = open(_migration.__file__, encoding="utf-8").read()
+        with open(_migration.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         tree = ast.parse(source)
         offenders = [
             node.func.attr

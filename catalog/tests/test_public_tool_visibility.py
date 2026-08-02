@@ -83,9 +83,8 @@ class ToolQuerySetPublicTests(TestCase):
         self.assertNotIn(tool, Tool.objects.public())
 
     def test_null_published_at_cannot_exist(self):
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                Tool.objects.create(slug="pq-null", published_at=None)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Tool.objects.create(slug="pq-null", published_at=None)
 
     def test_public_accepts_an_explicit_point_in_time(self):
         tool = make_tool("pq-at", days=FUTURE)

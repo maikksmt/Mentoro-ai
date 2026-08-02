@@ -20,9 +20,10 @@ class ToolLanguageFallbackIsIntentionalTests(TestCase):
         self.assertNotIn("slug", translated_field_names)
 
     def test_en_only_tool_still_appears_on_the_german_catalog_list(self):
-        from catalog.views import ToolListView
         from django.test import RequestFactory
         from django.utils import translation
+
+        from catalog.views import ToolListView
 
         t = Tool.objects.create(slug="en-only-fallback-tool", published_at=timezone.now())
         t.create_translation("en", name="EN Only Tool")

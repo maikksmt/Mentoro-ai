@@ -442,7 +442,7 @@ class GuideRevisionGraphTests(EditorialGraphTestCase):
         self.client.post(
             self.change_url,
             data=self._change_payload(
-                self.guide, self._en_sections(**{"DELETE": "on"})
+                self.guide, self._en_sections(DELETE="on")
             ),
         )
         revision = capture.single(self)
@@ -871,7 +871,7 @@ class ComparisonRevisionGraphTests(EditorialGraphTestCase):
         self.client.post(
             self.change_url,
             data=self._payload(
-                self.comparison, entries=[self._en_entry(**{"DELETE": "on"})]
+                self.comparison, entries=[self._en_entry(DELETE="on")]
             ),
         )
         revision = capture.single(self)

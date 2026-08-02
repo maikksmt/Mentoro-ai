@@ -362,9 +362,8 @@ class StatusNotSubmittableTests(SubmissionTestCase):
         prompt = make_prompt(status=Workflow.STATUS_APPROVED)
         with mock.patch(
             "prompts.review_submission.build_prompt_review_payload"
-        ) as payload_mock:
-            with self.assertRaises(PromptReviewSubmissionError):
-                submit_prompt_for_review(prompt)
+        ) as payload_mock, self.assertRaises(PromptReviewSubmissionError):
+            submit_prompt_for_review(prompt)
         payload_mock.assert_not_called()
 
 
@@ -560,9 +559,8 @@ class SignalIsolationTests(SubmissionTestCase):
 
     def test_failed_call_inside_reversion_context_leaves_no_receiver(self):
         prompt = make_prompt(status=Workflow.STATUS_DRAFT)
-        with mock.patch.object(Prompt, "save", side_effect=RuntimeError("boom")):
-            with self.assertRaises(RuntimeError):
-                submit_prompt_for_review(prompt)
+        with mock.patch.object(Prompt, "save", side_effect=RuntimeError("boom")), self.assertRaises(RuntimeError):
+            submit_prompt_for_review(prompt)
         self.assertIsNone(_active_submission_token.get())
         self.assertEqual(leaked_call_local_receivers(), [])
 
@@ -633,9 +631,8 @@ class ActiveReversionContextTests(SubmissionTestCase):
     def test_running_inside_an_active_context_is_rejected(self):
         prompt = make_prompt(status=Workflow.STATUS_DRAFT)
         revisions_before = Revision.objects.count()
-        with reversion.create_revision():
-            with self.assertRaises(PromptReviewSubmissionError) as ctx:
-                submit_prompt_for_review(prompt)
+        with reversion.create_revision(), self.assertRaises(PromptReviewSubmissionError) as ctx:
+            submit_prompt_for_review(prompt)
         self.assertEqual(
             ctx.exception.code, PromptReviewSubmissionErrorCode.ACTIVE_REVERSION_CONTEXT
         )
@@ -655,9 +652,8 @@ class ActiveReversionContextTests(SubmissionTestCase):
         with reversion.create_revision():
             with mock.patch(
                 "prompts.review_submission.build_prompt_review_payload"
-            ) as payload_mock:
-                with self.assertRaises(PromptReviewSubmissionError):
-                    submit_prompt_for_review(prompt)
+            ) as payload_mock, self.assertRaises(PromptReviewSubmissionError):
+                submit_prompt_for_review(prompt)
             payload_mock.assert_not_called()
 
 
@@ -684,9 +680,8 @@ class PayloadConsistencyTests(SubmissionTestCase):
         with mock.patch(
             "prompts.review_submission.build_prompt_review_payload",
             side_effect=[payload_a, payload_b],
-        ):
-            with self.assertRaises(PromptReviewSubmissionError) as ctx:
-                submit_prompt_for_review(prompt, actor=self.actor)
+        ), self.assertRaises(PromptReviewSubmissionError) as ctx:
+            submit_prompt_for_review(prompt, actor=self.actor)
         self.assertEqual(
             ctx.exception.code, PromptReviewSubmissionErrorCode.PAYLOAD_CHANGED_DURING_SUBMISSION
         )
@@ -766,39 +761,34 @@ class RollbackMatrixTests(SubmissionTestCase):
         with mock.patch(
             "prompts.review_submission.build_prompt_review_payload",
             side_effect=RuntimeError("builder boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                submit_prompt_for_review(self.prompt, actor=self.actor)
+        ), self.assertRaises(RuntimeError):
+            submit_prompt_for_review(self.prompt, actor=self.actor)
         self._assert_full_rollback()
 
     def test_fingerprint_failure(self):
         with mock.patch(
             "prompts.review_submission.fingerprint_review_payload",
             side_effect=RuntimeError("fingerprint boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                submit_prompt_for_review(self.prompt, actor=self.actor)
+        ), self.assertRaises(RuntimeError):
+            submit_prompt_for_review(self.prompt, actor=self.actor)
         self._assert_full_rollback()
 
     def test_transition_failure(self):
-        with mock.patch.object(Prompt, "move_to_review", side_effect=RuntimeError("fsm boom")):
-            with self.assertRaises(RuntimeError):
-                submit_prompt_for_review(self.prompt, actor=self.actor)
+        with mock.patch.object(Prompt, "move_to_review", side_effect=RuntimeError("fsm boom")), self.assertRaises(RuntimeError):
+            submit_prompt_for_review(self.prompt, actor=self.actor)
         self._assert_full_rollback()
 
     def test_submit_save_failure(self):
-        with mock.patch.object(Prompt, "save", side_effect=RuntimeError("save boom")):
-            with self.assertRaises(RuntimeError):
-                submit_prompt_for_review(self.prompt, actor=self.actor)
+        with mock.patch.object(Prompt, "save", side_effect=RuntimeError("save boom")), self.assertRaises(RuntimeError):
+            submit_prompt_for_review(self.prompt, actor=self.actor)
         self._assert_full_rollback()
 
     def test_no_revision_captured(self):
         # Prevent the receiver from ever connecting; reversion still creates the
         # revision, but nothing captures it -> REVISION_NOT_CAPTURED, then the
         # outer transaction rolls the created revision back.
-        with mock.patch.object(post_revision_commit, "connect"):
-            with self.assertRaises(PromptReviewSubmissionError) as ctx:
-                submit_prompt_for_review(self.prompt, actor=self.actor)
+        with mock.patch.object(post_revision_commit, "connect"), self.assertRaises(PromptReviewSubmissionError) as ctx:
+            submit_prompt_for_review(self.prompt, actor=self.actor)
         self.assertEqual(ctx.exception.code, PromptReviewSubmissionErrorCode.REVISION_NOT_CAPTURED)
         self._assert_full_rollback()
 
@@ -821,9 +811,8 @@ class RollbackMatrixTests(SubmissionTestCase):
                 versions=[types.SimpleNamespace(db=DEFAULT_DB_ALIAS)],
             )
 
-        with mock.patch("reversion.set_comment", side_effect=double_capture):
-            with self.assertRaises(PromptReviewSubmissionError) as ctx:
-                submit_prompt_for_review(self.prompt, actor=self.actor)
+        with mock.patch("reversion.set_comment", side_effect=double_capture), self.assertRaises(PromptReviewSubmissionError) as ctx:
+            submit_prompt_for_review(self.prompt, actor=self.actor)
         self.assertEqual(
             ctx.exception.code, PromptReviewSubmissionErrorCode.MULTIPLE_REVISIONS_CAPTURED
         )
@@ -832,9 +821,8 @@ class RollbackMatrixTests(SubmissionTestCase):
     def test_root_version_missing(self):
         with mock.patch(
             "prompts.review_submission.revision_contains_object", return_value=False
-        ):
-            with self.assertRaises(PromptReviewSubmissionError) as ctx:
-                submit_prompt_for_review(self.prompt, actor=self.actor)
+        ), self.assertRaises(PromptReviewSubmissionError) as ctx:
+            submit_prompt_for_review(self.prompt, actor=self.actor)
         self.assertEqual(ctx.exception.code, PromptReviewSubmissionErrorCode.ROOT_VERSION_MISSING)
         self._assert_full_rollback()
 
@@ -844,9 +832,8 @@ class RollbackMatrixTests(SubmissionTestCase):
         with mock.patch(
             "prompts.review_submission.build_prompt_review_payload",
             side_effect=[payload_a, payload_b],
-        ):
-            with self.assertRaises(PromptReviewSubmissionError) as ctx:
-                submit_prompt_for_review(self.prompt, actor=self.actor)
+        ), self.assertRaises(PromptReviewSubmissionError) as ctx:
+            submit_prompt_for_review(self.prompt, actor=self.actor)
         self.assertEqual(
             ctx.exception.code, PromptReviewSubmissionErrorCode.PAYLOAD_CHANGED_DURING_SUBMISSION
         )
@@ -862,9 +849,8 @@ class RollbackMatrixTests(SubmissionTestCase):
                 raise RuntimeError("binding save boom")
             return original_save(self, *args, **kwargs)
 
-        with mock.patch.object(Prompt, "save", flaky_save):
-            with self.assertRaises(RuntimeError):
-                submit_prompt_for_review(self.prompt, actor=self.actor)
+        with mock.patch.object(Prompt, "save", flaky_save), self.assertRaises(RuntimeError):
+            submit_prompt_for_review(self.prompt, actor=self.actor)
         self._assert_full_rollback()
 
 
@@ -1015,7 +1001,8 @@ class NoRuntimeActivationTests(TestCase):
         """
         import prompts.admin
 
-        source = open(prompts.admin.__file__, encoding="utf-8").read()
+        with open(prompts.admin.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         self.assertIn("submit_prompt_for_review", source)
         self.assertIn("PromptReviewSubmissionError", source)
 
@@ -1030,5 +1017,6 @@ class NoRuntimeActivationTests(TestCase):
         """
         import prompts.admin
 
-        source = open(prompts.admin.__file__, encoding="utf-8").read()
+        with open(prompts.admin.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         self.assertIn("submit_prompt_for_review", source)

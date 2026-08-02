@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.urls import resolve, Resolver404, reverse
+from django.urls import Resolver404, resolve, reverse
 from django.utils import translation
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import check_for_language

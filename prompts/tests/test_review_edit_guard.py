@@ -20,11 +20,11 @@ import itertools
 import pathlib
 from unittest import mock
 
+import reversion
 from django.contrib.auth import get_user_model
 from django.db import DEFAULT_DB_ALIAS, connection, connections, transaction
 from django.test import TestCase, TransactionTestCase
 from django.test.utils import CaptureQueriesContext
-import reversion
 from reversion.models import Revision, Version
 
 from catalog.models import Tool
@@ -162,9 +162,8 @@ class BaselineCaptureTests(GuardTestCase):
         prompt = submitted_prompt(actor=self.actor)
         with mock.patch(
             "prompts.review_edit_guard.invalidate_editorial_review_state"
-        ) as invalidate:
-            with transaction.atomic():
-                capture_prompt_review_edit_baseline(prompt)
+        ) as invalidate, transaction.atomic():
+            capture_prompt_review_edit_baseline(prompt)
         invalidate.assert_not_called()
 
 
@@ -180,18 +179,16 @@ class BaselineValidationTests(GuardTestCase):
 
     def test_non_baseline_object_is_rejected(self):
         prompt = make_prompt(author=self.actor)
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                invalidate_prompt_review_if_payload_changed(prompt, baseline={"not": "a baseline"})
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            invalidate_prompt_review_if_payload_changed(prompt, baseline={"not": "a baseline"})
         self.assertEqual(ctx.exception.code, PromptReviewEditGuardErrorCode.INVALID_BASELINE)
 
     def test_baseline_from_another_prompt_is_rejected(self):
         prompt_a = make_prompt(author=self.actor)
         prompt_b = make_prompt(author=self.actor)
         baseline_a = self._baseline_for(prompt_a)
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                invalidate_prompt_review_if_payload_changed(prompt_b, baseline=baseline_a)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            invalidate_prompt_review_if_payload_changed(prompt_b, baseline=baseline_a)
         self.assertEqual(ctx.exception.code, PromptReviewEditGuardErrorCode.BASELINE_PROMPT_MISMATCH)
 
     def test_baseline_from_another_alias_is_rejected(self):
@@ -203,9 +200,8 @@ class BaselineValidationTests(GuardTestCase):
             payload_schema=baseline.payload_schema,
             payload_fingerprint=baseline.payload_fingerprint,
         )
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
         self.assertEqual(
             ctx.exception.code, PromptReviewEditGuardErrorCode.BASELINE_DATABASE_ALIAS_MISMATCH
         )
@@ -219,9 +215,8 @@ class BaselineValidationTests(GuardTestCase):
             payload_schema="prompt-review-v999",
             payload_fingerprint=baseline.payload_fingerprint,
         )
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
         self.assertEqual(ctx.exception.code, PromptReviewEditGuardErrorCode.BASELINE_SCHEMA_MISMATCH)
 
     def test_empty_fingerprint_is_rejected(self):
@@ -231,9 +226,8 @@ class BaselineValidationTests(GuardTestCase):
             prompt_id=baseline.prompt_id, database_alias=baseline.database_alias,
             payload_schema=baseline.payload_schema, payload_fingerprint="",
         )
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
         self.assertEqual(
             ctx.exception.code, PromptReviewEditGuardErrorCode.BASELINE_FINGERPRINT_INVALID
         )
@@ -245,9 +239,8 @@ class BaselineValidationTests(GuardTestCase):
             prompt_id=baseline.prompt_id, database_alias=baseline.database_alias,
             payload_schema=baseline.payload_schema, payload_fingerprint="ab12",
         )
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
         self.assertEqual(
             ctx.exception.code, PromptReviewEditGuardErrorCode.BASELINE_FINGERPRINT_INVALID
         )
@@ -260,9 +253,8 @@ class BaselineValidationTests(GuardTestCase):
             payload_schema=baseline.payload_schema,
             payload_fingerprint=baseline.payload_fingerprint + "0",
         )
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
         self.assertEqual(
             ctx.exception.code, PromptReviewEditGuardErrorCode.BASELINE_FINGERPRINT_INVALID
         )
@@ -275,9 +267,8 @@ class BaselineValidationTests(GuardTestCase):
             payload_schema=baseline.payload_schema,
             payload_fingerprint=baseline.payload_fingerprint.upper(),
         )
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
         self.assertEqual(
             ctx.exception.code, PromptReviewEditGuardErrorCode.BASELINE_FINGERPRINT_INVALID
         )
@@ -290,9 +281,8 @@ class BaselineValidationTests(GuardTestCase):
             payload_schema=baseline.payload_schema,
             payload_fingerprint="g" * 64,
         )
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
         self.assertEqual(
             ctx.exception.code, PromptReviewEditGuardErrorCode.BASELINE_FINGERPRINT_INVALID
         )
@@ -301,21 +291,18 @@ class BaselineValidationTests(GuardTestCase):
         prompt = make_prompt(author=self.actor)
         baseline = self._baseline_for(prompt)
         Prompt.objects.filter(pk=prompt.pk).delete()
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
         self.assertEqual(ctx.exception.code, PromptReviewEditGuardErrorCode.OBJECT_NOT_FOUND)
 
     def test_unsaved_prompt_is_rejected(self):
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                capture_prompt_review_edit_baseline(Prompt())
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            capture_prompt_review_edit_baseline(Prompt())
         self.assertEqual(ctx.exception.code, PromptReviewEditGuardErrorCode.UNSAVED_OBJECT)
 
     def test_unsupported_object_is_rejected(self):
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                capture_prompt_review_edit_baseline(None)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            capture_prompt_review_edit_baseline(None)
         self.assertEqual(ctx.exception.code, PromptReviewEditGuardErrorCode.UNSUPPORTED_OBJECT)
 
     def test_no_b2b2_call_or_status_change_on_any_baseline_error(self):
@@ -325,9 +312,8 @@ class BaselineValidationTests(GuardTestCase):
             prompt_id=prompt.pk, database_alias=DEFAULT_DB_ALIAS,
             payload_schema="prompt-review-v2", payload_fingerprint="0" * 63 + "z",
         )
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError):
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError):
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=forged)
         after = refetch(prompt)
         self.assertEqual(after.status, before.status)
         self.assertEqual(after.review_revision_id, before.review_revision_id)
@@ -358,10 +344,9 @@ class NoPayloadChangeTests(GuardTestCase):
         prompt = submitted_prompt(actor=self.actor)
         with mock.patch(
             "prompts.review_edit_guard.invalidate_editorial_review_state"
-        ) as invalidate:
-            with transaction.atomic():
-                baseline = capture_prompt_review_edit_baseline(prompt)
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
+        ) as invalidate, transaction.atomic():
+            baseline = capture_prompt_review_edit_baseline(prompt)
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
         invalidate.assert_not_called()
 
     def test_unchanged_payload_does_not_touch_updated_at(self):
@@ -686,24 +671,21 @@ class AliasAndProxyTests(GuardTestCase):
 
     def test_unknown_alias_name_is_rejected(self):
         prompt = make_prompt(author=self.actor)
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                capture_prompt_review_edit_baseline(prompt, using="not-a-real-alias")
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            capture_prompt_review_edit_baseline(prompt, using="not-a-real-alias")
         self.assertEqual(ctx.exception.code, PromptReviewEditGuardErrorCode.INVALID_DATABASE_ALIAS)
 
     def test_alias_contradicting_the_objects_own_alias_is_a_mismatch(self):
         prompt = make_prompt(author=self.actor)
         prompt._state.db = "not-default"
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                capture_prompt_review_edit_baseline(prompt, using=DEFAULT_DB_ALIAS)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            capture_prompt_review_edit_baseline(prompt, using=DEFAULT_DB_ALIAS)
         self.assertEqual(ctx.exception.code, PromptReviewEditGuardErrorCode.DATABASE_ALIAS_MISMATCH)
 
     def test_invalid_using_type_raises_type_error(self):
         prompt = make_prompt(author=self.actor)
-        with transaction.atomic():
-            with self.assertRaises(TypeError):
-                capture_prompt_review_edit_baseline(prompt, using=123)
+        with transaction.atomic(), self.assertRaises(TypeError):
+            capture_prompt_review_edit_baseline(prompt, using=123)
 
     def test_prompt_proxy_is_accepted_and_resolves_to_the_concrete_prompt(self):
         prompt = make_prompt(author=self.actor)
@@ -718,9 +700,8 @@ class AliasAndProxyTests(GuardTestCase):
 
     def test_unrelated_model_is_rejected(self):
         tool = Tool.objects.create(slug="guard-unrelated-tool")
-        with transaction.atomic():
-            with self.assertRaises(PromptReviewEditGuardError) as ctx:
-                capture_prompt_review_edit_baseline(tool)
+        with transaction.atomic(), self.assertRaises(PromptReviewEditGuardError) as ctx:
+            capture_prompt_review_edit_baseline(tool)
         self.assertEqual(ctx.exception.code, PromptReviewEditGuardErrorCode.UNSUPPORTED_OBJECT)
 
 
@@ -749,9 +730,8 @@ class AtomicContextTests(TransactionTestCase):
 
     def test_capture_outside_atomic_performs_no_query(self):
         prompt = make_prompt(author=self.actor)
-        with CaptureQueriesContext(connection) as ctx:
-            with self.assertRaises(PromptReviewEditGuardError):
-                capture_prompt_review_edit_baseline(prompt)
+        with CaptureQueriesContext(connection) as ctx, self.assertRaises(PromptReviewEditGuardError):
+            capture_prompt_review_edit_baseline(prompt)
         self.assertEqual(len(ctx.captured_queries), 0)
 
     def test_compare_outside_atomic_fails_closed(self):
@@ -766,9 +746,8 @@ class AtomicContextTests(TransactionTestCase):
         prompt = make_prompt(author=self.actor)
         with transaction.atomic():
             baseline = capture_prompt_review_edit_baseline(prompt)
-        with CaptureQueriesContext(connection) as ctx:
-            with self.assertRaises(PromptReviewEditGuardError):
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
+        with CaptureQueriesContext(connection) as ctx, self.assertRaises(PromptReviewEditGuardError):
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
         self.assertEqual(len(ctx.captured_queries), 0)
 
 
@@ -782,15 +761,14 @@ class ReversionContextTests(GuardTestCase):
         prompt = submitted_prompt(actor=self.actor)
         revisions_before = Revision.objects.count()
 
-        with transaction.atomic():
-            with reversion.create_revision():
-                reversion.set_user(self.actor)
-                reversion.set_comment("caller-owned-edit")
-                baseline = capture_prompt_review_edit_baseline(prompt)
-                from prompts.models import PromptTranslation
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(self.actor)
+            reversion.set_comment("caller-owned-edit")
+            baseline = capture_prompt_review_edit_baseline(prompt)
+            from prompts.models import PromptTranslation
 
-                PromptTranslation.objects.filter(master_id=prompt.pk).update(title="Edited under caller revision")
-                result = invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
+            PromptTranslation.objects.filter(master_id=prompt.pk).update(title="Edited under caller revision")
+            result = invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
 
         self.assertTrue(result.invalidated)
         self.assertEqual(Revision.objects.count(), revisions_before + 1)
@@ -811,13 +789,12 @@ class ReversionContextTests(GuardTestCase):
 
     def test_guard_does_not_open_a_second_revision(self):
         prompt = submitted_prompt(actor=self.actor)
-        with transaction.atomic():
-            with reversion.create_revision():
-                baseline = capture_prompt_review_edit_baseline(prompt)
-                prompt.tags.add("guard-revision-tag")
-                revisions_before = Revision.objects.count()
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
-                self.assertEqual(Revision.objects.count(), revisions_before)
+        with transaction.atomic(), reversion.create_revision():
+            baseline = capture_prompt_review_edit_baseline(prompt)
+            prompt.tags.add("guard-revision-tag")
+            revisions_before = Revision.objects.count()
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
+            self.assertEqual(Revision.objects.count(), revisions_before)
 
 
 # ======================================================================
@@ -836,17 +813,16 @@ class RollbackTests(TransactionTestCase):
         before = refetch(prompt)
         revisions_before = Revision.objects.count()
 
-        with self.assertRaises(RuntimeError):
-            with transaction.atomic():
-                baseline = capture_prompt_review_edit_baseline(prompt)
-                from prompts.models import PromptTranslation
+        with self.assertRaises(RuntimeError), transaction.atomic():
+            baseline = capture_prompt_review_edit_baseline(prompt)
+            from prompts.models import PromptTranslation
 
-                PromptTranslation.objects.filter(master_id=prompt.pk).update(title="Will be rolled back")
-                with mock.patch(
-                    "prompts.review_edit_guard.invalidate_editorial_review_state",
-                    side_effect=RuntimeError("boom"),
-                ):
-                    invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
+            PromptTranslation.objects.filter(master_id=prompt.pk).update(title="Will be rolled back")
+            with mock.patch(
+                "prompts.review_edit_guard.invalidate_editorial_review_state",
+                side_effect=RuntimeError("boom"),
+            ):
+                invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
 
         after = refetch(prompt)
         self.assertEqual(after.status, before.status)
@@ -862,10 +838,9 @@ class RollbackTests(TransactionTestCase):
         prompt = submitted_prompt(actor=self.actor)
         before_fp = refetch(prompt).review_payload_fingerprint
 
-        with self.assertRaises(RuntimeError):
-            with transaction.atomic():
-                capture_prompt_review_edit_baseline(prompt)
-                raise RuntimeError("boom, before any mutation")
+        with self.assertRaises(RuntimeError), transaction.atomic():
+            capture_prompt_review_edit_baseline(prompt)
+            raise RuntimeError("boom, before any mutation")
 
         after = refetch(prompt)
         self.assertEqual(after.review_payload_fingerprint, before_fp)
@@ -915,9 +890,8 @@ def query_count_for(ctx, model):
 class QueryAndLockContractTests(GuardTestCase):
     def test_capture_issues_a_for_update_lock_on_the_root(self):
         prompt = make_prompt(author=self.actor)
-        with CaptureQueriesContext(connection) as ctx:
-            with transaction.atomic():
-                capture_prompt_review_edit_baseline(prompt)
+        with CaptureQueriesContext(connection) as ctx, transaction.atomic():
+            capture_prompt_review_edit_baseline(prompt)
         lock_queries = [
             q for q in ctx.captured_queries
             if '"prompts_prompt"' in q["sql"] and "FOR UPDATE" in q["sql"].upper()
@@ -926,9 +900,8 @@ class QueryAndLockContractTests(GuardTestCase):
 
     def test_capture_issues_no_update_query(self):
         prompt = make_prompt(author=self.actor)
-        with CaptureQueriesContext(connection) as ctx:
-            with transaction.atomic():
-                capture_prompt_review_edit_baseline(prompt)
+        with CaptureQueriesContext(connection) as ctx, transaction.atomic():
+            capture_prompt_review_edit_baseline(prompt)
         updates = [q for q in ctx.captured_queries if q["sql"].strip().upper().startswith("UPDATE")]
         self.assertEqual(updates, [])
 
@@ -936,9 +909,8 @@ class QueryAndLockContractTests(GuardTestCase):
         prompt = submitted_prompt(actor=self.actor)
         with transaction.atomic():
             baseline = capture_prompt_review_edit_baseline(prompt)
-        with CaptureQueriesContext(connection) as ctx:
-            with transaction.atomic():
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
+        with CaptureQueriesContext(connection) as ctx, transaction.atomic():
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
         updates = [q for q in ctx.captured_queries if q["sql"].strip().upper().startswith("UPDATE")]
         self.assertEqual(updates, [])
 
@@ -959,10 +931,9 @@ class QueryAndLockContractTests(GuardTestCase):
 
     def test_no_auth_user_query_for_a_prompt_without_an_author(self):
         prompt = submitted_prompt(actor=self.actor, author=None)
-        with CaptureQueriesContext(connection) as ctx:
-            with transaction.atomic():
-                baseline = capture_prompt_review_edit_baseline(prompt)
-                invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
+        with CaptureQueriesContext(connection) as ctx, transaction.atomic():
+            baseline = capture_prompt_review_edit_baseline(prompt)
+            invalidate_prompt_review_if_payload_changed(prompt, baseline=baseline)
         self.assertEqual(query_count_for(ctx, User), 0)
 
 
@@ -1027,7 +998,8 @@ class NoRuntimeActivationTests(TestCase):
         that "some" activation exists, but that this exact module does."""
         import prompts.admin as admin_module
 
-        source = open(admin_module.__file__, encoding="utf-8").read()
+        with open(admin_module.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         self.assertIn("review_edit_guard", source)
         self.assertIn("capture_prompt_review_edit_baseline", source)
         self.assertIn("invalidate_prompt_review_if_payload_changed", source)
@@ -1035,7 +1007,8 @@ class NoRuntimeActivationTests(TestCase):
     def test_editorial_view_module_never_imports_the_guard(self):
         import content.views.editorial as editorial_module
 
-        source = open(editorial_module.__file__, encoding="utf-8").read()
+        with open(editorial_module.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         self.assertNotIn("review_edit_guard", source)
 
     def test_translation_delete_view_never_imports_the_guard(self):
@@ -1044,7 +1017,8 @@ class NoRuntimeActivationTests(TestCase):
         scope and must stay that way."""
         import parler.admin as parler_admin_module
 
-        source = open(parler_admin_module.__file__, encoding="utf-8").read()
+        with open(parler_admin_module.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         self.assertNotIn("review_edit_guard", source)
 
     def test_other_admin_modules_never_import_the_guard(self):
@@ -1053,7 +1027,8 @@ class NoRuntimeActivationTests(TestCase):
         import usecases.admin
 
         for module in (guides.admin, usecases.admin, compare.admin):
-            source = open(module.__file__, encoding="utf-8").read()
+            with open(module.__file__, encoding="utf-8") as _f:
+                source = _f.read()
             with self.subTest(module=module.__name__):
                 self.assertNotIn("review_edit_guard", source)
                 self.assertNotIn("capture_prompt_review_edit_baseline", source)

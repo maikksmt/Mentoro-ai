@@ -11,8 +11,8 @@ Requires PostgreSQL.
 from datetime import timedelta
 from unittest import skipUnless
 
-from django.db import connection
 from django.conf import settings
+from django.db import connection
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone, translation
@@ -291,9 +291,8 @@ class QueryCountTests(ServiceIntegrationTestCase):
 
     def test_invalid_query_runs_no_query_at_all(self):
         for raw in ("", "a", "x" * 101, None):
-            with self.subTest(raw=raw):
-                with self.assertNumQueries(0):
-                    search_site(raw_query=raw, language_code="en")
+            with self.subTest(raw=raw), self.assertNumQueries(0):
+                search_site(raw_query=raw, language_code="en")
 
 
 @postgresql_only

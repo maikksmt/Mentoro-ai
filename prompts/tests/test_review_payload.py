@@ -233,15 +233,12 @@ class ErrorContractTests(TestCase):
 
     def test_early_errors_perform_zero_queries(self):
         prompt = make_full_prompt()
-        with self.assertNumQueries(0):
-            with self.assertRaises(PromptReviewPayloadError):
-                build_prompt_review_payload(None)
-        with self.assertNumQueries(0):
-            with self.assertRaises(PromptReviewPayloadError):
-                build_prompt_review_payload(Prompt())
-        with self.assertNumQueries(0):
-            with self.assertRaises(PromptReviewPayloadError):
-                build_prompt_review_payload(prompt, using="bogus-alias")
+        with self.assertNumQueries(0), self.assertRaises(PromptReviewPayloadError):
+            build_prompt_review_payload(None)
+        with self.assertNumQueries(0), self.assertRaises(PromptReviewPayloadError):
+            build_prompt_review_payload(Prompt())
+        with self.assertNumQueries(0), self.assertRaises(PromptReviewPayloadError):
+            build_prompt_review_payload(prompt, using="bogus-alias")
 
 
 # ======================================================================

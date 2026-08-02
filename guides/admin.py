@@ -6,20 +6,31 @@ from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils import translation
 from django.utils.formats import date_format
-from django.utils.translation import gettext_lazy as _, get_language, get_language_info
+from django.utils.translation import get_language, get_language_info
+from django.utils.translation import gettext_lazy as _
 from parler.admin import TranslatableStackedInline
 from parler.utils.context import switch_language
 from reversion.admin import VersionAdmin
 
 from content.templatetags.richtext import richtext
-from core.admin import TranslatableTinyMCEMixin, TranslatableTinyMCEInlineMixin, EditorialWorkflowAdminMixin, ChildOfGuideOwnershipMixin
+from core.admin import (
+    ChildOfGuideOwnershipMixin,
+    EditorialWorkflowAdminMixin,
+    TranslatableTinyMCEInlineMixin,
+    TranslatableTinyMCEMixin,
+)
 from core.editorial_preview import (
     apply_editorial_preview_headers,
     has_saved_translation,
     is_supported_preview_language,
 )
-from core.services import get_live_display_instance, build_field_diffs, build_section_diffs
-from .models import GuideItem, GuideSection, Guide
+from core.services import (
+    build_field_diffs,
+    build_section_diffs,
+    get_live_display_instance,
+)
+
+from .models import Guide, GuideItem, GuideSection
 from .presentation import build_draft_guide_context
 
 
@@ -226,7 +237,7 @@ class GuideAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, VersionA
     def diff_view(self, request, object_id, *args, **kwargs):
         guide = self.get_object(request, object_id)
         live_keys = set((guide.live_i18n or {}).keys()) if hasattr(guide, "live_i18n") else set()
-        obj_langs = set(getattr(guide, "get_available_languages", lambda: [])())
+        obj_langs = set(getattr(guide, "get_available_languages", list)())
         project_langs = {code for code, _ in getattr(settings, "LANGUAGES", [])}
         langs = []
         for code in list(project_langs) + list(obj_langs) + list(live_keys):
@@ -277,7 +288,7 @@ class GuideAdmin(EditorialWorkflowAdminMixin, TranslatableTinyMCEMixin, VersionA
         }
         return TemplateResponse(request, "admin/guides/guide_diff.html", context)
 
-    inlines = [GuideSectionInline]
+    inlines = (GuideSectionInline,)
 
 
 @admin.register(GuideSection)
@@ -297,4 +308,4 @@ class GuideSectionAdmin(ChildOfGuideOwnershipMixin, TranslatableTinyMCEMixin):
     def body(self, obj):
         return richtext(obj.safe_translation_getter("body", any_language=True))
 
-    inlines = [GuideItemInline]
+    inlines = (GuideItemInline,)

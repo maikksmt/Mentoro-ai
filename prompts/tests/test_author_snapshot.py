@@ -22,15 +22,15 @@ from django.test import TestCase
 from django.urls import reverse
 from reversion.models import Revision
 
+from compare.models import Comparison
 from core.models.editorial import EditorialWorkflowMixin as Workflow
 from core.review_binding import fingerprint_review_payload
 from guides.models import Guide
-from compare.models import Comparison
-from usecases.models import UseCase
 from prompts.models import PROMPT_AUTHOR_SNAPSHOT_SCHEMA, Prompt
 from prompts.review_approval import approve_prompt_review
 from prompts.review_payload import build_prompt_review_payload
 from prompts.review_submission import submit_prompt_for_review
+from usecases.models import UseCase
 
 User = get_user_model()
 
@@ -502,7 +502,8 @@ class NoReviewPayloadEffectTests(TestCase):
     def test_prompts_review_payload_module_is_unchanged_by_this_slice(self):
         import prompts.review_payload as review_payload_module
 
-        source = open(review_payload_module.__file__, encoding="utf-8").read()
+        with open(review_payload_module.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         self.assertNotIn("live_author", source)
 
 
@@ -525,6 +526,7 @@ class OtherEditorialTypesUnchangedTests(TestCase):
     def test_core_editorial_base_class_unaffected(self):
         import core.models.editorial as editorial_module
 
-        source = open(editorial_module.__file__, encoding="utf-8").read()
+        with open(editorial_module.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         self.assertNotIn("live_author", source)
         self.assertNotIn("PROMPT_AUTHOR_SNAPSHOT_SCHEMA", source)

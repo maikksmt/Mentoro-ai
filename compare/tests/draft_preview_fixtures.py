@@ -26,9 +26,11 @@ from compare.tests.live_snapshot_fixtures import (  # noqa: F401
     make_tool,
     publish,
     request_rework,
-    save_draft_edit as save_translation_edit,
     save_entry_draft_edit,
     start_review_round,
+)
+from compare.tests.live_snapshot_fixtures import (
+    save_draft_edit as save_translation_edit,  # noqa: F401
 )
 
 User = get_user_model()

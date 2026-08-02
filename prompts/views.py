@@ -1,20 +1,22 @@
-from typing import Any, Dict, Optional
+from typing import Any
 
 from django.db.models import Q, QuerySet
-from django.http import HttpRequest, HttpResponse, Http404
+from django.http import Http404, HttpRequest, HttpResponse
 from django.urls import reverse
-from django.utils.translation import gettext as _, get_language
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
 from django.views.generic import DetailView, ListView
 
 from core.models.editorial import EditorialWorkflowMixin
-from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
-from core.services import to_teaser_item, related_prompts
+from core.seo.utils import absolute_url, get_og_image, localized_alternates, seo_text
+from core.services import related_prompts, to_teaser_item
 from core.views import SeoMixin
+
 from .live_author import resolve_prompt_live_author_display_name
 from .models import Prompt
 
 
-def _resolve_by_slug(qs: QuerySet[Prompt], slug: str, language_code: str) -> Optional[Prompt]:
+def _resolve_by_slug(qs: QuerySet[Prompt], slug: str, language_code: str) -> Prompt | None:
     """
     Beta 8.11: mirrors guides/views.py::_resolve_guide_by_slug() - once a
     prompt has a live_i18n snapshot for language_code, that snapshot's slug
@@ -49,7 +51,7 @@ def _resolve_by_slug(qs: QuerySet[Prompt], slug: str, language_code: str) -> Opt
 
     compat_qs = (
         qs.filter(status=EditorialWorkflowMixin.STATUS_PUBLISHED)
-        .exclude(**{"live_i18n__has_key": language_code})
+        .exclude(live_i18n__has_key=language_code)
     )
     return (
         compat_qs.filter(
@@ -80,7 +82,7 @@ class PromptListView(SeoMixin, ListView):
             qs = qs.order_by("-published_at", "-updated_at")
         return qs
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         ctx = super().get_context_data(**kwargs)
         lang = get_language()
         canonical = absolute_url(self.request.path)
@@ -120,7 +122,7 @@ class PromptDetailView(SeoMixin, DetailView):
         lang = get_language()
         return Prompt.objects.visible_in_language(lang)
 
-    def get_object(self, queryset: Optional[QuerySet[Prompt]] = None) -> Prompt:
+    def get_object(self, queryset: QuerySet[Prompt] | None = None) -> Prompt:
         slug = self.kwargs.get("slug")
         if not slug:
             raise Http404("Missing slug.")
@@ -131,7 +133,7 @@ class PromptDetailView(SeoMixin, DetailView):
             raise Http404("Prompt not found.")
         return obj
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         ctx = super().get_context_data(**kwargs)
         lang = get_language()
         obj: Prompt = ctx["object"]

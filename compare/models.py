@@ -2,12 +2,17 @@ from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _, get_language, override
+from django.utils.translation import get_language, override
+from django.utils.translation import gettext_lazy as _
 from parler.models import TranslatableModel, TranslatedFields
 from parler.utils.context import switch_language
 
 from catalog.models import Tool
-from core.models.editorial import EditorialManager, EditorialQuerySet, EditorialWorkflowMixin
+from core.models.editorial import (
+    EditorialManager,
+    EditorialQuerySet,
+    EditorialWorkflowMixin,
+)
 
 #: ComparisonToolEntry translated fields the public detail page renders.
 #: Frozen into ``Comparison.live_entries`` on publish - see

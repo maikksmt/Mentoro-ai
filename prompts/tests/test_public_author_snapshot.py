@@ -481,7 +481,8 @@ class NoLiveDependencyTests(TestCase):
     def test_no_live_author_relation_access_remains_in_prompts_views(self):
         import prompts.views as views_module
 
-        source = open(views_module.__file__, encoding="utf-8").read()
+        with open(views_module.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         for forbidden in ("author_obj.get_full_name", "author_obj.username", ".author.get_full_name"):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, source)

@@ -30,6 +30,7 @@ import itertools
 import json
 from unittest import mock
 
+import reversion
 from django.contrib import admin as django_admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -37,7 +38,6 @@ from django.db import connection, transaction
 from django.test import RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
-import reversion
 from reversion.models import Revision, Version
 
 from core.models.editorial import EditorialWorkflowMixin as Workflow
@@ -932,7 +932,7 @@ class RevertNoPayloadChangeTests(RevertGuardTestCase):
         and the restored fingerprint still matches - so the binding is
         reconstructed onto the selected revision instead of being cleared.
         """
-        prompt, _stage_a, _approved_a, review_b_version, _approved_b, current = (
+        prompt, _stage_a, _approved_a, review_b_version, _approved_b, _current = (
             self.build_two_generation_history()
         )
         revisions_before = Revision.objects.count()
@@ -1093,11 +1093,10 @@ class RevertNoPayloadChangeTests(RevertGuardTestCase):
         prompt = self.approve(prompt, actor=self.editor)
 
         ma = PromptAdmin(Prompt, django_admin.site)
-        with CaptureQueriesContext(connection) as ctx:
-            with transaction.atomic():
-                result = ma._invalidate_reverted_prompt_if_binding_invalid(
-                    refetch(prompt), using="default"
-                )
+        with CaptureQueriesContext(connection) as ctx, transaction.atomic():
+            result = ma._invalidate_reverted_prompt_if_binding_invalid(
+                refetch(prompt), using="default"
+            )
         self.assertIsNone(result)
         updates = [q for q in ctx.captured_queries if q["sql"].strip().upper().startswith("UPDATE")]
         self.assertEqual(updates, [])
@@ -1178,7 +1177,7 @@ class RecoverTests(RevertGuardTestCase):
     def test_recover_calls_b2b2_exactly_once_regardless_of_outcome(self):
         prompt = self.submit(self.make_prompt(author=self.editor))
         prompt = self.approve(prompt, actor=self.editor)
-        version, pk, title, snapshot = self._prepare_deleted(prompt)
+        version, _pk, title, snapshot = self._prepare_deleted(prompt)
 
         with mock.patch(
             "prompts.admin.invalidate_editorial_review_state",
@@ -1204,7 +1203,7 @@ class RecoverTests(RevertGuardTestCase):
     def test_recover_leaves_no_request_local_state_residue(self):
         prompt = self.submit(self.make_prompt(author=self.editor))
         prompt = self.approve(prompt, actor=self.editor)
-        version, pk, title, snapshot = self._prepare_deleted(prompt)
+        version, _pk, title, snapshot = self._prepare_deleted(prompt)
 
         captured_requests = []
         original_save_related = PromptAdmin.save_related
@@ -1397,12 +1396,11 @@ class ErrorAndRollbackTests(RevertGuardTestCase):
         with mock.patch(
             "prompts.admin.capture_prompt_review_edit_baseline",
             side_effect=RuntimeError("boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.client.post(
-                    revision_url(prompt, stage_a_version),
-                    self.confirm_payload(prompt, title="Content A"),
-                )
+        ), self.assertRaises(RuntimeError):
+            self.client.post(
+                revision_url(prompt, stage_a_version),
+                self.confirm_payload(prompt, title="Content A"),
+            )
 
         reloaded = refetch(prompt)
         self.assertEqual(reloaded.status, current.status)
@@ -1416,14 +1414,11 @@ class ErrorAndRollbackTests(RevertGuardTestCase):
         prompt, stage_a_version, _approved_a, _review_b, _approved_b, current = self.build_two_generation_history()
         revisions_before = Revision.objects.count()
 
-        with mock.patch.object(
-            django_admin.ModelAdmin, "save_related", side_effect=RuntimeError("save_related boom")
-        ):
-            with self.assertRaises(RuntimeError):
-                self.client.post(
-                    revision_url(prompt, stage_a_version),
-                    self.confirm_payload(prompt, title="Content A"),
-                )
+        with mock.patch.object(django_admin.ModelAdmin, "save_related", side_effect=RuntimeError("save_related boom")), self.assertRaises(RuntimeError):
+            self.client.post(
+                revision_url(prompt, stage_a_version),
+                self.confirm_payload(prompt, title="Content A"),
+            )
 
         reloaded = refetch(prompt)
         self.assertEqual(reloaded.status, current.status)
@@ -1445,12 +1440,11 @@ class ErrorAndRollbackTests(RevertGuardTestCase):
             PromptAdmin,
             "_restore_reverted_prompt_review_binding_if_provable",
             side_effect=RuntimeError("compare boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.client.post(
-                    revision_url(prompt, stage_a_version),
-                    self.confirm_payload(prompt, title="Content A"),
-                )
+        ), self.assertRaises(RuntimeError):
+            self.client.post(
+                revision_url(prompt, stage_a_version),
+                self.confirm_payload(prompt, title="Content A"),
+            )
 
         reloaded = refetch(prompt)
         self.assertEqual(reloaded.status, current.status)
@@ -1473,12 +1467,11 @@ class ErrorAndRollbackTests(RevertGuardTestCase):
         with mock.patch(
             "prompts.admin.invalidate_editorial_review_state",
             side_effect=RuntimeError("recover boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.client.post(
-                    recover_url(version),
-                    self.confirm_payload(prompt, title=title, snapshot=snapshot),
-                )
+        ), self.assertRaises(RuntimeError):
+            self.client.post(
+                recover_url(version),
+                self.confirm_payload(prompt, title=title, snapshot=snapshot),
+            )
 
         self.assertFalse(Prompt.objects.filter(pk=pk).exists())
         self.assertEqual(Revision.objects.count(), revisions_before)
@@ -1501,12 +1494,11 @@ class ErrorAndRollbackTests(RevertGuardTestCase):
             PromptAdmin,
             "_preserve_untouched_translated_fields",
             side_effect=RuntimeError("preserve boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.client.post(
-                    revision_url(prompt, version_a),
-                    self.confirm_payload(prompt, title="Content A"),
-                )
+        ), self.assertRaises(RuntimeError):
+            self.client.post(
+                revision_url(prompt, version_a),
+                self.confirm_payload(prompt, title="Content A"),
+            )
 
         reloaded = refetch(prompt)
         self.assertEqual(
@@ -1533,12 +1525,11 @@ class ErrorAndRollbackTests(RevertGuardTestCase):
             PromptAdmin,
             "_invalidate_reverted_prompt_if_binding_invalid",
             side_effect=RuntimeError("compare boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.client.post(
-                    revision_url(prompt, version_a),
-                    self.confirm_payload(prompt, title="Content A"),
-                )
+        ), self.assertRaises(RuntimeError):
+            self.client.post(
+                revision_url(prompt, version_a),
+                self.confirm_payload(prompt, title="Content A"),
+            )
 
         reloaded = refetch(prompt)
         self.assertEqual(
@@ -1585,12 +1576,11 @@ class RequestStateLifecycleTests(RevertGuardTestCase):
         fresh.set_current_language("en")
         form = mock.Mock(instance=fresh, save_m2m=mock.Mock(), fields=_CHANGEFORM_FORM_FIELDS)
 
-        with transaction.atomic():
-            with reversion.create_revision():
-                reversion.set_user(self.editor)
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(self.editor)
+            ma.save_model(request, fresh, form, True)
+            with self.assertRaises(_PromptReviewEditIntegrationError):
                 ma.save_model(request, fresh, form, True)
-                with self.assertRaises(_PromptReviewEditIntegrationError):
-                    ma.save_model(request, fresh, form, True)
 
     def test_state_dataclass_carries_no_model_or_user_instances(self):
         fields = _PromptReversionGuardState.__dataclass_fields__

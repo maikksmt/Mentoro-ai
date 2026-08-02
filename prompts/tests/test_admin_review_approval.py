@@ -650,12 +650,8 @@ class ErrorClassificationTests(PromptAdminApprovalTestCase):
 
     def test_review_binding_invalid_is_reraised_not_swallowed(self):
         prompt = self.make_submitted_prompt(author=self.author)
-        with mock.patch(
-            "prompts.admin.approve_prompt_review",
-            side_effect=self._raise_code(PromptReviewApprovalErrorCode.REVIEW_BINDING_INVALID),
-        ):
-            with self.assertRaises(PromptReviewApprovalError) as ctx:
-                self.post_approve([prompt], follow=False)
+        with mock.patch("prompts.admin.approve_prompt_review", side_effect=self._raise_code(PromptReviewApprovalErrorCode.REVIEW_BINDING_INVALID)), self.assertRaises(PromptReviewApprovalError) as ctx:
+            self.post_approve([prompt], follow=False)
         self.assertEqual(ctx.exception.code, PromptReviewApprovalErrorCode.REVIEW_BINDING_INVALID)
 
     def test_payload_changed_during_approval_is_reraised(self):
@@ -665,18 +661,13 @@ class ErrorClassificationTests(PromptAdminApprovalTestCase):
             side_effect=self._raise_code(
                 PromptReviewApprovalErrorCode.PAYLOAD_CHANGED_DURING_APPROVAL
             ),
-        ):
-            with self.assertRaises(PromptReviewApprovalError):
-                self.post_approve([prompt], follow=False)
+        ), self.assertRaises(PromptReviewApprovalError):
+            self.post_approve([prompt], follow=False)
 
     def test_active_reversion_context_is_reraised(self):
         prompt = self.make_submitted_prompt(author=self.author)
-        with mock.patch(
-            "prompts.admin.approve_prompt_review",
-            side_effect=self._raise_code(PromptReviewApprovalErrorCode.ACTIVE_REVERSION_CONTEXT),
-        ):
-            with self.assertRaises(PromptReviewApprovalError):
-                self.post_approve([prompt], follow=False)
+        with mock.patch("prompts.admin.approve_prompt_review", side_effect=self._raise_code(PromptReviewApprovalErrorCode.ACTIVE_REVERSION_CONTEXT)), self.assertRaises(PromptReviewApprovalError):
+            self.post_approve([prompt], follow=False)
 
     def test_integrity_error_keeps_earlier_successes_committed(self):
         a = self.make_submitted_prompt(author=self.author)
@@ -690,9 +681,8 @@ class ErrorClassificationTests(PromptAdminApprovalTestCase):
                 )
             return real_approve(prompt, **kwargs)
 
-        with mock.patch("prompts.admin.approve_prompt_review", side_effect=side_effect):
-            with self.assertRaises(PromptReviewApprovalError):
-                self.post_approve([a, b], follow=False)
+        with mock.patch("prompts.admin.approve_prompt_review", side_effect=side_effect), self.assertRaises(PromptReviewApprovalError):
+            self.post_approve([a, b], follow=False)
         self.assertEqual(refetch(a).status, Workflow.STATUS_APPROVED)
 
 
@@ -810,12 +800,12 @@ class NoDuplicatedLogicTests(TestCase):
 
         offenders = []
         for node in ast.walk(target):
-            if isinstance(node, ast.Call):
-                if isinstance(node.func, ast.Attribute) and node.func.attr in {
-                    "atomic",
-                    "create_revision",
-                }:
-                    offenders.append(node.func.attr)
+            if (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr in {"atomic", "create_revision"}
+            ):
+                offenders.append(node.func.attr)
         self.assertEqual(offenders, [])
 
     def test_admin_uses_only_the_public_c3a_surface(self):
@@ -840,7 +830,8 @@ class OtherEditorialTypesUnchangedTests(TestCase):
         import usecases.admin
 
         for module in (guides.admin, usecases.admin, compare.admin):
-            source = open(module.__file__, encoding="utf-8").read()
+            with open(module.__file__, encoding="utf-8") as _f:
+                source = _f.read()
             with self.subTest(module=module.__name__):
                 self.assertNotIn("approve_prompt_review", source)
                 self.assertNotIn("review_approval", source)

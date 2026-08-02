@@ -439,9 +439,8 @@ class IntegrityFailureTests(PromptAdminPublishTestCase):
             side_effect=PromptReviewPublishError(
                 PromptReviewPublishErrorCode.PUBLISH_POSTCONDITION_FAILED, "forced"
             ),
-        ):
-            with self.assertRaises(PromptReviewPublishError):
-                self.post_publish([prompt], follow=False)
+        ), self.assertRaises(PromptReviewPublishError):
+            self.post_publish([prompt], follow=False)
         self.assertEqual(refetch(prompt).status, Workflow.STATUS_APPROVED)
 
     def test_config_error_stops_processing_and_keeps_earlier_successes(self):
@@ -639,7 +638,7 @@ class NoDuplicatedLogicTests(TestCase):
 
     #: Everything the admin action and the view helper must leave entirely to
     #: the primitive. ``publish`` is the FSM transition itself.
-    FORBIDDEN = {
+    FORBIDDEN = frozenset({
         "atomic",
         "create_revision",
         "set_user",
@@ -653,7 +652,7 @@ class NoDuplicatedLogicTests(TestCase):
         "invalidate_editorial_review_state",
         "set_last_published_revision",
         "publish",
-    }
+    })
 
     def test_admin_publish_action_duplicates_nothing(self):
         """

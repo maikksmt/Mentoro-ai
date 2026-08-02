@@ -372,7 +372,7 @@ class LiveSnapshotStaysPublicTests(D1TestCase):
         return edited, live_slug, draft_slug
 
     def test_list_still_contains_the_prompt_with_published_title_only(self):
-        prompt, _live_slug, _draft = self._published_then_edited()
+        _prompt, _live_slug, _draft = self._published_then_edited()
         resp = self.public.get(reverse("prompts:list"))
         html = resp.content.decode()
         self.assertEqual(resp.status_code, 200)
@@ -380,7 +380,7 @@ class LiveSnapshotStaysPublicTests(D1TestCase):
         self.assertNotIn(DRAFT_TITLE, html)
 
     def test_detail_resolves_through_the_old_live_slug_only(self):
-        prompt, live_slug, draft_slug = self._published_then_edited()
+        _prompt, live_slug, draft_slug = self._published_then_edited()
 
         ok = self.public.get(reverse("prompts:detail", kwargs={"slug": live_slug}))
         self.assertEqual(ok.status_code, 200)
@@ -413,7 +413,7 @@ class LiveSnapshotStaysPublicTests(D1TestCase):
     def test_sitemap_contains_the_live_url_only(self):
         from core.sitemaps import PromptSitemap
 
-        prompt, live_slug, draft_slug = self._published_then_edited()
+        _prompt, live_slug, draft_slug = self._published_then_edited()
         with override_language("en"):
             locations = [PromptSitemap().location(o) for o in PromptSitemap().items()]
         joined = " ".join(locations)

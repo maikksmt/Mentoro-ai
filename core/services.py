@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import difflib
+import logging
 import re
+from collections.abc import Iterable
 from html import escape
-from typing import Any, Dict, List, Tuple, Optional, Iterable
+from typing import Any
 
 from django.conf import settings
 from django.core.cache import cache
@@ -23,9 +25,11 @@ from guides.models import Guide
 from prompts.models import Prompt
 from usecases.models import UseCase
 
+logger = logging.getLogger(__name__)
 
-def get_latest_items(limit: int = 6, mix: Tuple[int, int, int, int] = (4, 3, 2, 1),
-                      language_code: str | None = None) -> List[Dict[str, Any]]:
+
+def get_latest_items(limit: int = 6, mix: tuple[int, int, int, int] = (4, 3, 2, 1),
+                      language_code: str | None = None) -> list[dict[str, Any]]:
     """
     Returns a balanced, recency-sorted mix of Guides/Prompts/UseCases/
     Comparisons based on mix; includes robust fallbacks when a type has too
@@ -60,7 +64,7 @@ def get_latest_items(limit: int = 6, mix: Tuple[int, int, int, int] = (4, 3, 2, 
         u_qs: QuerySet = _safe_order_by_published(UseCase.objects.visible_in_language(lang))
         c_qs: QuerySet = _safe_order_by_published(Comparison.objects.visible_in_language(lang))
 
-        items: List[Dict[str, Any]] = []
+        items: list[dict[str, Any]] = []
 
         g_pick = list(g_qs[:g_need])
         p_pick = list(p_qs[:p_need])
@@ -338,7 +342,7 @@ def related_usecases(usecase, limit=6, language_code: str | None = None):
     return items[:limit]
 
 
-def related_comparisons(comparison: Comparison, limit: int = 6, language_code: str | None = None) -> List[Comparison]:
+def related_comparisons(comparison: Comparison, limit: int = 6, language_code: str | None = None) -> list[Comparison]:
     """
     Finds related Comparisons by overlapping tools (and tool categories as a secondary signal).
     Returns Comparison instances; callers convert via to_teaser_item(..., "comparison"),
@@ -406,7 +410,7 @@ def related_comparisons(comparison: Comparison, limit: int = 6, language_code: s
         all_tool_ids |= ids
 
     public_tool_ids: set[int] = set()
-    categories_by_tool_id: Dict[int, set] = {}
+    categories_by_tool_id: dict[int, set] = {}
     if all_tool_ids:
         for tool_id, category_id in (
             Tool.objects.public().filter(pk__in=all_tool_ids).values_list("pk", "categories")
@@ -486,7 +490,7 @@ def _normalize_language_code(language_code: str | None) -> str:
     return candidate if candidate in supported else settings.LANGUAGE_CODE
 
 
-def resolve_public_starter_guide(language_code: str) -> Dict[str, str] | None:
+def resolve_public_starter_guide(language_code: str) -> dict[str, str] | None:
     """
     Resolves the public starter guide (is_starter=True, published, with an
     active translation in language_code) as primitive data - no historical
@@ -525,7 +529,7 @@ def _visible_tool_count_filter(now) -> Q:
     return Q(tools__published_at__lte=now)
 
 
-def _compute_public_inventory(lang: str) -> Dict[str, Any]:
+def _compute_public_inventory(lang: str) -> dict[str, Any]:
     """
     Builds the fully-evaluated, cache-ready public inventory for one language.
     Reuses the same public visibility rules as the corresponding public list
@@ -587,7 +591,7 @@ def _compute_public_inventory(lang: str) -> Dict[str, Any]:
     }
 
 
-def get_public_inventory(language_code: str | None = None) -> Dict[str, Any]:
+def get_public_inventory(language_code: str | None = None) -> dict[str, Any]:
     """
     Returns cached, language-isolated public inventory counts and highlights
     (tool/category/guide/prompt/usecase/comparison counts, up to 6 well-
@@ -620,14 +624,14 @@ def _safe_order_by_published(qs):
     try:
         str(qs.order_by("-published_at").query)
         return qs.order_by("-published_at")
-    except Exception:
+    except Exception:  # noqa: BLE001 - fall back to a field guaranteed to exist
         return qs.order_by("-id")
 
 
 def _first(seq):
     try:
         return next(iter(seq)) if seq else ""
-    except Exception:
+    except Exception:  # noqa: BLE001 - any failure to read the first item yields ""
         return ""
 
 
@@ -733,7 +737,7 @@ def teaser_for_comparison(c: Comparison, language_code: str | None = None) -> st
     return visible_text(src)
 
 
-def to_teaser_item(obj, kind: str, language_code: str | None = None) -> Dict[str, Any]:
+def to_teaser_item(obj, kind: str, language_code: str | None = None) -> dict[str, Any]:
     """
     Factory that converts any supported object into the unified teaser dict
     based on kind to simplify front-end consumption.
@@ -829,7 +833,7 @@ class _LiveSnapshotProxy:
             if val:
                 return val
             with switch_language(self._obj, self._lang):
-                return getattr(self._obj, "safe_translation_getter")(name)
+                return self._obj.safe_translation_getter(name)
         return getattr(self._obj, name)
 
     @property
@@ -853,7 +857,7 @@ class _LiveSnapshotProxy:
         return self.__getattr__("public_slug")
 
 
-def get_live_display_instance(obj, language: Optional[str] = None):
+def get_live_display_instance(obj, language: str | None = None):
     """
     Builds a display-only proxy for the live snapshot in the requested (or current) language;
     safe to pass into templates/serializers.
@@ -868,7 +872,7 @@ def get_live_display_instance(obj, language: Optional[str] = None):
         if live:
             return live
     except Exception:
-        pass
+        logger.exception("Failed to resolve live version instance for %r", obj)
 
     return obj
 

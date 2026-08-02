@@ -24,13 +24,13 @@ import json
 import subprocess
 import sys
 
+import reversion
+from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import admin as django_admin
 from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase, TestCase
 
-import reversion
-from django.apps import apps as django_apps
 # _get_options is reversion's own accessor for a model's registration options.
 # There is no public equivalent, and reading it here is exactly what makes this
 # a contract test rather than a smoke test. Production code never touches it -
@@ -125,6 +125,7 @@ class EditorialReversionStartupOrderTests(SimpleTestCase):
             capture_output=True,
             text=True,
             timeout=180,
+            check=False,
         )
         if completed.returncode != 0:
             raise AssertionError(
@@ -364,7 +365,8 @@ class EditorialReversionFailFastTests(SimpleTestCase):
         import usecases.apps
 
         for module in (guides.apps, prompts.apps, usecases.apps, compare.apps):
-            tree = ast.parse(open(module.__file__, encoding="utf-8").read())
+            with open(module.__file__, encoding="utf-8") as _f:
+                tree = ast.parse(_f.read())
             calls = [
                 node
                 for node in ast.walk(tree)

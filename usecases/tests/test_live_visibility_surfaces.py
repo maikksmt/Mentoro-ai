@@ -12,7 +12,12 @@ from django.core.cache import cache
 from django.test import TestCase
 from django.utils import translation
 
-from core.services import get_latest_items, get_public_inventory, related_usecases, to_teaser_item
+from core.services import (
+    get_latest_items,
+    get_public_inventory,
+    related_usecases,
+    to_teaser_item,
+)
 from usecases.models import UseCase
 from usecases.tests.live_visibility_fixtures import (
     make_usecase,

@@ -36,13 +36,16 @@ from reversion.models import Revision
 
 from catalog.models import Tool
 from compare.models import Comparison
+from content.views.editorial import get_editorial_model, is_author, is_editor
 from core.models.editorial import EditorialWorkflowMixin
 from core.review_binding import fingerprint_review_payload
 from guides.models import Guide
-from content.views.editorial import get_editorial_model, is_author, is_editor
 from mentoroai.tests.utils import silence_django_request_warnings
 from prompts.models import Prompt, PromptTranslation
-from prompts.review_approval import PromptReviewApprovalError, PromptReviewApprovalErrorCode
+from prompts.review_approval import (
+    PromptReviewApprovalError,
+    PromptReviewApprovalErrorCode,
+)
 from prompts.review_payload import build_prompt_review_payload
 from usecases.models import UseCase
 
@@ -1096,9 +1099,8 @@ class NoWorkspaceContentFormRoutesTests(TestCase):
 
     def test_no_named_content_create_or_content_edit_url_exists(self):
         for name in ("content:editorial:content_create", "content:editorial:content_edit"):
-            with self.subTest(name=name):
-                with self.assertRaises(NoReverseMatch):
-                    reverse(name, args=["guide"])
+            with self.subTest(name=name), self.assertRaises(NoReverseMatch):
+                reverse(name, args=["guide"])
 
     def test_my_content_has_no_create_controls_or_workspace_content_links(self):
         make_guide(status="draft", author=self.editor)
@@ -1129,7 +1131,7 @@ class ContentLinksOpenTheAdminInANewTabTests(TestCase):
 
     def _link_tag_for(self, html, href):
         match = re.search(
-            r'<a\s+href="%s"[^>]*>' % re.escape(href), html
+            rf'<a\s+href="{re.escape(href)}"[^>]*>', html
         )
         self.assertIsNotNone(match, f"no <a> tag found for href={href!r}")
         return match.group(0)

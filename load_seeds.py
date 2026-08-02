@@ -28,9 +28,8 @@ import argparse
 import fnmatch
 import os
 import sys
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, List, Tuple
-
 
 # --- Arg parsing ------------------------------------------------------------
 
@@ -57,10 +56,10 @@ VALID_EXTS = {
 }
 
 
-def discover_files(root: Path, recursive: bool, pattern: str) -> List[Path]:
+def discover_files(root: Path, recursive: bool, pattern: str) -> list[Path]:
     if not root.exists() or not root.is_dir():
         raise SystemExit(f"[ERROR] Folder not found or not a directory: {root}")
-    files: List[Path] = []
+    files: list[Path] = []
     it = root.rglob("*") if recursive else root.glob("*")
     for p in it:
         if not p.is_file():
@@ -85,15 +84,15 @@ def discover_files(root: Path, recursive: bool, pattern: str) -> List[Path]:
 def bootstrap_django(settings_module: str) -> None:
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
     try:
-        import django  # noqa
+        import django
         django.setup()
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - report any setup failure as a clean CLI error
         raise SystemExit(f"[ERROR] Could not set up Django with settings '{settings_module}': {e}")
 
 
 # --- Loading ----------------------------------------------------------------
 
-def load_files(files: Iterable[Path], db_alias: str, verbosity: int, dry_run: bool) -> Tuple[int, int]:
+def load_files(files: Iterable[Path], db_alias: str, verbosity: int, dry_run: bool) -> tuple[int, int]:
     """
     Returns: (ok_count, fail_count)
     """
@@ -114,7 +113,7 @@ def load_files(files: Iterable[Path], db_alias: str, verbosity: int, dry_run: bo
             except SystemExit as se:  # call_command may raise SystemExit on certain errors
                 fail += 1
                 print(f"[ERROR] loaddata failed for {rel}: {se}", file=sys.stderr)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - one bad fixture must not abort the whole batch
                 fail += 1
                 print(f"[ERROR] loaddata failed for {rel}: {e}", file=sys.stderr)
 

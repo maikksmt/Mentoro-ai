@@ -164,10 +164,9 @@ class PublicInventoryContextProcessorTests(TestCase):
 
     def test_uses_the_current_active_language(self):
         request = RequestFactory().get("/")
-        with translation.override("de"):
-            with patch("core.context_processors.get_public_inventory") as mocked:
-                mocked.return_value = {"counts": {}, "top_categories": [], "starter_guide": None}
-                public_inventory(request)
+        with translation.override("de"), patch("core.context_processors.get_public_inventory") as mocked:
+            mocked.return_value = {"counts": {}, "top_categories": [], "starter_guide": None}
+            public_inventory(request)
         mocked.assert_called_once_with("de")
 
     def test_delegates_to_the_shared_service_only(self):
@@ -183,9 +182,8 @@ class PublicInventoryContextProcessorTests(TestCase):
         get_public_inventory("en")  # warm the cache
 
         request = RequestFactory().get("/")
-        with translation.override("en"):
-            with CaptureQueriesContext(connection) as ctx:
-                public_inventory(request)
+        with translation.override("en"), CaptureQueriesContext(connection) as ctx:
+            public_inventory(request)
         inventory_tables = ("catalog_tool", "catalog_category", "guides_guide",
                             "prompts_prompt", "usecases_usecase", "compare_comparison")
         touched = [q for q in ctx.captured_queries if any(t in q["sql"] for t in inventory_tables)]

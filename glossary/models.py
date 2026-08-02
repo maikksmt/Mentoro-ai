@@ -22,10 +22,10 @@ class GlossaryTerm(models.Model):
     updated_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ["term"]
+        ordering = ("term",)
         verbose_name = _("Glossary term")
         verbose_name_plural = _("Glossary terms")
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=["slug", "language"],
                 name="uniq_glossary_slug_language",
@@ -34,7 +34,7 @@ class GlossaryTerm(models.Model):
                 fields=["translation_group", "language"],
                 name="uniq_glossary_group_language",
             ),
-        ]
+        )
 
     def __str__(self):
         return self.term

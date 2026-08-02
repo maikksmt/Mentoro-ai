@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import List, Dict, Any
+from typing import Any
 from urllib.parse import urlparse
 
-from django.contrib.auth.decorators import user_passes_test, login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.test import Client
@@ -45,8 +45,8 @@ class SeoIssue:
 class SeoResult:
     path: str
     status_code: int
-    issues: List[SeoIssue]
-    extracted: Dict[str, Any]
+    issues: list[SeoIssue]
+    extracted: dict[str, Any]
 
 
 def _abbrev(text: str, n: int = 120) -> str:
@@ -57,7 +57,7 @@ def _is_absolute(url: str) -> bool:
     try:
         p = urlparse(url)
         return bool(p.scheme) and bool(p.netloc)
-    except Exception:
+    except Exception:  # noqa: BLE001 - any parse failure means "not absolute"
         return False
 
 
@@ -73,8 +73,8 @@ def run_checks(request: HttpRequest, path: str) -> SeoResult:
     status = getattr(resp, "status_code", 0)
     html = strip_spaces_between_tags((resp.content or b"").decode("utf-8", "ignore"))
 
-    issues: List[SeoIssue] = []
-    extracted: Dict[str, Any] = {
+    issues: list[SeoIssue] = []
+    extracted: dict[str, Any] = {
         "title": "",
         "description": "",
         "canonical": "",
@@ -199,16 +199,16 @@ def seo_check_view(request: HttpRequest) -> HttpResponse:
         "/en/accounts/google/login/",
     ]
 
-    results: List[SeoResult] = []
+    results: list[SeoResult] = []
     raw = (request.POST.get("paths") or "").strip()
     if request.method == "POST" and raw:
         paths = [p.strip() for p in raw.splitlines() if p.strip()]
         for p in paths:
-            if p.startswith("http://") or p.startswith("https://"):
+            if p.startswith(("http://", "https://")):
                 p = urlparse(p).path or "/"
             try:
                 results.append(run_checks(request, p))
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001 - one bad path must not abort the whole batch
                 results.append(
                     SeoResult(p, 0, [SeoIssue("error", "exception", str(exc))], {})
                 )

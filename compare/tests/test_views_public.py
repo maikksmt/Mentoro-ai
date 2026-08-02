@@ -15,7 +15,7 @@ Beta 8.8/8.9: Comparison language behavior.
   so single-language "reachable" fixtures no longer need a bilingual
   workaround.
 """
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
 from django.utils import timezone, translation
 
 from compare.models import Comparison
@@ -140,8 +140,9 @@ class ComparisonDetailLanguageTests(TestCase):
 
 class ComparisonInventoryConsistencyTests(TestCase):
     def test_inventory_count_matches_list_queryset(self):
-        from core.services import get_public_inventory
         from django.core.cache import cache
+
+        from core.services import get_public_inventory
 
         cache.clear()
         make_comparison(slug="inv-en", languages=("en",))

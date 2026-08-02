@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import GlossaryListView, GlossaryAutocompleteView, GlossaryDetailView
+from .views import GlossaryAutocompleteView, GlossaryDetailView, GlossaryListView
 
 app_name = "glossary"
 

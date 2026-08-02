@@ -20,6 +20,7 @@ import ast
 import itertools
 from unittest import mock
 
+import reversion
 from django.contrib import admin as django_admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -27,7 +28,6 @@ from django.db import connection, transaction
 from django.test import RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
-import reversion
 from reversion.models import Revision, Version
 
 from catalog.models import Tool
@@ -386,16 +386,15 @@ class TagsAndToolsTests(AdminGuardTestCase):
         request = RequestFactory().post("/")
         request.user = self.editor
 
-        with transaction.atomic():
-            with reversion.create_revision():
-                reversion.set_user(self.editor)
-                fresh = Prompt.objects.select_for_update().get(pk=prompt.pk)
-                fresh.set_current_language("en")
-                form = mock.Mock(instance=fresh, save_m2m=mock.Mock(), fields=_CHANGEFORM_FORM_FIELDS)
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(self.editor)
+            fresh = Prompt.objects.select_for_update().get(pk=prompt.pk)
+            fresh.set_current_language("en")
+            form = mock.Mock(instance=fresh, save_m2m=mock.Mock(), fields=_CHANGEFORM_FORM_FIELDS)
 
-                ma.save_model(request, fresh, form, True)
-                fresh.tags.add("c4h-added-tag")
-                result = ma.save_related(request, form, [], True)
+            ma.save_model(request, fresh, form, True)
+            fresh.tags.add("c4h-added-tag")
+            result = ma.save_related(request, form, [], True)
 
         self.assertTrue(result.payload_changed)
         self.assertTrue(result.invalidated)
@@ -609,14 +608,10 @@ class ErrorAndRollbackTests(AdminGuardTestCase):
     def test_capture_failure_prevents_any_save(self):
         prompt = self.submitted(author=self.editor)
         before = refetch(prompt)
-        with mock.patch(
-            "prompts.admin.capture_prompt_review_edit_baseline",
-            side_effect=RuntimeError("boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.client.post(
-                    change_url(prompt), base_payload(before, author=self.editor, title="Should not save")
-                )
+        with mock.patch("prompts.admin.capture_prompt_review_edit_baseline", side_effect=RuntimeError("boom")), self.assertRaises(RuntimeError):
+            self.client.post(
+                change_url(prompt), base_payload(before, author=self.editor, title="Should not save")
+            )
         after = refetch(prompt)
         self.assertEqual(after.status, before.status)
         self.assertEqual(after.review_revision_id, before.review_revision_id)
@@ -632,20 +627,18 @@ class ErrorAndRollbackTests(AdminGuardTestCase):
         captured = {}
 
         def spy_capture(obj, **kwargs):
-            from prompts.review_edit_guard import capture_prompt_review_edit_baseline as real_capture
+            from prompts.review_edit_guard import (
+                capture_prompt_review_edit_baseline as real_capture,
+            )
 
             baseline = real_capture(obj, **kwargs)
             captured["baseline"] = baseline
             return baseline
 
-        with mock.patch("prompts.admin.capture_prompt_review_edit_baseline", side_effect=spy_capture):
-            with mock.patch.object(
-                django_admin.ModelAdmin, "save_model", side_effect=RuntimeError("save_model boom")
-            ):
-                with self.assertRaises(RuntimeError):
-                    self.client.post(
-                        change_url(prompt), base_payload(before, author=self.editor, title="Boom")
-                    )
+        with mock.patch("prompts.admin.capture_prompt_review_edit_baseline", side_effect=spy_capture), mock.patch.object(django_admin.ModelAdmin, "save_model", side_effect=RuntimeError("save_model boom")), self.assertRaises(RuntimeError):
+            self.client.post(
+                change_url(prompt), base_payload(before, author=self.editor, title="Boom")
+            )
 
         self.assertIn("baseline", captured)
         after = refetch(prompt)
@@ -656,13 +649,10 @@ class ErrorAndRollbackTests(AdminGuardTestCase):
         prompt = self.submitted(author=self.editor)
         before = refetch(prompt)
 
-        with mock.patch.object(
-            django_admin.ModelAdmin, "save_related", side_effect=RuntimeError("save_related boom")
-        ):
-            with self.assertRaises(RuntimeError):
-                self.client.post(
-                    change_url(prompt), base_payload(before, author=self.editor, title="Boom related")
-                )
+        with mock.patch.object(django_admin.ModelAdmin, "save_related", side_effect=RuntimeError("save_related boom")), self.assertRaises(RuntimeError):
+            self.client.post(
+                change_url(prompt), base_payload(before, author=self.editor, title="Boom related")
+            )
 
         after = refetch(prompt)
         self.assertEqual(after.status, before.status)
@@ -678,14 +668,10 @@ class ErrorAndRollbackTests(AdminGuardTestCase):
         before = refetch(prompt)
         revisions_before = Revision.objects.count()
 
-        with mock.patch(
-            "prompts.admin.invalidate_prompt_review_if_payload_changed",
-            side_effect=RuntimeError("compare boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.client.post(
-                    change_url(prompt), base_payload(before, author=self.editor, title="Compare boom")
-                )
+        with mock.patch("prompts.admin.invalidate_prompt_review_if_payload_changed", side_effect=RuntimeError("compare boom")), self.assertRaises(RuntimeError):
+            self.client.post(
+                change_url(prompt), base_payload(before, author=self.editor, title="Compare boom")
+            )
 
         after = refetch(prompt)
         self.assertEqual(after.status, before.status)
@@ -713,11 +699,10 @@ class MissingBaselineFailClosedTests(AdminGuardTestCase):
         fresh.set_current_language("en")
         form = mock.Mock(instance=fresh, save_m2m=mock.Mock(), fields=_CHANGEFORM_FORM_FIELDS)
 
-        with transaction.atomic():
-            with reversion.create_revision():
-                reversion.set_user(self.editor)
-                with self.assertRaises(_PromptReviewEditIntegrationError):
-                    ma.save_related(request, form, [], True)
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(self.editor)
+            with self.assertRaises(_PromptReviewEditIntegrationError):
+                ma.save_related(request, form, [], True)
 
         form.save_m2m.assert_not_called()
         after = refetch(prompt)
@@ -773,16 +758,15 @@ class RequestLifecycleCleanupTests(AdminGuardTestCase):
         request = RequestFactory().post("/")
         request.user = self.editor
 
-        with transaction.atomic():
-            with reversion.create_revision():
-                reversion.set_user(self.editor)
-                for prompt in (prompt_a, prompt_b):
-                    fresh = Prompt.objects.select_for_update().get(pk=prompt.pk)
-                    fresh.set_current_language("en")
-                    fresh.title = f"Changed {prompt.pk}"
-                    form = mock.Mock(instance=fresh, save_m2m=mock.Mock(), fields=_CHANGEFORM_FORM_FIELDS)
-                    ma.save_model(request, fresh, form, True)
-                    ma.save_related(request, form, [], True)
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(self.editor)
+            for prompt in (prompt_a, prompt_b):
+                fresh = Prompt.objects.select_for_update().get(pk=prompt.pk)
+                fresh.set_current_language("en")
+                fresh.title = f"Changed {prompt.pk}"
+                form = mock.Mock(instance=fresh, save_m2m=mock.Mock(), fields=_CHANGEFORM_FORM_FIELDS)
+                ma.save_model(request, fresh, form, True)
+                ma.save_related(request, form, [], True)
 
         self.assertEqual(getattr(request, self.ATTR), {})
         self.assertEqual(refetch(prompt_a).status, Workflow.STATUS_DRAFT)
@@ -902,14 +886,10 @@ class ReversionAndLogEntryTests(AdminGuardTestCase):
         versions_before = Version.objects.count()
         logs_before = LogEntry.objects.count()
 
-        with mock.patch(
-            "prompts.admin.invalidate_prompt_review_if_payload_changed",
-            side_effect=RuntimeError("boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                self.client.post(
-                    change_url(prompt), base_payload(refetch(prompt), author=self.editor, title="Boom")
-                )
+        with mock.patch("prompts.admin.invalidate_prompt_review_if_payload_changed", side_effect=RuntimeError("boom")), self.assertRaises(RuntimeError):
+            self.client.post(
+                change_url(prompt), base_payload(refetch(prompt), author=self.editor, title="Boom")
+            )
 
         self.assertEqual(Revision.objects.count(), revisions_before)
         self.assertEqual(Version.objects.count(), versions_before)
@@ -1065,12 +1045,12 @@ class _EnclosingFunctionCallVisitor(ast.NodeVisitor):
         self.stack: list[str] = []
         self.hits: list[tuple[str | None, str]] = []
 
-    def visit_FunctionDef(self, node):  # noqa: N802 - ast.NodeVisitor API
+    def visit_FunctionDef(self, node):
         self.stack.append(node.name)
         self.generic_visit(node)
         self.stack.pop()
 
-    def visit_Call(self, node):  # noqa: N802 - ast.NodeVisitor API
+    def visit_Call(self, node):
         name = _dotted_call_name(node)
         if name is None and isinstance(node.func, ast.Name):
             name = node.func.id
@@ -1185,19 +1165,17 @@ class StaticSafetyTests(TestCase):
                 self.stack: list[str] = []
                 self.offenders: list[tuple[str | None, str]] = []
 
-            def visit_FunctionDef(self, node):  # noqa: N802 - ast.NodeVisitor API
+            def visit_FunctionDef(self, node):
                 self.stack.append(node.name)
                 self.generic_visit(node)
                 self.stack.pop()
 
-            def visit_Assign(self, node):  # noqa: N802 - ast.NodeVisitor API
+            def visit_Assign(self, node):
                 enclosing = self.stack[-1] if self.stack else None
                 for target in node.targets:
                     if not isinstance(target, ast.Attribute):
                         continue
-                    if target.attr in always_forbidden:
-                        self.offenders.append((enclosing, target.attr))
-                    elif (
+                    if target.attr in always_forbidden or (
                         target.attr == "review_revision"
                         and enclosing not in review_revision_allowed_in
                     ):

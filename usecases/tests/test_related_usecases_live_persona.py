@@ -404,8 +404,9 @@ class GroupI_OtherRankingFactorsUnchangedTests(TestCase):
         self.author = make_user("uc-relpersona-factors-author")
 
     def _tool(self, slug):
-        from catalog.models import Tool
         from parler.utils.context import switch_language
+
+        from catalog.models import Tool
 
         tool = Tool.objects.create(slug=slug, website=f"https://example.com/{slug}")
         with switch_language(tool, "en"):
@@ -589,8 +590,8 @@ class GroupL_NoExtraQueriesTests(TestCase):
             publish(u, self.author)
 
     def test_query_count_does_not_scale_with_matching_candidate_count(self):
-        from django.test.utils import CaptureQueriesContext
         from django.db import connection
+        from django.test.utils import CaptureQueriesContext
 
         with CaptureQueriesContext(connection) as ctx:
             related_usecases(UseCase.objects.get(pk=self.source.pk), limit=6, language_code="en")

@@ -1,13 +1,18 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _, get_language
+from django.utils.translation import get_language
+from django.utils.translation import gettext_lazy as _
 from parler.models import TranslatableModel, TranslatedFields
 from parler.utils.context import switch_language
 from taggit.managers import TaggableManager
 
 from catalog.models import Tool
-from core.models.editorial import EditorialManager, EditorialQuerySet, EditorialWorkflowMixin
+from core.models.editorial import (
+    EditorialManager,
+    EditorialQuerySet,
+    EditorialWorkflowMixin,
+)
 
 
 class PromptQuerySet(EditorialQuerySet):
@@ -137,7 +142,7 @@ class Prompt(EditorialWorkflowMixin, TranslatableModel):
         if slug:
             return reverse("prompts:detail", kwargs={"slug": slug})
 
-        for lng in getattr(self, "get_available_languages", lambda: [])():
+        for lng in getattr(self, "get_available_languages", list)():
             curr = self._current_values_for(lng)
             slug = curr.get("public_slug") or curr.get("slug")
             if slug:

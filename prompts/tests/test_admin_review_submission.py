@@ -24,9 +24,9 @@ import ast
 import itertools
 from unittest import mock
 
+from django.contrib import admin as django_admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.contrib import admin as django_admin
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from reversion.models import Revision
@@ -682,9 +682,8 @@ class ErrorClassificationTests(PromptAdminSubmissionTestCase):
             side_effect=self._raise_code(
                 PromptReviewSubmissionErrorCode.ROOT_VERSION_MISSING
             ),
-        ):
-            with self.assertRaises(PromptReviewSubmissionError) as ctx:
-                self.post_submit([a], follow=False)
+        ), self.assertRaises(PromptReviewSubmissionError) as ctx:
+            self.post_submit([a], follow=False)
         self.assertEqual(ctx.exception.code, PromptReviewSubmissionErrorCode.ROOT_VERSION_MISSING)
 
     def test_payload_changed_integrity_error_is_reraised(self):
@@ -694,9 +693,8 @@ class ErrorClassificationTests(PromptAdminSubmissionTestCase):
             side_effect=self._raise_code(
                 PromptReviewSubmissionErrorCode.PAYLOAD_CHANGED_DURING_SUBMISSION
             ),
-        ):
-            with self.assertRaises(PromptReviewSubmissionError):
-                self.post_submit([a], follow=False)
+        ), self.assertRaises(PromptReviewSubmissionError):
+            self.post_submit([a], follow=False)
 
     def test_integrity_error_keeps_earlier_successes_committed(self):
         a = make_prompt(status=Workflow.STATUS_DRAFT, author=self.author)
@@ -710,9 +708,8 @@ class ErrorClassificationTests(PromptAdminSubmissionTestCase):
                 )
             return real_submit(prompt, **kwargs)
 
-        with mock.patch("prompts.admin.submit_prompt_for_review", side_effect=side_effect):
-            with self.assertRaises(PromptReviewSubmissionError):
-                self.post_submit([a, b], follow=False)
+        with mock.patch("prompts.admin.submit_prompt_for_review", side_effect=side_effect), self.assertRaises(PromptReviewSubmissionError):
+            self.post_submit([a, b], follow=False)
         # A was committed by its own C2A transaction before B raised
         self.assertEqual(refetch(a).status, Workflow.STATUS_REVIEW)
 
@@ -842,13 +839,13 @@ class NoDuplicatedLogicTests(TestCase):
 
         offenders = []
         for node in ast.walk(target):
-            if isinstance(node, ast.Call):
-                # transaction.atomic(...) / reversion.create_revision(...)
-                if isinstance(node.func, ast.Attribute) and node.func.attr in {
-                    "atomic",
-                    "create_revision",
-                }:
-                    offenders.append(node.func.attr)
+            # transaction.atomic(...) / reversion.create_revision(...)
+            if (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr in {"atomic", "create_revision"}
+            ):
+                offenders.append(node.func.attr)
             # `with ... as ...` context managers named atomic/create_revision
         self.assertEqual(offenders, [])
 
@@ -869,12 +866,13 @@ class NoDuplicatedLogicTests(TestCase):
 
 class OtherEditorialTypesUnchangedTests(TestCase):
     def test_other_admins_do_not_import_the_prompt_primitive(self):
+        import compare.admin
         import guides.admin
         import usecases.admin
-        import compare.admin
 
         for module in (guides.admin, usecases.admin, compare.admin):
-            source = open(module.__file__, encoding="utf-8").read()
+            with open(module.__file__, encoding="utf-8") as _f:
+                source = _f.read()
             with self.subTest(module=module.__name__):
                 self.assertNotIn("submit_prompt_for_review", source)
                 self.assertNotIn("review_submission", source)

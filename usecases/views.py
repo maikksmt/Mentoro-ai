@@ -1,20 +1,22 @@
 # usecases/views.py
-from typing import Any, Dict, Optional
+from typing import Any
 
 from django.db.models import Q, QuerySet
 from django.http import Http404
 from django.urls import reverse
-from django.utils.translation import gettext as _, get_language
-from django.views.generic import ListView, DetailView
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
+from django.views.generic import DetailView, ListView
 
 from core.models.editorial import EditorialWorkflowMixin
-from core.seo.utils import absolute_url, localized_alternates, seo_text, get_og_image
+from core.seo.utils import absolute_url, get_og_image, localized_alternates, seo_text
 from core.services import related_usecases, to_teaser_item
 from core.views import SeoMixin
+
 from .models import UseCase
 
 
-def _resolve_by_slug(qs: QuerySet[UseCase], slug: str, language_code: str) -> Optional[UseCase]:
+def _resolve_by_slug(qs: QuerySet[UseCase], slug: str, language_code: str) -> UseCase | None:
     """
     Beta 8.11: mirrors guides/views.py::_resolve_guide_by_slug() and the
     identical fix in prompts/views.py - once a use case has a live_i18n
@@ -57,7 +59,7 @@ def _resolve_by_slug(qs: QuerySet[UseCase], slug: str, language_code: str) -> Op
 
     compat_qs = (
         qs.filter(status=EditorialWorkflowMixin.STATUS_PUBLISHED)
-        .exclude(**{"live_i18n__has_key": language_code})
+        .exclude(live_i18n__has_key=language_code)
     )
     return (
         compat_qs.filter(
@@ -87,7 +89,7 @@ class UseCaseListView(SeoMixin, ListView):
             .order_by("-published_at", "-updated_at")
         )
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         ctx = super().get_context_data(**kwargs)
         lang = get_language()
         canonical = absolute_url(self.request.path)
@@ -131,7 +133,7 @@ class UseCaseDetailView(SeoMixin, DetailView):
         lang = get_language()
         return UseCase.objects.visible_in_language(lang).select_related("author", "reviewed_by").prefetch_related("tools")
 
-    def get_object(self, queryset: Optional[QuerySet[UseCase]] = None) -> UseCase:
+    def get_object(self, queryset: QuerySet[UseCase] | None = None) -> UseCase:
         slug = self.kwargs.get("slug")
         if not slug:
             raise Http404("Missing slug.")
@@ -142,7 +144,7 @@ class UseCaseDetailView(SeoMixin, DetailView):
             raise Http404("UseCase not found.")
         return obj
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         ctx = super().get_context_data(**kwargs)
         obj: UseCase = ctx["object"]
         lang = get_language()

@@ -4,7 +4,7 @@ import uuid
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.files.storage import default_storage
-from django.http import JsonResponse, HttpRequest
+from django.http import HttpRequest, JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from filer.models import Image as FilerImage
 from PIL import Image
@@ -37,7 +37,7 @@ def _detect_safe_extension(f) -> str | None:
         f.seek(0)
         image = Image.open(f)
         image.load()
-    except Exception:
+    except Exception:  # noqa: BLE001 - any failure to open/decode means "not a valid image"
         return None
     return ALLOWED_UPLOAD_FORMATS.get(image.format)
 

@@ -648,9 +648,8 @@ class PayloadConsistencyAfterSaveTests(ApprovalTestCase):
         with mock.patch(
             "prompts.review_approval.build_prompt_review_payload",
             side_effect=[payload_a, payload_b],
-        ):
-            with self.assertRaises(PromptReviewApprovalError) as ctx:
-                approve_prompt_review(refetch(prompt), actor=self.actor)
+        ), self.assertRaises(PromptReviewApprovalError) as ctx:
+            approve_prompt_review(refetch(prompt), actor=self.actor)
         self.assertEqual(
             ctx.exception.code, PromptReviewApprovalErrorCode.PAYLOAD_CHANGED_DURING_APPROVAL
         )
@@ -715,36 +714,31 @@ class RollbackMatrixTests(ApprovalTestCase):
         with mock.patch(
             "prompts.review_approval.build_prompt_review_payload",
             side_effect=RuntimeError("builder boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                approve_prompt_review(refetch(self.prompt), actor=self.actor)
+        ), self.assertRaises(RuntimeError):
+            approve_prompt_review(refetch(self.prompt), actor=self.actor)
         self._assert_full_rollback()
 
     def test_fingerprint_failure(self):
         with mock.patch(
             "prompts.review_approval.fingerprint_review_payload",
             side_effect=RuntimeError("fingerprint boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                approve_prompt_review(refetch(self.prompt), actor=self.actor)
+        ), self.assertRaises(RuntimeError):
+            approve_prompt_review(refetch(self.prompt), actor=self.actor)
         self._assert_full_rollback()
 
     def test_transition_failure(self):
-        with mock.patch.object(Prompt, "approve", side_effect=RuntimeError("fsm boom")):
-            with self.assertRaises(RuntimeError):
-                approve_prompt_review(refetch(self.prompt), actor=self.actor)
+        with mock.patch.object(Prompt, "approve", side_effect=RuntimeError("fsm boom")), self.assertRaises(RuntimeError):
+            approve_prompt_review(refetch(self.prompt), actor=self.actor)
         self._assert_full_rollback()
 
     def test_root_save_failure(self):
-        with mock.patch.object(Prompt, "save", side_effect=RuntimeError("save boom")):
-            with self.assertRaises(RuntimeError):
-                approve_prompt_review(refetch(self.prompt), actor=self.actor)
+        with mock.patch.object(Prompt, "save", side_effect=RuntimeError("save boom")), self.assertRaises(RuntimeError):
+            approve_prompt_review(refetch(self.prompt), actor=self.actor)
         self._assert_full_rollback()
 
     def test_reversion_metadata_failure(self):
-        with mock.patch("reversion.set_comment", side_effect=RuntimeError("reversion boom")):
-            with self.assertRaises(RuntimeError):
-                approve_prompt_review(refetch(self.prompt), actor=self.actor)
+        with mock.patch("reversion.set_comment", side_effect=RuntimeError("reversion boom")), self.assertRaises(RuntimeError):
+            approve_prompt_review(refetch(self.prompt), actor=self.actor)
         self._assert_full_rollback()
 
     def test_binding_missing_is_a_full_rollback(self):
@@ -771,9 +765,8 @@ class RollbackMatrixTests(ApprovalTestCase):
         with mock.patch(
             "prompts.review_approval.build_prompt_review_payload",
             side_effect=[payload_a, payload_b],
-        ):
-            with self.assertRaises(PromptReviewApprovalError) as ctx:
-                approve_prompt_review(refetch(self.prompt), actor=self.actor)
+        ), self.assertRaises(PromptReviewApprovalError) as ctx:
+            approve_prompt_review(refetch(self.prompt), actor=self.actor)
         self.assertEqual(
             ctx.exception.code, PromptReviewApprovalErrorCode.PAYLOAD_CHANGED_DURING_APPROVAL
         )
@@ -791,9 +784,8 @@ class ActiveReversionContextTests(ApprovalTestCase):
 
         prompt = submitted_prompt(actor=self.actor)
         revisions_before = Revision.objects.count()
-        with reversion.create_revision():
-            with self.assertRaises(PromptReviewApprovalError) as ctx:
-                approve_prompt_review(refetch(prompt), actor=self.actor)
+        with reversion.create_revision(), self.assertRaises(PromptReviewApprovalError) as ctx:
+            approve_prompt_review(refetch(prompt), actor=self.actor)
         self.assertEqual(
             ctx.exception.code, PromptReviewApprovalErrorCode.ACTIVE_REVERSION_CONTEXT
         )
@@ -806,9 +798,8 @@ class ActiveReversionContextTests(ApprovalTestCase):
 
         prompt = submitted_prompt(actor=self.actor)
         with reversion.create_revision():
-            with mock.patch("prompts.review_approval.build_prompt_review_payload") as payload_mock:
-                with self.assertRaises(PromptReviewApprovalError):
-                    approve_prompt_review(refetch(prompt), actor=self.actor)
+            with mock.patch("prompts.review_approval.build_prompt_review_payload") as payload_mock, self.assertRaises(PromptReviewApprovalError):
+                approve_prompt_review(refetch(prompt), actor=self.actor)
             payload_mock.assert_not_called()
 
 
@@ -1042,7 +1033,8 @@ class NoRuntimeActivationTests(TestCase):
         """
         import prompts.admin
 
-        source = open(prompts.admin.__file__, encoding="utf-8").read()
+        with open(prompts.admin.__file__, encoding="utf-8") as _f:
+            source = _f.read()
         self.assertIn("approve_prompt_review", source)
         self.assertIn("PromptReviewApprovalError", source)
 
@@ -1085,7 +1077,8 @@ class NoRuntimeActivationTests(TestCase):
         import usecases.admin
 
         for module in (guides.admin, usecases.admin, compare.admin):
-            source = open(module.__file__, encoding="utf-8").read()
+            with open(module.__file__, encoding="utf-8") as _f:
+                source = _f.read()
             with self.subTest(module=module.__name__):
                 self.assertNotIn("approve_prompt_review", source)
                 self.assertNotIn("review_approval", source)

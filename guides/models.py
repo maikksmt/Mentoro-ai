@@ -1,15 +1,25 @@
+import logging
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Case, IntegerField, Q, Value, When
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, get_language
+from django.utils.translation import get_language
+from django.utils.translation import gettext_lazy as _
 from parler.models import TranslatableModel, TranslatedFields
 from parler.utils.context import switch_language
 
 from catalog.models import Category, Tool
-from core.models.editorial import EditorialManager, EditorialQuerySet, EditorialWorkflowMixin, get_snapshot_field
+from core.models.editorial import (
+    EditorialManager,
+    EditorialQuerySet,
+    EditorialWorkflowMixin,
+    get_snapshot_field,
+)
+
+logger = logging.getLogger(__name__)
 
 
 class GuideQuerySet(EditorialQuerySet):
@@ -84,14 +94,14 @@ class Guide(EditorialWorkflowMixin, TranslatableModel):
     class Meta:
         verbose_name = _("Guide")
         verbose_name_plural = _("Guides")
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=["is_starter"],
                 condition=Q(is_starter=True, status=EditorialWorkflowMixin.STATUS_PUBLISHED),
                 name="guide_single_published_starter",
                 violation_error_message=_("Another guide is already published as the starter guide."),
             ),
-        ]
+        )
 
     def __str__(self):
         return self.safe_translation_getter("title", any_language=True) or f"Guide #{self.pk}"
@@ -171,7 +181,7 @@ class Guide(EditorialWorkflowMixin, TranslatableModel):
                     self.public_slug = self.slug
         try:
             sections = self.sections.all()
-        except Exception:
+        except Exception:  # noqa: BLE001 - a broken sections lookup must not block the snapshot
             sections = []
 
         for section in sections:
@@ -187,7 +197,7 @@ class Guide(EditorialWorkflowMixin, TranslatableModel):
             try:
                 section.save(update_fields=["live_i18n"])
             except Exception:
-                pass
+                logger.exception("Failed to save live_i18n snapshot for %r", section)
 
     @property
     def display_title(self):
@@ -214,12 +224,12 @@ class GuideSection(TranslatableModel):
     )
 
     class Meta:
-        ordering = ["order", "id"]
+        ordering = ("order", "id")
         verbose_name = _("Guide Section")
         verbose_name_plural = _("Guide Sections")
-        constraints = [
-            models.UniqueConstraint(fields=["guide", "order"], name="guidesection_order_unique_per_guide")
-        ]
+        constraints = (
+            models.UniqueConstraint(fields=["guide", "order"], name="guidesection_order_unique_per_guide"),
+        )
 
     def __str__(self):
         t = getattr(self, "title", "") or "(untitled)"
@@ -304,10 +314,10 @@ class GuideItem(TranslatableModel):
     )
 
     class Meta:
-        indexes = [
+        indexes = (
             models.Index(fields=["content_type", "object_id"]),
-        ]
-        ordering = ["order", "id"]
+        )
+        ordering = ("order", "id")
         verbose_name = _("Guide Item")
         verbose_name_plural = _("Guide Items")
 

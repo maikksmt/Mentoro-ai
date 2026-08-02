@@ -282,8 +282,9 @@ class GuardQueryContractTests(ToolDeletionGuardTestCase):
     """The protection check must be one bundled query, never one per tool."""
 
     def test_the_blocked_tool_lookup_is_a_single_query_for_many_tools(self):
-        from catalog.admin import ToolAdmin
         from django.contrib import admin as django_admin
+
+        from catalog.admin import ToolAdmin
 
         tools = [make_tool(f"d4c-q-{i}") for i in range(6)]
         comparison = make_comparison("d4c-q-cmp")
@@ -297,16 +298,18 @@ class GuardQueryContractTests(ToolDeletionGuardTestCase):
         self.assertEqual({t.pk for t in blocked}, {tools[0].pk, tools[3].pk})
 
     def test_an_empty_selection_runs_no_query_at_all(self):
-        from catalog.admin import ToolAdmin
         from django.contrib import admin as django_admin
+
+        from catalog.admin import ToolAdmin
 
         tool_admin = ToolAdmin(Tool, django_admin.site)
         with self.assertNumQueries(0):
             self.assertEqual(tool_admin.tools_blocked_by_comparison_entries([]), [])
 
     def test_each_blocked_tool_appears_only_once(self):
-        from catalog.admin import ToolAdmin
         from django.contrib import admin as django_admin
+
+        from catalog.admin import ToolAdmin
 
         tool = make_tool("d4c-q-multi")
         first = make_comparison("d4c-q-c1")

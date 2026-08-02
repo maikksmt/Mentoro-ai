@@ -25,7 +25,9 @@ Uses the project's existing executor pattern (``guides/tests/test_migrations``):
 migrate forward, then restore the app to HEAD in ``tearDown`` so later tests in
 the same process see the real schema.
 """
-from datetime import datetime, timezone as dt_timezone
+from datetime import datetime
+from datetime import timezone as dt_timezone
+from typing import Any, ClassVar
 
 from django.core.management import call_command
 from django.db import connection
@@ -57,7 +59,7 @@ class EditorialMigrationTestCase(TransactionTestCase):
     app = None
     model_name = None
     #: Extra kwargs the historical model needs on create() (Comparison only).
-    extra_defaults = {}
+    extra_defaults: ClassVar[dict[str, Any]] = {}
 
     def setUp(self):
         super().setUp()
@@ -159,7 +161,7 @@ class _SimpleEditorialMatrixMixin:
     ``bool(live_i18n)`` alone.
     """
 
-    SNAPSHOT = {"en": {"title": "Published title", "slug": "published-slug"}}
+    SNAPSHOT: ClassVar[dict[str, Any]] = {"en": {"title": "Published title", "slug": "published-slug"}}
 
     def seed(self, apps):
         return {
@@ -397,10 +399,10 @@ class ComparisonReviewBindingMigrationTests(EditorialMigrationTestCase):
 
     app = "compare"
     model_name = "Comparison"
-    extra_defaults = {"live_entries": None}
+    extra_defaults: ClassVar[dict[str, Any]] = {"live_entries": None}
 
-    SNAPSHOT = {"en": {"title": "Published title", "slug": "published-slug"}}
-    ENTRIES = [{"tool_id": 1, "position": 0, "translations": {"en": {"label": "A"}}}]
+    SNAPSHOT: ClassVar[dict[str, Any]] = {"en": {"title": "Published title", "slug": "published-slug"}}
+    ENTRIES: ClassVar[list[dict[str, Any]]] = [{"tool_id": 1, "position": 0, "translations": {"en": {"label": "A"}}}]
 
     def seed(self, apps):
         return {

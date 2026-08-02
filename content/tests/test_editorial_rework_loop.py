@@ -76,7 +76,7 @@ def make_object(model, *, author, languages=("en", "de")):
 def row_for(html, pk):
     """The ``<tr>`` of one object in a workspace table, or ``None``."""
     match = re.search(
-        r"<tr>(?:(?!</tr>).)*?value=\"%d\"(?:(?!</tr>).)*?</tr>" % pk, html, re.S
+        rf"<tr>(?:(?!</tr>).)*?value=\"{pk}\"(?:(?!</tr>).)*?</tr>", html, re.DOTALL
     )
     return match.group(0) if match else None
 
@@ -84,7 +84,7 @@ def row_for(html, pk):
 def buttons_in(fragment):
     return [
         re.sub(r"<[^>]+>", "", b).strip()
-        for b in re.findall(r"<button[^>]*>(.*?)</button>", fragment or "", re.S)
+        for b in re.findall(r"<button[^>]*>(.*?)</button>", fragment or "", re.DOTALL)
     ]
 
 

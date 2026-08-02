@@ -18,6 +18,7 @@ all when no such block is open; and any failure rolls the whole transaction
 back, including any partially-built revision.
 """
 import json
+from typing import Any, ClassVar
 from unittest import mock
 
 import reversion
@@ -141,13 +142,13 @@ def reversion_table_query_count(ctx):
 class InvalidationTestCase(TestCase):
     """Shared snapshot payload for "content preserved" checks."""
 
-    EXTRA_FIELDS = {
+    EXTRA_FIELDS: ClassVar[dict[type, dict[str, Any]]] = {
         Guide: {},
         Prompt: {},
         UseCase: {},
         Comparison: {},
     }
-    SNAPSHOT_WITH_CONTENT = {"en": {"title": "Published title", "slug": "published-slug"}}
+    SNAPSHOT_WITH_CONTENT: ClassVar[dict[str, Any]] = {"en": {"title": "Published title", "slug": "published-slug"}}
 
 
 # ======================================================================
@@ -870,9 +871,8 @@ class RollbackTests(TestCase):
         revisions_before = Revision.objects.count()
         versions_before = Version.objects.count()
 
-        with mock.patch.object(Guide, "save", side_effect=RuntimeError("boom")):
-            with self.assertRaises(RuntimeError):
-                invalidate_editorial_review_state(guide)
+        with mock.patch.object(Guide, "save", side_effect=RuntimeError("boom")), self.assertRaises(RuntimeError):
+            invalidate_editorial_review_state(guide)
 
         after = refetch(guide)
         self.assertEqual(after.status, before.status)
@@ -889,10 +889,8 @@ class RollbackTests(TestCase):
         revisions_before = Revision.objects.count()
         versions_before = Version.objects.count()
 
-        with self.assertRaises(RuntimeError):
-            with reversion.create_revision():
-                with mock.patch.object(Guide, "save", side_effect=RuntimeError("boom")):
-                    invalidate_editorial_review_state(guide)
+        with self.assertRaises(RuntimeError), reversion.create_revision(), mock.patch.object(Guide, "save", side_effect=RuntimeError("boom")):
+            invalidate_editorial_review_state(guide)
 
         after = refetch(guide)
         self.assertEqual(after.status, before.status)
@@ -907,9 +905,8 @@ class RollbackTests(TestCase):
         guide = Guide.objects.create(
             status=Workflow.STATUS_REVIEW, live_i18n={}, review_note="do not lose me"
         )
-        with mock.patch.object(Guide, "save", side_effect=RuntimeError("boom")):
-            with self.assertRaises(RuntimeError):
-                invalidate_editorial_review_state(guide)
+        with mock.patch.object(Guide, "save", side_effect=RuntimeError("boom")), self.assertRaises(RuntimeError):
+            invalidate_editorial_review_state(guide)
         self.assertEqual(refetch(guide).review_note, "do not lose me")
 
 
@@ -1002,19 +999,15 @@ class InputAndAliasErrorTests(TestCase):
 
     def test_early_errors_perform_zero_queries(self):
         guide = Guide.objects.create()
-        with self.assertNumQueries(0):
-            with self.assertRaises(ReviewInvalidationError):
-                invalidate_editorial_review_state(None)
-        with self.assertNumQueries(0):
-            with self.assertRaises(ReviewInvalidationError):
-                invalidate_editorial_review_state(Guide())
-        with self.assertNumQueries(0):
-            with self.assertRaises(ReviewInvalidationError):
-                invalidate_editorial_review_state(guide, using="bogus-alias")
-        with self.assertNumQueries(0):
-            with self.assertRaises(ReviewInvalidationError):
-                guide._state.db = "not-default"
-                invalidate_editorial_review_state(guide, using=DEFAULT_DB_ALIAS)
+        with self.assertNumQueries(0), self.assertRaises(ReviewInvalidationError):
+            invalidate_editorial_review_state(None)
+        with self.assertNumQueries(0), self.assertRaises(ReviewInvalidationError):
+            invalidate_editorial_review_state(Guide())
+        with self.assertNumQueries(0), self.assertRaises(ReviewInvalidationError):
+            invalidate_editorial_review_state(guide, using="bogus-alias")
+        with self.assertNumQueries(0), self.assertRaises(ReviewInvalidationError):
+            guide._state.db = "not-default"
+            invalidate_editorial_review_state(guide, using=DEFAULT_DB_ALIAS)
 
 
 # ======================================================================
@@ -1053,9 +1046,12 @@ class NoRuntimeActivationTests(TestCase):
                 continue
             tree = ast.parse(text)
             for node in ast.walk(tree):
-                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in symbols:
-                    if py_file.resolve() not in allowed_definition_files:
-                        offenders.append(f"definition of {node.name} in {py_file}")
+                if (
+                    isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                    and node.name in symbols
+                    and py_file.resolve() not in allowed_definition_files
+                ):
+                    offenders.append(f"definition of {node.name} in {py_file}")
 
         self.assertEqual(offenders, [])
 
@@ -1089,7 +1085,8 @@ class NoRuntimeActivationTests(TestCase):
         import usecases.admin
 
         for module in (guides.admin, usecases.admin, compare.admin):
-            source = open(module.__file__, encoding="utf-8").read()
+            with open(module.__file__, encoding="utf-8") as _f:
+                source = _f.read()
             for symbol in (
                 "invalidate_editorial_review_state",
                 "_invalidate_review_to_draft",
@@ -1098,7 +1095,8 @@ class NoRuntimeActivationTests(TestCase):
                 with self.subTest(module=module.__name__, symbol=symbol):
                     self.assertNotIn(symbol, source)
 
-        prompts_admin_source = open(prompts.admin.__file__, encoding="utf-8").read()
+        with open(prompts.admin.__file__, encoding="utf-8") as _f:
+            prompts_admin_source = _f.read()
         for symbol in ("_invalidate_review_to_draft", "_invalidate_review_to_rework"):
             with self.subTest(module="prompts.admin", symbol=symbol):
                 self.assertNotIn(symbol, prompts_admin_source)
@@ -1112,12 +1110,12 @@ class NoRuntimeActivationTests(TestCase):
         stack: list[str] = []
 
         class Visitor(ast.NodeVisitor):
-            def visit_FunctionDef(self, node):  # noqa: N802
+            def visit_FunctionDef(self, node):
                 stack.append(node.name)
                 self.generic_visit(node)
                 stack.pop()
 
-            def visit_Call(self, node):  # noqa: N802
+            def visit_Call(self, node):
                 func = node.func
                 name = func.id if isinstance(func, ast.Name) else getattr(func, "attr", None)
                 if name == "invalidate_editorial_review_state":

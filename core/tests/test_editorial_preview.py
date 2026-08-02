@@ -76,7 +76,7 @@ class ApplyEditorialPreviewHeadersTests(TestCase):
     ``admin_site.admin_view()``/``never_cache``.
     """
 
-    REQUIRED_DIRECTIVES = {"private", "no-store", "no-cache", "must-revalidate", "max-age=0"}
+    REQUIRED_DIRECTIVES = frozenset({"private", "no-store", "no-cache", "must-revalidate", "max-age=0"})
 
     def test_sets_robots_pragma_and_content_language(self):
         response = apply_editorial_preview_headers(HttpResponse("ok"), "de")

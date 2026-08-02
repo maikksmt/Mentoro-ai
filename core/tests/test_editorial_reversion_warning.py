@@ -46,13 +46,17 @@ _counter = itertools.count()
 
 #: The exact English source copy, as specified for D3C.
 ENGLISH_WARNING_FRAGMENTS = (
-    "Warning: Restoring this revision replaces the current editing state with "
-    "the selected version.",
+    (
+        "Warning: Restoring this revision replaces the current editing state with "
+        "the selected version."
+    ),
     "Changes made after this revision",
     "including translations, sections, and entries",
     "may be removed.",
-    "The workflow and publication status will also be restored to the state "
-    "stored in this revision.",
+    (
+        "The workflow and publication status will also be restored to the state "
+        "stored in this revision."
+    ),
 )
 
 #: Distinctive fragments of the German translation.

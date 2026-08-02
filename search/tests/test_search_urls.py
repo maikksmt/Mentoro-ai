@@ -13,9 +13,8 @@ class SearchUrlTests(SimpleTestCase):
 
     def test_reverse_produces_the_language_prefixed_path(self):
         for language_code, expected in (("en", "/en/search/"), ("de", "/de/search/")):
-            with self.subTest(language=language_code):
-                with translation.override(language_code):
-                    self.assertEqual(reverse("search:results"), expected)
+            with self.subTest(language=language_code), translation.override(language_code):
+                self.assertEqual(reverse("search:results"), expected)
 
     def test_paths_resolve_to_the_search_view(self):
         # resolve() builds the i18n_patterns prefix from the *active*

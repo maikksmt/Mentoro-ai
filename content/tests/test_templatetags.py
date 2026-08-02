@@ -1,6 +1,5 @@
-from django.template import Template, Context
-from django.test import SimpleTestCase
-from django.test import TestCase
+from django.template import Context, Template
+from django.test import SimpleTestCase, TestCase
 from django.utils.safestring import SafeString
 
 from compare.templatetags.get_item import get_item

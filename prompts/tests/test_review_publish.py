@@ -23,12 +23,12 @@ partial publish and no ``published`` row without a complete live projection.
 """
 import itertools
 
+import reversion
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db import DEFAULT_DB_ALIAS
 from django.test import TestCase
 from django.utils.translation import override as override_language
-import reversion
 from reversion.models import Revision, Version
 
 from catalog.models import Tool
@@ -658,9 +658,8 @@ class PublishInfrastructureFailureTests(PublishTestCase):
         with mock.patch(
             "prompts.review_publish._resolve_root_version",
             side_effect=RuntimeError("root version boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                publish_prompt_review(refetch(prompt), actor=self.author)
+        ), self.assertRaises(RuntimeError):
+            publish_prompt_review(refetch(prompt), actor=self.author)
 
         self.assert_unchanged(
             prompt, before, revisions_before=revisions_before, versions_before=versions_before
@@ -677,9 +676,8 @@ class PublishInfrastructureFailureTests(PublishTestCase):
         with mock.patch(
             "prompts.review_publish._store_publish_marker",
             side_effect=RuntimeError("marker boom"),
-        ):
-            with self.assertRaises(RuntimeError):
-                publish_prompt_review(refetch(prompt), actor=self.author)
+        ), self.assertRaises(RuntimeError):
+            publish_prompt_review(refetch(prompt), actor=self.author)
 
         self.assert_unchanged(
             prompt, before, revisions_before=revisions_before, versions_before=versions_before
@@ -698,9 +696,8 @@ class PublishInfrastructureFailureTests(PublishTestCase):
             side_effect=PromptReviewPublishError(
                 PromptReviewPublishErrorCode.PUBLISH_POSTCONDITION_FAILED, "forced"
             ),
-        ):
-            with self.assertRaises(PromptReviewPublishError) as ctx:
-                publish_prompt_review(refetch(prompt), actor=self.author)
+        ), self.assertRaises(PromptReviewPublishError) as ctx:
+            publish_prompt_review(refetch(prompt), actor=self.author)
         self.assertEqual(
             ctx.exception.code, PromptReviewPublishErrorCode.PUBLISH_POSTCONDITION_FAILED
         )
@@ -718,9 +715,8 @@ class PublishInfrastructureFailureTests(PublishTestCase):
         prompt = self.approved()
         before = self.field_snapshot(prompt)
 
-        with mock.patch("prompts.review_publish.post_revision_commit.connect"):
-            with self.assertRaises(PromptReviewPublishError) as ctx:
-                publish_prompt_review(refetch(prompt), actor=self.author)
+        with mock.patch("prompts.review_publish.post_revision_commit.connect"), self.assertRaises(PromptReviewPublishError) as ctx:
+            publish_prompt_review(refetch(prompt), actor=self.author)
         self.assertEqual(
             ctx.exception.code, PromptReviewPublishErrorCode.REVISION_NOT_CAPTURED
         )
@@ -737,9 +733,8 @@ class PublishInfrastructureFailureTests(PublishTestCase):
             side_effect=PromptReviewPublishError(
                 PromptReviewPublishErrorCode.MULTIPLE_REVISIONS_CAPTURED, "forced"
             ),
-        ):
-            with self.assertRaises(PromptReviewPublishError) as ctx:
-                publish_prompt_review(refetch(prompt), actor=self.author)
+        ), self.assertRaises(PromptReviewPublishError) as ctx:
+            publish_prompt_review(refetch(prompt), actor=self.author)
         self.assertEqual(
             ctx.exception.code,
             PromptReviewPublishErrorCode.MULTIPLE_REVISIONS_CAPTURED,
@@ -761,9 +756,8 @@ class PublishInfrastructureFailureTests(PublishTestCase):
 
         with mock.patch(
             "prompts.review_publish._capture_publish_revision", return_value=empty
-        ):
-            with self.assertRaises(PromptReviewPublishError) as ctx:
-                publish_prompt_review(refetch(prompt), actor=self.author)
+        ), self.assertRaises(PromptReviewPublishError) as ctx:
+            publish_prompt_review(refetch(prompt), actor=self.author)
         self.assertEqual(
             ctx.exception.code, PromptReviewPublishErrorCode.ROOT_VERSION_MISSING
         )
@@ -785,9 +779,8 @@ class PublishInfrastructureFailureTests(PublishTestCase):
             side_effect=PromptReviewPublishError(
                 PromptReviewPublishErrorCode.ROOT_VERSION_AMBIGUOUS, "forced"
             ),
-        ):
-            with self.assertRaises(PromptReviewPublishError) as ctx:
-                publish_prompt_review(refetch(prompt), actor=self.author)
+        ), self.assertRaises(PromptReviewPublishError) as ctx:
+            publish_prompt_review(refetch(prompt), actor=self.author)
         self.assertEqual(
             ctx.exception.code, PromptReviewPublishErrorCode.ROOT_VERSION_AMBIGUOUS
         )
@@ -796,9 +789,8 @@ class PublishInfrastructureFailureTests(PublishTestCase):
     def test_an_already_open_reversion_context_is_rejected(self):
         prompt = self.approved()
         before = self.field_snapshot(prompt)
-        with reversion.create_revision():
-            with self.assertRaises(PromptReviewPublishError) as ctx:
-                publish_prompt_review(refetch(prompt), actor=self.author)
+        with reversion.create_revision(), self.assertRaises(PromptReviewPublishError) as ctx:
+            publish_prompt_review(refetch(prompt), actor=self.author)
         self.assertEqual(
             ctx.exception.code, PromptReviewPublishErrorCode.ACTIVE_REVERSION_CONTEXT
         )

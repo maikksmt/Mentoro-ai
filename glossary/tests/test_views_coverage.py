@@ -40,16 +40,16 @@ class TestCase(DjangoTestCase):
 
 
 def make_term(term, slug, lang, *, category="", long_definition="", translation_group=None):
-    kwargs = dict(
-        term=term,
-        slug=slug,
-        short_definition=f"Short: {term}",
-        long_definition=long_definition,
-        category=category,
-        language=lang,
-        created_at=timezone.now(),
-        updated_at=timezone.now(),
-    )
+    kwargs = {
+        "term": term,
+        "slug": slug,
+        "short_definition": f"Short: {term}",
+        "long_definition": long_definition,
+        "category": category,
+        "language": lang,
+        "created_at": timezone.now(),
+        "updated_at": timezone.now(),
+    }
     if translation_group is not None:
         kwargs["translation_group"] = translation_group
     return GlossaryTerm.objects.create(**kwargs)

@@ -20,7 +20,8 @@ classes below pin the replacement: a single query joined against
 ``content_type__model`` filter fields, independent of cache state.
 """
 import math
-from datetime import datetime, timezone as dt_timezone
+from datetime import datetime
+from datetime import timezone as dt_timezone
 from decimal import Decimal
 from pathlib import Path
 from uuid import uuid4
@@ -264,9 +265,8 @@ class FingerprintInvalidPayloadTests(TestCase):
         self._assert_rejected({"en": {2: "a"}}, ReviewFingerprintErrorCode.NON_STRING_DICT_KEY)
 
     def test_rejection_raises_before_any_database_access(self):
-        with self.assertNumQueries(0):
-            with self.assertRaises(ReviewPayloadFingerprintError):
-                fingerprint_review_payload({"a": {1, 2}})
+        with self.assertNumQueries(0), self.assertRaises(ReviewPayloadFingerprintError):
+            fingerprint_review_payload({"a": {1, 2}})
 
     def test_error_is_a_value_error_with_a_stable_code_not_just_a_message(self):
         try:
@@ -1004,9 +1004,8 @@ class LiveSnapshotDetectionUnsupportedTypeTests(TestCase):
 
     def test_unsupported_type_check_performs_no_query(self):
         tool = Tool.objects.create(slug="b2b1-unsupported-query")
-        with self.assertNumQueries(0):
-            with self.assertRaises(TypeError):
-                has_provable_live_snapshot(tool)
+        with self.assertNumQueries(0), self.assertRaises(TypeError):
+            has_provable_live_snapshot(tool)
 
 
 # ======================================================================

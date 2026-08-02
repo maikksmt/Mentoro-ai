@@ -4,8 +4,8 @@ from django.urls.exceptions import Resolver404
 from django.utils import timezone
 from rest_framework.test import APIRequestFactory
 
-from catalog.models import Tool
 from api.views import ToolSerializer, ToolViewSet
+from catalog.models import Tool
 
 factory = APIRequestFactory()
 
@@ -32,7 +32,7 @@ class ToolViewSetWiringTests(TestCase):
         self.assertIs(ToolSerializer.Meta.model, Tool)
         self.assertEqual(
             ToolSerializer.Meta.fields,
-            ["id", "name", "slug", "short_description", "free_tier", "rating"],
+            ("id", "name", "slug", "short_description", "free_tier", "rating"),
         )
 
 

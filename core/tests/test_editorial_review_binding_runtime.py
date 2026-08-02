@@ -14,6 +14,8 @@ cleanup, because that is where B2A could actually take content offline:
 downgraded rows must keep serving their published snapshot, and rows that were
 never provably published must stay invisible.
 """
+from typing import Any, ClassVar
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.test import TestCase
@@ -306,7 +308,7 @@ class DowngradedVisibilityTests(ReviewBindingRuntimeTestCase):
     states behave correctly.
     """
 
-    SNAPSHOT_EN = {
+    SNAPSHOT_EN: ClassVar[dict[str, Any]] = {
         "en": {
             "title": "Published title",
             "slug": "b2a-live-slug",

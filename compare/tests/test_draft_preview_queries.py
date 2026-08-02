@@ -56,7 +56,6 @@ from catalog.models import Tool
 from compare.admin import build_comparison_draft_preview_context
 from compare.models import Comparison, ComparisonToolEntry
 from compare.presentation import draft_tool_entries
-from core.services import get_public_inventory
 from compare.tests.draft_preview_fixtures import (
     add_entry,
     make_draft_comparison,
@@ -64,6 +63,7 @@ from compare.tests.draft_preview_fixtures import (
     make_user,
     publish,
 )
+from core.services import get_public_inventory
 
 PAST = timezone.now() - timedelta(days=1)
 FUTURE = timezone.now() + timedelta(days=30)

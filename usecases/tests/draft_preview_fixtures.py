@@ -19,7 +19,9 @@ from usecases.tests.live_visibility_fixtures import (  # noqa: F401
     archive,
     make_usecase,
     publish,
-    save_draft_edit as save_translation_edit,
+)
+from usecases.tests.live_visibility_fixtures import (
+    save_draft_edit as save_translation_edit,  # noqa: F401
 )
 
 User = get_user_model()

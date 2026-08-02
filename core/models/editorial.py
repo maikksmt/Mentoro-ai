@@ -1,11 +1,15 @@
+import logging
+
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import get_language
-from django_fsm import transition, FSMField
+from django_fsm import FSMField, transition
 from parler.managers import TranslatableManager, TranslatableQuerySet
 from parler.utils.context import switch_language
+
+logger = logging.getLogger(__name__)
 
 
 def get_snapshot_field(
@@ -117,7 +121,7 @@ class EditorialQuerySet(TranslatableQuerySet):
           Excluded, with no cross-language fallback.
         """
         return (
-            Q(**{"live_i18n__has_key": language_code})
+            Q(live_i18n__has_key=language_code)
             | Q(live_i18n={})
             | Q(live_i18n__isnull=True)
         )
@@ -167,7 +171,6 @@ class EditorialManager(TranslatableManager.from_queryset(EditorialQuerySet)):  #
     """
     Translatable manager that exposes EditorialQuerySet; centralizes editorial filters for all content models.
     """
-    pass
 
 
 class PublishedOnlyManager(EditorialManager):
@@ -200,14 +203,14 @@ class EditorialWorkflowMixin(models.Model):
     STATUS_PUBLISHED = "published"
     STATUS_ARCHIVED = "archived"
 
-    STATUS_CHOICES = [
+    STATUS_CHOICES = (
         (STATUS_DRAFT, "Draft"),
         (STATUS_REVIEW, "Review"),
         (STATUS_REWORK, "Rework"),
         (STATUS_APPROVED, "Approved"),
         (STATUS_PUBLISHED, "Published"),
         (STATUS_ARCHIVED, "Archived"),
-    ]
+    )
     LIVE_SNAPSHOT_FIELDS = ("slug", "public_slug", "title")
     status = FSMField(default=STATUS_DRAFT, choices=STATUS_CHOICES, protected=True)
     author = models.ForeignKey(
@@ -322,7 +325,7 @@ class EditorialWorkflowMixin(models.Model):
         try:
             self.save(update_fields=["live_i18n"])
         except Exception:
-            pass
+            logger.exception("Failed to save live_i18n snapshot for %r", self)
 
     def get_live_value(self, field: str, language: str | None = None) -> str | None:
         """
@@ -344,10 +347,7 @@ class EditorialWorkflowMixin(models.Model):
     def move_to_review(self, *, by, note: str | None = None):
         self.submitted_for_review_at = timezone.now()
         if note:
-            try:
-                self.review_note = note
-            except Exception:
-                pass
+            self.review_note = note
 
     @transition(field=status, source=STATUS_REVIEW, target=STATUS_REWORK)
     def request_rework(self, *, by, note=""):
@@ -375,13 +375,12 @@ class EditorialWorkflowMixin(models.Model):
         try:
             self.on_after_publish()
         except Exception:
-            pass
+            logger.exception("on_after_publish() hook failed for %r", self)
 
     def on_after_publish(self) -> None:
         """
         Post-publish extension point for subclasses (e.g., cache busting, search indexing).
         """
-        pass
 
     @transition(field=status, source="*", target=STATUS_ARCHIVED)
     def archive(self, *, by, note=""):
@@ -448,4 +447,3 @@ class EditorialWorkflowMixin(models.Model):
     def _invalidate_review_to_draft(self):
         """FSM-only state change for an automatically invalidated
         review/approved row. See the section docstring above."""
-        pass

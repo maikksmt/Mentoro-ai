@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from compare.models import Comparison
 from content.decorators import require_group
-from content.forms_editorial import REWORK_STATUS, SubmitToReviewForm, ReviewUpdateForm
+from content.forms_editorial import REWORK_STATUS, ReviewUpdateForm, SubmitToReviewForm
 from core.editorial_actions import (
     EditorialAction,
     EditorialActionError,

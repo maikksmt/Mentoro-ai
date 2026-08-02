@@ -23,12 +23,12 @@ Every relevant staff role is exercised through the real admin change-form
 request (not by calling the ModelAdmin methods directly), because the
 vulnerability only exists on that real rendering path.
 """
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import translation
-from django.conf import settings
 
 from compare.models import Comparison
 from core.models.editorial import EditorialWorkflowMixin
